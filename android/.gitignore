@@ -1,0 +1,23 @@
+# OSX
+.DS_Store
+
+# Android/IntelliJ
+build/
+.idea
+.gradle
+local.properties
+*.iml
+*.hprof
+.cxx/
+
+# Bundle artifacts
+*.jsbundle
+
+# Исключаем только временные файлы, а не всю папку android
+/android/build
+/android/.gradle
+/android/local.properties
+
+# Исключаем только временные файлы, а не всю папку ios
+/ios/build
+/ios/Pods

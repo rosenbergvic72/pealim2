@@ -1,0 +1,138 @@
+[
+    {
+        "id": 1,
+        "sentence": {
+          "russian": "Я читал книгу.",
+          "hebrew": [
+            "אני ___ ספר.",
+            "קראתי ספר."
+          ]
+        },
+        "verbs": [
+          { "text": "קראתי", "infinitive": "לקרוא", "isCorrect": true },
+          { "text": "קניתי", "infinitive": "לקנות","isCorrect": false },
+          { "text": "מצאתי", "infinitive": "למצוא", "isCorrect": false },
+          { "text": "עשיתי", "infinitive": "לעשות","isCorrect": false }
+        ],
+        "verbPosition": 2
+      },
+    {
+      "id": 2,
+      "sentence": {
+        "russian": "Он работал в кафе.",
+        "hebrew": [
+          "הוא ___ בבית קפה.",
+          "עבד בבית קפה."
+        ]
+      },
+      "verbs": [
+        { "text": "עבד", "infinitive": "לקרוא", "isCorrect": true },
+        { "text": "ישן", "infinitive": "לקרוא", "isCorrect": false },
+        { "text": "נסע", "infinitive": "לקרוא", "isCorrect": false },
+        { "text": "שר", "infinitive": "לקרוא", "isCorrect": false }
+      ],
+      "verbPosition": 2
+    },
+    {
+      "id": 3,
+      "sentence": {
+        "russian": "Мы готовили обед.",
+        "hebrew": [
+          "אנו ___ ארוחת צהריים.",
+          "הכנו ארוחת צהריים."
+        ]
+      },
+      "verbs": [
+        { "text": "הכנו", "infinitive": "לקרוא", "isCorrect": true },
+        { "text": "למדנו", "infinitive": "לקרוא", "isCorrect": false },
+        { "text": "שיחקנו", "infinitive": "לקרוא", "isCorrect": false },
+        { "text": "בנינו", "infinitive": "לקרוא", "isCorrect": false }
+      ],
+      "verbPosition": 2
+    },
+    {
+      "id": 4,
+      "sentence": {
+        "russian": "Ты видел этот фильм?",
+        "hebrew": [
+          "ראית ___ את הסרט הזה?",
+          "ראית את הסרט הזה?"
+        ]
+      },
+      "verbs": [
+        { "text": "את הסרט", "infinitive": "לקרוא", "isCorrect": true },
+        { "text": "את הספר", "infinitive": "לקרוא", "isCorrect": false },
+        { "text": "את התמונה", "infinitive": "לקרוא", "isCorrect": false },
+        { "text": "את המוזיקה", "infinitive": "לקרוא", "isCorrect": false }
+      ],
+      "verbPosition": 2
+    },
+    {
+      "id": 5,
+      "sentence": {
+        "russian": "Они посетили музей.",
+        "hebrew": [
+          "הם ___ במוזיאון.",
+          "ביקרו במוזיאון."
+        ]
+      },
+      "verbs": [
+        { "text": "ביקרו", "infinitive": "לקרוא", "isCorrect": true },
+        { "text": "שיחקו", "infinitive": "לקרוא", "isCorrect": false },
+        { "text": "קנו", "infinitive": "לקרוא", "isCorrect": false },
+        { "text": "נענעו", "infinitive": "לקרוא", "isCorrect": false }
+      ],
+      "verbPosition": 2
+    },
+    {
+      "id": 6,
+      "sentence": {
+        "russian": "Я написал письмо.",
+        "hebrew": [
+          "כתבתי ___.",
+          "כתבתי מכתב."
+        ]
+      },
+      "verbs": [
+        { "text": "מכתב", "infinitive": "לקרוא", "isCorrect": true },
+        { "text": "דבר", "infinitive": "לקרוא", "isCorrect": false },
+        { "text": "ספר", "infinitive": "לקרוא", "isCorrect": false },
+        { "text": "שיר", "infinitive": "לקרוא", "isCorrect": false }
+      ],
+      "verbPosition": 2
+    },
+    {
+      "id": 7,
+      "sentence": {
+        "russian": "Она купила новое платье.",
+        "hebrew": [
+          "היא ___ שמלה חדשה.",
+          "קנתה שמלה חדשה."
+        ]
+      },
+      "verbs": [
+        { "text": "קנתה", "infinitive": "לקרוא", "isCorrect": true },
+        { "text": "שיחקה", "infinitive": "לקרוא", "isCorrect": false },
+        { "text": "שתתה", "infinitive": "לקרוא", "isCorrect": false },
+        { "text": "בנתה", "infinitive": "לקרוא", "isCorrect": false }
+      ],
+      "verbPosition": 2
+    },
+    {
+      "id": 8,
+      "sentence": {
+        "russian": "Он выучил новое слово.",
+        "hebrew": [
+          "הוא ___ מילה חדשה.",
+          "למד מילה חדשה."
+        ]
+      },
+      "verbs": [
+        { "text": "למד", "infinitive": "לקרוא", "isCorrect": true },
+        { "text": "הביא", "infinitive": "לקרוא", "isCorrect": false },
+        { "text": "קרא", "infinitive": "לקרוא", "isCorrect": false },
+        { "text": "הביט", "infinitive": "לקרוא", "isCorrect": false }
+      ],
+      "verbPosition": 2
+    }
+  ]

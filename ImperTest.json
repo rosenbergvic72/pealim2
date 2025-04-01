@@ -1,0 +1,18 @@
+[
+    {"Imper":"Люби!","hebrewVerb":"לאהוב","root":"א-ה-ב","gender":"man","transliteration":"le'ehov","audioFile":"leehov.mp3","translationOptions":["אהב!", "אהבי!", "אהבו!", "אהבה!"],"correctTranslationIndex":0,"picture":["man.png"],"mp3":"ehav!"},
+    {"Imper":"Люби!","hebrewVerb":"לאהוב","root":"א-ה-ב","gender":"woman","transliteration":"le'ehov","audioFile":"leehov.mp3","translationOptions":["אֱהַב!", "אֶהֱבִי!", "אֶהֱבוּ!"],"correctTranslationIndex":1,"picture":["woman.png"],"mp3":"ehevi!"},
+    {"Imper":"Любите!","hebrewVerb":"לאהוב","root":"א-ה-ב","gender":"people","transliteration":"le'ehov","audioFile":"leehov.mp3","translationOptions":["אֱהַב!", "אֶהֱבִי!", "אֶהֱבוּ!"],"correctTranslationIndex":2,"picture":["people.png", "men.png", "women.png"],"mp3":"ehevu!"},
+    {"Imper":"Ешь!","hebrewVerb":"לאכול","root":"א-כ-ל","gender":"man","transliteration":"le'echol","audioFile":"leechol.mp3","translationOptions":["אֱכֹל!", "אִכְלִי!", "אִכְלוּ!"],"correctTranslationIndex":0,"picture":["man.png"],"mp3":"echol!"},
+    {"Imper":"Ешь!","hebrewVerb":"לאכול","root":"א-כ-ל","gender":"woman","transliteration":"le'echol","audioFile":"leechol.mp3","translationOptions":["אֱכֹל!", "אִכְלִי!", "אִכְלוּ!"],"correctTranslationIndex":1,"picture":["woman.png"],"mp3":"ichli!"},
+    {"Imper":"Ешьте!","hebrewVerb":"לאכול","root":"א-כ-ל","gender":"people","transliteration":"le'echol","audioFile":"leechol.mp3","translationOptions":["אֱכֹל!", "אִכְלִי!", "אִכְלוּ!"],"correctTranslationIndex":2,"picture":["people.png", "men.png", "women.png"],"mp3":"ichlu!"},
+    {"Imper":"Говори!","hebrewVerb":"לדבר","root":"ד-ב-ר","gender":"man","transliteration":"ledaber","audioFile":"ledaber.mp3","translationOptions":["דַּבֵּר!", "דַּבְּרִי!", "דַּבְּרוּ!"],"correctTranslationIndex":0,"picture":["man.png"],"mp3":"daber!"},
+    {"Imper":"Говори!","hebrewVerb":"לדבר","root":"ד-ב-ר","gender":"woman","transliteration":"ledaber","audioFile":"ledaber.mp3","translationOptions":["דַּבֵּר!", "דַּבְּרִי!", "דַּבְּרוּ!"],"correctTranslationIndex":1,"picture":["woman.png"],"mp3":"dabri!"},
+    {"Imper":"Говорите!","hebrewVerb":"לדבר","root":"ד-ב-ר","gender":"people","transliteration":"ledaber","audioFile":"ledaber.mp3","translationOptions":["דַּבֵּר!", "דַּבְּרִי!", "דַּבְּרוּ!"],"correctTranslationIndex":2,"picture":["people.png", "men.png", "women.png"],"mp3":"dabru!"},
+    {"Imper":"Знай!","hebrewVerb":"לדעת","root":"ד-ע-ת","gender":"man","transliteration":"lada'at","audioFile":"ladaat.mp3","translationOptions":["דַּע!","דְּעִי", "דְּעוּ!"],"correctTranslationIndex":0,"picture":["man.png"],"mp3":"da!"},
+    {"Imper":"Знай!","hebrewVerb":"לדעת","root":"ד-ע-ת","gender":"woman","transliteration":"lada'at","audioFile":"ladaat.mp3","translationOptions":["דַּע!", "!דְּעִי!", "דְּעוּ!"],"correctTranslationIndex":1,"picture":["woman.png"],"mp3":"de'i!"},
+    {"Imper":"Знайте!","hebrewVerb":"לדעת","root":"ד-ע-ת","gender":"people","transliteration":"lada'at","audioFile":"ladaat.mp3","translationOptions":["דַּע!", "דְּעִי!", "דְּעוּ!"],"correctTranslationIndex":2,"picture":["people.png", "men.png", "women.png"],"mp3":"de'u!"}
+    
+    
+    
+    
+    ] 

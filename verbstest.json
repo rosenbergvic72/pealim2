@@ -1,0 +1,45 @@
+[
+    {
+        "hebrewVerb": "לאבד",
+        "root": "א-ב-ד",
+        "binyan": "PI'EL",
+        "transliteration": "le'abed",
+        "audioFile": "leabed.mp3",
+        "translationOptions": [
+            "Быть потерянным",
+            "Быть найденным",
+            "Быть позванным",
+            "Быть вспомненным"
+        ],
+        "correctTranslationIndex": 0
+    },
+    {
+        "hebrewVerb": "לאהוב",
+        "root": "א-ה-ב",
+        "binyan": "PA'AL",
+        "transliteration": "le'ehov",
+        "audioFile": "leehov.mp3",
+        "translationOptions": [
+            "Быть любимым",
+            "Быть забытым",
+            "Быть оцененным",
+            "Быть уважаемым"
+        ],
+        "correctTranslationIndex": 0
+    },
+    
+    {
+        "hebrewVerb": "לזוז",
+        "root": "ז-ו-ז",
+        "binyan": "Hi'il",
+        "transliteration": "lazuz",
+        "audioFile": "lazuz.mp3",
+        "translationOptions": [
+            "Быть движимым",
+            "Быть улыбающимся",
+            "Быть работающим",
+            "Быть летящим"
+        ],
+        "correctTranslationIndex": 0
+    }
+]
