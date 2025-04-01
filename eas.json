@@ -16,10 +16,8 @@
     "production": {
       "android": {
         "buildType": "apk"
-      },
-      "cache": {
-        "clear": true 
       }
+      
     }
   },
   "submit": {
