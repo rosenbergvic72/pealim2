@@ -11,13 +11,18 @@ const TaskDescriptionModal6 = ({ visible, onToggle }) => {
     >
       <View style={styles.centeredView}>
         <View style={styles.modalView}>
-          <Text style={styles.modalText}maxFontSizeMultiplier={1.2}>В этом упражнении вы работаете с более чем 250 часто употребляемыми глаголами на иврите. Задача проста: для заданного глагола на русском нужно выбрать правильный перевод из четырёх предложенных вариантов на иврите.
+        <Text style={styles.modalTitle} maxFontSizeMultiplier={1.2}>
+        ОПИСАНИЕ ЗАДАНИЯ 2
+      </Text>
+          <Text style={styles.modalText}maxFontSizeMultiplier={1.2}>В этом упражнении вы сможете запомнить и повторить около 300 самых употребляемых глаголов иврита. Вам будет показан инфинитив глагола на русском языке, а также четыре варианта его перевода на иврит. Ваша задача — выбрать правильный вариант.
+
+После ответа вам будет предложено простое озвученное предложение с этим глаголом на иврите, что поможет лучше запомнить его использование и произношение.
 
 
 
 </Text>
 
-<Text style={styles.modalText}maxFontSizeMultiplier={1.2}>Это упражнение помогает лучше понимать иврит, учиться правильно переводить слова и фразы. Регулярные занятия улучшают ваше чутьё на язык и словарный запас, что важно для общения на иврите.
+<Text style={styles.modalText}maxFontSizeMultiplier={1.2}>Это упражнение способствует расширению словарного запаса, улучшению навыков перевода и восприятия ивритской речи на слух.
 
 
 
@@ -38,11 +43,15 @@ const TaskDescriptionModal6 = ({ visible, onToggle }) => {
 const styles = StyleSheet.create({
   centeredView: {
     flex: 1,
+    backgroundColor: "rgba(0,0,0,0.5)",
     justifyContent: "center",
     alignItems: "center",
-    marginTop: 22
+    paddingHorizontal: 5,
+    paddingTop: 10, // отступ от статус-бара
+    paddingBottom: 10,
   },
   modalView: {
+    maxHeight: "90%",
     margin: 24,
     backgroundColor: '#FFFDEF',
     borderRadius: 10,
@@ -57,12 +66,19 @@ const styles = StyleSheet.create({
     shadowRadius: 3.84,
     elevation: 5
   },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    textAlign: "center",
+    marginBottom: 12,
+  },
   modalText: {
+    fontSize: 14,
     marginBottom: 12,
     textAlign: "center"
   },
   button: {
-    backgroundColor: "#2196F3",
+    backgroundColor: "#2D4769",
     borderRadius: 10,
     padding: 14,
     elevation: 2
@@ -70,7 +86,8 @@ const styles = StyleSheet.create({
   textStyle: {
     color: "white",
     fontWeight: "bold",
-    textAlign: "center"
+    textAlign: "center",
+    fontSize: 16,
   }
 });
 

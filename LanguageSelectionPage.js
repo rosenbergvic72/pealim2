@@ -1,119 +1,109 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { View, TouchableOpacity, Text, StyleSheet, Animated, Vibration } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import LottieView from 'lottie-react-native';
+import { useFocusEffect } from '@react-navigation/native';
+
+let didAutoNavigate = false;
 
 const LanguageSelectionPage = ({ navigation }) => {
+  const [firstLoad, setFirstLoad] = useState(true);
+  const [shadowVisible, setShadowVisible] = useState(false);
+
   const logoOpacity = useRef(new Animated.Value(0)).current;
   const lottieOpacity = useRef(new Animated.Value(0)).current;
   const lottieTranslateY = useRef(new Animated.Value(300)).current;
-  const buttonOpacities = [
-    useRef(new Animated.Value(0)).current,
-    useRef(new Animated.Value(0)).current,
-    useRef(new Animated.Value(0)).current,
-    useRef(new Animated.Value(0)).current,
-    useRef(new Animated.Value(0)).current,
-    useRef(new Animated.Value(0)).current,
-    useRef(new Animated.Value(0)).current,
-  ];
-  const buttonTranslations = [
-    useRef(new Animated.Value(300)).current,
-    useRef(new Animated.Value(300)).current,
-    useRef(new Animated.Value(300)).current,
-    useRef(new Animated.Value(300)).current,
-    useRef(new Animated.Value(300)).current,
-    useRef(new Animated.Value(300)).current,
-    useRef(new Animated.Value(300)).current,
-  ];
-  const buttonBackgroundColors = [
-    useRef(new Animated.Value(0)).current,
-    useRef(new Animated.Value(0)).current,
-    useRef(new Animated.Value(0)).current,
-    useRef(new Animated.Value(0)).current,
-    useRef(new Animated.Value(0)).current,
-    useRef(new Animated.Value(0)).current,
-    useRef(new Animated.Value(0)).current,
-  ];
 
-  const [shadowVisible, setShadowVisible] = useState(false);
+  const buttonOpacities = [...Array(7)].map(() => useRef(new Animated.Value(0)).current);
+  const buttonTranslations = [...Array(7)].map(() => useRef(new Animated.Value(300)).current);
+  const buttonBackgroundColors = [...Array(7)].map(() => useRef(new Animated.Value(0)).current);
+
+  const startAnimations = (callback) => {
+    Animated.timing(logoOpacity, {
+      toValue: 1,
+      duration: 1000,
+      useNativeDriver: true,
+    }).start();
+
+    buttonOpacities.forEach((opacity, index) => {
+      Animated.timing(opacity, {
+        toValue: 1,
+        duration: 500,
+        delay: 1000 + index * 300,
+        useNativeDriver: true,
+      }).start();
+      Animated.timing(buttonTranslations[index], {
+        toValue: 0,
+        duration: 500,
+        delay: 1000 + index * 300,
+        useNativeDriver: true,
+      }).start();
+      Animated.timing(buttonBackgroundColors[index], {
+        toValue: 1,
+        duration: 1000,
+        delay: 1000 + index * 300,
+        useNativeDriver: false,
+      }).start(() => {
+        if (index === buttonOpacities.length - 1) {
+          setShadowVisible(true);
+          if (callback) callback();
+        }
+      });
+    });
+
+    Animated.timing(lottieOpacity, {
+      toValue: 1,
+      duration: 500,
+      delay: 1000 + buttonOpacities.length * 300,
+      useNativeDriver: true,
+    }).start();
+
+    Animated.timing(lottieTranslateY, {
+      toValue: 0,
+      duration: 500,
+      delay: 1000 + buttonOpacities.length * 300,
+      useNativeDriver: true,
+    }).start();
+  };
 
   useEffect(() => {
     const checkLanguage = async () => {
       const storedLanguage = await AsyncStorage.getItem('language');
       const storedName = await AsyncStorage.getItem('name');
 
-      if (storedLanguage && storedName) {
-        // Вместо немедленного перехода на другой экран, сначала запускаем анимации
+      if (storedLanguage && storedName && firstLoad && !didAutoNavigate) {
+        didAutoNavigate = true; // предотвратить дальнейшие переходы
+        setFirstLoad(false);
         startAnimations(() => {
-          // После завершения анимаций, переходим на нужный экран
           navigateToLanguageScreen(storedLanguage, storedName);
         });
       } else {
-        startAnimations();
+        startAnimations(); // просто запустить анимации
       }
     };
 
-    const startAnimations = (callback) => {
-      // Запускаем анимацию лого
-      Animated.timing(logoOpacity, {
-        toValue: 1,
-        duration: 1000,
-        useNativeDriver: true,
-      }).start();
-
-      // Запускаем анимацию кнопок
-      buttonOpacities.forEach((opacity, index) => {
-        Animated.timing(opacity, {
-          toValue: 1,
-          duration: 500,
-          delay: 1000 + index * 300,
-          useNativeDriver: true,
-        }).start();
-        Animated.timing(buttonTranslations[index], {
-          toValue: 0,
-          duration: 500,
-          delay: 1000 + index * 300,
-          useNativeDriver: true,
-        }).start();
-        Animated.timing(buttonBackgroundColors[index], {
-          toValue: 1,
-          duration: 1000,
-          delay: 1000 + index * 300,
-          useNativeDriver: false,
-        }).start(() => {
-          if (index === buttonOpacities.length - 1) {
-            setShadowVisible(true);
-          }
-        });
-      });
-
-      // Запускаем анимацию Lottie
-      Animated.timing(lottieOpacity, {
-        toValue: 1,
-        duration: 500,
-        delay: 1000 + buttonOpacities.length * 300,
-        useNativeDriver: true,
-      }).start();
-
-      Animated.timing(lottieTranslateY, {
-        toValue: 0,
-        duration: 500,
-        delay: 1000 + buttonOpacities.length * 300,
-        useNativeDriver: true,
-      }).start(() => {
-        if (callback) {
-          callback(); // Выполняем callback после завершения всех анимаций
-        }
-      });
-    };
-
     checkLanguage();
-  }, [navigation]);
+  }, [firstLoad]);
 
-  const navigateToLanguageScreen = (language, name) => {
+  useFocusEffect(
+    useCallback(() => {
+      setFirstLoad(false); // при возврате отключаем автопереход
+    }, [])
+  );
+
+  const handleSelectLanguage = async (language) => {
+    Vibration.vibrate(50);
+    await AsyncStorage.setItem('language', language);
+    navigateToLanguageScreen(language);
+  };
+
+  const navigateToLanguageScreen = (language, name = '') => {
     switch (language) {
       case 'english':
         navigation.navigate('WelcomeEn', { name, language });
+        break;
+      case 'русский':
+        navigation.navigate('Welcome', { name, language });
         break;
       case 'français':
         navigation.navigate('WelcomeFr', { name, language });
@@ -124,23 +114,15 @@ const LanguageSelectionPage = ({ navigation }) => {
       case 'português':
         navigation.navigate('WelcomePt', { name, language });
         break;
-        case 'العربية':
+      case 'العربية':
         navigation.navigate('WelcomeAr', { name, language });
         break;
-        case 'አማርኛ':
+      case 'አማርኛ':
         navigation.navigate('WelcomeAm', { name, language });
         break;
       default:
-        navigation.navigate('Welcome', { name, language }); // По умолчанию русский
+        navigation.navigate('Welcome', { name, language });
     }
-  };
-
-  const handleSelectLanguage = async (language) => {
-    Vibration.vibrate(50);
-    await AsyncStorage.setItem('language', language); // Сохраняем выбранный язык
-
-    // Переход на соответствующий экран в зависимости от языка
-    navigateToLanguageScreen(language.toLowerCase());
   };
 
   return (
@@ -149,10 +131,11 @@ const LanguageSelectionPage = ({ navigation }) => {
         <LottieView
           source={require('./assets/Animation - 1718510308187.json')}
           autoPlay
-          loop={true}
+          loop
           style={styles.lottie}
         />
       </Animated.View>
+
       {['English', 'Русский', 'Français', 'Español', 'Português', 'العربية', 'አማርኛ'].map((language, index) => {
         const interpolatedBackgroundColor = buttonBackgroundColors[index].interpolate({
           inputRange: [0, 1],
@@ -180,11 +163,12 @@ const LanguageSelectionPage = ({ navigation }) => {
               ]}
               onPress={() => handleSelectLanguage(language.toLowerCase())}
             >
-              <Text style={styles.text} maxFontSizeMultiplier={1.2}>{language} </Text>
+              <Text style={styles.text} maxFontSizeMultiplier={1.2}>{language}</Text>
             </TouchableOpacity>
           </Animated.View>
         );
       })}
+
       <Animated.View
         style={{
           width: '100%',
@@ -194,13 +178,10 @@ const LanguageSelectionPage = ({ navigation }) => {
         }}
       >
         <LottieView
-          source={require('./assets/Animation - 1718343841546.json')}
+          source={require('./assets/Animation - 1740723572105.json')}
           autoPlay
           loop
           style={styles.lottie}
-          onAnimationFinish={() => console.log('Animation finished')}
-          onLayout={() => console.log('LottieView layout finished')}
-          onError={(error) => console.log('Lottie error: ', error)}
         />
       </Animated.View>
     </View>
@@ -213,10 +194,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: '#AFC1D0',
-  },
-  logo: {
-    width: 200,
-    height: 100,
   },
   buttonContainer: {
     width: '100%',
@@ -231,10 +208,7 @@ const styles = StyleSheet.create({
   },
   shadow: {
     shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
     elevation: 5,

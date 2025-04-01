@@ -60,7 +60,7 @@
 "translationOptionsFr": ["manger", "raser", "regarder", "cuisiner"],
 "translationOptionsEs": ["comer", "afeitar", "ver", "cocinar"],
 "translationOptionsPt": ["comer", "barbear", "assistir", "cozinhar"],
-"translationOptionsAr": ["يأكل", "أن تحلق", "أن تشاهد", "أن تطبخ"],
+"translationOptionsAr": ["أكل", "أن تحلق", "أن تشاهد", "أن تطبخ"],
 "translationOptionsAm": ["መብላት", "መላጨት", "ማየት", "ምግብ ማብሰል"],
 
 
@@ -192,7 +192,7 @@
 "translationOptionsFr": ["apporter", "acheter", "voir", "essayer"],
 "translationOptionsEs": ["traer", "comprar", "ver", "probar"],
 "translationOptionsPt": ["trazer", "comprar", "ver", "experimentar"],
-"translationOptionsAr": ["يحضر", "أن تشتري", "أن ترى", "أن تحاول"],
+"translationOptionsAr": ["إحضار", "أن تشتري", "أن ترى", "أن تحاول"],
 "translationOptionsAm": ["መምጣት", "መግዛት", "ማየት", "መሞከር"],
 
       "correctTranslationIndex": 0
@@ -254,7 +254,7 @@
 "translationOptionsFr": ["commander", "reconnaître", "ouvrir", "s'allonger"],
 "translationOptionsEs": ["pedir", "reconocer", "abrir", "acostarse"],
 "translationOptionsPt": ["encomendar", "reconhecer", "abrir", "deitar-se"],
-"translationOptionsAr": ["يطلب", "أن تعترف", "أن تفتح", "أن تستلقي"],
+"translationOptionsAr": ["طلب", "أن تعترف", "أن تفتح", "أن تستلقي"],
 "translationOptionsAm": ["መጠየቅ", "መታወቅ", "መክፈት", "መተኛት"],
 
       "correctTranslationIndex": 0
@@ -626,7 +626,7 @@
       "transliteration": "lalechet",
       "audioFile": "lalechet.mp3",
       "translationOptions": [
-          "Ходить",
+          "Идти",
           "Бежать",
           "Лежать",
           "Танцевать"
@@ -1203,9 +1203,9 @@
           "Пробовать"
       ],
       "translationOptionsEn": ["to repair", "to change", "to fill", "to try"],
-"translationOptionsFr": ["réparer", "changer", "remplir", "essayer"],
-"translationOptionsEs": ["reparar", "cambiar", "llenar", "probar"],
-"translationOptionsPt": ["consertar", "mudar", "encher", "tentar"],
+"translationOptionsFr": ["rénover", "changer", "remplir", "essayer"],
+"translationOptionsEs": ["renovar", "cambiar", "llenar", "probar"],
+"translationOptionsPt": ["reformar", "mudar", "encher", "tentar"],
 "translationOptionsAr": ["أن يصلح", "أن تغير", "أن تملأ", "أن تحاول"],
 "translationOptionsAm": ["መጠገን", "መለወጥ", "ማሙላት", "ሞክሮ"],
 
@@ -1365,7 +1365,7 @@
       "transliteration": "lishloach",
       "audioFile": "lishloach.mp3",
       "translationOptions": [
-          "Посылать",
+          "Отправлять",
           "Отвозить",
           "Уважать",
           "Встречать"
@@ -1814,7 +1814,7 @@
       ],
       "translationOptionsEn": ["to wear", "to desire", "to swim", "to sit"],
 "translationOptionsFr": ["porter", "désirer", "nager", "s'asseoir"],
-"translationOptionsEs": ["llevar puesto", "desear", "nadar", "sentarse"],
+"translationOptionsEs": ["llevar", "desear", "nadar", "sentarse"],
 "translationOptionsPt": ["vestir", "desejar", "nadar", "sentar-se"],
 "translationOptionsAr": ["أن يرتدي", "أن ترغب", "أن تسبح", "أن تجلس"],
 "translationOptionsAm": ["መልበስ", "መመኘት", "መዋኘት", "መቀመጥ"],
@@ -1964,7 +1964,7 @@
 "translationOptionsEs": ["abrazar", "agradar", "irse", "saltar"],
 "translationOptionsPt": ["abraçar", "agradar", "sair", "pular"],
 "translationOptionsAr": ["أن يعانق", "أن تفرح", "أن تغادر", "أن تقفز"],
-"translationOptionsAm": ["መንቀጥቀጥ", "ማስደሰት", "መሄድ", "መጉዞት"],
+"translationOptionsAm": ["መተቃቀፍ", "ማስደሰት", "መሄድ", "መጉዞት"],
 
       "correctTranslationIndex": 0
   },
@@ -1985,7 +1985,7 @@
 "translationOptionsEs": ["secar", "planchar", "observar", "hervir"],
 "translationOptionsPt": ["secar", "passar", "observar", "ferver"],
 "translationOptionsAr": ["أن يجفف", "أن تكوي", "أن تراقب", "أن تغلي"],
-"translationOptionsAm": ["መደረቅ", "መቀጠል", "ማስተዋል", "ማቅለስ"],
+"translationOptionsAm": ["ማድረቅ", "መቀጠል", "ማስተዋል", "ማቅለስ"],
 
       "correctTranslationIndex": 0
   },
@@ -2006,7 +2006,7 @@
 "translationOptionsEs": ["envejecer", "ocuparse", "estudiar", "soñar"],
 "translationOptionsPt": ["envelhecer", "ocupar-se", "estudar", "sonhar"],
 "translationOptionsAr": ["أن يشيخ", "أن تنشغل", "أن تدرس", "أن تحلم"],
-"translationOptionsAm": ["መሽተት", "መሰራተት", "መማር", "መንቀሳቀስ"],
+"translationOptionsAm": ["እርጅና", "መሰራተት", "መማር", "መንቀሳቀስ"],
 
       "correctTranslationIndex": 0
   },
@@ -2069,7 +2069,7 @@
 "translationOptionsEs": ["esperar", "mejorar", "proteger", "cerrar"],
 "translationOptionsPt": ["esperar", "melhorar", "guardar", "fechar"],
 "translationOptionsAr": ["أن يأمل", "أن تحسن", "أن تحرس", "أن تغلق"],
-"translationOptionsAm": ["መተስፋ ማድረግ", "ማሻሻል", "መጠበቅ", "መዝጋት"],
+"translationOptionsAm": ["ተስፋ ማድረግ", "ማሻሻል", "ማቃጠል", "መዝጋት"],
 
       "correctTranslationIndex": 0
   },
@@ -2170,8 +2170,8 @@
           "Злить"
       ],
       "translationOptionsEn": ["to stop", "to want", "to fall", "to anger"],
-"translationOptionsFr": ["arrêter", "vouloir", "tomber", "énerver"],
-"translationOptionsEs": ["detener", "querer", "caer", "enfadar"],
+"translationOptionsFr": ["s'arrêter", "vouloir", "tomber", "énerver"],
+"translationOptionsEs": ["parar", "querer", "caer", "enfadar"],
 "translationOptionsPt": ["parar", "querer", "cair", "irritar"],
 "translationOptionsAr": ["أن يتوقف", "أن تريد", "أن تسقط", "أن تغضب"],
 "translationOptionsAm": ["ማቆም", "መፈለግ", "መወድቀት", "ማሰቃየት"],
@@ -2216,7 +2216,7 @@
 "translationOptionsEs": ["saltar", "salvar", "reducir", "recoger"],
 "translationOptionsPt": ["pular", "salvar", "reduzir", "coletar"],
 "translationOptionsAr": ["أن يتجاوز", "أن تنقذ", "أن تقلل", "أن تجمع"],
-"translationOptionsAm": ["መስቀል", "ማዳን", "መቀነስ", "መሰብሰብ"],
+"translationOptionsAm": ["ማለፍ", "ማዳን", "መቀነስ", "መሰብሰብ"],
 
       "correctTranslationIndex": 0
   },
@@ -2300,7 +2300,7 @@
 "translationOptionsEs": ["mejorar", "probar", "tratar", "registrar"],
 "translationOptionsPt": ["melhorar", "tentar", "tratar", "registrar"],
 "translationOptionsAr": ["أن يحسن", "أن تحاول", "أن تعالج", "أن تسجل"],
-"translationOptionsAm": ["መጠንካቀቅ", "ሞክሮ", "ማከማቸት", "መመዝገብ"],
+"translationOptionsAm": ["ማሻሻል", "ሞክሮ", "ማከማቸት", "መመዝገብ"],
 
       "correctTranslationIndex": 0
   },
@@ -2547,12 +2547,12 @@
           "Покупать",
           "Решать"
       ],
-      "translationOptionsEn": ["to know", "to hear", "to buy", "to decide"],
-"translationOptionsFr": ["savoir", "entendre", "acheter", "décider"],
-"translationOptionsEs": ["saber", "oír", "comprar", "decidir"],
-"translationOptionsPt": ["saber", "ouvir", "comprar", "decidir"],
+      "translationOptionsEn": ["to be familiar", "to hear", "to buy", "to decide"],
+"translationOptionsFr": ["être familier", "entendre", "acheter", "décider"],
+"translationOptionsEs": ["familiarizarse", "oír", "comprar", "decidir"],
+"translationOptionsPt": ["familiarizar-se", "ouvir", "comprar", "decidir"],
 "translationOptionsAr": ["أن يعرف", "أن يسمع", "أن يشتري", "أن يقرر"],
-"translationOptionsAm": ["መለየት",  "መቀበል", "መረጣት", "መርዳት"],
+"translationOptionsAm": ["ማወቅ",  "መቀበል", "መረጣት", "መርዳት"],
 
       "correctTranslationIndex": 0
   },
@@ -2632,11 +2632,11 @@
           "Терпеть"
       ],
       "translationOptionsEn": ["to boil", "to think", "to explain", "to endure"],
-"translationOptionsFr": ["bouillir", "penser", "expliquer", "supporter"],
+"translationOptionsFr": ["faire bouillir", "penser", "expliquer", "supporter"],
 "translationOptionsEs": ["hervir", "pensar", "explicar", "soportar"],
 "translationOptionsPt": ["ferver", "pensar", "explicar", "suportar"],
-"translationOptionsAr": ["أن يغلي", "أن يفكر", "أن يشرح", "أن يتحمل"],
-"translationOptionsAm": ["ማፍላት", "መንቀሳቀስ", "መርዳት", "መጥፍት"],
+"translationOptionsAr": ["طبخ", "أن يفكر", "أن يشرح", "أن يتحمل"],
+"translationOptionsAm": ["ማብሰል", "መንቀሳቀስ", "መርዳት", "መጥፍት"],
 
       "correctTranslationIndex": 0
   },
@@ -2758,7 +2758,7 @@
           "Забыть"
       ],
       "translationOptionsEn": ["to ride", "to play", "to eat", "to forget"],
-"translationOptionsFr": ["monter", "jouer", "manger", "oublier"],
+"translationOptionsFr": ["rouler", "jouer", "manger", "oublier"],
 "translationOptionsEs": ["montar", "jugar", "comer", "olvidar"],
 "translationOptionsPt": ["andar", "brincar", "comer", "esquecer"],
 "translationOptionsAr": ["أن يركب", "أن يلعب", "أن يأكل", "أن ينسى"],
@@ -2972,7 +2972,7 @@
 "translationOptionsEs": ["superar", "retroceder", "disfrutar", "casarse"],
 "translationOptionsPt": ["superar", "afastar-se", "desfrutar", "casar"],
 "translationOptionsAr": ["أن يتغلب", "أن يتراجع", "أن يستمتع", "أن يتزوج"],
-"translationOptionsAm": ["መሸነፍ", "መርባት", "መደሰት", "መውሰድ"],
+"translationOptionsAm": ["ማሸነፍ", "መርባት", "መደሰት", "መውሰድ"],
 
       "correctTranslationIndex": 0
   },
@@ -3204,7 +3204,7 @@
 "translationOptionsEs": ["retrasar", "hervir", "derretir", "caminar"],
 "translationOptionsPt": ["desacelerar", "ferver", "derreter", "andar"],
 "translationOptionsAr": ["أن يبطئ", "أن يغلي", "أن يذوب", "أن يمشي"],
-"translationOptionsAm": ["ፍጥነት ማቆም", "ማስተንተን", "መውጣት", "መሂድ"],
+"translationOptionsAm": ["ማዘግየት", "ማስተንተን", "መውጣት", "መሂድ"],
 
       "correctTranslationIndex": 0
   },
@@ -3225,7 +3225,7 @@
 "translationOptionsEs": ["acelerar", "planificar", "acostarse", "estar enfermo"],
 "translationOptionsPt": ["acelerar", "planejar", "deitar", "estar doente"],
 "translationOptionsAr": ["أن يسرع", "أن يخطط", "أن يستلقي", "أن يكون مريضاً"],
-"translationOptionsAm": ["መፍጠር", "ማስተንተን", "መኝታ", "መድኃኒት"],
+"translationOptionsAm": ["ማፋጠን", "ማስተንተን", "መኝታ", "መድኃኒት"],
 
 
       "correctTranslationIndex": 0
@@ -3247,7 +3247,7 @@
 "translationOptionsEs": ["discutir", "encontrar", "adorar", "trabajar"],
 "translationOptionsPt": ["discutir", "encontrar", "adorar", "trabalhar"],
 "translationOptionsAr": ["أن يجادل", "أن يخطط", "أن يستلقي", "أن يكون مريضاً"],
-"translationOptionsAm": ["መከራከር ", "ማግኘት", "መውደቅ", "ስራ እንደማድረግ"],
+"translationOptionsAm": ["መከራከር", "ማግኘት", "መውደቅ", "ስራ እንደማድረግ"],
 
 
       "correctTranslationIndex": 0
@@ -3290,7 +3290,7 @@
 "translationOptionsEs": ["casarse", "amar", "echar de menos", "esperar"],
 "translationOptionsPt": ["casar", "amar", "sentir falta", "esperar"],
 "translationOptionsAr": ["أن يتزوج", "أن يخطط", "أن يستلقي", "أن يكون مريضاً"],
-"translationOptionsAm": ["መጋባት ", "መውደቅ", "መጠበቅ", "መጠባበቅ"],
+"translationOptionsAm": ["መጋባት", "መውደቅ", "መጠበቅ", "መጠባበቅ"],
 
       "correctTranslationIndex": 0
   },
@@ -3311,7 +3311,7 @@
 "translationOptionsEs": ["quejarse", "acordar", "aprobar", "beber"],
 "translationOptionsPt": ["reclamar", "concordar", "aprovar", "beber"],
 "translationOptionsAr": ["أن يشتكي", "يوافق", "يوافق", "يشرب"],
-"translationOptionsAm": ["መቅበር ", "እምነት", "ማቅረብ", "መጠጣት"],
+"translationOptionsAm": ["መቅበር", "እምነት", "ማቅረብ", "መጠጣት"],
 
       "correctTranslationIndex": 0
   },
@@ -3417,7 +3417,7 @@
 "translationOptionsEs": ["aparcarsе", "respetar", "irse", "llevar"],
 "translationOptionsPt": ["estacionar", "respeitar", "partir", "vestir"],
 "translationOptionsAr": ["أن يركن", "يحترم", "يترك", "يلبس"],
-"translationOptionsAm": ["መኪና ማስቀመጥ", "ማክበር", "መሄድ", "ማሸነፍ"],
+"translationOptionsAm": ["ማስቀመጥ", "ማክበር", "መሄድ", "ማሸነፍ"],
 
 
       "correctTranslationIndex": 0
@@ -3439,7 +3439,7 @@
 "translationOptionsEs": ["callarse", "explicar", "bañarse", "cocinar"],
 "translationOptionsPt": ["calar", "explicar", "banhar-se", "cozinhar"],
 "translationOptionsAr": ["أن يصمت", "أن يشرح", "أن يستحم", "أن يطبخ"],
-"translationOptionsAm": ["መዝጋት", "መረዳት", "መታየት", "መምጣት"],
+"translationOptionsAm": ["ዝም ማለት", "መረዳት", "መታየት", "መምጣት"],
 
       "correctTranslationIndex": 0
   },
@@ -3646,7 +3646,7 @@
     "Одобрять"
     ],
     "translationOptionsEn": ["to bake", "to dive", "to fly", "to approve"],
-"translationOptionsFr": ["cuire", "plonger", "voler", "approuver"],
+"translationOptionsFr": ["fourner", "plonger", "voler", "approuver"],
 "translationOptionsEs": ["hornear", "bucear", "volar", "aprobar"],
 "translationOptionsPt": ["assar", "mergulhar", "voar", "aprovar"],
 "translationOptionsAr": ["أن يخبز", "أن يتشمس", "أن يقلب", "أن يسخن"],
@@ -3714,7 +3714,7 @@
 "translationOptionsEs": ["doblar", "intentar", "explicar", "devolver"],
 "translationOptionsPt": ["dobrar", "tentar", "explicar", "devolver"],
 "translationOptionsAr": ["أن يطوي", "أن تغني", "أن تمضغ", "أن تزحف"],
-"translationOptionsAm": ["ማከማቸት ", "መሞከር", "መለምን", "መመለስ"],
+"translationOptionsAm": ["ማጠፍ", "መሞከር", "መለምን", "መመለስ"],
 
     "correctTranslationIndex": 0
     },
@@ -3757,7 +3757,7 @@
 "translationOptionsEs": ["programar", "molestar", "extrañar", "cansarse"],
 "translationOptionsPt": ["programar", "incomodar", "sentir falta", "cansar"],
 "translationOptionsAr": ["أن يبرمج", "أن تدعو", "أن يستدعي", "أن تسمي"],
-"translationOptionsAm": ["ፕሮግራም መጻፍ", "መከራ", "መረዳት", "መረሳት"],
+"translationOptionsAm": ["ማዘጋጀት", "መከራ", "መረዳት", "መረሳት"],
 
 
     "correctTranslationIndex": 0
@@ -3928,7 +3928,7 @@
 "translationOptionsEs": ["girar", "esforzarse", "adivinar", "privar"],
 "translationOptionsPt": ["virar", "esforçar-se", "adivinhar", "privar"],
 "translationOptionsAr": ["أن يستدير", "أن تفوت", "أن تتواصل", "أن تخلط"],
-"translationOptionsAm": ["መዞር", "መሞከር", "መጠበቅ", "መስርት"],
+"translationOptionsAm": ["ማዞር", "መሞከር", "መጠበቅ", "መስርት"],
 
     "correctTranslationIndex": 0
     },
@@ -3949,7 +3949,7 @@
 "translationOptionsEs": ["frenar", "acelerar", "volar", "mirar"],
 "translationOptionsPt": ["frear", "acelerar", "voar", "assistir"],
 "translationOptionsAr": ["أن يفرمل", "أن تحسن", "أن تحرس", "أن تغلق"],
-"translationOptionsAm": ["ማዘግየት", "መፍጠር", "መተን", "መስለት"],
+"translationOptionsAm": ["ማቆም", "መፍጠር", "መተን", "መስለት"],
 
     "correctTranslationIndex": 0
     },
@@ -3971,7 +3971,7 @@
 "translationOptionsEs": ["desarrollar", "confiar", "extrañar", "dibujar"],
 "translationOptionsPt": ["desenvolver", "confiar", "sentir falta", "desenhar"],
 "translationOptionsAr": ["أن يطور", "أن يضحك", "أن يفوز", "أن يلاحظ"],
-"translationOptionsAm": ["ማሻሻል", "መከታተል", "መጠበቅ", "መስራት"],
+"translationOptionsAm": ["ማሳደግ", "መከታተል", "መጠበቅ", "መስራት"],
 
     "correctTranslationIndex": 0
     },
@@ -3991,8 +3991,8 @@
 "translationOptionsFr": ["développer", "confiance", "tourner", "se plaindre"],
 "translationOptionsEs": ["desarrollar", "confiar", "girar", "quejarse"],
 "translationOptionsPt": ["desenvolver", "confiar", "virar", "reclamar"],
-"translationOptionsAr": ["يطور", "يثق", "يدور", "يشتكي"],
-"translationOptionsAm": ["መምሪያ", "መታመን", "መልሰው", "መቅጠር"],
+"translationOptionsAr": ["تطور", "يثق", "يدور", "يشتكي"],
+"translationOptionsAm": ["ማደግ", "መታመን", "መልሰው", "መቅጠር"],
 
     "correctTranslationIndex": 0
     },
@@ -4003,7 +4003,7 @@
     "transliteration": "lehipared",
     "audioFile": "lehipared.mp3",
     "translationOptions": [
-    "Прощаться",
+    "Расставаться",
     "Доверяться",
     "Сниматься",
     "Улыбаться"
@@ -4118,7 +4118,7 @@
 "translationOptionsEs": ["confiar en", "recordar", "echar de menos", "creer"],
 "translationOptionsPt": ["confiar em", "lembrar", "sentir falta", "acreditar"],
 "translationOptionsAr": ["أن يعتمد", "يتذكر", "يشتاق", "يعتقد"],
-"translationOptionsAm": ["መተማመን", "መስተዋል", "መጠበቅ", "መምከር"],
+"translationOptionsAm": ["መታመን", "መስተዋል", "መጠበቅ", "መምከር"],
 
         "correctTranslationIndex": 0
         },
@@ -4243,7 +4243,7 @@
 "translationOptionsFr": ["empirer", "bronzer", "se cacher", "se battre"],
 "translationOptionsEs": ["empeorar", "tomar el sol", "esconderse", "luchar"],
 "translationOptionsPt": ["piorar", "tomar sol", "se esconder", "lutar"],
-"translationOptionsAr": ["أن يسوء", "أن تنزل", "أن تسقط", "أن تتذكر"],
+"translationOptionsAr": ["أساء", "أن تنزل", "أن تسقط", "أن تتذكر"],
 "translationOptionsAm": ["ማባባል", "እንደ ቀንበር", "መሰየም", "መግባት"],
 
         "correctTranslationIndex": 0
@@ -4307,7 +4307,7 @@
 "translationOptionsEs": ["mentir", "echar de menos", "empeorar", "olvidar"],
 "translationOptionsPt": ["mentir", "sentir falta", "piorar", "esquecer"],
 "translationOptionsAr": ["أن يكذب", "أن تسرع", "أن تزحف", "أن تغوص"],
-"translationOptionsAm": ["ማታለል", "መጠበቅ", "መጥፋት", "መረሳት"],
+"translationOptionsAm": ["ውሸት መናገር", "መጠበቅ", "መጥፋት", "መረሳት"],
 
         "correctTranslationIndex": 0
         },
@@ -4328,7 +4328,7 @@
 "translationOptionsEs": ["broncearse", "desear", "beber", "cavar"],
 "translationOptionsPt": ["bronzejar-se", "desejar", "beber", "cavar"],
 "translationOptionsAr": ["أن يتشمس", "أن تطلب", "أن تحمل", "أن تمرض"],
-"translationOptionsAm": ["ጸሀይ መቀበል", "መፍላት", "መጠጣት", "መጠበቅ"]
+"translationOptionsAm": ["ፀሐይ መሞቅ", "መፍላት", "መጠጣት", "መጠበቅ"]
 ,
         "correctTranslationIndex": 0
         },
@@ -4454,7 +4454,7 @@
 "translationOptionsEs": ["suspirar", "bañarse", "salvar", "explicar"],
 "translationOptionsPt": ["suspirar", "banhar-se", "salvar", "explicar"],
 "translationOptionsAr": ["أن يتنهد", "أن تغطي", "أن تشغل", "أن تركض"],
-"translationOptionsAm": ["መደነቅ", "መጠብ", "መያዝ", "መማር"],
+"translationOptionsAm": ["ማቃተት", "መጠብ", "መያዝ", "መማር"],
 
         "correctTranslationIndex": 0
         },
@@ -4470,12 +4470,12 @@
         "Убираться",
         "Греться"
         ],
-        "translationOptionsEn": ["to be found", "to worry", "to clean", "to warm up"],
-"translationOptionsFr": ["se trouver", "s'inquiéter", "nettoyer", "se réchauffer"],
-"translationOptionsEs": ["encontrarse", "preocuparse", "limpiar", "calentarse"],
-"translationOptionsPt": ["situar-se", "preocupar", "limpar", "aquecerse"],
-"translationOptionsAr": ["أن يكون موجوداً",  "أن تجلس", "أن تشاهد", "أن تحب"],
-"translationOptionsAm": ["መገኝት", "መጠለል", "መንከባከብ", "መሞቅ"]
+        "translationOptionsEn": ["to be located", "to worry", "to clean", "to warm up"],
+"translationOptionsFr": ["être situé", "s'inquiéter", "nettoyer", "se réchauffer"],
+"translationOptionsEs": ["estar situado", "preocuparse", "limpiar", "calentarse"],
+"translationOptionsPt": ["estar situado", "preocupar", "limpar", "aquecerse"],
+"translationOptionsAr": ["يوجد",  "أن تجلس", "أن تشاهد", "أن تحب"],
+"translationOptionsAm": ["መገኘት", "መጠለል", "መንከባከብ", "መሞቅ"]
 ,
 
         "correctTranslationIndex": 0
@@ -4494,10 +4494,10 @@
         ],
         "translationOptionsEn": ["to end", "to remember", "to clean", "to bring"],
 "translationOptionsFr": ["se terminer", "se souvenir", "nettoyer", "apporter"],
-"translationOptionsEs": ["terminarse", "recordar", "limpiar", "traer"],
-"translationOptionsPt": ["terminar-se", "lembrar", "limpar", "trazer"],
+"translationOptionsEs": ["terminar", "recordar", "limpiar", "traer"],
+"translationOptionsPt": ["terminar", "lembrar", "limpar", "trazer"],
 "translationOptionsAr": ["أن ينتهي", "أن تتحرك", "أن تقف", "أن تشرب"],
-"translationOptionsAm": ["መጨረስ", "መስተዋል", "መጠበቅ", "መውሰድ"],
+"translationOptionsAm": ["ማለቅ", "መስተዋል", "መጠበቅ", "መውሰድ"],
 
         "correctTranslationIndex": 0
         },
@@ -4516,9 +4516,9 @@
         "translationOptionsEn": ["to fall asleep", "to lie", "to feed", "to wake up"],
 "translationOptionsFr": ["s'endormir", "être allongé", "nourrir", "réveiller"],
 "translationOptionsEs": ["dormirse", "yacer", "alimentar", "despertar"],
-"translationOptionsPt": ["adormecer", "deitar", "alimentar", "acordar"],
-"translationOptionsAr": ["أن ينام", "أن يضيف", "أن يلتقي", "أن يجلب"],
-"translationOptionsAm": ["መተኛት", "መኝታ", "መብላት", "መነሣት"],
+"translationOptionsPt": ["adormecer-se", "deitar", "alimentar", "acordar"],
+"translationOptionsAr": ["يغفى", "أن يضيف", "أن يلتقي", "أن يجلب"],
+"translationOptionsAm": ["እንቅልፍ መውሰድ", "መኝታ", "መብላት", "መነሣት"],
 
         "correctTranslationIndex": 0
         },
@@ -4598,12 +4598,12 @@
             "Рисовать",
             "Печатать"
             ],
-            "translationOptionsEn": ["to shorten", "to blame", "to draw", "to print"],
+            "translationOptionsEn": ["to reduce", "to blame", "to draw", "to print"],
 "translationOptionsFr": ["raccourcir", "blâmer", "dessiner", "imprimer"],
 "translationOptionsEs": ["acortar", "culpar", "dibujar", "imprimir"],
-"translationOptionsPt": ["encurtar", "culpar", "desenhar", "imprimir"],
+"translationOptionsPt": ["reduzir", "culpar", "desenhar", "imprimir"],
 "translationOptionsAr": ["أن يختصر", "أن تحترم", "أن تنظر", "أن تحتفظ"],
-"translationOptionsAm": ["መቀነስ", "መከል", "መስነሣት", "መቅረብ"]
+"translationOptionsAm": ["ማሳጠር", "መከል", "መስነሣት", "መቅረብ"]
 
 ,
             "correctTranslationIndex": 0
@@ -4645,7 +4645,7 @@
 "translationOptionsFr": ["s'embrasser", "se laver", "sauver", "expliquer"],
 "translationOptionsEs": ["besarse", "lavarse", "salvar", "explicar"],
 "translationOptionsPt": ["beijar-se", "lavar-se", "salvar", "explicar"],
-"translationOptionsAr": ["أن يتبادل القبل", "أن يفي", "أن ينسى", "أن يلوم"],
+"translationOptionsAr": ["تقابل", "أن يفي", "أن ينسى", "أن يلوم"],
 "translationOptionsAm": ["መሳማት", "መጠበቅ", "መስዋል", "መግለጽ"]
 ,
             "correctTranslationIndex": 0
@@ -4709,7 +4709,7 @@
 "translationOptionsEs": ["unir", "adorar", "valorar", "respetar"],
 "translationOptionsPt": ["unir", "adorar", "valorizar", "respeitar"],
 "translationOptionsAr": ["أن يوحِّد", "أن تريد", "أن تبيع", "أن تطبع"],
-"translationOptionsAm": ["ማቀፋለል", "መውደድ", "መገንዘብ", "መከበር"]
+"translationOptionsAm": ["አንድ ማድረግ", "መውደድ", "መገንዘብ", "መከበር"]
 ,
             "correctTranslationIndex": 0
             },
@@ -4751,7 +4751,7 @@
 "translationOptionsEs": ["voluntariar", "acostarse", "responder", "perder"],
 "translationOptionsPt": ["voluntariar", "deitar-se", "responder", "perder"],
 "translationOptionsAr": ["أن يتطوع", "أن يتلقى", "أن يوافق", "أن يساعد"],
-"translationOptionsAm": ["ለመሥራት ፈቃደኛ መሆን", "መኝት", "መልስ መስጠት", "መሳሰር"]
+"translationOptionsAm": ["በጎ ፈቃደኛ ነኝ", "መኝት", "መልስ መስጠት", "መሳሰር"]
 ,
             "correctTranslationIndex": 0
             },
@@ -4771,8 +4771,8 @@
 "translationOptionsFr": ["être ami", "jouer", "dormir", "construire"],
 "translationOptionsEs": ["ser amigo", "jugar", "dormir", "construir"],
 "translationOptionsPt": ["ser amigo", "brincar", "dormir", "construir"],
-"translationOptionsAr": ["أن يكون صديقاً", "أن تصبح", "أن تحكي", "أن تستخدم"],
-"translationOptionsAm": ["ጓደኛ መሆን", "መጫወት", "መብላት", "መገንበት"]
+"translationOptionsAr": ["صادق", "أن تصبح", "أن تحكي", "أن تستخدم"],
+"translationOptionsAm": ["ጓደኝነት መመስረት", "መጫወት", "መብላት", "መገንበት"]
 ,
                 "correctTranslationIndex": 0
                 },
@@ -4794,7 +4794,7 @@
 "translationOptionsEs": ["respirar", "responder", "soñar", "intentar"],
 "translationOptionsPt": ["respirar", "responder", "sonhar", "tentar"],
 "translationOptionsAr": ["أن يتنفس", "أن تريد", "أن تبيع", "أن تطبع"],
-"translationOptionsAm": ["መስተካከል", "መልስ መስጠት", "መንክር", "መሞከር"]
+"translationOptionsAm": ["መተንፈስ", "መልስ መስጠት", "መንክር", "መሞከር"]
 ,
                 "correctTranslationIndex": 0
                 },
@@ -4805,7 +4805,7 @@
                 "transliteration": "ligdol",
                 "audioFile": "ligdol.mp3",
                 "translationOptions": [
-                "Растить",
+                "Расти",
                 "Ускорять",
                 "Лететь",
                 "Смотреть"
@@ -4815,7 +4815,7 @@
 "translationOptionsEs": ["crecer", "acelerar", "volar", "mirar"],
 "translationOptionsPt": ["crescer", "acelerar", "voar", "assistir"],
 "translationOptionsAr": ["أن ينمو", "أن تعرف", "أن تبحث", "أن تتمنى"],
-"translationOptionsAm": ["ማሳደግ", "መዝገብ", "መተን", "መልእክት"]
+"translationOptionsAm": ["ማደግ", "መዝገብ", "መተን", "መልእክት"]
 ,
                 "correctTranslationIndex": 0
                 },
@@ -4856,8 +4856,8 @@
 "translationOptionsFr": ["indiquer", "explicar", "filmer", "sourire"],
 "translationOptionsEs": ["indicar", "confiar", "grabar", "sonreír"],
 "translationOptionsPt": ["indicar", "devolver", "filmar", "sorrir"],
-"translationOptionsAr": ["أن يشير", "أن تحفر", "أن تقرأ", "أن تنشغل"],
-"translationOptionsAm": ["ማመለከት", "መታመን", "መግለጽ", "መስል"]
+"translationOptionsAr": ["دلّ على", "أن تحفر", "أن تقرأ", "أن تنشغل"],
+"translationOptionsAm": ["ምልክት ማድረግ", "መታመን", "መግለጽ", "መስል"]
 ,
                 "correctTranslationIndex": 0
                 },
@@ -4878,7 +4878,7 @@
 "translationOptionsEs": ["congelar", "intentar", "explicar", "devolver"],
 "translationOptionsPt": ["congelar", "tentar", "explicar", "devolver"],
 "translationOptionsAr": ["أن يتجمد", "أن تصبح", "أن تحكي", "أن تستخدم"],
-"translationOptionsAm": ["ለማቀዝቀዝ", "መሞከር", "መልሰህ", "መመለስ"]
+"translationOptionsAm": ["መበርድ", "መሞከር", "መልሰህ", "መመለስ"]
 ,
                 "correctTranslationIndex": 0
                 },
@@ -4898,7 +4898,7 @@
 "translationOptionsFr": ["dégeler", "traverser", "imprimer", "dessiner"],
 "translationOptionsEs": ["descongelar", "cruzar", "imprimir", "dibujar"],
 "translationOptionsPt": ["descongelar", "cruzar", "imprimir", "desenhar"],
-"translationOptionsAr": ["أن يذيب", "أن تصبح", "أن تحكي", "أن تستخدم"],
+"translationOptionsAr": ["أذاب", "أن تصبح", "أن تحكي", "أن تستخدم"],
 "translationOptionsAm": ["ማቀለጥ", "መምረዝ", "መስክት", "መስማት"]
 ,
                 "correctTranslationIndex": 0
@@ -4920,7 +4920,7 @@
 "translationOptionsEs": ["avanzar", "cantar", "leer", "componer"],
 "translationOptionsPt": ["avançar", "cantar", "ler", "compor"],
 "translationOptionsAr": ["أن يتقدم",  "أن تعطي", "أن تنزع", "أن تركض"],
-"translationOptionsAm": ["መድረስ", "መዝሙር", "መንባብ", "መፍጠር"]
+"translationOptionsAm": ["እድገት", "መዝሙር", "መንባብ", "መፍጠር"]
 ,
                 "correctTranslationIndex": 0
                 },
@@ -4983,8 +4983,8 @@
 "translationOptionsFr": ["marcher", "se retirer", "profiter", "se marier"],
 "translationOptionsEs": ["caminar", "retroceder", "disfrutar", "casarse"],
 "translationOptionsPt": ["andar", "retroceder", "desfrutar", "casar"],
-"translationOptionsAr": ["أن يمشي", "أن تأخذ", "أن تفرح", "أن تندهش"],
-"translationOptionsAm": ["መራመድ", "መጠበቅ", "መደሰት", "መጋብዝ"]
+"translationOptionsAr": ["تجول", "أن تأخذ", "أن تفرح", "أن تندهش"],
+"translationOptionsAm": ["ተዝናናሁ", "መጠበቅ", "መደሰት", "መጋብዝ"]
 ,
                 "correctTranslationIndex": 0
                 },
@@ -5026,7 +5026,7 @@
 "translationOptionsEs": ["desconectar", "volar", "secar", "envejecer"],
 "translationOptionsPt": ["desconectar", "voar", "secar", "envelhecer"],
 "translationOptionsAr": ["أن يفصل", "أن تعترف", "أن تفتح", "أن تستلقي"],
-"translationOptionsAm": ["መለያየት", "መብረስ", "መቆየት", "መዋዕል"]
+"translationOptionsAm": ["መለያየት ማድረግ", "መብረስ", "መቆየት", "መዋዕል"]
 ,
                 "correctTranslationIndex": 0
                 },
@@ -5173,7 +5173,7 @@
                     "translationOptionsEn": ["to lean", "to hang", "to ask", "to watch"],
 "translationOptionsFr": ["pencher", "pendre", "demander", "regarder"],
 "translationOptionsEs": ["inclinarse", "colgar", "preguntar", "mirar"],
-"translationOptionsPt": ["inclinar", "pendurar", "perguntar", "assistir"],
+"translationOptionsPt": ["inclinar-se", "pendurar", "perguntar", "assistir"],
 "translationOptionsAr": ["أن ينحني", "أن تتدخل", "أن تناقش", "أن تعيش"],
 "translationOptionsAm": ["ማዘንበል", "መጣት", "መጠየቅ", "መከታት"]
 
@@ -5217,8 +5217,8 @@
 "translationOptionsFr": ["se vexer", "construire", "écouter", "parler"],
 "translationOptionsEs": ["ofenderse", "construir", "escuchar", "hablar"],
 "translationOptionsPt": ["ofender-se", "construir", "ouvir", "falar"],
-"translationOptionsAr": ["أن يستاء",  "أن تأخذ", "أن توقف", "أن تملح"],
-"translationOptionsAm": ["መበሳጨት", "መገንቢያ", "መስማት", "መዝምር"]
+"translationOptionsAr": ["انزعج",  "أن تأخذ", "أن توقف", "أن تملح"],
+"translationOptionsAm": ["ተናደድኩ", "መገንቢያ", "መስማት", "መዝምር"]
 ,
                     "correctTranslationIndex": 0
                     },
@@ -5238,8 +5238,8 @@
 "translationOptionsFr": ["offenser", "chanter", "mâcher", "ramper"],
 "translationOptionsEs": ["ofender", "cantar", "masticar", "arrastrarse"],
 "translationOptionsPt": ["ofender", "cantar", "mastigar", "engatinhar"],
-"translationOptionsAr": ["أن يسيء", "أن تحمل", "أن تبيع", "أن تشاهد"],
-"translationOptionsAm": ["ማበሳጨት", "መዝምር", "መጠበቅ", "መጋለብ"]
+"translationOptionsAr": ["أهان", "أن تحمل", "أن تبيع", "أن تشاهد"],
+"translationOptionsAm": ["አስቀየምኩ", "መዝምር", "መጠበቅ", "መጋለብ"]
 ,
                     "correctTranslationIndex": 0
                     },
@@ -5260,7 +5260,7 @@
 "translationOptionsEs": ["ganar", "deleitar", "irse", "saltar"],
 "translationOptionsPt": ["ganhar", "encantar", "sair", "pular"],
 "translationOptionsAr": ["أن يكسب", "أن تحمل", "أن تبيع", "أن تشاهد"],
-"translationOptionsAm": ["ለማግኘት", "መደሰት", "መሄድ", "መዋንያ"]
+"translationOptionsAm": ["ገንዘብ ማግኘት", "መደሰት", "መሄድ", "መዋንያ"]
 ,
                         "correctTranslationIndex": 0
                     },
@@ -5346,7 +5346,7 @@
 "translationOptionsEs": ["compartir", "divertirse", "extrañar", "estar triste"],
 "translationOptionsPt": ["compartilhar", "divertir-se", "sentir falta", "ficar triste"],
 "translationOptionsAr": ["أن يشارك", "أن تتسلق", "أن تزحف", "أن تقفز"],
-"translationOptionsAm": ["ማካፈል", "መደሰት", "መናፈቅ", "መከፋፈት"]
+"translationOptionsAm": ["መካፈል", "መደሰት", "መናፈቅ", "መከፋፈት"]
 ,
                         "correctTranslationIndex": 0
                     },
@@ -5385,11 +5385,11 @@
                           "Мечтать"
                         ],
                         "translationOptionsEn": ["to lie", "to keep", "to live", "to dream"],
-"translationOptionsFr": ["s'allonger", "garder", "vivre", "rêver"],
-"translationOptionsEs": ["acostarse", "guardar", "vivir", "soñar"],
-"translationOptionsPt": ["deitar", "guardar", "viver", "sonhar"],
+"translationOptionsFr": ["allongé", "garder", "vivre", "rêver"],
+"translationOptionsEs": ["acostado", "guardar", "vivir", "soñar"],
+"translationOptionsPt": ["deitado", "guardar", "viver", "sonhar"],
 "translationOptionsAr": ["أن يرقد", "أن يغسل", "أن ينظف", "أن يفتقد"],
-"translationOptionsAm": ["መዋሸት", "መያዝ", "መኖር", "መህልም"]
+"translationOptionsAm": ["መተኛት", "መያዝ", "መኖር", "መህልም"]
 ,
                         "correctTranslationIndex": 0
                       },
@@ -5427,7 +5427,7 @@
                           "Разговаривать"
                         ],
                         "translationOptionsEn": ["to recover", "to build", "to listen", "to talk"],
-"translationOptionsFr": ["se rétablir", "construire", "écouter", "parler"],
+"translationOptionsFr": ["être soigné", "construire", "écouter", "parler"],
 "translationOptionsEs": ["recuperarse", "construir", "escuchar", "hablar"],
 "translationOptionsPt": ["recuperar-se", "construir", "ouvir", "falar"],
 "translationOptionsAr": [ "أن يتعافى", "أن تركض", "أن تستلقي", "أن ترقص"],
@@ -5450,9 +5450,9 @@
                         "translationOptionsEn": ["to try on", "to hang", "to ask", "to watch"],
 "translationOptionsFr": ["essayer", "pendre", "demander", "regarder"],
 "translationOptionsEs": ["probarse", "colgar", "preguntar", "mirar"],
-"translationOptionsPt": ["experimentar", "pendurar", "perguntar", "assistir"],
-"translationOptionsAr": ["أن يجرب", "أن تركض", "أن تستلقي", "أن ترقص"],
-"translationOptionsAm": ["መልበስ", "መጣት", "መጠየቅ", "መከታት"]
+"translationOptionsPt": ["provar", "pendurar", "perguntar", "assistir"],
+"translationOptionsAr": ["قاس", "أن تركض", "أن تستلقي", "أن ترقص"],
+"translationOptionsAm": ["ሞከርኩ", "መጣት", "መጠየቅ", "መከታት"]
 ,
                         "correctTranslationIndex": 0
                       },
@@ -5531,11 +5531,11 @@
                          "Винить", 
                         "Рисовать"],
                         "translationOptionsEn": ["to cope", "to shorten", "to blame", "to draw"],
-"translationOptionsFr": ["faire face", "raccourcir", "blâmer", "dessiner"],
-"translationOptionsEs": ["hacer frente", "acortar", "culpar", "dibujar"],
+"translationOptionsFr": ["s'en sortir", "raccourcir", "blâmer", "dessiner"],
+"translationOptionsEs": ["lidiar", "acortar", "culpar", "dibujar"],
 "translationOptionsPt": ["lidar", "encurtar", "culpar", "desenhar"],
-"translationOptionsAr": ["أن يتعامل", "أن تقلي", "أن تتعلم", "أن تتثاءب"],
-"translationOptionsAm": ["መቋቋም", "መሃሰስ", "መከላከል", "መስክት"]
+"translationOptionsAr": ["تَغَلَّبَ على", "أن تقلي", "أن تتعلم", "أن تتثاءب"],
+"translationOptionsAm": ["ተቋቋምኩ", "መሃሰስ", "መከላከል", "መስክት"]
 ,
                         "correctTranslationIndex": 0
                     },
@@ -5555,7 +5555,7 @@
                         "translationOptionsEn": ["to delete", "to win", "to finish", "to get up"],
 "translationOptionsFr": ["supprimer", "gagner", "terminer", "se lever"],
 "translationOptionsEs": ["eliminar", "ganar", "terminar", "levantarse"],
-"translationOptionsPt": ["excluir", "ganhar", "terminar", "levantar-se"],
+"translationOptionsPt": ["deletar", "ganhar", "terminar", "levantar-se"],
 "translationOptionsAr": ["أن حذف", "أن تشتري", "أن تهدي", "أن تتصل"],
 "translationOptionsAm": ["መሰረዝ", "መሸነፍ", "መጨርስ", "መነሳት"]
 ,
@@ -5577,7 +5577,7 @@
 "translationOptionsEs": ["alquilar", "parecer", "exigir", "encontrar"],
 "translationOptionsPt": ["alugar", "parecer", "exigir", "encontrar"],
 "translationOptionsAr": ["أن يستأجر", "أن تشتري", "أن تهدي", "أن تتصل"],
-"translationOptionsAm": ["ማከራየት", "መሳለቅ", "መጠየቅ", "ማግኘት"]
+"translationOptionsAm": ["ተከራይ", "መሳለቅ", "መጠየቅ", "ማግኘት"]
 ,
                         "correctTranslationIndex": 0
                     },
@@ -5680,11 +5680,11 @@
                            "Пить",
                            "Копать" 
                         ],
-                        "translationOptionsEn": ["to give", "to wish", "to drink", "to dig"],
+                        "translationOptionsEn": ["to present", "to wish", "to drink", "to dig"],
 "translationOptionsFr": ["offrir", "souhaiter", "boire", "creuser"],
 "translationOptionsEs": ["regalar", "desear", "beber", "cavar"],
-"translationOptionsPt": ["dar", "desejar", "beber", "cavar"],
-"translationOptionsAr": ["أن يعطي", "أن تستمع", "أن تفهم", "أن تنام"],
+"translationOptionsPt": ["presentear", "desejar", "beber", "cavar"],
+"translationOptionsAr": ["أهدى", "أن تستمع", "أن تفهم", "أن تنام"],
 "translationOptionsAm": ["መስጠት", "መኛት", "መጠጣት", "መቆፈር"]
 ,
                         "correctTranslationIndex": 0
@@ -5727,7 +5727,7 @@
 "translationOptionsEs": ["pedir prestado", "guardar", "vivir", "soñar"],
 "translationOptionsPt": ["pegar emprestado", "guardar", "viver", "sonhar"],
 "translationOptionsAr": ["أن يقترض", "أن يبكي", "أن يفهم", "أن يجفف"],
-"translationOptionsAm": ["በደር ማድረግ", "መያዝ", "መኖር", "መህልም"]
+"translationOptionsAm": ["ተበደረ", "መያዝ", "መኖር", "መህልም"]
 ,
                         "correctTranslationIndex": 0
                     },
@@ -5773,11 +5773,11 @@
                         "binyan": "PA'AL",
                         "transliteration": "litzpot",
                         "audioFile": "litzpot.mp3",
-                        "translationOptions": ["Наблюдать, Хранить, Жить, Мечтать"],
-                        "translationOptionsEn": ["to observe", "to keep", "to live", "to dream"],
-"translationOptionsFr": ["observer", "garder", "vivre", "rêver"],
-"translationOptionsEs": ["observar", "guardar", "vivir", "soñar"],
-"translationOptionsPt": ["observar", "guardar", "viver", "sonhar"],
+                        "translationOptions": ["Наблюдать", "Хранить", "Жить", "Мечтать"],
+                        "translationOptionsEn": ["to watch", "to keep", "to live", "to dream"],
+"translationOptionsFr": ["regarder", "garder", "vivre", "rêver"],
+"translationOptionsEs": ["mirar", "guardar", "vivir", "soñar"],
+"translationOptionsPt": ["assistir", "guardar", "viver", "sonhar"],
 "translationOptionsAr": ["أن يراقب", "أن يبكي", "أن يفهم", "أن يجفف"],
 "translationOptionsAm": ["መመልከት", "መያዝ", "መኖር", "መህልም"],
 
@@ -5796,7 +5796,7 @@
 "translationOptionsEs": ["entrenar", "acelerar", "volar", "mirar"],
 "translationOptionsPt": ["treinar", "acelerar", "voar", "assistir"],
 "translationOptionsAr": ["أن يتدرب", "أن تأخذ", "أن تفرح", "أن تندهش"],
-"translationOptionsAm": ["መልማት", "መፍጠር", "መብረር", "መመልከት"]
+"translationOptionsAm": ["ስልጠና", "መፍጠር", "መብረር", "መመልከት"]
 ,
                         "correctTranslationIndex": 0
                     },
@@ -5978,7 +5978,7 @@
                   "translationOptionsEs": ["rechazar", "divertir", "aburrir", "entristecer"],
                   "translationOptionsPt": ["recusar", "divertir", "aburrir", "entristecer"],
                   "translationOptionsAr": ["أن يرفض", "أن تلهو", "أن تمل", "أن تحزن"],
-                  "translationOptionsAm": ["መራቅ", "መደሰት", "መሰማት", "ማከፋት"],
+                  "translationOptionsAm": ["እምቢ ማለት", "መደሰት", "መሰማት", "ማከፋት"],
                   
                         "correctTranslationIndex": 0
                     },
@@ -6247,7 +6247,7 @@
           "Покупать",
           "Решать"
       ],
-      "translationOptionsEn": ["to beat", "to hear", "to buy", "to decide"],
+      "translationOptionsEn": ["to hit", "to hear", "to buy", "to decide"],
 "translationOptionsFr": ["frapper", "entendre", "acheter", "décider"],
 "translationOptionsEs": ["golpear", "oír", "comprar", "decidir"],
 "translationOptionsPt": ["bater", "ouvir", "comprar", "decidir"],
@@ -6255,6 +6255,28 @@
 "translationOptionsAm": ["መታ",  "መቀበል", "መረጣት", "መርዳት"],
 
       "correctTranslationIndex": 0
-  }
+  },
+
+  {
+    "hebrewVerb": "לצפצף",
+    "root": "צ-פ-צ-ף",
+    "binyan": "PI'EL",
+    "transliteration": "letzaftzef",
+    "audioFile": "letzaftzef.mp3",
+    "translationOptions": [
+        "Сигналить",
+        "Спешить",
+        "Опаздывать",
+        "Голосовать"
+    ],
+    "translationOptionsEn": ["to honk", "to hurry", "to be late", "to vote"],
+"translationOptionsFr": ["klaxonner", "se dépêcher", "être en retard", "voter"],
+"translationOptionsEs": ["pitar", "apresurarse", "llegar tarde", "votar"],
+"translationOptionsPt": ["buzinar", "apressar-se", "chegar atrasado", "votar"],
+"translationOptionsAr": ["أنا أبوق", "أن تسرع", "أن تتأخر", "أن تصوت"],
+"translationOptionsAm": ["ቀንድ ማሰማት", "መፍጠር", "መዘገየት", "መምረጥ"],
+
+    "correctTranslationIndex": 0
+}
 
 ]

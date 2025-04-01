@@ -1,17 +1,17 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { ScrollView, View, Text, TouchableOpacity, StyleSheet, Image, BackHandler } from 'react-native';
 import VerbCard2 from './VerbCard2Es';
 import verbsData from './verbs2.json';
-import verbs1RU from './verbs1RU.json'; // Подключаем данные
+import verbs1RU from './verbs11RU.json'; // Подключаем данные
 import ProgressBar from './ProgressBar';
 import CompletionMessageEs from './CompletionMessageEs';
-import { useNavigation } from '@react-navigation/native';
-import ExitConfirmationModalEs from './ExitConfirmationModalEs';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
+import ExitConfirmationModal from './ExitConfirmationModalEs';
 import { Audio } from 'expo-av';
 import sounds from './Soundss';
 import soundsConj from './soundconj'; // Импорт дополнительных звуков
 import { Animated } from 'react-native';
-import TaskDescriptionModal2 from './TaskDescriptionModal2';
+import TaskDescriptionModal2 from './TaskDescriptionModal2Es';
 import StatModal2Es from './StatModal2Es';
 import { updateStatistics, getStatistics } from './stat';
 import LottieView from 'lottie-react-native';
@@ -126,7 +126,7 @@ const VerbDetailsContainer2 = ({ verbDetails, handleSpeakerPress, currentIndex, 
           <Animated.View style={[styles.verbDetailsHalf, styles.verbDetailsRight, { width: rightWidth }]} />
           <View style={styles.verbDetailsContent}>
               <View style={styles.verbDetailsLeftContent}>
-                  <Text style={styles.verbDetailsRussian} maxFontSizeMultiplier={1.2}>{verbDetails.russiantext}</Text>
+                  <Text style={styles.verbDetailsRussian} maxFontSizeMultiplier={1.2}>{verbDetails.estext}</Text>
               </View>
               <View style={styles.verbDetailsRightContent}>
                   {isAnswered ? (
@@ -194,7 +194,7 @@ const Exercise2Es = () => {
   const [autoPlayEnabled, setAutoPlayEnabled] = useState(true);
   const animationRef = useRef(null);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [verbDetails, setVerbDetails] = useState({ hebrewtext: '', translit: '', russiantext: '' });
+  const [verbDetails, setVerbDetails] = useState({ hebrewtext: '', translit: '', estext: '' });
   const [triggerRightAnimation, setTriggerRightAnimation] = useState(false);
   const [isSecondSoundFinished, setIsSecondSoundFinished] = useState(false);
   const [canShowSpeaker, setCanShowSpeaker] = useState(false);
@@ -300,24 +300,55 @@ const Exercise2Es = () => {
   });
 
   const navigation = useNavigation();
-
-  const navigateToMenu = () => {
-    navigation.navigate('MenuEs');
-  };
+  
+    const navigateToMenu = () => {
+      console.log('Navigating to MenuEn, current state:', navigation.getState());
+      navigation.reset({
+        index: 0,
+        routes: [{ name: 'MenuEs' }],
+      });
+    };
 
   const handleBackButtonPress = () => {
     setExitConfirmationVisible(true);
     return true;
   };
 
-  useEffect(() => {
-    const backHandler = BackHandler.addEventListener(
-      'hardwareBackPress',
-      handleBackButtonPress
-    );
-
-    return () => backHandler.remove();
-  }, []);
+  useFocusEffect(
+              useCallback(() => {
+                const onBackPress = () => {
+                  if (exitConfirmationVisible) {
+                    return false;
+                  }
+                  setExitConfirmationVisible(true);
+                  return true;
+                };
+            
+                const backHandler = BackHandler.addEventListener(
+                  'hardwareBackPress',
+                  onBackPress
+                );
+            
+                const unsubscribe = navigation.addListener('beforeRemove', (e) => {
+                  if (!exitConfirmationVisible) {
+                    e.preventDefault(); // Блокируем навигацию назад
+                    setExitConfirmationVisible(true); // Показываем модалку
+                  }
+                });
+            
+                return () => {
+                  backHandler.remove();
+                  unsubscribe();
+                };
+              }, [exitConfirmationVisible, navigation])
+            );
+  
+    useEffect(() => {
+        navigation.setOptions({
+          headerLeft: () => null, // Убирает кнопку "Назад" в заголовке
+        });
+      }, [navigation]);
+  
 
   useEffect(() => {
     async function loadSounds() {
@@ -361,11 +392,11 @@ const Exercise2Es = () => {
       setVerbDetails({
         hebrewtext: showHebrewText ? selectedVerb.hebrewtext : '',
         translit: showHebrewText ? selectedVerb.translit : '',
-        russiantext: selectedVerb.russiantext,
+        estext: selectedVerb.estext,
         mp3: selectedVerb.mp3,
       });
     } else {
-      setVerbDetails({ hebrewtext: '', translit: '', russiantext: 'Глагол не найден', mp3: '' });
+      setVerbDetails({ hebrewtext: '', translit: '', estext: 'Verbo no encontrado', mp3: '' });
     }
   };
 
@@ -375,38 +406,68 @@ const Exercise2Es = () => {
     }
   }, [isGenderMan, currentIndex, shuffledVerbs]);
 
-  useEffect(() => {
-    const soundObjects = [];
+  // useEffect(() => {
+  //   const soundObjects = [];
 
+  //   const loadSounds = async () => {
+  //     try {
+  //       const correctSoundObject = new Audio.Sound();
+  //       const incorrectSoundObject = new Audio.Sound();
+
+  //       await correctSoundObject.loadAsync(require('./assets/sounds/success.mp3'));
+  //       await incorrectSoundObject.loadAsync(require('./assets/sounds/failure.mp3'));
+
+  //       soundObjects.push(correctSoundObject, incorrectSoundObject);
+
+  //       setCorrectSound(correctSoundObject);
+  //       setIncorrectSound(incorrectSoundObject);
+  //     } catch (error) {
+  //       console.error('Failed to load sounds', error);
+  //     }
+  //   };
+
+  //   loadSounds();
+
+  //   return () => {
+  //     soundObjects.forEach(async (soundObject) => {
+  //       try {
+  //         await soundObject.unloadAsync();
+  //       } catch (error) {
+  //         console.error('Failed to unload sound', error);
+  //       }
+  //     });
+  //   };
+  // }, []);
+
+  useEffect(() => {
     const loadSounds = async () => {
       try {
         const correctSoundObject = new Audio.Sound();
         const incorrectSoundObject = new Audio.Sound();
-
+  
         await correctSoundObject.loadAsync(require('./assets/sounds/success.mp3'));
         await incorrectSoundObject.loadAsync(require('./assets/sounds/failure.mp3'));
-
-        soundObjects.push(correctSoundObject, incorrectSoundObject);
-
+  
         setCorrectSound(correctSoundObject);
         setIncorrectSound(incorrectSoundObject);
+  
+        // Установка громкости в зависимости от soundEnabled
+        const volume = soundEnabled ? 1 : 0;
+        await correctSoundObject.setVolumeAsync(volume);
+        await incorrectSoundObject.setVolumeAsync(volume);
       } catch (error) {
-        console.error('Failed to load sounds', error);
+        console.error('Ошибка загрузки звуков:', error);
       }
     };
-
+  
     loadSounds();
-
+  
     return () => {
-      soundObjects.forEach(async (soundObject) => {
-        try {
-          await soundObject.unloadAsync();
-        } catch (error) {
-          console.error('Failed to unload sound', error);
-        }
-      });
+      correctSound?.unloadAsync();
+      incorrectSound?.unloadAsync();
     };
-  }, []);
+  }, [soundEnabled]);
+  
 
   const handleSpeakerPress = async (audioFile) => {
     if (!audioFile) {
@@ -486,61 +547,116 @@ const playSound = async (audioFileName, forcePlay = false) => {
   const [isTextVisible , setisTextVisible] = useState(false);
 
 
-  const handleAnswer = async (selectedOptionIndex) => {
-    setSelectedOptionIndex(selectedOptionIndex);
-    setAnimateRight(false); // Сброс анимации перед новым ответом
-    setIsSecondSoundFinished(false); // Сбрасываем состояние перед началом ответа
-    setIsAnswered(true);
-    setCanShowSpeaker(false); // Скрываем спикер перед началом выполнения действий
-    setShowLottie(true); // Показываем анимацию сразу после ответа
+//   const handleAnswer = async (selectedOptionIndex) => {
+//     setSelectedOptionIndex(selectedOptionIndex);
+//     setAnimateRight(false); // Сброс анимации перед новым ответом
+//     setIsSecondSoundFinished(false); // Сбрасываем состояние перед началом ответа
+//     setIsAnswered(true);
+//     setCanShowSpeaker(false); // Скрываем спикер перед началом выполнения действий
+//     setShowLottie(true); // Показываем анимацию сразу после ответа
 
-    const isCorrect = optionsOrder[selectedOptionIndex].isCorrect;
+//     const isCorrect = optionsOrder[selectedOptionIndex].isCorrect;
 
-    const updatedOptions = optionsOrder.map((option, index) => ({
-        ...option,
-        isSelected: index === selectedOptionIndex,
-        disabled: true,
-    }));
+//     const updatedOptions = optionsOrder.map((option, index) => ({
+//         ...option,
+//         isSelected: index === selectedOptionIndex,
+//         disabled: true,
+//     }));
 
-    setOptionsOrder(updatedOptions);
+//     setOptionsOrder(updatedOptions);
 
-    changeBackgroundColor(isCorrect);
+//     changeBackgroundColor(isCorrect);
 
+//     if (isCorrect) {
+//         setCorrectAnswers(prevCorrectAnswers => prevCorrectAnswers + 1);
+//     } else {
+//         setIncorrectAnswers(prevIncorrectAnswers => prevIncorrectAnswers + 1);
+//     }
+
+//     setProgress(prevProgress => prevProgress + 1);
+
+//     try {
+//         const firstSoundFile = shuffledVerbs[currentIndex].audioFile.replace('.mp3', '');
+//         await playSound(firstSoundFile);
+
+//         // Запускаем анимацию правой половины после завершения первого звука
+//         setAnimateRight(true);
+
+//         // Отключаем анимацию через 1 секунду после начала
+//         setTimeout(() => {
+//           setShowLottie(false);
+//       }, 800);
+
+//         await new Promise(resolve => setTimeout(resolve, 700));
+//         await playSecondSound();
+//         setIsSecondSoundFinished(true); // Устанавливаем флаг завершения второго звука
+
+//         // Устанавливаем флаг для отображения спикера только после завершения всех действий
+//         setCanShowSpeaker(true);
+//     } catch (error) {
+//         console.error("Error during sound playback:", error);
+//     }
+
+//     updateVerbDetails2(shuffledVerbs[currentIndex], true);
+//     setShowNextButton(true);
+// };
+
+const handleAnswer = async (selectedOptionIndex) => {
+  setSelectedOptionIndex(selectedOptionIndex);
+  setAnimateRight(false);
+  setIsAnswered(true);
+  setCanShowSpeaker(false);
+  setShowLottie(true);
+
+  const isCorrect = optionsOrder[selectedOptionIndex].isCorrect;
+
+  const updatedOptions = optionsOrder.map((option, index) => ({
+    ...option,
+    isSelected: index === selectedOptionIndex,
+    disabled: true,
+  }));
+
+  setOptionsOrder(updatedOptions);
+  changeBackgroundColor(isCorrect);
+
+  // Воспроизведение звуков
+  try {
     if (isCorrect) {
-        setCorrectAnswers(prevCorrectAnswers => prevCorrectAnswers + 1);
+      await correctSound?.replayAsync();
+      setCorrectAnswers(prev => prev + 1);
     } else {
-        setIncorrectAnswers(prevIncorrectAnswers => prevIncorrectAnswers + 1);
+      await incorrectSound?.replayAsync();
+      setIncorrectAnswers(prev => prev + 1);
     }
+  } catch (error) {
+    console.error('Ошибка воспроизведения звука:', error);
+  }
 
-    setProgress(prevProgress => prevProgress + 1);
+  setProgress(prev => prev + 1);
 
-    try {
-        const firstSoundFile = shuffledVerbs[currentIndex].audioFile.replace('.mp3', '');
-        await playSound(firstSoundFile);
+  // Остальная логика обработки
+  try {
+    const firstSoundFile = shuffledVerbs[currentIndex].audioFile.replace('.mp3', '');
+    await playSound(firstSoundFile);
 
-        // Запускаем анимацию правой половины после завершения первого звука
-        setAnimateRight(true);
+    setAnimateRight(true);
 
-        // Отключаем анимацию через 1 секунду после начала
-        setTimeout(() => {
-          setShowLottie(false);
-      }, 800);
+    setTimeout(() => {
+      setShowLottie(false);
+    }, 800);
 
-        await new Promise(resolve => setTimeout(resolve, 700));
-        await playSecondSound();
-        setIsSecondSoundFinished(true); // Устанавливаем флаг завершения второго звука
+    await new Promise(resolve => setTimeout(resolve, 700));
+    await playSecondSound();
+    setIsSecondSoundFinished(true);
+    setCanShowSpeaker(true);
+  } catch (error) {
+    console.error('Ошибка при воспроизведении звуков:', error);
+  }
 
-        // Устанавливаем флаг для отображения спикера только после завершения всех действий
-        setCanShowSpeaker(true);
-    } catch (error) {
-        console.error("Error during sound playback:", error);
-    }
-
-    updateVerbDetails2(shuffledVerbs[currentIndex], true);
-    setShowNextButton(true);
+  updateVerbDetails2(shuffledVerbs[currentIndex], true);
+  setShowNextButton(true);
 };
 
-  
 
 
   const handleNextCard = () => {
@@ -690,7 +806,10 @@ const playSound = async (audioFileName, forcePlay = false) => {
   };
 
   const handleConfirmExit = () => {
-    navigation.navigate('MenuEs');
+    navigation.reset({
+      index: 0,
+      routes: [{ name: 'MenuEs' }],
+    });
   };
 
   const handleCancelExit = () => {
@@ -939,7 +1058,7 @@ const playSound = async (audioFileName, forcePlay = false) => {
           />
         )}
 
-        <ExitConfirmationModalEs
+        <ExitConfirmationModal
           visible={exitConfirmationVisible}
           onCancel={handleCancelExit}
           onConfirm={handleConfirmExit}

@@ -257,7 +257,23 @@ shichvi: require('./assets/imperative/shichvi.mp3'),
 shichvu: require('./assets/imperative/shichvu.mp3'),
 lechatz: require('./assets/imperative/lechatz.mp3'),
 lachatzi: require('./assets/imperative/lachatzi.mp3'),
-lachatzu: require('./assets/imperative/lachatzu.mp3')
+lachatzu: require('./assets/imperative/lachatzu.mp3'),
+    mshoch: require('./assets/imperative/mshoch.mp3'),
+    mishchi: require('./assets/imperative/mishchi.mp3'),
+    mishchu: require('./assets/imperative/mishchu.mp3'),
+    dchof: require('./assets/imperative/dchof.mp3'),
+    dachafi: require('./assets/imperative/dachafi.mp3'),
+    dachafu: require('./assets/imperative/dachafu.mp3'),
+    tfos: require('./assets/imperative/tfos.mp3'),
+    tifsi: require('./assets/imperative/tifsi.mp3'),
+    tifsu: require('./assets/imperative/tifsu.mp3'),
+    zrok: require('./assets/imperative/zrok.mp3'),
+    zirki: require('./assets/imperative/zirki.mp3'),
+    zirku: require('./assets/imperative/zirku.mp3'),
+    hake: require('./assets/imperative/hake.mp3'),
+    haki: require('./assets/imperative/haki.mp3'),
+    haku: require('./assets/imperative/haku.mp3')
+ 
 };   
 
 

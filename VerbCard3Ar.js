@@ -192,7 +192,7 @@ const styles = StyleSheet.create({
     paddingRight: 10,
   },
   bin: {
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: 'bold',
     color: '#003882',
     borderRadius: 20,

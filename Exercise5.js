@@ -1,9 +1,9 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { ScrollView, View, Text, TouchableOpacity, StyleSheet, BackHandler, Image } from 'react-native';
 import VerbCard5 from './VerbCard5';
 import verbsData from './verbimperRus.json';
 import ProgressBar from './ProgressBar';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import CompletionMessage from './CompletionMessage';
 import ExitConfirmationModal from './ExitConfirmationModal';
 import { Audio } from 'expo-av';
@@ -195,21 +195,64 @@ const playFeedbackSound = async (isCorrect) => {
   });
 
   const navigateToMenu = () => {
-    navigation.navigate('Menu');
-  };
-  const handleBackButtonPress = () => {
-    setExitConfirmationVisible(true);
-    return true;
-  };
-
-  useEffect(() => {
-    const backHandler = BackHandler.addEventListener(
-      'hardwareBackPress',
-      handleBackButtonPress
-    );
-  
-    return () => backHandler.remove();
-  }, []);
+          console.log('Navigating to MenuEn, current state:', navigation.getState());
+          navigation.reset({
+            index: 0,
+            routes: [{ name: 'Menu' }],
+          });
+        };
+      
+        const handleBackButtonPress = () => {
+          setExitConfirmationVisible(true);
+          return true;
+        };
+      
+        useFocusEffect(
+          useCallback(() => {
+            if (exerciseCompleted) return; // 🔥 Критически важно!
+        
+            const onBackPress = () => {
+              if (exitConfirmationVisible) return false;
+              setExitConfirmationVisible(true);
+              return true;
+            };
+        
+            const backHandler = BackHandler.addEventListener(
+              'hardwareBackPress',
+              onBackPress
+            );
+        
+            const unsubscribe = navigation.addListener('beforeRemove', (e) => {
+              if (!exitConfirmationVisible) {
+                e.preventDefault();
+                setExitConfirmationVisible(true);
+              }
+            });
+        
+            return () => {
+              backHandler.remove();
+              unsubscribe();
+            };
+          }, [exitConfirmationVisible, navigation, exerciseCompleted])
+        );
+        
+      
+        useEffect(() => {
+            navigation.setOptions({
+              headerLeft: () => null, // Убирает кнопку "Назад" в заголовке
+            });
+          }, [navigation]);
+    
+      const handleCancelExit = () => {
+        setExitConfirmationVisible(false);
+      };
+    
+      const handleConfirmExit = () => {
+        navigation.reset({
+          index: 0,
+          routes: [{ name: 'Menu' }],
+        });
+      };
 
   useEffect(() => {
     setShuffledVerbs(shuffleArray(verbsData));
@@ -781,11 +824,14 @@ const handleSpeakerPress = (mp3) => {
         />
       )}
 
-      <ExitConfirmationModal
-        visible={exitConfirmationVisible}
-        onCancel={() => setExitConfirmationVisible(false)}
-        onConfirm={navigateToMenu}
-      />
+{!exerciseCompleted && (
+  <ExitConfirmationModal
+    visible={exitConfirmationVisible}
+    onCancel={handleCancelExit} 
+    onConfirm={handleConfirmExit}
+  />
+)}
+
     </View>
     </ScrollView>
   );

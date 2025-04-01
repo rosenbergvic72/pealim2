@@ -1,14 +1,14 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { ScrollView, View, Text, TouchableOpacity, StyleSheet, BackHandler, Image, Animated } from 'react-native';
 import VerbCard1 from './VerbCard1En';
 import verbsData from './verbs1.json';
-import verbs1RU from './verbs1RU.json'; // Подключаем данные
+import verbs1RU from './verbs11RU.json'; // Подключаем данные
 import ProgressBar from './ProgressBar';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import CompletionMessageEn from './CompletionMessageEn';
-import ExitConfirmationModalEn from './ExitConfirmationModalEn';
+import ExitConfirmationModal from './ExitConfirmationModalEn';
 import { Audio } from 'expo-av';
-import TaskDescriptionModal1 from './TaskDescriptionModal1';
+import TaskDescriptionModal1 from './TaskDescriptionModal1En';
 import StatModal1En from './StatModal1En';
 import { updateStatistics, getStatistics } from './stat';
 import sounds from './Soundss';
@@ -108,7 +108,7 @@ const VerbDetailsContainer = ({ verbDetails, showRussianText, handleSpeakerPress
       </View>
       <View style={styles.verbDetailsRightContent}>
         {showRussianText ? (
-          <Text style={styles.verbDetailsRussian}maxFontSizeMultiplier={1.2}>{verbDetails.russiantext}</Text>
+          <Text style={styles.verbDetailsRussian}maxFontSizeMultiplier={1.2}>{verbDetails.entext}</Text>
         ) : (
           <LottieView
             source={animation}
@@ -172,14 +172,6 @@ const handleSpeakerPress = async (audioFile) => {
     delete cachedSounds[audioFile]; // Удаляем из кэша в случае ошибки
   }
 };
-
-
-
-
-
-
-
-
 
 const Exercise1En = ({ navigation }) => {
   const [correctSound, setCorrectSound] = useState();
@@ -265,7 +257,11 @@ const Exercise1En = ({ navigation }) => {
   });
 
   const navigateToMenu = () => {
-    navigation.navigate('MenuEn');
+    console.log('Navigating to MenuEn, current state:', navigation.getState());
+    navigation.reset({
+      index: 0,
+      routes: [{ name: 'MenuEn' }],
+    });
   };
 
   const handleBackButtonPress = () => {
@@ -273,14 +269,40 @@ const Exercise1En = ({ navigation }) => {
     return true;
   };
 
-  useEffect(() => {
-    const backHandler = BackHandler.addEventListener(
-      'hardwareBackPress',
-      handleBackButtonPress
-    );
+  useFocusEffect(
+              useCallback(() => {
+                const onBackPress = () => {
+                  if (exitConfirmationVisible) {
+                    return false;
+                  }
+                  setExitConfirmationVisible(true);
+                  return true;
+                };
+            
+                const backHandler = BackHandler.addEventListener(
+                  'hardwareBackPress',
+                  onBackPress
+                );
+            
+                const unsubscribe = navigation.addListener('beforeRemove', (e) => {
+                  if (!exitConfirmationVisible) {
+                    e.preventDefault(); // Блокируем навигацию назад
+                    setExitConfirmationVisible(true); // Показываем модалку
+                  }
+                });
+            
+                return () => {
+                  backHandler.remove();
+                  unsubscribe();
+                };
+              }, [exitConfirmationVisible, navigation])
+            );
 
-    return () => backHandler.remove();
-  }, []);
+  useEffect(() => {
+    navigation.setOptions({
+      headerLeft: () => null, // Убирает кнопку "Назад" в заголовке
+    });
+  }, [navigation]);
 
   useEffect(() => {
     setShuffledVerbs(shuffleArray(verbsData));
@@ -397,7 +419,7 @@ const Exercise1En = ({ navigation }) => {
         setVerbDetails({
           hebrewtext: selectedVerb.hebrewtext,
           translit: selectedVerb.translit,
-          russiantext: selectedVerb.russiantext,
+          entext: selectedVerb.entext,
           mp3: selectedVerb.mp3, // Добавляем mp3 в состояние verbDetails
         });
       }
@@ -479,7 +501,10 @@ const Exercise1En = ({ navigation }) => {
   }, [exerciseCompleted]);
 
   const handleConfirmExit = () => {
-    navigation.navigate('MenuEn');
+    navigation.reset({
+      index: 0,
+      routes: [{ name: 'MenuEn' }],
+    });
   };
 
   const handleCancelExit = () => {
@@ -582,7 +607,7 @@ const Exercise1En = ({ navigation }) => {
         setVerbDetails((prevDetails) => ({
           hebrewtext: selectedVerb.hebrewtext,
           translit: selectedVerb.translit,
-          russiantext: showRussianText ? selectedVerb.russiantext : '',
+          entext: showRussianText ? selectedVerb.entext : '',
           mp3: selectedVerb.mp3, // Добавляем mp3
         }));
   
@@ -665,7 +690,7 @@ const playAudio = async (audioFile) => {
   const handleGenderToggle = () => {
     setIsGenderMan((prev) => {
         const newIsGenderMan = !prev;
-        updateVerbDetails(shuffledVerbs[currentIndex], newIsGenderMan, verbDetails.russiantext !== '');
+        updateVerbDetails(shuffledVerbs[currentIndex], newIsGenderMan, verbDetails.entext !== '');
         return newIsGenderMan;
     });
 };
@@ -763,7 +788,7 @@ const playAudio = async (audioFile) => {
 
 <VerbDetailsContainer
   verbDetails={verbDetails}
-  showRussianText={verbDetails.russiantext !== ''}
+  showRussianText={verbDetails.entext !== ''}
   handleSpeakerPress={handleSpeakerPress}
 />
 
@@ -816,7 +841,7 @@ const playAudio = async (audioFile) => {
         />
       )}
 
-    <ExitConfirmationModalEn
+    <ExitConfirmationModal
         visible={exitConfirmationVisible}
         onCancel={handleCancelExit}
         onConfirm={handleConfirmExit}

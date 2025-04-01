@@ -1,14 +1,14 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { ScrollView, View, Text, TouchableOpacity, StyleSheet, BackHandler, Image, Animated } from 'react-native';
 import VerbCard1 from './VerbCard1Pt';
 import verbsData from './verbs1.json';
-import verbs1RU from './verbs1RU.json'; // Подключаем данные
+import verbs1RU from './verbs11RU.json'; // Подключаем данные
 import ProgressBar from './ProgressBar';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import CompletionMessagePt from './CompletionMessagePt';
-import ExitConfirmationModalPt from './ExitConfirmationModalPt';
+import ExitConfirmationModal from './ExitConfirmationModalPt';
 import { Audio } from 'expo-av';
-import TaskDescriptionModal1 from './TaskDescriptionModal1';
+import TaskDescriptionModal1 from './TaskDescriptionModal1Pt';
 import StatModal1Pt from './StatModal1Pt';
 import { updateStatistics, getStatistics } from './stat';
 import sounds from './Soundss';
@@ -109,7 +109,7 @@ const VerbDetailsContainer = ({ verbDetails, showRussianText, handleSpeakerPress
       </View>
       <View style={styles.verbDetailsRightContent}>
         {showRussianText ? (
-          <Text style={styles.verbDetailsRussian}maxFontSizeMultiplier={1.2}>{verbDetails.russiantext}</Text>
+          <Text style={styles.verbDetailsRussian}maxFontSizeMultiplier={1.2}>{verbDetails.pttext}</Text>
         ) : (
           <LottieView
             source={animation}
@@ -266,7 +266,11 @@ const Exercise1Pt = ({ navigation }) => {
   });
 
   const navigateToMenu = () => {
-    navigation.navigate('MenuPt');
+    console.log('Navigating to MenuEn, current state:', navigation.getState());
+    navigation.reset({
+      index: 0,
+      routes: [{ name: 'MenuPt' }],
+    });
   };
 
   const handleBackButtonPress = () => {
@@ -274,14 +278,40 @@ const Exercise1Pt = ({ navigation }) => {
     return true;
   };
 
-  useEffect(() => {
-    const backHandler = BackHandler.addEventListener(
-      'hardwareBackPress',
-      handleBackButtonPress
-    );
-
-    return () => backHandler.remove();
-  }, []);
+  useFocusEffect(
+              useCallback(() => {
+                const onBackPress = () => {
+                  if (exitConfirmationVisible) {
+                    return false;
+                  }
+                  setExitConfirmationVisible(true);
+                  return true;
+                };
+            
+                const backHandler = BackHandler.addEventListener(
+                  'hardwareBackPress',
+                  onBackPress
+                );
+            
+                const unsubscribe = navigation.addListener('beforeRemove', (e) => {
+                  if (!exitConfirmationVisible) {
+                    e.preventDefault(); // Блокируем навигацию назад
+                    setExitConfirmationVisible(true); // Показываем модалку
+                  }
+                });
+            
+                return () => {
+                  backHandler.remove();
+                  unsubscribe();
+                };
+              }, [exitConfirmationVisible, navigation])
+            );
+  
+    useEffect(() => {
+      navigation.setOptions({
+        headerLeft: () => null, // Убирает кнопку "Назад" в заголовке
+      });
+    }, [navigation]);
 
   useEffect(() => {
     setShuffledVerbs(shuffleArray(verbsData));
@@ -398,7 +428,7 @@ const Exercise1Pt = ({ navigation }) => {
         setVerbDetails({
           hebrewtext: selectedVerb.hebrewtext,
           translit: selectedVerb.translit,
-          russiantext: selectedVerb.russiantext,
+          pttext: selectedVerb.pttext,
           mp3: selectedVerb.mp3, // Добавляем mp3 в состояние verbDetails
         });
       }
@@ -480,7 +510,10 @@ const Exercise1Pt = ({ navigation }) => {
   }, [exerciseCompleted]);
 
   const handleConfirmExit = () => {
-    navigation.navigate('MenuPt');
+    navigation.reset({
+      index: 0,
+      routes: [{ name: 'MenuPt' }],
+    });
   };
 
   const handleCancelExit = () => {
@@ -571,7 +604,7 @@ const Exercise1Pt = ({ navigation }) => {
     }
   };
 
-  const [verbDetails, setVerbDetails] = useState({ hebrewtext: '', translit: '', russiantext: '' });
+  const [verbDetails, setVerbDetails] = useState({ hebrewtext: '', translit: '', pttext: '' });
 
   const updateVerbDetails = (currentVerb, isGenderMan, showRussianText = false) => {
     if (!currentVerb) return;
@@ -583,17 +616,17 @@ const Exercise1Pt = ({ navigation }) => {
         setVerbDetails((prevDetails) => ({
           hebrewtext: selectedVerb.hebrewtext,
           translit: selectedVerb.translit,
-          russiantext: showRussianText ? selectedVerb.russiantext : '',
+          pttext: showRussianText ? selectedVerb.pttext : '',
           mp3: selectedVerb.mp3, // Добавляем mp3
         }));
   
         // Play both sounds before showing the Russian text
         playAudio(selectedVerb.mp3);
       } else {
-        setVerbDetails({ hebrewtext: 'Глагол не найден', translit: '', russiantext: '', mp3: '' });
+        setVerbDetails({ hebrewtext: 'Глагол не найден', translit: '', pttext: '', mp3: '' });
       }
     } else {
-      setVerbDetails({ hebrewtext: 'Глагол не найден', translit: '', russiantext: '', mp3: '' });
+      setVerbDetails({ hebrewtext: 'Глагол не найден', translit: '', pttext: '', mp3: '' });
     }
   };
   
@@ -666,7 +699,7 @@ const playAudio = async (audioFile) => {
   const handleGenderToggle = () => {
     setIsGenderMan((prev) => {
         const newIsGenderMan = !prev;
-        updateVerbDetails(shuffledVerbs[currentIndex], newIsGenderMan, verbDetails.russiantext !== '');
+        updateVerbDetails(shuffledVerbs[currentIndex], newIsGenderMan, verbDetails.pttext !== '');
         return newIsGenderMan;
     });
 };
@@ -764,7 +797,7 @@ const playAudio = async (audioFile) => {
 
 <VerbDetailsContainer
   verbDetails={verbDetails}
-  showRussianText={verbDetails.russiantext !== ''}
+  showRussianText={verbDetails.pttext !== ''}
   handleSpeakerPress={handleSpeakerPress}
 />
 
@@ -817,7 +850,7 @@ const playAudio = async (audioFile) => {
         />
       )}
 
-    <ExitConfirmationModalPt
+    <ExitConfirmationModal
         visible={exitConfirmationVisible}
         onCancel={handleCancelExit}
         onConfirm={handleConfirmExit}

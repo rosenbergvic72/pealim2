@@ -1,10 +1,10 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { ScrollView, View, Text, TouchableOpacity, StyleSheet, BackHandler, Image, Animated } from 'react-native';
 import VerbCard1 from './VerbCard1';
 import verbsData from './verbs1.json';
 import verbs1RU from './verbs11RU.json'; // Подключаем данные
 import ProgressBar from './ProgressBar';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import CompletionMessage from './CompletionMessage';
 import ExitConfirmationModal from './ExitConfirmationModal';
 import { Audio } from 'expo-av';
@@ -264,8 +264,14 @@ const Exercise1 = ({ navigation }) => {
     outputRange: ['#83A3CD', '#AFFFCA', '#FFBCBC'],
   });
 
+  
+
   const navigateToMenu = () => {
-    navigation.navigate('Menu');
+    console.log('Navigating to MenuEn, current state:', navigation.getState());
+    navigation.reset({
+      index: 0,
+      routes: [{ name: 'Menu' }],
+    });
   };
 
   const handleBackButtonPress = () => {
@@ -273,14 +279,41 @@ const Exercise1 = ({ navigation }) => {
     return true;
   };
 
-  useEffect(() => {
-    const backHandler = BackHandler.addEventListener(
-      'hardwareBackPress',
-      handleBackButtonPress
-    );
-
-    return () => backHandler.remove();
-  }, []);
+  useFocusEffect(
+    useCallback(() => {
+      if (exerciseCompleted) return; // 🔥 Критически важно!
+  
+      const onBackPress = () => {
+        if (exitConfirmationVisible) return false;
+        setExitConfirmationVisible(true);
+        return true;
+      };
+  
+      const backHandler = BackHandler.addEventListener(
+        'hardwareBackPress',
+        onBackPress
+      );
+  
+      const unsubscribe = navigation.addListener('beforeRemove', (e) => {
+        if (!exitConfirmationVisible) {
+          e.preventDefault();
+          setExitConfirmationVisible(true);
+        }
+      });
+  
+      return () => {
+        backHandler.remove();
+        unsubscribe();
+      };
+    }, [exitConfirmationVisible, navigation, exerciseCompleted])
+  );
+  
+  
+    useEffect(() => {
+      navigation.setOptions({
+        headerLeft: () => null, // Убирает кнопку "Назад" в заголовке
+      });
+    }, [navigation]);
 
   useEffect(() => {
     setShuffledVerbs(shuffleArray(verbsData));
@@ -390,7 +423,8 @@ const Exercise1 = ({ navigation }) => {
 
     setProgress((prevProgress) => prevProgress + 1);
 
-    const matchedVerbs = verbs1RU.filter((verb) => verb.infinitive === shuffledVerbs[currentIndex].hebrewVerb);
+    const matchedVerbs = verbs1RU.filter((verb) => verb.infinitive.trim() === shuffledVerbs[currentIndex].hebrewVerb.trim()
+  );
     if (matchedVerbs.length > 0) {
       const selectedVerb = matchedVerbs.find((verb) => verb.gender === (isGenderMan ? 'man' : 'woman'));
       if (selectedVerb) {
@@ -479,7 +513,10 @@ const Exercise1 = ({ navigation }) => {
   }, [exerciseCompleted]);
 
   const handleConfirmExit = () => {
-    navigation.navigate('Menu');
+    navigation.reset({
+      index: 0,
+      routes: [{ name: 'Menu' }],
+    });
   };
 
   const handleCancelExit = () => {
@@ -816,11 +853,14 @@ const playAudio = async (audioFile) => {
         />
       )}
 
-      <ExitConfirmationModal
-        visible={exitConfirmationVisible}
-        onCancel={handleCancelExit} 
-        onConfirm={handleConfirmExit}
-      />
+{!exerciseCompleted && (
+  <ExitConfirmationModal
+    visible={exitConfirmationVisible}
+    onCancel={handleCancelExit} 
+    onConfirm={handleConfirmExit}
+  />
+)}
+
     </View>
     </ScrollView>
   );

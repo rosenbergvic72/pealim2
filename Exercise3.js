@@ -1,9 +1,9 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback  } from 'react';
 import { ScrollView, View, Text, TouchableOpacity, StyleSheet, BackHandler, Image  } from 'react-native';
 import VerbCard3 from './VerbCard3';
 import verbsData from './verbs3.json';
 import ProgressBar from './ProgressBar';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import CompletionMessage from './CompletionMessage';
 import ExitConfirmationModal from './ExitConfirmationModal';
 import { Audio } from 'expo-av';
@@ -12,7 +12,7 @@ import TaskDescriptionModal3 from './TaskDescriptionModal3';
 import StatModal3 from './StatModal3';
 import { updateStatistics, getStatistics } from './stat';
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
-import verbs1RU from './verbs1RU.json'; // Assuming this file contains the data for verbs
+import verbs11RU from './verbs11RU.json'; // Assuming this file contains the data for verbs
 import soundsConj from './soundconj'; // Импорт дополнительных звуков
 
 
@@ -20,7 +20,7 @@ import soundsConj from './soundconj'; // Импорт дополнительны
 
 const findFirstMatchingVerb = (infinitive) => {
   console.log('Filtering verbs by infinitive:', infinitive); // Логируем инфинитив для поиска
-  const matchingVerbs = verbs1RU.filter(verb => {
+  const matchingVerbs = verbs11RU.filter(verb => {
     // console.log('Comparing verb.infinitive:', verb.infinitive);
     return verb.infinitive === infinitive;
   });
@@ -181,24 +181,53 @@ const Exercise3 = ({ navigation }) => {
   });
   
   const navigateToMenu = () => {
-    // Ваш код для перехода в меню
-    navigation.navigate('Menu');
-  };
-  const handleBackButtonPress = () => {
-    setExitConfirmationVisible(true);
-    return true; // чтобы предотвратить стандартное поведение кнопки назад
-  };
-
-  
-
-  useEffect(() => {
-    const backHandler = BackHandler.addEventListener(
-      'hardwareBackPress',
-      handleBackButtonPress
-    );
-  
-    return () => backHandler.remove();
-  }, []);
+        console.log('Navigating to MenuEn, current state:', navigation.getState());
+        navigation.reset({
+          index: 0,
+          routes: [{ name: 'Menu' }],
+        });
+      };
+    
+      const handleBackButtonPress = () => {
+        setExitConfirmationVisible(true);
+        return true;
+      };
+    
+      useFocusEffect(
+        useCallback(() => {
+          if (exerciseCompleted) return; // 🔥 Критически важно!
+      
+          const onBackPress = () => {
+            if (exitConfirmationVisible) return false;
+            setExitConfirmationVisible(true);
+            return true;
+          };
+      
+          const backHandler = BackHandler.addEventListener(
+            'hardwareBackPress',
+            onBackPress
+          );
+      
+          const unsubscribe = navigation.addListener('beforeRemove', (e) => {
+            if (!exitConfirmationVisible) {
+              e.preventDefault();
+              setExitConfirmationVisible(true);
+            }
+          });
+      
+          return () => {
+            backHandler.remove();
+            unsubscribe();
+          };
+        }, [exitConfirmationVisible, navigation, exerciseCompleted])
+      );
+      
+    
+      useEffect(() => {
+        navigation.setOptions({
+          headerLeft: () => null, // Убирает кнопку "Назад" в заголовке
+        });
+      }, [navigation]);
 
   useEffect(() => {
 
@@ -222,7 +251,7 @@ useEffect(() => {
     setCurrentInfinitive(currentInfinitive);  // Устанавливаем инфинитив
     
     // Найти глагол по инфинитиву и полу
-    const foundVerbs = verbs1RU.filter(verb => verb.infinitive === currentInfinitive);
+    const foundVerbs = verbs11RU.filter(verb => verb.infinitive === currentInfinitive);
     const foundVerbByGender = foundVerbs.find(verb => verb.gender === (isGenderMan ? 'man' : 'woman'));
 
     if (foundVerbByGender) {
@@ -239,7 +268,7 @@ useEffect(() => {
 // Обновление пола (без перемешивания опций)
 useEffect(() => {
   if (currentInfinitive) {
-    const foundVerbs = verbs1RU.filter(verb => verb.infinitive === currentInfinitive);
+    const foundVerbs = verbs11RU.filter(verb => verb.infinitive === currentInfinitive);
     const foundVerbByGender = foundVerbs.find(verb => verb.gender === (isGenderMan ? 'man' : 'woman'));
 
     if (foundVerbByGender) {
@@ -472,8 +501,10 @@ useEffect(() => {
 
   
   const handleConfirmExit = () => {
-    // Ваши действия при подтверждении выхода
-    navigation.navigate('Menu'); // Например, переход в меню
+    navigation.reset({
+      index: 0,
+      routes: [{ name: 'Menu' }],
+    });
   };
 
   const handleCancelExit = () => {
@@ -748,11 +779,13 @@ useEffect(() => {
       )}
 
       
-<ExitConfirmationModal
-        visible={exitConfirmationVisible}
-        onCancel={handleCancelExit}
-        onConfirm={handleConfirmExit}
-      />
+{!exerciseCompleted && (
+  <ExitConfirmationModal
+    visible={exitConfirmationVisible}
+    onCancel={handleCancelExit} 
+    onConfirm={handleConfirmExit}
+  />
+)}
 
     </View>
     </ScrollView>
@@ -828,7 +861,7 @@ const styles = StyleSheet.create({
   },
   optionButton: {
     width: '49%',
-    height: 70,
+    height: 60,
     padding: 15,
     backgroundColor: '#D1E3F1',
     marginBottom: 10,

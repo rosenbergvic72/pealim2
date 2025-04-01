@@ -684,7 +684,7 @@
 "verbAmharic": "መውሰድ",
         "binyan": "PA'AL",
         "transliteration": "lakachat",
-        "audioFile": "lakahat.mp3",
+        "audioFile": "lakachat.mp3",
         "binyanOptions": ["PI'EL", "PA'AL", "HIF'IL", "HITPA'EL"],
         "correctTranslationIndex": 1
     },
@@ -1473,7 +1473,7 @@
         "correctTranslationIndex": 3
     },
     {
-        "hebrewVerb": "",
+        "hebrewVerb": "לחבק",
         "root": "ח-ב-ק",
         "translation": "Обнимать",
         "verbEnglish": "to hug",
@@ -3943,7 +3943,7 @@
         "correctTranslationIndex": 3
     },
     {
-        "hebrewVerb": "להתענין",
+        "hebrewVerb": "להתעניין",
         "root": "ע-נ-י-ן",
         "translation": "Интересоваться",
         "verbEnglish": "to be interested",

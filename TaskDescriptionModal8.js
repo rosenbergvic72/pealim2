@@ -1,5 +1,5 @@
 import React from 'react';
-import { Modal, View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { Modal, View, Text, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
 
 const TaskDescriptionModal8 = ({ visible, onToggle }) => {
   return (
@@ -11,13 +11,17 @@ const TaskDescriptionModal8 = ({ visible, onToggle }) => {
     >
       <View style={styles.centeredView}>
         <View style={styles.modalView}>
-          <Text style={styles.modalText}maxFontSizeMultiplier={1.2}>В этом упражнении представлены примерно 100 наиболее распространеных глаголов иврита и для каждого глагола сгенерированы 36 пар фраз. Каждая пара соответствует одной из 36 форм спряжения глагола на иврите. Одна сторона пары — это фраза на русском, другая — на иврите. Ваша задача — выбрать правильные пары, где перевод точно соответствует форме глагола.
+          <ScrollView contentContainerStyle={styles.scrollViewContent}>
 
+          <Text style={styles.modalTitle} maxFontSizeMultiplier={1.2}>
+        ОПИСАНИЕ ЗАДАНИЯ 6
+      </Text>
+          <Text style={styles.modalText}maxFontSizeMultiplier={1.2}>Это упражнение аналогично упражнению 5, также является основным в приложении и разработано для эффективной тренировки спряжения глаголов в иврите.</Text>
+          <Text style={styles.modalText}maxFontSizeMultiplier={1.2}>В каждом раунде случайным образом выбирается глагол на иврите, и вам необходимо найти правильную пару для одной из его форм спряжения. Поочередно будут показаны 36 (или 24) глагольных форм на иврите, и ваша задача — выбрать правильный перевод на выбранном языке из 6 предложенных вариантов.</Text>
+          <Text style={styles.modalText}maxFontSizeMultiplier={1.2}>Это упражнение рекомендуется тем, кто уже изучает иврит и обладает хотя бы базовыми знаниями о спряжении глаголов. Даже при минимальном понимании темы регулярная практика поможет вам лучше запомнить формы спряжения, выявить закономерности и закрепить их на практике.</Text>
+<Text style={styles.modalText}maxFontSizeMultiplier={1.2}>Постоянные тренировки способствуют более глубокому пониманию системы спряжения глаголов, развитию интуитивного восприятия грамматических закономерностей и улучшению навыков восприятия иврита.
 </Text>
-
-<Text style={styles.modalText}maxFontSizeMultiplier={1.2}>Выполняя это упражнение, вы улучшите свои навыки перевода и глубже поймёте, как использовать разные формы глаголов в речи. Это поможет вам лучше говорить и писать на иврите, делая ваше общение более естественным и точным.
-
-</Text>
+ </ScrollView>
 
           <TouchableOpacity
             style={styles.button}
@@ -34,11 +38,15 @@ const TaskDescriptionModal8 = ({ visible, onToggle }) => {
 const styles = StyleSheet.create({
   centeredView: {
     flex: 1,
+    backgroundColor: "rgba(0,0,0,0.5)",
     justifyContent: "center",
     alignItems: "center",
-    marginTop: 22
+    paddingHorizontal: 5,
+    paddingTop: 10, // отступ от статус-бара
+    paddingBottom: 10,
   },
   modalView: {
+    maxHeight: "90%",
     margin: 24,
     backgroundColor: '#FFFDEF',
     borderRadius: 10,
@@ -53,15 +61,30 @@ const styles = StyleSheet.create({
     shadowRadius: 3.84,
     elevation: 5
   },
-  modalText: {
+  scrollViewContent: {
+    flexGrow: 1,
+    paddingVertical: 20,
+    paddingBottom: 10
+  },
+
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    textAlign: "center",
     marginBottom: 12,
+  },
+
+  modalText: {
+    marginBottom: 8,
+    fontSize: 14,
     textAlign: "center"
   },
   button: {
-    backgroundColor: "#2196F3",
+    backgroundColor: "#2D4769",
     borderRadius: 10,
     padding: 14,
-    elevation: 2
+    elevation: 2,
+    marginTop: 20
   },
   textStyle: {
     color: "white",

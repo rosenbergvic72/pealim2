@@ -169,7 +169,7 @@
 "verbSpanish": "amar",
 "verbPortuguese": "amar",
 "verbArabic": "أن تحب",
-"verbAmharic": "መውደድ",
+"verbAmharic": "መማራት",
 
     "audioFile": "leehov.mp3",
     "verbHebrewOptions": [
@@ -648,7 +648,7 @@
   ]
   },
   {
-  "verbRussian": "Ходить",
+  "verbRussian": "Идти",
   "verbEnglish": "to go",
 "verbFrench": "aller",
 "verbSpanish": "ir",
@@ -1377,7 +1377,7 @@
         ]
       },
       {
-        "verbRussian": "Смотреть",
+        "verbRussian": "Глядеть",
         "verbEnglish": "to look",
 "verbFrench": "regarder",
 "verbSpanish": "mirar",
@@ -1580,23 +1580,7 @@
           { "text": "לטוס", "transliteration": "latus", "isCorrect": false }
         ]
       },
-      {
-        "verbRussian": "Разговаривать",
-        "verbEnglish": "to talk",
-"verbFrench": "parler",
-"verbSpanish": "hablar",
-"verbPortuguese": "falar",
-"verbArabic": "أن يتكلم",
-"verbAmharic": "መናገር",
-
-        "audioFile": "ledaber.mp3",
-        "verbHebrewOptions": [
-          { "text": "לדבר", "transliteration": "ledaber", "isCorrect": true },
-          { "text": "ללבוש", "transliteration": "lilbosh", "isCorrect": false },
-          { "text": "לטוס", "transliteration": "latus", "isCorrect": false },
-          { "text": "להשאר", "transliteration": "lehisha'er", "isCorrect": false }
-        ]
-      },
+      
       {
         "verbRussian": "Носить",
         "verbEnglish": "to wear",
@@ -1889,8 +1873,8 @@
       {
         "verbRussian": "Прекращать",
         "verbEnglish": "to stop",
-"verbFrench": "arrêter",
-"verbSpanish": "detener",
+"verbFrench": "s'arrêter",
+"verbSpanish": "parar",
 "verbPortuguese": "parar",
 "verbArabic": "أن يتوقف",
 "verbAmharic": "ማቆም",
@@ -2193,10 +2177,10 @@
       },
       {
         "verbRussian": "Знать",
-        "verbEnglish": "to know",
-"verbFrench": "connaître",
-"verbSpanish": "conocer",
-"verbPortuguese": "conhecer",
+        "verbEnglish": "to be familiar",
+"verbFrench": "être familier",
+"verbSpanish": "familiarizarse",
+"verbPortuguese": "familiarizar-se",
 "verbArabic": "أن يعرف",
 "verbAmharic": "መለየት",
 
@@ -2262,7 +2246,7 @@
       {
         "verbRussian": "Варить",
         "verbEnglish": "to boil",
-"verbFrench": "bouillir",
+"verbFrench": "faire bouillir",
 "verbSpanish": "hervir",
 "verbPortuguese": "ferver",
 "verbArabic": "أن يغلي",
@@ -2516,7 +2500,7 @@
         ]
       },
       {
-        "verbRussian": "Пытаться",
+        "verbRussian": "Пробовать",
         "verbEnglish": "to try",
 "verbFrench": "essayer",
 "verbSpanish": "intentar",
@@ -3352,7 +3336,7 @@
         ]
       },
       {
-        "verbRussian": "Прощаться",
+        "verbRussian": "Расставаться",
         "verbEnglish": "to farewell",
 "verbFrench": "dire adieu",
 "verbSpanish": "despedirse",
@@ -3436,8 +3420,8 @@
         ]
       },
       {
-        "verbRussian": "Полагаться",
-        "verbEnglish": "to rely",
+        "verbRussian": "Доверяться",
+        "verbEnglish": "to trust",
 "verbFrench": "compter sur",
 "verbSpanish": "confiar en",
 "verbPortuguese": "confiar em",
@@ -4508,7 +4492,7 @@
         ]
       },
       {
-        "verbRussian": "Поправляться",
+        "verbRussian": "Лечиться",
         "verbEnglish": "to recover",
 "verbFrench": "se rétablir",
 "verbSpanish": "recuperarse",
@@ -4611,9 +4595,9 @@
       {
         "verbRussian": "Справляться",
         "verbEnglish": "to cope",
-"verbFrench": "faire face",
-"verbSpanish": "hacer frente",
-"verbPortuguese": "para lidar",
+"verbFrench": "s'en sortir",
+"verbSpanish": "lidiar",
+"verbPortuguese": "lidar",
 "verbArabic": "أن يتعامل",
 "verbAmharic": "መቋቋም",
 
@@ -4814,7 +4798,7 @@
 
     {
       "verbRussian": "Наблюдать",
-      "verbEnglish": "to observe",
+      "verbEnglish": "to watch",
 "verbFrench": "observer",
 "verbSpanish": "observar",
 "verbPortuguese": "observar",

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, StyleSheet, Image, BackHandler } from 'react-native';
 import verbsData from './verbs6RU.json';
 import ProgressBar from './ProgressBar';
@@ -8,7 +8,7 @@ import soundsconj from './soundconj';
 import sounds from './Soundss';
 import CompletionMessage from './CompletionMessage';
 import ExitConfirmationModal from './ExitConfirmationModal';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import TaskDescriptionModal7 from './TaskDescriptionModal7';
 import StatModal7 from './StatModal7';
 import { updateStatistics, getStatistics } from './stat';
@@ -50,7 +50,11 @@ const Exercise7 = () => {
   const [progress, setProgress] = useState(0);
 
   const navigateToMenu = () => {
-    navigation.navigate('Menu');
+    console.log('Navigating to MenuEn, current state:', navigation.getState());
+    navigation.reset({
+      index: 0,
+      routes: [{ name: 'Menu' }],
+    });
   };
 
   const showCompletionMessageWithAnimation = () => {
@@ -432,18 +436,51 @@ const Exercise7 = () => {
     return true;
   };
 
-  useEffect(() => {
-    const backHandler = BackHandler.addEventListener('hardwareBackPress', handleBackButtonPress);
-    return () => backHandler.remove();
-  }, []);
-
-  const handleConfirmExit = () => {
-    navigation.navigate('Menu');
-  };
-
-  const handleCancelExit = () => {
-    setExitConfirmationVisible(false);
-  };
+  useFocusEffect(
+                  useCallback(() => {
+                    const onBackPress = () => {
+                      if (exitConfirmationVisible) {
+                        return false;
+                      }
+                      setExitConfirmationVisible(true);
+                      return true;
+                    };
+                
+                    const backHandler = BackHandler.addEventListener(
+                      'hardwareBackPress',
+                      onBackPress
+                    );
+                
+                    const unsubscribe = navigation.addListener('beforeRemove', (e) => {
+                      if (!exitConfirmationVisible) {
+                        e.preventDefault(); // Блокируем навигацию назад
+                        setExitConfirmationVisible(true); // Показываем модалку
+                      }
+                    });
+                
+                    return () => {
+                      backHandler.remove();
+                      unsubscribe();
+                    };
+                  }, [exitConfirmationVisible, navigation])
+                );
+      
+        useEffect(() => {
+            navigation.setOptions({
+              headerLeft: () => null, // Убирает кнопку "Назад" в заголовке
+            });
+          }, [navigation]);
+    
+          const handleConfirmExit = () => {
+            navigation.reset({
+              index: 0,
+              routes: [{ name: 'Menu' }],
+            });
+          };
+    
+      const handleCancelExit = () => {
+        setExitConfirmationVisible(false);
+      };
 
   const handleExerciseCompletion = async () => {
     const exerciseId = 'exercise7';

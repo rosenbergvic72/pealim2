@@ -1,38 +1,31 @@
 {
   "expo": {
     "name": "Verbify",
-    "slug": "Pealim2",
+    "slug": "pealim2",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon3.png",
-    "userInterfaceStyle": "light",
-    "splash": {
-      "image": "./assets/splash.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
-    },
-    "assetBundlePatterns": [
-      "**/*"
-    ],
-    "ios": {
-      "supportsTablet": true
-    },
     
-    "android": {
-      "icon": "./assets/images/icon3.png",
-      
-      "adaptiveIcon": {
-        "foregroundImage": "./assets//images/icon3.png",
-        "backgroundColor": "#ffffff"
-      },
-      "package": "com.rosenbergvictor72.Pealim2"
-    },
-    "web": {
-      "favicon": "./assets/favicon.png"
-    },
     "extra": {
       "eas": {
-        "projectId": "777144c6-513f-41ab-9cfc-f0b597bb1ee7"
+        "projectId": "1c3fbe10-9608-4dd7-a477-f0ae7c294b5e"
+      }
+      
+    },
+    "android": {
+      "package": "com.rosenbergvictor72.pealim2",
+      "permissions": [
+        "RECORD_AUDIO"
+      ],
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/images/icon_adaptive.png",
+        "backgroundColor": "#FFFFFF"
+      }
+    },
+    "ios": {
+      "bundleIdentifier": "com.rosenbergvictor72.pealim2",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
       }
     }
   }

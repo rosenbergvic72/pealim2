@@ -1,15 +1,15 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { ScrollView, View, Text, TouchableOpacity, StyleSheet, BackHandler, Image } from 'react-native';
 import VerbCard5 from './VerbCard5Fr';
 import verbsData from './verbimperRus.json';
 import ProgressBar from './ProgressBar';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import CompletionMessageFr from './CompletionMessageFr';
-import ExitConfirmationModalFr from './ExitConfirmationModalFr';
+import ExitConfirmationModal from './ExitConfirmationModalFr';
 import { Audio } from 'expo-av';
 import sounds from './soundsimper';
 import { Animated } from 'react-native';
-import TaskDescriptionModal5 from './TaskDescriptionModal5';
+import TaskDescriptionModal5 from './TaskDescriptionModal5Fr';
 import StatModal5Fr from './StatModal5Fr';
 import { updateStatistics, getStatistics } from './stat';
 import LottieView from 'lottie-react-native';
@@ -195,21 +195,63 @@ const playFeedbackSound = async (isCorrect) => {
   });
 
   const navigateToMenu = () => {
-    navigation.navigate('MenuFr');
-  };
-  const handleBackButtonPress = () => {
-    setExitConfirmationVisible(true);
-    return true;
-  };
-
-  useEffect(() => {
-    const backHandler = BackHandler.addEventListener(
-      'hardwareBackPress',
-      handleBackButtonPress
-    );
-  
-    return () => backHandler.remove();
-  }, []);
+          console.log('Navigating to MenuEn, current state:', navigation.getState());
+          navigation.reset({
+            index: 0,
+            routes: [{ name: 'MenuFr' }],
+          });
+        };
+      
+        const handleBackButtonPress = () => {
+          setExitConfirmationVisible(true);
+          return true;
+        };
+      
+        useFocusEffect(
+              useCallback(() => {
+                const onBackPress = () => {
+                  if (exitConfirmationVisible) {
+                    return false;
+                  }
+                  setExitConfirmationVisible(true);
+                  return true;
+                };
+            
+                const backHandler = BackHandler.addEventListener(
+                  'hardwareBackPress',
+                  onBackPress
+                );
+            
+                const unsubscribe = navigation.addListener('beforeRemove', (e) => {
+                  if (!exitConfirmationVisible) {
+                    e.preventDefault(); // Блокируем навигацию назад
+                    setExitConfirmationVisible(true); // Показываем модалку
+                  }
+                });
+            
+                return () => {
+                  backHandler.remove();
+                  unsubscribe();
+                };
+              }, [exitConfirmationVisible, navigation])
+            );
+      
+        useEffect(() => {
+            navigation.setOptions({
+              headerLeft: () => null, // Убирает кнопку "Назад" в заголовке
+            });
+          }, [navigation]);
+    
+      const handleCancelExit = () => {
+        setExitConfirmationVisible(false);
+      };
+    
+      const handleConfirmExit = () => {
+        navigation.reset({
+          index: 0,
+          routes: [{ name: 'MenuFr' }],
+        });
+      };
 
   useEffect(() => {
     setShuffledVerbs(shuffleArray(verbsData));
@@ -781,7 +823,7 @@ const handleSpeakerPress = (mp3) => {
         />
       )}
 
-      <ExitConfirmationModalFr
+      <ExitConfirmationModal
         visible={exitConfirmationVisible}
         onCancel={() => setExitConfirmationVisible(false)}
         onConfirm={navigateToMenu}

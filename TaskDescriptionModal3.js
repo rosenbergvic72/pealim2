@@ -11,7 +11,10 @@ const TaskDescriptionModal6 = ({ visible, onToggle }) => {
     >
       <View style={styles.centeredView}>
         <View style={styles.modalView}>
-          <Text style={styles.modalText}maxFontSizeMultiplier={1.2}>В этом упражнении вам представлены более чем 250 часто употребляемымых глаголов на иврите, и ваша задача — определить, к какому биньяну относится каждый глагол из предложенных вариантов. 
+        <Text style={styles.modalTitle} maxFontSizeMultiplier={1.2}>
+        ОПИСАНИЕ ЗАДАНИЯ 3
+      </Text>
+          <Text style={styles.modalText}maxFontSizeMultiplier={1.2}>В этом упражнении вам предстоит определить биньян глагола на иврите. Вам будет показан инфинитив глагола на иврите, а также четыре варианта биньяна. Ваша задача — выбрать правильный биньян, к которому принадлежит глагол.
 
 
 
@@ -19,7 +22,7 @@ const TaskDescriptionModal6 = ({ visible, onToggle }) => {
 
 </Text>
 
-<Text style={styles.modalText}maxFontSizeMultiplier={1.2}>Это упражнение помогает лучше понять структуру ивритских глаголов и углубляет знания о глагольных шаблонах, что важно для правильного использования глаголов в речи. Регулярное выполнение таких заданий повышает вашу грамматическую осведомленность и способствует более грамотному общению на иврите.
+<Text style={styles.modalText}maxFontSizeMultiplier={1.2}>Это упражнение подходит для тех, кто уже изучает иврит и имеет базовые знания о биньянах. Оно поможет лучше понимать структуру глаголов, быстрее узнавать их принадлежность к определённому биньяну и развить навык правильного употребления глаголов в речи.
 
 
 
@@ -41,11 +44,15 @@ const TaskDescriptionModal6 = ({ visible, onToggle }) => {
 const styles = StyleSheet.create({
   centeredView: {
     flex: 1,
+    backgroundColor: "rgba(0,0,0,0.5)",
     justifyContent: "center",
     alignItems: "center",
-    marginTop: 22
+    paddingHorizontal: 5,
+    paddingTop: 10, // отступ от статус-бара
+    paddingBottom: 10,
   },
   modalView: {
+    maxHeight: "90%",
     margin: 24,
     backgroundColor: '#FFFDEF',
     borderRadius: 10,
@@ -60,12 +67,19 @@ const styles = StyleSheet.create({
     shadowRadius: 3.84,
     elevation: 5
   },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    textAlign: "center",
+    marginBottom: 12,
+  },
   modalText: {
+    fontSize: 14,
     marginBottom: 12,
     textAlign: "center"
   },
   button: {
-    backgroundColor: "#2196F3",
+    backgroundColor: "#2D4769",
     borderRadius: 10,
     padding: 14,
     elevation: 2
@@ -73,7 +87,8 @@ const styles = StyleSheet.create({
   textStyle: {
     color: "white",
     fontWeight: "bold",
-    textAlign: "center"
+    textAlign: "center",
+    fontSize: 16,
   }
 });
 

@@ -1,11 +1,12 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image, Animated } from 'react-native';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image, Animated, BackHandler } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import LottieView from 'lottie-react-native';
+import { useFocusEffect } from '@react-navigation/native';
 
 export default function WelcomePage({ navigation, route }) {
   const [name, setName] = useState('');
-  const { language } = route.params || {};
+  const language = route.params?.language || 'español'; // Фикс: если language undefined, используем 'english'
   const [animationFinished, setAnimationFinished] = useState(false);
 
   const imageOpacity = useRef(new Animated.Value(0)).current;
@@ -18,8 +19,48 @@ export default function WelcomePage({ navigation, route }) {
   const buttonTranslateX = useRef(new Animated.Value(-100)).current;
   const buttonBackgroundColor = useRef(new Animated.Value(0)).current;
   const [shadowVisible, setShadowVisible] = useState(false);
+  const picOpacity = useRef(new Animated.Value(0)).current;
+    const picTranslateX = useRef(new Animated.Value(-100)).current;
 
-  // Загружаем сохранённое имя при запуске
+  
+  // Загружаем имя при каждом возврате на экран и перезапускаем анимацию
+  useFocusEffect(
+    useCallback(() => {
+      const fetchName = async () => {
+        try {
+          const storedName = await AsyncStorage.getItem('name');
+          if (storedName) {
+            setName(storedName);
+          }
+          setAnimationFinished(false);
+          setTimeout(() => setAnimationFinished(true), 100);
+        } catch (error) {
+          console.error('Ошибка при загрузке имени:', error);
+        }
+      };
+      fetchName();
+
+      const onBackPress = () => {
+        navigation.replace('LanguageSelect'); // Возвращаемся на экран выбора языка
+        return true; // Перехватываем стандартное поведение
+      };
+
+      const backHandler = BackHandler.addEventListener(
+        'hardwareBackPress',
+        onBackPress
+      );
+
+      return () => backHandler.remove();
+    }, [navigation])
+  );
+
+  useEffect(() => {
+      navigation.setOptions({
+        headerLeft: () => null, // Убирает кнопку "Назад" в заголовке
+      });
+    }, [navigation]);
+  
+    // Загружаем сохранённое имя при запуске
   useEffect(() => {
     const getNameAndAnimate = async () => {
       const storedName = await AsyncStorage.getItem('name');
@@ -94,6 +135,18 @@ export default function WelcomePage({ navigation, route }) {
           useNativeDriver: false,
         }),
       ]),
+      Animated.parallel([
+              Animated.timing(picOpacity, {
+                toValue: 1,
+                duration: 500,
+                useNativeDriver: true,
+              }),
+              Animated.timing(picTranslateX, {
+                toValue: 0,
+                duration: 500,
+                useNativeDriver: true,
+              }),
+            ]),
     ]).start(() => {
       setShadowVisible(true);
     });
@@ -156,6 +209,10 @@ export default function WelcomePage({ navigation, route }) {
           <Text style={styles.buttonText} maxFontSizeMultiplier={1.2}>SIGUIENTE</Text>
         </TouchableOpacity>
       </Animated.View>
+
+      <Animated.View style={[styles.picContainer, { opacity: picOpacity, transform: [{ translateX: picTranslateX }] }]}>
+              <Image source={require('./PICES.png')} style={styles.picImage} />
+            </Animated.View>
     </View>
   );
 }
@@ -201,6 +258,7 @@ const styles = StyleSheet.create({
   },
   buttonContainer: {
     width: '80%',
+    marginBottom: 30,
   },
   button: {
     borderRadius: 10,
@@ -226,6 +284,11 @@ const styles = StyleSheet.create({
   image: {
     width: 140,
     height: 140,
+  },
+  picImage: {
+    width: 230, // адаптивный размер
+    height: 230,
+    // resizeMode: 'contain',
   },
   lottie: {
     width: 300,

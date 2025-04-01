@@ -40,6 +40,13 @@ const StatModal4 = ({ visible, onToggle }) => {
         const stats = await getStatistics('exercise4');
         console.log('Fetched stats in StatModal4:', stats);
         setStats(stats);
+        // Загрузка имени пользователя
+        const storedName = await AsyncStorage.getItem('name');
+        if (storedName) {
+            setName(storedName);
+        } else {
+            setName('User'); // Если имя не найдено, поставить заглушку
+        }
       };
   
       fetchStats();

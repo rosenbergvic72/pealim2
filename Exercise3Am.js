@@ -1,18 +1,18 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { ScrollView, View, Text, TouchableOpacity, StyleSheet, BackHandler, Image  } from 'react-native';
 import VerbCard3 from './VerbCard3Am';
 import verbsData from './verbs3.json';
 import ProgressBar from './ProgressBar';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import CompletionMessageAm from './CompletionMessageAm';
-import ExitConfirmationModalAm from './ExitConfirmationModalAm';
+import ExitConfirmationModal from './ExitConfirmationModalAm';
 import { Audio } from 'expo-av';
 import { Animated } from 'react-native';
-import TaskDescriptionModal3 from './TaskDescriptionModal3';
+import TaskDescriptionModal3 from './TaskDescriptionModal3Am';
 import StatModal3Am from './StatModal3Am';
 import { updateStatistics, getStatistics } from './stat';
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
-import verbs1RU from './verbs1RU.json'; // Assuming this file contains the data for verbs
+import verbs1RU from './verbs11RU.json'; // Assuming this file contains the data for verbs
 import soundsConj from './soundconj'; // Импорт дополнительных звуков
 
 
@@ -181,24 +181,52 @@ const Exercise3Am = ({ navigation }) => {
   });
   
   const navigateToMenu = () => {
-    // Ваш код для перехода в меню
-    navigation.navigate('MenuAm');
-  };
-  const handleBackButtonPress = () => {
-    setExitConfirmationVisible(true);
-    return true; // чтобы предотвратить стандартное поведение кнопки назад
-  };
-
-  
-
-  useEffect(() => {
-    const backHandler = BackHandler.addEventListener(
-      'hardwareBackPress',
-      handleBackButtonPress
-    );
-  
-    return () => backHandler.remove();
-  }, []);
+        console.log('Navigating to MenuEn, current state:', navigation.getState());
+        navigation.reset({
+          index: 0,
+          routes: [{ name: 'MenuAm' }],
+        });
+      };
+    
+      const handleBackButtonPress = () => {
+        setExitConfirmationVisible(true);
+        return true;
+      };
+    
+      useFocusEffect(
+                  useCallback(() => {
+                    const onBackPress = () => {
+                      if (exitConfirmationVisible) {
+                        return false;
+                      }
+                      setExitConfirmationVisible(true);
+                      return true;
+                    };
+                
+                    const backHandler = BackHandler.addEventListener(
+                      'hardwareBackPress',
+                      onBackPress
+                    );
+                
+                    const unsubscribe = navigation.addListener('beforeRemove', (e) => {
+                      if (!exitConfirmationVisible) {
+                        e.preventDefault(); // Блокируем навигацию назад
+                        setExitConfirmationVisible(true); // Показываем модалку
+                      }
+                    });
+                
+                    return () => {
+                      backHandler.remove();
+                      unsubscribe();
+                    };
+                  }, [exitConfirmationVisible, navigation])
+                );
+    
+      useEffect(() => {
+        navigation.setOptions({
+          headerLeft: () => null, // Убирает кнопку "Назад" в заголовке
+        });
+      }, [navigation]);
 
   useEffect(() => {
 
@@ -472,8 +500,10 @@ useEffect(() => {
 
   
   const handleConfirmExit = () => {
-    // Ваши действия при подтверждении выхода
-    navigation.navigate('MenuAm'); // Например, переход в меню
+    navigation.reset({
+      index: 0,
+      routes: [{ name: 'MenuAm' }],
+    });
   };
 
   const handleCancelExit = () => {
@@ -677,7 +707,7 @@ useEffect(() => {
       </View>
       <View style={styles.verbDetailsRightContent}>
        
-          <Text style={styles.verbDetailsRussian}maxFontSizeMultiplier={1.2}>{verbInfo.russiantext}</Text>
+          <Text style={styles.verbDetailsRussian}maxFontSizeMultiplier={1.2}>{verbInfo.amtext}</Text>
              
       </View>
 
@@ -748,7 +778,7 @@ useEffect(() => {
       )}
 
       
-<ExitConfirmationModalAm
+<ExitConfirmationModal
         visible={exitConfirmationVisible}
         onCancel={handleCancelExit}
         onConfirm={handleConfirmExit}
@@ -828,7 +858,7 @@ const styles = StyleSheet.create({
   },
   optionButton: {
     width: '49%',
-    height: 70,
+    height: 60,
     padding: 15,
     backgroundColor: '#D1E3F1',
     marginBottom: 10,
