@@ -5,10 +5,10 @@ import verbsData from './verbs1.json';
 import verbs1RU from './verbs11RU.json'; // Подключаем данные
 import ProgressBar from './ProgressBar';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
-import CompletionMessageAr from './CompletionMessageAr';
+import CompletionMessageEn from './CompletionMessageEn';
 import ExitConfirmationModal from './ExitConfirmationModalAr';
 import { Audio } from 'expo-av';
-import TaskDescriptionModal1 from './TaskDescriptionModal1Ar';
+import TaskDescriptionModal6 from './TaskDescriptionModal1';
 import StatModal1Ar from './StatModal1Ar';
 import { updateStatistics, getStatistics } from './stat';
 import sounds from './Soundss';
@@ -16,17 +16,20 @@ import soundsConj from './soundconj'; // Импорт дополнительны
 import LottieView from 'lottie-react-native';
 import animation from './assets/Animation - 1723020554284.json';
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import VerbListModal from './VerbListModal'; // импорт модалки
 
 
 
 const shuffleArray = (array) => {
-  const shuffledArray = array.slice();
-  for (let i = shuffledArray.length - 1; i > 0; i--) {
+  const shuffled = array.slice();
+  for (let i = shuffled.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
-    [shuffledArray[i], shuffledArray[j]] = [shuffledArray[j], shuffledArray[i]];
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
   }
-  return shuffledArray.slice(0, 24); // Возвращаем только первые 24 элемента
+  return shuffled.slice(0, 24);
 };
+
 
 const getGrade = (percentage) => {
     if (percentage === 100) {
@@ -53,7 +56,6 @@ const getGrade = (percentage) => {
       return 'هناك حاجة إلى عمل جاد! من المهم ألا تستسلم وتستمر في التعلم.';
     }
 };
-
   
 
 
@@ -174,14 +176,6 @@ const handleSpeakerPress = async (audioFile) => {
   }
 };
 
-
-
-
-
-
-
-
-
 const Exercise1Ar = ({ navigation }) => {
   const [correctSound, setCorrectSound] = useState();
   const [incorrectSound, setIncorrectSound] = useState();
@@ -200,6 +194,8 @@ const Exercise1Ar = ({ navigation }) => {
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const rightFillAnim = useRef(new Animated.Value(0)).current;
   const [autoPlaySounds, setAutoPlaySounds] = useState(true); // Новый state для управления автовоспроизведением
+  const [isVerbListVisible, setIsVerbListVisible] = useState(true); // видимость модалки списка
+const [verbListForModal, setVerbListForModal] = useState([]);
 
 
   const toggleDescriptionModal = () => {
@@ -207,6 +203,51 @@ const Exercise1Ar = ({ navigation }) => {
   };
 
   const [isDescriptionModalVisible, setDescriptionModalVisible] = useState(false);
+
+  const [dontShowAgain1, setDontShowAgain1] = useState(false);
+
+  const [language, setLanguage] = useState('en'); // ← по умолчанию ru
+
+  const [languageLoaded, setLanguageLoaded] = useState(false);
+
+  useEffect(() => {
+  const checkFlagAndLang = async () => {
+    const hidden = await AsyncStorage.getItem('exercise1_description_hidden');
+    const lang = await AsyncStorage.getItem('language');
+
+    console.log('🌍 Language:', lang);
+    console.log('🧪 Hide flag:', hidden);
+
+    if (lang) {
+      setLanguage(lang);
+
+      setDontShowAgain1(hidden === 'true');
+    setLanguageLoaded(true);
+
+      if (hidden !== 'true') {
+        setTimeout(() => {
+          console.log('📢 Показываем модалку после загрузки языка');
+          setDescriptionModalVisible(true);
+        }, 100); // чуть больше времени
+      }
+    }
+
+    setDontShowAgain1(hidden === 'true');
+  };
+
+  checkFlagAndLang();
+}, []);
+
+
+
+
+const handleToggleDontShowAgain1 = async () => {
+  const newValue = !dontShowAgain1;
+  setDontShowAgain1(newValue);
+  await AsyncStorage.setItem('exercise1_description_hidden', newValue ? 'true' : '');
+  console.log('📌 Клик по чекбоксу. Было:', dontShowAgain1, 'Станет:', !dontShowAgain1);
+};
+
 
   const handleButton2Press = () => {
     toggleDescriptionModal();
@@ -218,6 +259,19 @@ const Exercise1Ar = ({ navigation }) => {
     setSoundEnabled(!soundEnabled);
     setAutoPlaySounds(!autoPlaySounds); // Переключаем состояние автовоспроизведения
   };
+
+
+  // const [language, setLanguage] = useState('en'); // по умолчанию
+  
+  useEffect(() => {
+    const fetchLanguage = async () => {
+      const storedLang = await AsyncStorage.getItem('language');
+      if (storedLang) {
+        setLanguage(storedLang);
+      }
+    };
+    fetchLanguage();
+  }, []);
   
 
   useEffect(() => {
@@ -306,23 +360,63 @@ const Exercise1Ar = ({ navigation }) => {
                 };
               }, [exitConfirmationVisible, navigation])
             );
-  
-    useEffect(() => {
-      navigation.setOptions({
-        headerLeft: () => null, // Убирает кнопку "Назад" в заголовке
-      });
-    }, [navigation]);
 
   useEffect(() => {
-    setShuffledVerbs(shuffleArray(verbsData));
-  }, []);
+    navigation.setOptions({
+      headerLeft: () => null, // Убирает кнопку "Назад" в заголовке
+    });
+  }, [navigation]);
 
-  useEffect(() => {
-    if (shuffledVerbs.length > 0) {
-        setOptionsOrder(generateOptions(shuffledVerbs[currentIndex]));
-        updateVerbDetails(shuffledVerbs[currentIndex], isGenderMan, false); // false означает не показывать russiantext
-    }
-}, [currentIndex, shuffledVerbs, isGenderMan]);
+
+  const initializeExercise = (lang) => {
+  const newShuffled = shuffleArray(verbsData);
+  setShuffledVerbs(newShuffled);
+
+  const langMap = {
+    ru: 'translationOptions',
+    en: 'translationOptionsEn',
+    fr: 'translationOptionsFr',
+    es: 'translationOptionsEs',
+    pt: 'translationOptionsPt',
+    ar: 'translationOptionsAr',
+    am: 'translationOptionsAm',
+  };
+  const langKey = langMap[lang] || 'translationOptionsAr';
+
+  const sorted = [...newShuffled].sort((a, b) =>
+    a.hebrewVerb.localeCompare(b.hebrewVerb, 'he')
+  );
+
+  const verbList = sorted.map((verb) => {
+    const translations = verb[langKey] || [];
+    const correctIndex = verb.correctTranslationIndex ?? 0;
+    return {
+      hebrewtext: verb.hebrewVerb,
+      translit: verb.transliteration || '',
+      entext: translations[correctIndex] || '—',
+      mp3: verb.audioFile?.replace('.mp3', '') || '',
+    };
+  });
+
+  setVerbListForModal(verbList);
+};
+
+useEffect(() => {
+  if (language) {
+    initializeExercise(language);
+  }
+}, [language]);
+
+ 
+
+useEffect(() => {
+  if (!isVerbListVisible && shuffledVerbs.length > 0) {
+    const currentVerb = shuffledVerbs[currentIndex];
+    setOptionsOrder(generateOptions(currentVerb));
+    updateVerbDetails(currentVerb, isGenderMan, false); // вызов только после закрытия модалки
+  }
+}, [currentIndex, shuffledVerbs, isGenderMan, isVerbListVisible]);
+
 
   const generateOptions = (verbData) => {
     if (!verbData || !verbData.translationOptionsAr || !Number.isInteger(verbData.correctTranslationIndex)) {
@@ -441,18 +535,7 @@ const Exercise1Ar = ({ navigation }) => {
 };
 
   
-  // const matchedVerbs = verbs6RU.filter((verb) => verb.infinitive === shuffledVerbs[currentIndex].hebrewVerb);
-  //   if (matchedVerbs.length > 0) {
-  //     const selectedVerb = matchedVerbs.find((verb) => verb.gender === (isGenderMan ? 'man' : 'woman'));
-  //     if (selectedVerb) {
-  //       setVerbDetails({
-  //         hebrewtext: selectedVerb.hebrewtext,
-  //         translit: selectedVerb.translit,
-  //         russiantext: selectedVerb.russiantext,
-  //         mp3: selectedVerb.mp3, // Добавляем mp3 в состояние verbDetails
-  //       });
-  //     }
-  //   }
+  
 
   const animateTranslation = () => {
     Animated.timing(optionsContainerAnim, {
@@ -526,42 +609,36 @@ const Exercise1Ar = ({ navigation }) => {
     setResizeMode(resizeMode);
   };
 
-  const resetExercise = () => {
-    // Сброс всех состояний
-    setCorrectAnswers(0);
-    setIncorrectAnswers(0);
-    setProgress(0);
-    setShowNextButton(false);
-    setExerciseCompleted(false);
-    setStatisticsUpdated(false);
-    setCurrentIndex(0);
-    
-    // Отключаем звуки во время инициализации
-    setAutoPlaySounds(false);
-  
-    // Перетасовываем новые глаголы
-    const newShuffledVerbs = shuffleArray(verbsData);
-    setShuffledVerbs(newShuffledVerbs);
-  
-    // Генерация опций для первого глагола
-    setOptionsOrder(generateOptions(newShuffledVerbs[0]));
-  
-    // Сброс анимации контейнера с опциями
-    optionsContainerAnim.setValue(-500);
-  
-    // Обновление состояния после небольшого задержки
-    setTimeout(() => {
-      // Включаем звуки снова после завершения инициализации
-      setAutoPlaySounds(true);
-  
-      // Анимация для появления новых опций
-      Animated.timing(optionsContainerAnim, {
-        toValue: 0,
-        duration: 500,
-        useNativeDriver: true,
-      }).start();
-    }, 500);
-  };
+const resetExercise = () => {
+  setCorrectAnswers(0);
+  setIncorrectAnswers(0);
+  setProgress(0);
+  setShowNextButton(false);
+  setExerciseCompleted(false);
+  setStatisticsUpdated(false);
+  setCurrentIndex(0);
+
+  setVerbDetails({ hebrewtext: '', translit: '', artext: '', mp3: '' });
+
+  setIsVerbListVisible(true);
+  setAutoPlaySounds(false);
+
+  initializeExercise(language); // ← теперь вызываем общую функцию
+
+  optionsContainerAnim.setValue(-500);
+
+  setTimeout(() => {
+    setAutoPlaySounds(true);
+    Animated.timing(optionsContainerAnim, {
+      toValue: 0,
+      duration: 500,
+      useNativeDriver: true,
+    }).start();
+  }, 500);
+};
+
+
+
   
 
 
@@ -604,7 +681,7 @@ const Exercise1Ar = ({ navigation }) => {
     }
   };
 
-  const [verbDetails, setVerbDetails] = useState({ hebrewtext: '', translit: '', artext: '' });
+  const [verbDetails, setVerbDetails] = useState({ hebrewtext: '', translit: '', russiantext: '' });
 
   const updateVerbDetails = (currentVerb, isGenderMan, showRussianText = false) => {
     if (!currentVerb) return;
@@ -623,10 +700,10 @@ const Exercise1Ar = ({ navigation }) => {
         // Play both sounds before showing the Russian text
         playAudio(selectedVerb.mp3);
       } else {
-        setVerbDetails({ hebrewtext: 'Глагол не найден', translit: '', artext: '', mp3: '' });
+        setVerbDetails({ hebrewtext: 'Глагол не найден', translit: '', russiantext: '', mp3: '' });
       }
     } else {
-      setVerbDetails({ hebrewtext: 'Глагол не найден', translit: '', artext: '', mp3: '' });
+      setVerbDetails({ hebrewtext: 'Глагол не найден', translit: '', russiantext: '', mp3: '' });
     }
   };
   
@@ -704,160 +781,179 @@ const playAudio = async (audioFile) => {
     });
 };
 
-  return (
-    <ScrollView contentContainerStyle={styles.scrollViewContent}>
-      <View style={styles.container}>
-      <View style={styles.topBar}>
-        <Animated.Image
-          source={require('./VERBIFY.png')}
-          style={[styles.logoImage, { opacity: fadeAnim }]}
-        />
-        <View style={styles.buttonContainer}>
-          <TouchableOpacity onPress={handleSoundToggle}>
+ return (
+  <>
+    {isVerbListVisible && (
+      <VerbListModal
+        visible={true}
+        language={language}
+        verbs={verbListForModal}
+        onClose={() => setIsVerbListVisible(false)}
+      />
+    )}
+
+    {!isVerbListVisible && (
+      <ScrollView contentContainerStyle={styles.scrollViewContent}>
+        <View style={styles.container}>
+          {/* Ваша панель с кнопками */}
+          <View style={styles.topBar}>
             <Animated.Image
-              source={soundEnabled ? require('./SoundOn.png') : require('./SoundOff.png')}
-              style={[styles.buttonImage, { opacity: fadeAnim }]}
+              source={require('./VERBIFY.png')}
+              style={[styles.logoImage, { opacity: fadeAnim }]}
             />
+            <View style={styles.buttonContainer}>
+              <TouchableOpacity onPress={handleSoundToggle}>
+                <Animated.Image
+                  source={soundEnabled ? require('./SoundOn.png') : require('./SoundOff.png')}
+                  style={[styles.buttonImage, { opacity: fadeAnim }]}
+                />
+              </TouchableOpacity>
+
+              <TouchableOpacity onPress={handleButton3Press}>
+                <Animated.Image
+                  source={require('./stat.png')}
+                  style={[styles.buttonImage, { opacity: fadeAnim }]}
+                />
+              </TouchableOpacity>
+
+              <TouchableOpacity onPress={handleButton2Press}>
+                <Animated.Image
+                  source={require('./question.png')}
+                  style={[styles.buttonImage, { opacity: fadeAnim }]}
+                />
+              </TouchableOpacity>
+
+              <TouchableOpacity onPress={handleGenderToggle}>
+                <Animated.Image
+                  source={isGenderMan ? require('./GenderMan.png') : require('./GenderWoman.png')}
+                  style={[styles.buttonImage, { opacity: fadeAnim }]}
+                />
+              </TouchableOpacity>
+            </View>
+          </View>
+
+          {/* Прогресс и заголовок */}
+          <Animated.View style={[styles.progressContainer, { opacity: fadeAnim }]}>
+            <View style={styles.textContainer}>
+               <Text style={styles.prtext}maxFontSizeMultiplier={1.2}>
+                        صحيح: {correctAnswers}
+                        </Text>
+                        <Text style={styles.prtext}maxFontSizeMultiplier={1.2}>
+                        خطأ: {incorrectAnswers}
+                        </Text>
+            </View>
+            <View style={styles.remainingTasksContainer}>
+              <Text style={styles.remainingTasksText} maxFontSizeMultiplier={1.2}>
+                {shuffledVerbs.length - currentIndex}
+              </Text>
+            </View>
+            <Animated.View style={[styles.percentContainer, { backgroundColor }]}>
+              <Text style={styles.percentText} maxFontSizeMultiplier={1.2}>
+                {progress > 0
+                  ? (((correctAnswers / (correctAnswers + incorrectAnswers)) * 100).toFixed(2))
+                  : 0}%
+              </Text>
+            </Animated.View>
+          </Animated.View>
+
+          <Animated.View style={[styles.ProgressBarcontainer, { opacity: fadeAnim }]}>
+            <ProgressBar progress={progress} totalExercises={shuffledVerbs.length} />
+          </Animated.View>
+
+          <Animated.Text style={[styles.title, { opacity: fadeAnim }]}maxFontSizeMultiplier={1.2}>اختر الترجمة</Animated.Text>
+
+          {currentIndex < shuffledVerbs.length && !exerciseCompleted && (
+            <VerbCard1
+              verbData={shuffledVerbs[currentIndex]}
+              options={optionsOrder}
+              onAnswer={handleAnswer}
+              soundEnabled={soundEnabled}
+            />
+          )}
+
+          <VerbDetailsContainer
+            verbDetails={verbDetails}
+            showRussianText={verbDetails.artext !== ''}
+            handleSpeakerPress={handleSpeakerPress}
+          />
+
+          <Animated.View
+            style={[
+              styles.optionsContainer,
+              { transform: [{ translateX: optionsContainerAnim }] },
+            ]}
+          >
+            {optionsOrder.map((option, index) => (
+              <TouchableOpacity
+                key={index}
+                style={[
+                  styles.optionButton,
+                  option.isCorrect && option.isSelected ? styles.correctOption : null,
+                  !option.isCorrect && option.isSelected ? styles.incorrectOption : null,
+                ]}
+                onPress={() => handleAnswer(index)}
+                disabled={option.disabled}
+              >
+                <Text style={styles.optionText} maxFontSizeMultiplier={1.2}>
+                  {option.text}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </Animated.View>
+
+          <TouchableOpacity
+            style={[
+              styles.nextButton,
+              showNextButton ? styles.activeButton : styles.inactiveButton,
+            ]}
+            onPress={handleNextCard}
+            disabled={!showNextButton}
+          >
+            <Text style={styles.nextButtonText}maxFontSizeMultiplier={1.1}>الفعل التالي</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity onPress={handleButton3Press}>
-            <Animated.Image
-              source={require('./stat.png')}
-              style={[styles.buttonImage, { opacity: fadeAnim }]}
+          {exerciseCompleted && (
+            <CompletionMessageAr
+              correctAnswers={correctAnswers}
+              incorrectAnswers={incorrectAnswers}
+              handleOK={handleExerciseCompletion}
+              navigateToMenu={navigateToMenu}
+              correctAnswersPercentage={
+                progress > 0
+                  ? (((correctAnswers / (correctAnswers + incorrectAnswers)) * 100).toFixed(2))
+                  : 0
+              }
+              grade={grade}
+              restartTask={resetExercise}
             />
-            <StatModal1Ar
-              visible={isStatModalVisible}
-              onToggle={() => setIsStatModalVisible(false)}
-              statistics={statistics}
-            />
-          </TouchableOpacity>
-
-          <TouchableOpacity onPress={handleButton2Press}>
-            <Animated.Image
-              source={require('./question.png')}
-              style={[styles.buttonImage, { opacity: fadeAnim }]}
-            />
-            <TaskDescriptionModal1
-              visible={isDescriptionModalVisible}
-              onToggle={toggleDescriptionModal}
-            />
-          </TouchableOpacity>
-
-          <TouchableOpacity onPress={handleGenderToggle}>
-            <Animated.Image
-              source={isGenderMan ? require('./GenderMan.png') : require('./GenderWoman.png')}
-              style={[styles.buttonImage, { opacity: fadeAnim }]}
-            />
-          </TouchableOpacity>
+          )}
         </View>
-      </View>
+      </ScrollView>
+    )}
 
-      {/* <VerbDetailsContainer verbDetails={verbDetails} showRussianText={verbDetails.russiantext !== ''} /> */}
+    {/* Всегда монтируемые модалки */}
+    <StatModal1Ar
+      visible={isStatModalVisible}
+      onToggle={() => setIsStatModalVisible(false)}
+      statistics={statistics}
+    />
 
-      <Animated.View style={[styles.progressContainer, { opacity: fadeAnim }]}>
-        <View style={styles.textContainer}>
-          <Text style={styles.prtext}maxFontSizeMultiplier={1.2}>
-          صحيح: {correctAnswers}
-          </Text>
-          <Text style={styles.prtext}maxFontSizeMultiplier={1.2}>
-          خطأ: {incorrectAnswers}
-          </Text>
-        </View>
-
-        <View style={styles.remainingTasksContainer}>
-          <Text style={styles.remainingTasksText}maxFontSizeMultiplier={1.2}>
-            {shuffledVerbs.length - currentIndex}
-          </Text>
-        </View>
-
-        <Animated.View style={[styles.percentContainer, { backgroundColor, borderRadius: 10 }]}>
-          <Text style={styles.percentText}maxFontSizeMultiplier={1.2}>
-            {progress > 0 ? (((correctAnswers / (correctAnswers + incorrectAnswers))) * 100).toFixed(2) : 0}%
-          </Text>
-        </Animated.View>
-      </Animated.View>
-
-      <Animated.View style={[styles.ProgressBarcontainer, { opacity: fadeAnim }]}>
-        <ProgressBar progress={progress} totalExercises={shuffledVerbs.length} />
-      </Animated.View>
-
-      <Animated.Text style={[styles.title, { opacity: fadeAnim }]}maxFontSizeMultiplier={1.2}>اختر الترجمة</Animated.Text>
-
-      {currentIndex < shuffledVerbs.length && !exerciseCompleted && (
-        <VerbCard1
-          verbData={shuffledVerbs[currentIndex]}
-          options={optionsOrder}
-          onAnswer={handleAnswer}
-          soundEnabled={soundEnabled}
-        />
-      )}
-
-
-{/* <VerbDetailsContainer verbDetails={verbDetails} showRussianText={verbDetails.russiantext !== ''} /> */}
-
-<VerbDetailsContainer
-  verbDetails={verbDetails}
-  showRussianText={verbDetails.artext !== ''}
-  handleSpeakerPress={handleSpeakerPress}
-/>
-
-<Animated.View
-  style={[
-    styles.optionsContainer,
-    {
-      transform: [{ translateX: optionsContainerAnim }],
-    }
-  ]}
->
-  {optionsOrder.map((option, index) => (
-    <TouchableOpacity
-      key={index}
-      style={[
-        styles.optionButton,
-        option.isCorrect && option.isSelected ? styles.correctOption : null,
-        !option.isCorrect && option.isSelected ? styles.incorrectOption : null,
-      ]}
-      onPress={() => handleAnswer(index)}
-      disabled={option.disabled}  // Обновите условие, чтобы учитывать состояние disabled каждого варианта
-    >
-      <Text style={styles.optionText}maxFontSizeMultiplier={1.2}>{option.text}</Text>
-    </TouchableOpacity>
-  ))}
-</Animated.View>
-
-
-      <TouchableOpacity
-        style={[styles.nextButton, showNextButton ? styles.activeButton : styles.inactiveButton]}
-        onPress={handleNextCard}
-        disabled={!showNextButton}
-      >
-        <Text style={styles.nextButtonText}maxFontSizeMultiplier={1.1}>الفعل التالي</Text>
-      </TouchableOpacity>
-
-      {exerciseCompleted && (
-        <CompletionMessageAr
-          correctAnswers={correctAnswers}
-          incorrectAnswers={incorrectAnswers}
-          handleOK={handleExerciseCompletion}
-          navigateToMenu={navigateToMenu}
-          correctAnswersPercentage={
-            progress > 0
-              ? (((correctAnswers / (correctAnswers + incorrectAnswers)) * 100).toFixed(2))
-              : 0
-          }
-          grade={grade}
-          restartTask={resetExercise}
-        />
-      )}
+    <TaskDescriptionModal6
+      visible={isDescriptionModalVisible}
+      onToggle={toggleDescriptionModal}
+      language={language}
+      dontShowAgain1={dontShowAgain1}
+      onToggleDontShowAgain={handleToggleDontShowAgain1}
+    />
 
     <ExitConfirmationModal
-        visible={exitConfirmationVisible}
-        onCancel={handleCancelExit}
-        onConfirm={handleConfirmExit}
-      />
-    </View>
-    </ScrollView>
-  );
+      visible={exitConfirmationVisible}
+      onCancel={handleCancelExit}
+      onConfirm={handleConfirmExit}
+    />
+  </>
+);
+
 };
 
 const styles = StyleSheet.create({
@@ -901,7 +997,7 @@ const styles = StyleSheet.create({
   },
   
   title: {
-    fontSize: 18,
+    fontSize: 22,
     fontWeight: 'bold',
     marginTop: 10,
     marginBottom: 10,
@@ -931,7 +1027,7 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   optionText: {
-    fontSize: 16,
+    fontSize: 17,
     textAlign: 'center',
     color: '#152039',
     fontWeight: 'bold',
@@ -1000,7 +1096,7 @@ const styles = StyleSheet.create({
     width: '50%',
   },
   prtext: {
-    fontSize: wp('3%'),
+    fontSize: wp('4%'),
     color: 'white',
     textAlign: 'left',
     marginLeft: wp('3.5%'),
@@ -1125,7 +1221,7 @@ const styles = StyleSheet.create({
     marginBottom: hp('0.5%'),
   },
   verbDetailsRussian: {
-    fontSize: 16,
+    fontSize: 18,
     // fontSize: wp('3,5%'),
     color: '#333652',
     fontWeight: 'bold',

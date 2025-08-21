@@ -32,13 +32,13 @@
     ]
   },
   {
-    "verbRussian": "Говорить",
+    "verbRussian": "Разговаривать",
    "verbEnglish": "to speak",
 "verbFrench": "parler",
 "verbSpanish": "hablar",
 "verbPortuguese": "falar",
-"verbArabic": "يتحدث",
-"verbAmharic": "መናገር",
+"verbArabic": "أن تتكلم",
+"verbAmharic":  "መናገር",
 
     "audioFile": "ledaber.mp3",
     "verbHebrewOptions": [
@@ -479,7 +479,7 @@
     ]
     },
   {
-  "verbRussian": "Рассказать",
+  "verbRussian": "Сказать",
   "verbEnglish": "to tell",
 "verbFrench": "raconter",
 "verbSpanish": "contar",
@@ -2176,7 +2176,7 @@
         ]
       },
       {
-        "verbRussian": "Знать",
+        "verbRussian": "Быть знакомым",
         "verbEnglish": "to be familiar",
 "verbFrench": "être familier",
 "verbSpanish": "familiarizarse",
@@ -2243,23 +2243,7 @@
           { "text": "למהר", "transliteration": "lemaher", "isCorrect": false }
         ]
       },
-      {
-        "verbRussian": "Варить",
-        "verbEnglish": "to boil",
-"verbFrench": "faire bouillir",
-"verbSpanish": "hervir",
-"verbPortuguese": "ferver",
-"verbArabic": "أن يغلي",
-"verbAmharic": "ማፍላት",
-
-        "audioFile": "levashel.mp3", 
-        "verbHebrewOptions": [
-          { "text": "לבשל", "transliteration": "levashel", "isCorrect": true },
-          { "text": "להשתעמם", "transliteration": "lehishta'amem", "isCorrect": false },
-          { "text": "למהר", "transliteration": "lemaher", "isCorrect": false },
-          { "text": "לאחר", "transliteration": "le'acher", "isCorrect": false }
-        ]
-      },
+      
       {
         "verbRussian": "Скучать",
         "verbEnglish": "to be bored",
@@ -2483,7 +2467,7 @@
         ]
       },
       {
-        "verbRussian": "Пробовать",
+        "verbRussian": "Пробовать (вкус)",
         "verbEnglish": "to taste",
 "verbFrench": "goûter",
 "verbSpanish": "probar",
@@ -4933,23 +4917,7 @@
         { "text": "ללבוש", "transliteration": "lilbosh", "isCorrect": false }
       ]
     },
-    {
-      "verbRussian": "Критиковать",
-      "verbEnglish": "to criticize",
-"verbFrench": "critiquer",
-"verbSpanish": "criticar",
-"verbPortuguese": "criticar",
-"verbArabic": "أن ينتقد",
-"verbAmharic": "መተቀስ",
-
-      "audioFile": "levaker.mp3",
-      "verbHebrewOptions": [
-        { "text": "לבקר", "transliteration": "levaker", "isCorrect": true },
-        { "text": "להקטין", "transliteration": "lehaktin", "isCorrect": false },
-        { "text": "לאסוף", "transliteration": "le'esof", "isCorrect": false },
-        { "text": "לבשל", "transliteration": "levashel", "isCorrect": false }
-      ]
-    },
+    
     {
       "verbRussian": "Посещать",
       "verbEnglish": "to visit",

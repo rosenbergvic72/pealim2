@@ -2,24 +2,25 @@
   "expo": {
     "name": "Verbify",
     "slug": "pealim2",
-    "version": "1.0.0",
+    "version": "1.0.8",
     "orientation": "portrait",
-    "icon": "./assets/images/icon3.png",
-    
+    "icon": "./assets/images/iconjjj.png",
     "extra": {
       "eas": {
         "projectId": "1c3fbe10-9608-4dd7-a477-f0ae7c294b5e"
       }
-      
     },
     "android": {
       "package": "com.rosenbergvictor72.pealim2",
-      "permissions": [
-        "RECORD_AUDIO"
+      "versionCode": 8,
+       "permissions": [
+        "RECORD_AUDIO",
+        "POST_NOTIFICATIONS",
+        "SCHEDULE_EXACT_ALARM"
       ],
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/icon_adaptive.png",
-        "backgroundColor": "#FFFFFF"
+        "foregroundImage": "./assets/images/iconjjj.png",
+        "backgroundColor": "#2d4769"
       }
     },
     "ios": {
@@ -27,6 +28,9 @@
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false
       }
-    }
+    },
+    "plugins": [
+      "expo-localization"
+    ]
   }
 }

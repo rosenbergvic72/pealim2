@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { View, TouchableOpacity, Text, StyleSheet, Animated, Vibration } from 'react-native';
+import { View, TouchableOpacity, Text, StyleSheet, Animated, Vibration, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
+
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import LottieView from 'lottie-react-native';
 import { useFocusEffect } from '@react-navigation/native';
@@ -126,66 +127,74 @@ const LanguageSelectionPage = ({ navigation }) => {
   };
 
   return (
-    <View style={styles.container}>
-      <Animated.View style={{ opacity: logoOpacity }}>
-        <LottieView
-          source={require('./assets/Animation - 1718510308187.json')}
-          autoPlay
-          loop
-          style={styles.lottie}
-        />
-      </Animated.View>
-
-      {['English', 'Русский', 'Français', 'Español', 'Português', 'العربية', 'አማርኛ'].map((language, index) => {
-        const interpolatedBackgroundColor = buttonBackgroundColors[index].interpolate({
-          inputRange: [0, 1],
-          outputRange: ['#6C8EBB', '#4A6491'],
-        });
-
-        return (
-          <Animated.View
-            key={language}
-            style={[
-              styles.buttonContainer,
-              {
-                opacity: buttonOpacities[index],
-                transform: [{ translateY: buttonTranslations[index] }],
-              },
-            ]}
-          >
-            <TouchableOpacity
-              style={[
-                styles.button,
-                {
-                  backgroundColor: interpolatedBackgroundColor,
-                  ...(shadowVisible ? styles.shadow : {}),
-                },
-              ]}
-              onPress={() => handleSelectLanguage(language.toLowerCase())}
-            >
-              <Text style={styles.text} maxFontSizeMultiplier={1.2}>{language}</Text>
-            </TouchableOpacity>
+    <KeyboardAvoidingView
+      style={{ flex: 1 }}
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+    >
+      <ScrollView contentContainerStyle={{ flexGrow: 1 }} keyboardShouldPersistTaps="handled">
+        <View style={styles.container}>
+          <Animated.View style={{ opacity: logoOpacity }}>
+            <LottieView
+              source={require('./assets/Animation - 1718510308187.json')}
+              autoPlay
+              loop
+              style={styles.lottie}
+            />
           </Animated.View>
-        );
-      })}
-
-      <Animated.View
-        style={{
-          width: '100%',
-          alignItems: 'center',
-          opacity: lottieOpacity,
-          transform: [{ translateY: lottieTranslateY }],
-        }}
-      >
-        <LottieView
-          source={require('./assets/Animation - 1740723572105.json')}
-          autoPlay
-          loop
-          style={styles.lottie}
-        />
-      </Animated.View>
-    </View>
+  
+          {['English', 'Русский', 'Français', 'Español', 'Português', 'العربية', 'አማርኛ'].map((language, index) => {
+            const interpolatedBackgroundColor = buttonBackgroundColors[index].interpolate({
+              inputRange: [0, 1],
+              outputRange: ['#6C8EBB', '#4A6491'],
+            });
+  
+            return (
+              <Animated.View
+                key={language}
+                style={[
+                  styles.buttonContainer,
+                  {
+                    opacity: buttonOpacities[index],
+                    transform: [{ translateY: buttonTranslations[index] }],
+                  },
+                ]}
+              >
+                <TouchableOpacity
+                  style={[
+                    styles.button,
+                    {
+                      backgroundColor: interpolatedBackgroundColor,
+                      ...(shadowVisible ? styles.shadow : {}),
+                    },
+                  ]}
+                  onPress={() => handleSelectLanguage(language.toLowerCase())}
+                >
+                  <Text style={styles.text} maxFontSizeMultiplier={1.2}>{language}</Text>
+                </TouchableOpacity>
+              </Animated.View>
+            );
+          })}
+  
+          <Animated.View
+            style={{
+              width: '100%',
+              alignItems: 'center',
+              opacity: lottieOpacity,
+              transform: [{ translateY: lottieTranslateY }],
+            }}
+          >
+            <LottieView
+              source={require('./assets/Animation - 1740723572105.json')}
+              autoPlay
+              loop
+              style={styles.lottie}
+            />
+          </Animated.View>
+        </View>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
+  
 };
 
 const styles = StyleSheet.create({

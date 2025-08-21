@@ -51,7 +51,7 @@
       "transliteration": "le'echol",
       "audioFile": "leechol.mp3",
       "translationOptions": [
-          "Кушать",
+          "Есть",
           "Брить",
           "Смотреть",
           "Готовить"
@@ -111,29 +111,7 @@
 
       "correctTranslationIndex": 0
   },
-  {
-      "hebrewVerb": "לדבר",
-      "root": "ד-ב-ר",
-      "binyan": "PI'EL",
-      "transliteration": "ledaber",
-      "audioFile": "ledaber.mp3",
-      "translationOptions": [
-          "Говорить",
-          "Лезть",
-          "Ползти",
-          "Прыгать"
-      ],
-      "translationOptionsEn": ["to speak", "to climb", "to crawl", "to jump"],
-"translationOptionsFr": ["parler", "grimper", "ramper", "sauter"],
-"translationOptionsEs": ["hablar", "escalar", "arrastrarse", "saltar"],
-"translationOptionsPt": ["falar", "subir", "rastejar", "pular"],
-"translationOptionsAr": ["أن تتكلم", "أن تتسلق", "أن تزحف", "أن تقفز"],
-"translationOptionsAm": ["መናገር", "መውጣት", "መም crawlር", "መጉዞት"],
-
-
-
-      "correctTranslationIndex": 0
-  },
+  
   {
       "hebrewVerb": "לדעת",
       "root": "ד-ע-ת",
@@ -416,7 +394,7 @@
       "transliteration": "lomar",
       "audioFile": "lomar.mp3",
       "translationOptions": [
-          "Рассказать",
+          "Сказать",
           "Молчать",
           "Пинать",
           "Звать"
@@ -1239,7 +1217,7 @@
       "transliteration": "lenasot",
       "audioFile": "lenasot.mp3",
       "translationOptions": [
-          "Пытаться",
+          "Пробовать",
           "Побеждать",
           "Заканчивать",
           "Вставать"
@@ -2213,8 +2191,8 @@
       ],
       "translationOptionsEn": ["to skip", "to save", "to reduce", "to collect"],
 "translationOptionsFr": ["sauter", "sauver", "réduire", "collecter"],
-"translationOptionsEs": ["saltar", "salvar", "reducir", "recoger"],
-"translationOptionsPt": ["pular", "salvar", "reduzir", "coletar"],
+"translationOptionsEs": ["perder", "salvar", "reducir", "recoger"],
+"translationOptionsPt": ["perder", "salvar", "reduzir", "coletar"],
 "translationOptionsAr": ["أن يتجاوز", "أن تنقذ", "أن تقلل", "أن تجمع"],
 "translationOptionsAm": ["ማለፍ", "ማዳን", "መቀነስ", "መሰብሰብ"],
 
@@ -2542,7 +2520,7 @@
       "transliteration": "lehakir",
       "audioFile": "lehakir.mp3",
       "translationOptions": [
-          "Знать",
+          "Быть знакомым",
           "Слышать",
           "Покупать",
           "Решать"
@@ -2570,7 +2548,7 @@
       ],
       "translationOptionsEn": ["to stop", "to receive", "to approve", "to help"],
 "translationOptionsFr": ["arrêter", "recevoir", "approuver", "aider"],
-"translationOptionsEs": ["detener", "recibir", "aprobar", "ayudar"],
+"translationOptionsEs": ["parar", "recibir", "aprobar", "ayudar"],
 "translationOptionsPt": ["parar", "receber", "aprovar", "ajudar"],
 "translationOptionsAr": ["أن يوقف", "أن يتلقى", "أن يوافق", "أن يساعد"],
 "translationOptionsAm": ["ማቆም", "መቀበል", "መረጣት", "መርዳት"],
@@ -2619,27 +2597,7 @@
 
       "correctTranslationIndex": 0
   },
-  {
-      "hebrewVerb": "לבשל",
-      "root": "ב-שׁ-ל",
-      "binyan": "PI'EL",
-      "transliteration": "levashel",
-      "audioFile": "levashel.mp3",
-      "translationOptions": [
-          "Варить",
-          "Думать",
-          "Объяснять",
-          "Терпеть"
-      ],
-      "translationOptionsEn": ["to boil", "to think", "to explain", "to endure"],
-"translationOptionsFr": ["faire bouillir", "penser", "expliquer", "supporter"],
-"translationOptionsEs": ["hervir", "pensar", "explicar", "soportar"],
-"translationOptionsPt": ["ferver", "pensar", "explicar", "suportar"],
-"translationOptionsAr": ["طبخ", "أن يفكر", "أن يشرح", "أن يتحمل"],
-"translationOptionsAm": ["ማብሰል", "መንቀሳቀስ", "መርዳት", "መጥፍት"],
-
-      "correctTranslationIndex": 0
-  },
+  
   {
       "hebrewVerb": "להשתעמם",
       "root": "ש-ע-מ",
@@ -2864,7 +2822,7 @@
       ],
       "translationOptionsEn": ["to miss", "to say", "to be angry", "to dream"],
 "translationOptionsFr": ["manquer", "dire", "se fâcher", "rêver"],
-"translationOptionsEs": ["echar de menos", "decir", "enojarse", "soñar"],
+"translationOptionsEs": ["extrañar", "decir", "enojarse", "soñar"],
 "translationOptionsPt": ["sentir falta", "dizer", "ficar bravo", "sonhar"],
 "translationOptionsAr": ["أن يشتاق", "أن يقول", "أن يغضب", "أن يحلم"],
 "translationOptionsAm": ["መናፈቅ", "ማነግር", "መቆም", "መምከር"],
@@ -2920,7 +2878,7 @@
       "transliteration": "lit'om",
       "audioFile": "litom.mp3",
       "translationOptions": [
-          "Пробовать",
+          "Пробовать (вкус)",
           "Ненавидеть",
           "Замедлять",
           "Спорить"
@@ -2934,27 +2892,7 @@
 
       "correctTranslationIndex": 0
   },
-  {
-      "hebrewVerb": "לנסות",
-      "root": "נ-ס-ה",
-      "binyan": "PI'EL",
-      "transliteration": "lenasot",
-      "audioFile": "lenasot.mp3",
-      "translationOptions": [
-          "Пытаться",
-          "Угадывать",
-          "Проверять",
-          "Отдыхать"
-      ],
-      "translationOptionsEn": ["to try", "to guess", "to check", "to rest"],
-"translationOptionsFr": ["essayer", "deviner", "vérifier", "se reposer"],
-"translationOptionsEs": ["intentar", "adivinar", "verificar", "descansar"],
-"translationOptionsPt": ["tentar", "adivinhar", "verificar", "descansar"],
-"translationOptionsAr": ["أن يحاول", "أن يخمن", "أن يتحقق", "أن يستريح"],
-"translationOptionsAm": ["መሞከር", "ለመጠቀም", "ለመገምት", "ለመዝናናት"],
-
-      "correctTranslationIndex": 0
-  },
+  
   {
       "hebrewVerb": "להתגבר",
       "root": "ג-ב-ר",
@@ -4108,7 +4046,7 @@
         "transliteration": "lehistamech",
         "audioFile": "lehistamech.mp3",
         "translationOptions": [
-        "Полагаться",
+        "Доверяться",
         "Помнить",
         "Скучать",
         "Верить"
@@ -4137,7 +4075,7 @@
         "translationOptionsEn": ["to mistake", "to affirm", "to force", "to shout"],
 "translationOptionsFr": ["se tromper", "affirmer", "forcer", "crier"],
 "translationOptionsEs": ["equivocarse", "afirmar", "forzar", "gritar"],
-"translationOptionsPt": ["errar", "afirmar", "forçar", "gritar"],
+"translationOptionsPt": ["enganar-se", "afirmar", "forçar", "gritar"],
 "translationOptionsAr": ["أن يخطئ",  "أن تخسر", "أن تنادي", "أن تأمل"],
 "translationOptionsAm": ["ስህተት መሥራት", "መናገር", "መግዝያ", "መጥላት"],
 
@@ -4494,8 +4432,8 @@
         ],
         "translationOptionsEn": ["to end", "to remember", "to clean", "to bring"],
 "translationOptionsFr": ["se terminer", "se souvenir", "nettoyer", "apporter"],
-"translationOptionsEs": ["terminar", "recordar", "limpiar", "traer"],
-"translationOptionsPt": ["terminar", "lembrar", "limpar", "trazer"],
+"translationOptionsEs": ["terminarse", "recordar", "limpiar", "traer"],
+"translationOptionsPt": ["terminar-se", "lembrar", "limpar", "trazer"],
 "translationOptionsAr": ["أن ينتهي", "أن تتحرك", "أن تقف", "أن تشرب"],
 "translationOptionsAm": ["ማለቅ", "መስተዋል", "መጠበቅ", "መውሰድ"],
 
@@ -4662,10 +4600,10 @@
             "Сниматься",
             "Улыбаться"
             ],
-            "translationOptionsEn": ["to lead", "to trust", "to be filmed", "to smile"],
-"translationOptionsFr": ["diriger", "faire confiance", "être filmé", "sourire"],
-"translationOptionsEs": ["liderar", "confiar", "ser filmado", "sonreír"],
-"translationOptionsPt": ["liderar", "confiar", "ser filmado", "sorrir"],
+            "translationOptionsEn": ["to manage", "to trust", "to be filmed", "to smile"],
+"translationOptionsFr": ["gérer", "faire confiance", "être filmé", "sourire"],
+"translationOptionsEs": ["manejar", "confiar", "ser filmado", "sonreír"],
+"translationOptionsPt": ["gerenciar", "confiar", "ser filmado", "sorrir"],
 "translationOptionsAr": ["أن يقود", "أن تصلي", "أن ترسم", "أن تعلم"],
 "translationOptionsAm": ["መምራት", "መምከራት", "መግባት", "መስማት"]
 ,
@@ -4730,7 +4668,7 @@
 "translationOptionsEs": ["arriesgar", "deleitar", "irse", "saltar"],
 "translationOptionsPt": ["arriscar", "deleitar", "sair", "saltar"],
 "translationOptionsAr": ["أن يُخاطِر", "أن تفوت", "أن تتواصل", "أن تخلط"],
-"translationOptionsAm": ["ለአደጋ ተጋላጭነት", "መደሰት", "መሄድ", "መወጣት"]
+"translationOptionsAm": ["አደጋን መውሰድ", "መደሰት", "መሄድ", "መወጣት"]
 ,
             "correctTranslationIndex": 0
             },
@@ -5421,7 +5359,7 @@
                         "transliteration": "lehitrape",
                         "audioFile": "lehitrape.mp3",
                         "translationOptions": [
-                          "Поправляться",
+                          "Лечиться",
                           "Строить",
                           "Слушать",
                           "Разговаривать"
@@ -5820,7 +5758,7 @@
 
                     {
                         "hebrewVerb": "להיעצר",
-                        "root": "פ-ע-ל",
+                        "root": "ע-צ-ר",
                         "binyan": "NIF'AL",
                         "transliteration": "lehe'atzer",
                         "audioFile": "leheatzer.mp3",
@@ -5919,27 +5857,7 @@
 ,
                         "correctTranslationIndex": 0
                     },
-                    {
-                        "hebrewVerb": "לבקר",
-                        "root": "ב-ק-ר",
-                        "binyan": "PI'EL",
-                        "transliteration": "levaker",
-                        "audioFile": "levaker.mp3",
-                        "translationOptions": [
-                            "Критиковать",
-                            "Мыть",
-                            "Ездить",
-                            "Сказать"
-                        ],
-                        "translationOptionsEn": ["to criticize", "to wash", "to ride", "to say"],
-                  "translationOptionsFr": ["critiquer", "laver", "rouler", "dire"],
-                  "translationOptionsEs": ["criticar", "lavar", "montar", "decir"],
-                  "translationOptionsPt": ["criticar", "lavar", "andar", "dizer"],
-                  "translationOptionsAr": ["أن ينتقد", "أن يغسل", "أن يركب", "أن يقول"],
-                  "translationOptionsAm": ["መተቀስ", "መታጠብ", "መግባት", "ማቅረብ"],
-                  
-                        "correctTranslationIndex": 0
-                    },
+                    
                     {
                         "hebrewVerb": "לבקר",
                         "root": "ב-ק-ר",

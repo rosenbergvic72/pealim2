@@ -2,9 +2,9 @@ import React from 'react';
 import { Modal, View, Text, TouchableOpacity, StyleSheet, Image, Linking } from 'react-native';
 import Constants from 'expo-constants';
 
-const AppInfoModal = ({ visible, onClose }) => {
+const AppInfoModal = ({ visible, onToggle , updatedAt, appSize }) => {
     return (
-        <Modal animationType="slide" transparent={true} visible={visible} onRequestClose={onClose}>
+        <Modal animationType="slide" transparent={true} visible={visible} onRequestClose={onToggle }>
           <View style={styles.modalBackground}>
             <View style={styles.modalView}>
       
@@ -16,7 +16,7 @@ const AppInfoModal = ({ visible, onClose }) => {
       
               {/* الإصدار والتحديث */}
               <Text style={styles.modalText}>الإصدار: <Text style={styles.bold}>{Constants.expoConfig?.version || 'غير معروف'}</Text></Text>
-              <Text style={styles.modalText}>تم التحديث: <Text style={styles.bold}>01.02.2025</Text></Text>
+              <Text style={styles.modalText}>تم التحديث:  <Text style={styles.bold}>{updatedAt || '20.08.2025'}</Text></Text>
       
               {/* المعلومات الأساسية
               <Text style={styles.sectionTitle}>الوصف:</Text>
@@ -30,19 +30,19 @@ const AppInfoModal = ({ visible, onClose }) => {
               <Text style={styles.modalText}>الدعم: Android, iOS</Text>
               <Text style={styles.modalText}>الحد الأدنى للإصدار:</Text>
               <Text style={styles.modalText}>Android 8.0+, iOS 13.0+</Text>
-              <Text style={styles.modalText}>الحجم: 148 ميجابايت</Text>
+              <Text style={styles.modalText}>الحجم: <Text style={styles.bold}>{appSize || '189 Mb'}</Text></Text>
       
               {/* جهات الاتصال */}
               <Text style={styles.sectionTitle}>جهات الاتصال:</Text>
               <Text style={styles.linkText} onPress={() => Linking.openURL('mailto:verbify2025@gmail.com')}>
                 الدعم: verbify2025@gmail.com
               </Text>
-              <Text style={styles.linkText} onPress={() => Linking.openURL('https://www.verbify.com/privacy')}>
+              <Text style={styles.linkText} onPress={() => Linking.openURL('https://verbifyapp.netlify.app')}>
                 سياسة الخصوصية
               </Text>
       
               {/* زر الإغلاق */}
-              <TouchableOpacity style={styles.closeButton} onPress={onClose}>
+              <TouchableOpacity style={styles.closeButton} onPress={onToggle }>
                 <Text style={styles.closeButtonText}>إغلاق</Text>
               </TouchableOpacity>
       

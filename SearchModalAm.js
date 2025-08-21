@@ -20,7 +20,8 @@ const SearchModalAm = ({ visible, onToggle, onSelectVerb }) => {
       verb.amharic.toLowerCase().includes(lowerCaseQuery) ||
       verb.amtext.toLowerCase().includes(lowerCaseQuery) ||
       verb.translit.toLowerCase().includes(lowerCaseQuery) || 
-      verb.transliteration.toLowerCase().includes(lowerCaseQuery)
+      verb.transliteration.toLowerCase().includes(lowerCaseQuery)||
+      verb.hebrewtext.toLowerCase().includes(lowerCaseQuery)
     );
     setSearchResults(results);
   };
@@ -33,9 +34,8 @@ const SearchModalAm = ({ visible, onToggle, onSelectVerb }) => {
   };
 
   const handleResultPress = (result) => {
-    onSelectVerb(result);
-    onToggle();
-  };
+  onSelectVerb(result); // вызывает handleSelectVerb
+};
 
   const handleSearchPress = () => {
     Keyboard.dismiss();
@@ -78,6 +78,9 @@ const SearchModalAm = ({ visible, onToggle, onSelectVerb }) => {
                 <Text style={[styles.resultText, styles.infinitiveText]}maxFontSizeMultiplier={1.2}>{result.infinitive}</Text>
                 <Text style={[styles.resultText1, { color: '#1C3F60' }]}maxFontSizeMultiplier={1.2}>{result.amharic}</Text>
                 <Text style={[styles.resultText, { color: '#FF5733' }]}maxFontSizeMultiplier={1.2}>{result.transliteration}</Text>
+                <Text style={[styles.resultTextHebrew]} maxFontSizeMultiplier={1.2}>
+                    {result.hebrewtext}
+                  </Text>
                 <Text style={[styles.resultText1, { color: '#1C3F60' }]}maxFontSizeMultiplier={1.2}>{result.amtext}</Text>
                 <Text style={[styles.resultText, { color: '#FF5733' }]}maxFontSizeMultiplier={1.2}>{result.translit}</Text>
               </TouchableOpacity>
@@ -171,6 +174,8 @@ const styles = StyleSheet.create({
     color: '#1C3F60',
     fontSize: 18,
     fontWeight: 'bold',
+     textAlign: 'right',
+  writingDirection: 'rtl',
   },
 
   resultText1: {
@@ -196,7 +201,14 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 18,
     fontWeight: 'bold',
-  }
+  },
+  resultTextHebrew: {
+  fontSize: 18,
+  fontWeight: 'bold',
+  color: '#2B3270',
+  textAlign: 'right',
+  writingDirection: 'rtl', // чтобы текст на иврите был корректно выровнен
+},
 });
 
 export default SearchModalAm;

@@ -1,0 +1,362 @@
+[
+  {
+    "infinitive": "לדבר",
+    "gender": "man",
+    "expected": {
+      "russian": "разговаривать",
+      "english": "to talk",
+      "french": "parler",
+      "spanish": "hablar",
+      "portu": "falar",
+      "arabic": "أن يتكلم",
+      "amharic": "መናገር"
+    },
+    "foundCandidates": [
+      {
+        "russian": "Разговаривать",
+        "english": "to talk",
+        "french": "parler",
+        "gender": "man"
+      },
+      {
+        "russian": "Разговаривать",
+        "english": "to talk",
+        "french": "parler",
+        "gender": "man"
+      },
+      {
+        "russian": "Разговаривать",
+        "english": "to talk",
+        "french": "parler",
+        "gender": "man"
+      },
+      {
+        "russian": "Разговаривать",
+        "english": "to talk",
+        "french": "parler",
+        "gender": "man"
+      },
+      {
+        "russian": "Разговаривать",
+        "english": "to talk",
+        "french": "parler",
+        "gender": "man"
+      },
+      {
+        "russian": "Разговаривать",
+        "english": "to talk",
+        "french": "parler",
+        "gender": "man"
+      },
+      {
+        "russian": "Разговаривать",
+        "english": "to talk",
+        "french": "parler",
+        "gender": "man"
+      },
+      {
+        "russian": "Разговаривать",
+        "english": "to talk",
+        "french": "parler",
+        "gender": "man"
+      },
+      {
+        "russian": "Разговаривать",
+        "english": "to talk",
+        "french": "parler",
+        "gender": "man"
+      }
+    ]
+  },
+  {
+    "infinitive": "לדבר",
+    "gender": "woman",
+    "expected": {
+      "russian": "разговаривать",
+      "english": "to talk",
+      "french": "parler",
+      "spanish": "hablar",
+      "portu": "falar",
+      "arabic": "أن يتكلم",
+      "amharic": "መናገር"
+    },
+    "foundCandidates": [
+      {
+        "russian": "Разговаривать",
+        "english": "to talk",
+        "french": "parler",
+        "gender": "woman"
+      },
+      {
+        "russian": "Разговаривать",
+        "english": "to talk",
+        "french": "parler",
+        "gender": "woman"
+      },
+      {
+        "russian": "Разговаривать",
+        "english": "to talk",
+        "french": "parler",
+        "gender": "woman"
+      },
+      {
+        "russian": "Разговаривать",
+        "english": "to talk",
+        "french": "parler",
+        "gender": "woman"
+      },
+      {
+        "russian": "Разговаривать",
+        "english": "to talk",
+        "french": "parler",
+        "gender": "woman"
+      },
+      {
+        "russian": "Разговаривать",
+        "english": "to talk",
+        "french": "parler",
+        "gender": "woman"
+      },
+      {
+        "russian": "Разговаривать",
+        "english": "to talk",
+        "french": "parler",
+        "gender": "woman"
+      },
+      {
+        "russian": "Разговаривать",
+        "english": "to talk",
+        "french": "parler",
+        "gender": "woman"
+      },
+      {
+        "russian": "Разговаривать",
+        "english": "to talk",
+        "french": "parler",
+        "gender": "woman"
+      }
+    ]
+  },
+  {
+    "infinitive": "לבשל",
+    "gender": "man",
+    "expected": {
+      "russian": "готовить",
+      "english": "to cook",
+      "french": "cuisiner",
+      "spanish": "cocinar",
+      "portu": "cozinhar",
+      "arabic": "أن يطبخ",
+      "amharic": "ማብሰል"
+    },
+    "foundCandidates": [
+      {
+        "russian": "Готовить",
+        "english": "to cook",
+        "french": "cuisiner",
+        "gender": "man"
+      }
+    ]
+  },
+  {
+    "infinitive": "לבשל",
+    "gender": "woman",
+    "expected": {
+      "russian": "готовить",
+      "english": "to cook",
+      "french": "cuisiner",
+      "spanish": "cocinar",
+      "portu": "cozinhar",
+      "arabic": "أن يطبخ",
+      "amharic": "ማብሰል"
+    },
+    "foundCandidates": [
+      {
+        "russian": "Готовить",
+        "english": "to cook",
+        "french": "cuisiner",
+        "gender": "woman"
+      }
+    ]
+  },
+  {
+    "infinitive": "להירדם",
+    "gender": "man",
+    "expected": {
+      "russian": "засыпать",
+      "english": "to fall asleep",
+      "french": "s'endormir",
+      "spanish": "dormirse",
+      "portu": "adormecer-se",
+      "arabic": "يغفى",
+      "amharic": "እንቅልፍ መውሰድ"
+    },
+    "foundCandidates": [
+      {
+        "russian": "Засыпать",
+        "english": "to fall asleep",
+        "french": "s'endormir",
+        "gender": "man"
+      }
+    ]
+  },
+  {
+    "infinitive": "להירדם",
+    "gender": "woman",
+    "expected": {
+      "russian": "засыпать",
+      "english": "to fall asleep",
+      "french": "s'endormir",
+      "spanish": "dormirse",
+      "portu": "adormecer-se",
+      "arabic": "يغفى",
+      "amharic": "እንቅልፍ መውሰድ"
+    },
+    "foundCandidates": [
+      {
+        "russian": "Засыпать",
+        "english": "to fall asleep",
+        "french": "s'endormir",
+        "gender": "woman"
+      }
+    ]
+  },
+  {
+    "infinitive": "לנהל",
+    "gender": "man",
+    "expected": {
+      "russian": "руководить",
+      "english": "to lead",
+      "french": "diriger",
+      "spanish": "liderar",
+      "portu": "liderar",
+      "arabic": "أن يقود",
+      "amharic": "መምራት"
+    },
+    "foundCandidates": [
+      {
+        "russian": "Руководить",
+        "english": "to manage",
+        "french": "gérer",
+        "gender": "man"
+      },
+      {
+        "russian": "Руководить",
+        "english": "to manage",
+        "french": "gérer",
+        "gender": "man"
+      },
+      {
+        "russian": "Руководить",
+        "english": "to manage",
+        "french": "gérer",
+        "gender": "man"
+      },
+      {
+        "russian": "Руководить",
+        "english": "to manage",
+        "french": "gérer",
+        "gender": "man"
+      },
+      {
+        "russian": "Руководить",
+        "english": "to manage",
+        "french": "gérer",
+        "gender": "man"
+      },
+      {
+        "russian": "Руководить",
+        "english": "to manage",
+        "french": "gérer",
+        "gender": "man"
+      },
+      {
+        "russian": "Руководить",
+        "english": "to manage",
+        "french": "gérer",
+        "gender": "man"
+      },
+      {
+        "russian": "Руководить",
+        "english": "to manage",
+        "french": "gérer",
+        "gender": "man"
+      },
+      {
+        "russian": "Руководить",
+        "english": "to manage",
+        "french": "gérer",
+        "gender": "man"
+      }
+    ]
+  },
+  {
+    "infinitive": "לנהל",
+    "gender": "woman",
+    "expected": {
+      "russian": "руководить",
+      "english": "to lead",
+      "french": "diriger",
+      "spanish": "liderar",
+      "portu": "liderar",
+      "arabic": "أن يقود",
+      "amharic": "መምራት"
+    },
+    "foundCandidates": [
+      {
+        "russian": "Руководить",
+        "english": "to manage",
+        "french": "gérer",
+        "gender": "woman"
+      },
+      {
+        "russian": "Руководить",
+        "english": "to manage",
+        "french": "gérer",
+        "gender": "woman"
+      },
+      {
+        "russian": "Руководить",
+        "english": "to manage",
+        "french": "gérer",
+        "gender": "woman"
+      },
+      {
+        "russian": "Руководить",
+        "english": "to manage",
+        "french": "gérer",
+        "gender": "woman"
+      },
+      {
+        "russian": "Руководить",
+        "english": "to manage",
+        "french": "gérer",
+        "gender": "woman"
+      },
+      {
+        "russian": "Руководить",
+        "english": "to manage",
+        "french": "gérer",
+        "gender": "woman"
+      },
+      {
+        "russian": "Руководить",
+        "english": "to manage",
+        "french": "gérer",
+        "gender": "woman"
+      },
+      {
+        "russian": "Руководить",
+        "english": "to manage",
+        "french": "gérer",
+        "gender": "woman"
+      },
+      {
+        "russian": "Руководить",
+        "english": "to manage",
+        "french": "gérer",
+        "gender": "woman"
+      }
+    ]
+  }
+]

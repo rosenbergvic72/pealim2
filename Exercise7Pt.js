@@ -9,7 +9,7 @@ import sounds from './Soundss';
 import CompletionMessagePt from './CompletionMessagePt';
 import ExitConfirmationModal from './ExitConfirmationModalPt';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
-import TaskDescriptionModal7Pt from './TaskDescriptionModal7Pt';
+import TaskDescriptionModal6 from './TaskDescriptionModal7';
 import StatModal7Pt from './StatModal7Pt';
 import { updateStatistics, getStatistics } from './stat';
 import TypewriterTextRTL from './TypewriterTextRTL';
@@ -26,7 +26,7 @@ const Exercise7Pt = () => {
   const [incorrectCount, setIncorrectCount] = useState(0);
   const [exitConfirmationVisible, setExitConfirmationVisible] = useState(false);
   const [soundEnabled, setSoundEnabled] = useState(true);
-  const [isDescriptionModalVisible, setIsDescriptionModalVisible] = useState(false);
+  // const [isDescriptionModalVisible, setIsDescriptionModalVisible] = useState(false);
   const [statistics, setStatistics] = useState(null);
   const [isStatModalVisible, setIsStatModalVisible] = useState(false);
   const [failureSound, setFailureSound] = useState(null);
@@ -90,6 +90,53 @@ const Exercise7Pt = () => {
     } else {
       return 'É necessário um trabalho sério! É importante não desistir e continuar aprendendo.';
     }
+  };
+
+
+  const [isDescriptionModalVisible, setDescriptionModalVisible] = useState(false);
+  
+    const [dontShowAgain7, setDontShowAgain7] = useState(false);
+  
+    const [language, setLanguage] = useState('pt'); // ← по умолчанию ru
+  
+    const [languageLoaded, setLanguageLoaded] = useState(false);
+  
+    useEffect(() => {
+    const checkFlagAndLang = async () => {
+      const hidden = await AsyncStorage.getItem('exercise7_description_hidden');
+      const lang = await AsyncStorage.getItem('language');
+  
+      console.log('🌍 Language:', lang);
+      console.log('🧪 Hide flag:', hidden);
+  
+      if (lang) {
+        setLanguage(lang);
+  
+        setDontShowAgain7(hidden === 'true');
+      setLanguageLoaded(true);
+  
+        if (hidden !== 'true') {
+          setTimeout(() => {
+            console.log('📢 Показываем модалку после загрузки языка');
+            setDescriptionModalVisible(true);
+          }, 100); // чуть больше времени
+        }
+      }
+  
+      setDontShowAgain7(hidden === 'true');
+    };
+  
+    checkFlagAndLang();
+  }, []);
+  
+  
+  
+  
+  const handleToggleDontShowAgain7 = async () => {
+    const newValue = !dontShowAgain7;
+    setDontShowAgain7(newValue);
+    await AsyncStorage.setItem('exercise7_description_hidden', newValue ? 'true' : '');
+    console.log('📌 Клик по чекбоксу. Было:', dontShowAgain7, 'Станет:', !dontShowAgain7);
   };
 
   const shuffleArray = (array) => {
@@ -406,7 +453,7 @@ const Exercise7Pt = () => {
   };
 
   const toggleDescriptionModal = () => {
-    setIsDescriptionModalVisible((prev) => !prev);
+    setDescriptionModalVisible((prev) => !prev);
   };
 
   const handleButton3Press = async () => {
@@ -559,7 +606,13 @@ const Exercise7Pt = () => {
           </TouchableOpacity>
           <TouchableOpacity onPress={toggleDescriptionModal}>
             <Animated.Image source={require('./question.png')} style={[styles.buttonImage, { opacity: fadeAnim }]} />
-            <TaskDescriptionModal7Pt visible={isDescriptionModalVisible} onToggle={toggleDescriptionModal} />
+            <TaskDescriptionModal6
+              visible={isDescriptionModalVisible}
+  onToggle={toggleDescriptionModal}
+  language={language}
+  dontShowAgain7={dontShowAgain7}
+  onToggleDontShowAgain={handleToggleDontShowAgain7}
+            />
           </TouchableOpacity>
         </View>
       </View>

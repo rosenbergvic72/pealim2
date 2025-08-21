@@ -9,11 +9,12 @@ import ExitConfirmationModal from './ExitConfirmationModalAm';
 import { Audio } from 'expo-av';
 import sounds from './soundsimper';
 import { Animated } from 'react-native';
-import TaskDescriptionModal5 from './TaskDescriptionModal5Am';
+import TaskDescriptionModal6 from './TaskDescriptionModal5';
 import StatModal5Am from './StatModal5Am';
 import { updateStatistics, getStatistics } from './stat';
 import LottieView from 'lottie-react-native';
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const shuffleArray = (array) => {
   const shuffledArray = array.slice();
@@ -74,7 +75,52 @@ const [correctOptionSound, setCorrectOptionSound] = useState(null); // Звук 
     setDescriptionModalVisible(prev => !prev);
   };
 
-  const [isDescriptionModalVisible, setDescriptionModalVisible] = useState(false);
+const [language, setLanguage] = useState('am'); // по умолчанию
+
+const [isDescriptionModalVisible, setDescriptionModalVisible] = useState(false);
+
+  const [dontShowAgain5, setDontShowAgain5] = useState(false);
+
+  
+  const [languageLoaded, setLanguageLoaded] = useState(false);
+
+  useEffect(() => {
+  const checkFlagAndLang = async () => {
+    const hidden = await AsyncStorage.getItem('exercise5_description_hidden');
+    const lang = await AsyncStorage.getItem('language');
+
+    console.log('🌍 Language:', lang);
+    console.log('🧪 Hide flag:', hidden);
+
+    if (lang) {
+      setLanguage(lang);
+
+      setDontShowAgain5(hidden === 'true');
+    setLanguageLoaded(true);
+
+      if (hidden !== 'true') {
+        setTimeout(() => {
+          console.log('📢 Показываем модалку после загрузки языка');
+          setDescriptionModalVisible(true);
+        }, 100); // чуть больше времени
+      }
+    }
+
+    setDontShowAgain5(hidden === 'true');
+  };
+
+  checkFlagAndLang();
+}, []);
+
+
+
+
+const handleToggleDontShowAgain5 = async () => {
+  const newValue = !dontShowAgain5;
+  setDontShowAgain5(newValue);
+  await AsyncStorage.setItem('exercise5_description_hidden', newValue ? 'true' : '');
+  console.log('📌 Клик по чекбоксу. Было:', dontShowAgain5, 'Станет:', !dontShowAgain5);
+};
 
   const handleButton2Press = () => {
     toggleDescriptionModal();
@@ -687,9 +733,12 @@ const handleSpeakerPress = (mp3) => {
               source={require('./question.png')}
               style={[styles.buttonImage, { opacity: fadeAnim }]}
             />
-            <TaskDescriptionModal5
+            <TaskDescriptionModal6
               visible={isDescriptionModalVisible}
-              onToggle={toggleDescriptionModal}
+  onToggle={toggleDescriptionModal}
+  language={language}
+  dontShowAgain5={dontShowAgain5}
+  onToggleDontShowAgain={handleToggleDontShowAgain5}
             />
           </TouchableOpacity>
         </View>

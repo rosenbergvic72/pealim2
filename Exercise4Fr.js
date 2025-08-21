@@ -9,11 +9,13 @@ import sounds from './Soundss';
 import CompletionMessageFr from './CompletionMessageFr';
 import ExitConfirmationModal from './ExitConfirmationModalFr';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
-import TaskDescriptionModal4Fr from './TaskDescriptionModal4Fr';
+import TaskDescriptionModal6 from './TaskDescriptionModal4';
 import StatModal4Fr from './StatModal4Fr';
 import { updateStatistics, getStatistics } from './stat';
 import LottieView from 'lottie-react-native';
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 
 const Exercise4Fr = () => {
   const [pairs, setPairs] = useState([]);
@@ -36,7 +38,7 @@ const Exercise4Fr = () => {
 
   const [exitConfirmationVisible, setExitConfirmationVisible] = useState(false);
   const [soundEnabled, setSoundEnabled] = useState(true);
-  const [isDescriptionModalVisible, setIsDescriptionModalVisible] = useState(false);
+  // const [isDescriptionModalVisible, setIsDescriptionModalVisible] = useState(false);
   const [statistics, setStatistics] = useState(null);
   const [isStatModalVisible, setIsStatModalVisible] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
@@ -95,6 +97,55 @@ const Exercise4Fr = () => {
     french: '',
     transliteration: ''
   });
+
+  const [language, setLanguage] = useState('fr'); // по умолчанию
+  
+  const [isDescriptionModalVisible, setDescriptionModalVisible] = useState(false);
+
+  const [dontShowAgain4, setDontShowAgain4] = useState(false);
+
+  
+
+  const [languageLoaded, setLanguageLoaded] = useState(false);
+
+  useEffect(() => {
+  const checkFlagAndLang = async () => {
+    const hidden = await AsyncStorage.getItem('exercise1_description_hidden');
+    const lang = await AsyncStorage.getItem('language');
+
+    console.log('🌍 Language:', lang);
+    console.log('🧪 Hide flag:', hidden);
+
+    if (lang) {
+      setLanguage(lang);
+
+      setDontShowAgain4(hidden === 'true');
+    setLanguageLoaded(true);
+
+      if (hidden !== 'true') {
+        setTimeout(() => {
+          console.log('📢 Показываем модалку после загрузки языка');
+          setDescriptionModalVisible(true);
+        }, 100); // чуть больше времени
+      }
+    }
+
+    setDontShowAgain4(hidden === 'true');
+  };
+
+  checkFlagAndLang();
+}, []);
+
+
+
+
+const handleToggleDontShowAgain4 = async () => {
+  const newValue = !dontShowAgain4;
+  setDontShowAgain4(newValue);
+  await AsyncStorage.setItem('exercise4_description_hidden', newValue ? 'true' : '');
+  console.log('📌 Клик по чекбоксу. Было:', dontShowAgain4, 'Станет:', !dontShowAgain4);
+};
+
 
   const shuffleArray = (array) => {
     let newArray = array.slice();
@@ -381,7 +432,7 @@ const Exercise4Fr = () => {
   };
 
   const toggleDescriptionModal = () => {
-    setIsDescriptionModalVisible(prev => !prev);
+    setDescriptionModalVisible(prev => !prev);
   };
 
   const handleButton3Press = async () => {
@@ -550,10 +601,13 @@ console.log('Progress Percent:', progressPercent);
               source={require('./question.png')}
               style={[styles.buttonImage, { opacity: fadeAnim }]}
             />
-            <TaskDescriptionModal4Fr
-              visible={isDescriptionModalVisible}
-              onToggle={toggleDescriptionModal}
-            />
+            <TaskDescriptionModal6
+                visible={isDescriptionModalVisible}
+  onToggle={toggleDescriptionModal}
+  language={language}
+  dontShowAgain4={dontShowAgain4}
+  onToggleDontShowAgain={handleToggleDontShowAgain4}
+              />
           </TouchableOpacity>
         </View>
       </View>
@@ -833,7 +887,8 @@ const styles = StyleSheet.create({
     width: "100%",
   },
   button: {
-    flex: 1,
+    // flex: 1.05,
+    width: '48.5%',
     marginHorizontal: 5,
     padding: 5,
     backgroundColor: '#D1E3F1',

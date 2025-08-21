@@ -1,0 +1,21 @@
+{
+  "name": "verbify-server",
+  "version": "1.0.0",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "better-sqlite3": "^11.10.0",
+    "express": "^5.1.0",
+    "luxon": "^3.7.1",
+    "node-cron": "^4.2.1",
+    "node-fetch": "^3.3.2"
+  }
+}
+

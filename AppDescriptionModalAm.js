@@ -150,6 +150,7 @@ const AppDescriptionModal = ({ visible, onToggle }) => {
           },
           scrollArea: {
             flex: 1,
+            marginTop: 20,
           },
           scrollViewContent: {
             padding: 20,

@@ -11,12 +11,14 @@ import { Audio } from 'expo-av';
 import sounds from './Soundss';
 import soundsConj from './soundconj'; // Импорт дополнительных звуков
 import { Animated } from 'react-native';
-import TaskDescriptionModal2 from './TaskDescriptionModal2En';
+import TaskDescriptionModal6 from './TaskDescriptionModal2';
 import StatModal2En from './StatModal2En';
 import { updateStatistics, getStatistics } from './stat';
 import LottieView from 'lottie-react-native';
 import animation from './assets/Animation - 1723020554284.json';
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import VerbListModal from './VerbListModal'; // модалка списка глаголов
 
 const shuffleArray = (array) => {
   const shuffledArray = array.slice();
@@ -188,6 +190,51 @@ const Exercise2En = () => {
   const [isSoundPlaying, setIsSoundPlaying] = useState(false);
   const [showLottie, setShowLottie] = useState(false);
   const [isPlayingLottieOnSpeaker, setIsPlayingLottieOnSpeaker] = useState(false);
+  const [isVerbListVisible, setIsVerbListVisible] = useState(true); // видимость модалки списка
+const [verbListForModal, setVerbListForModal] = useState([]);
+
+const initializeVerbList = (lang, setShuffledVerbs, setVerbListForModal) => {
+  const langMap = {
+    ru: 'translationOptions',
+    en: 'translationOptionsEn',
+    fr: 'translationOptionsFr',
+    es: 'translationOptionsEs',
+    pt: 'translationOptionsPt',
+    ar: 'translationOptionsAr',
+    am: 'translationOptionsAm',
+  };
+  const langKey = langMap[lang] || 'translationOptionsEn';
+
+  const selected = shuffleArray([...verbsData]); // 18 глаголов
+
+  setShuffledVerbs(selected); // ✅ для упражнения
+
+  const sorted = selected.slice().sort((a, b) =>
+    a.verbEnglish.localeCompare(b.verbEnglish, 'en')
+  );
+
+  const verbList = sorted.map((verb) => {
+    const correctOption = verb.verbHebrewOptions.find((opt) => opt.isCorrect);
+    return {
+      hebrewtext: correctOption?.text || '—',
+      translit: correctOption?.transliteration || '',
+      entext: verb.verbEnglish || '—',
+      mp3: verb.audioFile?.replace('.mp3', '') || '', 
+    };
+  });
+
+  setVerbListForModal(verbList); // ✅ для модалки
+};
+
+
+
+
+
+// useEffect(() => {
+//   if (language) {
+//     initializeVerbList(language);
+//   }
+// }, [language]);
 
   
   
@@ -215,6 +262,55 @@ const Exercise2En = () => {
       soundObject2.setVolumeAsync(newVolume);
     }
 };
+
+
+const [language, setLanguage] = useState('en'); // по умолчанию
+
+
+
+  const [dontShowAgain2, setDontShowAgain2] = useState(false);
+
+ 
+
+  const [languageLoaded, setLanguageLoaded] = useState(false);
+
+
+
+
+
+const handleToggleDontShowAgain2 = async () => {
+  const newValue = !dontShowAgain2;
+  setDontShowAgain2(newValue);
+  await AsyncStorage.setItem('exercise2_description_hidden', newValue ? 'true' : '');
+  console.log('📌 Клик по чекбоксу. Было:', dontShowAgain2, 'Станет:', !dontShowAgain2);
+};
+
+
+
+useEffect(() => {
+  const initialize = async () => {
+    const lang = await AsyncStorage.getItem('language');
+    const hidden = await AsyncStorage.getItem('exercise2_description_hidden');
+
+    if (lang) {
+      setLanguage(lang);
+      initializeVerbList(lang, setShuffledVerbs, setVerbListForModal); // ✅ передаём функции обновления стейта
+
+      if (hidden !== 'true') {
+        setTimeout(() => {
+          setDescriptionModalVisible(true); // Показываем описание
+        }, 300);
+      }
+
+      setDontShowAgain2(hidden === 'true');
+      setLanguageLoaded(true);
+    }
+  };
+
+  initialize();
+}, []);
+
+
 
   const [isGenderMan, setIsGenderMan] = useState(true);
 
@@ -392,38 +488,7 @@ const Exercise2En = () => {
     }
   }, [isGenderMan, currentIndex, shuffledVerbs]);
 
-  // useEffect(() => {
-  //   const soundObjects = [];
-
-  //   const loadSounds = async () => {
-  //     try {
-  //       const correctSoundObject = new Audio.Sound();
-  //       const incorrectSoundObject = new Audio.Sound();
-
-  //       await correctSoundObject.loadAsync(require('./assets/sounds/success.mp3'));
-  //       await incorrectSoundObject.loadAsync(require('./assets/sounds/failure.mp3'));
-
-  //       soundObjects.push(correctSoundObject, incorrectSoundObject);
-
-  //       setCorrectSound(correctSoundObject);
-  //       setIncorrectSound(incorrectSoundObject);
-  //     } catch (error) {
-  //       console.error('Failed to load sounds', error);
-  //     }
-  //   };
-
-  //   loadSounds();
-
-  //   return () => {
-  //     soundObjects.forEach(async (soundObject) => {
-  //       try {
-  //         await soundObject.unloadAsync();
-  //       } catch (error) {
-  //         console.error('Failed to unload sound', error);
-  //       }
-  //     });
-  //   };
-  // }, []);
+  
 
   useEffect(() => {
     const loadSounds = async () => {
@@ -810,20 +875,20 @@ const handleAnswer = async (selectedOptionIndex) => {
     setResizeMode(resizeMode);
   };
 
-  const resetExercise = () => {
-    setCorrectAnswers(0);
-    setIncorrectAnswers(0);
-    setProgress(0);
-    setShowNextButton(false);
-    setExerciseCompleted(false);
-    setStatisticsUpdated(false);
+ const resetExercise = () => {
+  setCorrectAnswers(0);
+  setIncorrectAnswers(0);
+  setProgress(0);
+  setShowNextButton(false);
+  setExerciseCompleted(false);
+  setStatisticsUpdated(false);
+  setIsVerbListVisible(true);
 
-    const newShuffledVerbs = shuffleArray(verbsData);
-    setShuffledVerbs(newShuffledVerbs);
-    setCurrentIndex(0);
+ initializeVerbList(language, setShuffledVerbs, setVerbListForModal);
 
-    console.log("Exercise has been reset and restarted.");
-  };
+  setCurrentIndex(0);
+  console.log("Exercise has been reset and restarted.");
+};
 
   const calculateScore = () => {
     const totalAttempts = correctAnswers + incorrectAnswers;
@@ -875,186 +940,226 @@ const handleAnswer = async (selectedOptionIndex) => {
     }
   };
 
-  return (
-    <ScrollView contentContainerStyle={styles.scrollViewContent}>
-      <View style={styles.container}>
-        <View style={styles.topBar}>
-          <Animated.Image
-            source={require('./VERBIFY.png')}
-            style={[styles.logoImage, { opacity: fadeAnim }]}
-          />
-          <View style={styles.buttonContainer}>
-            <TouchableOpacity onPress={handleSoundToggle}>
-              <Animated.Image
-                source={soundEnabled ? require('./SoundOn.png') : require('./SoundOff.png')}
-                style={[styles.buttonImage, { opacity: fadeAnim }]}
-              />
-            </TouchableOpacity>
+return (
+  <>
+    {isVerbListVisible && (
+      <VerbListModal
+        visible={true}
+        language={language}
+        verbs={verbListForModal}
+        onClose={() => setIsVerbListVisible(false)}
+      />
+    )}
 
-            <TouchableOpacity onPress={handleButton3Press}>
-              <Animated.Image
-                source={require('./stat.png')}
-                style={[styles.buttonImage, { opacity: fadeAnim }]}
-              />
-              <StatModal2En
-                visible={isStatModalVisible}
-                onToggle={() => setIsStatModalVisible(false)}
-                statistics={statistics}
-              />
-            </TouchableOpacity>
+    {!isVerbListVisible && (
+      <ScrollView contentContainerStyle={styles.scrollViewContent}>
+        <View style={styles.container}>
+          <View style={styles.topBar}>
+            <Animated.Image
+              source={require('./VERBIFY.png')}
+              style={[styles.logoImage, { opacity: fadeAnim }]}
+            />
+            <View style={styles.buttonContainer}>
+              <TouchableOpacity onPress={handleSoundToggle}>
+                <Animated.Image
+                  source={soundEnabled ? require('./SoundOn.png') : require('./SoundOff.png')}
+                  style={[styles.buttonImage, { opacity: fadeAnim }]}
+                />
+              </TouchableOpacity>
 
-            <TouchableOpacity onPress={handleButton2Press}>
-              <Animated.Image
-                source={require('./question.png')}
-                style={[styles.buttonImage, { opacity: fadeAnim }]}
-              />
-              <TaskDescriptionModal2
-                visible={isDescriptionModalVisible}
-                onToggle={toggleDescriptionModal}
-              />
-            </TouchableOpacity>
+              <TouchableOpacity onPress={handleButton3Press}>
+                <Animated.Image
+                  source={require('./stat.png')}
+                  style={[styles.buttonImage, { opacity: fadeAnim }]}
+                />
+              </TouchableOpacity>
 
-            <TouchableOpacity onPress={handleGenderToggle}>
-              <Animated.Image
-                source={isGenderMan ? require('./GenderMan.png') : require('./GenderWoman.png')}
-                style={[styles.buttonImage, { opacity: fadeAnim }]}
-              />
-            </TouchableOpacity>
-          </View>
-        </View>
+              <TouchableOpacity onPress={handleButton2Press}>
+                <Animated.Image
+                  source={require('./question.png')}
+                  style={[styles.buttonImage, { opacity: fadeAnim }]}
+                />
+              </TouchableOpacity>
 
-        <Animated.View style={[styles.progressContainer, { resizeMode }, { opacity: fadeAnim }]}>
-          <View style={styles.textContainer}>
-            <Text style={styles.prtext} maxFontSizeMultiplier={1.2}>
-            CORRECT: {correctAnswers}
-            </Text>
-            <Text style={styles.prtext} maxFontSizeMultiplier={1.2}>
-            INCORRECT: {incorrectAnswers}
-            </Text>
-          </View>
-
-          <View style={styles.remainingTasksContainer}>
-            <Text style={styles.remainingTasksText} maxFontSizeMultiplier={1.2}>
-              {shuffledVerbs.length - currentIndex}
-            </Text>
-          </View>
-
-          <Animated.View style={[styles.percentContainer, { backgroundColor, borderRadius: 10 }]}>
-            <Text style={styles.percentText} maxFontSizeMultiplier={1.2}>
-              {progress > 0 ? (((correctAnswers / (correctAnswers + incorrectAnswers))) * 100).toFixed(2) : 0}%
-            </Text>
-          </Animated.View>
-        </Animated.View>
-
-        <Animated.View style={[styles.ProgressBarcontainer, { opacity: fadeAnim }]}>
-          <ProgressBar progress={progress} totalExercises={shuffledVerbs.length} />
-        </Animated.View>
-
-        <Animated.Text style={[styles.title, { opacity: fadeAnim }]} maxFontSizeMultiplier={1.2}>SELECT TRANSLATION</Animated.Text>
-
-        {currentIndex < shuffledVerbs.length && (
-          <VerbCard2 verbData={shuffledVerbs[currentIndex]} options={optionsOrder} onAnswer={handleAnswer} />
-        )}
-
-        <VerbDetailsContainer2
-          verbDetails={verbDetails}
-          handleSpeakerPress={handleSpeakerPress}
-          currentIndex={currentIndex} // Убедитесь, что currentIndex передается правильно
-          animateRight={animateRight}
-          isSecondSoundFinished={isSecondSoundFinished}
-          isAnswered={isAnswered}
-          isTextVisible={isTextVisible}
-          canShowSpeaker={canShowSpeaker} 
-        />
-
-<Animated.View
-    style={[
-        styles.optionsContainer,
-        {
-            transform: [{ translateX: optionsAnim }]
-        }
-    ]}
->
-    {optionsOrder.map((option, index) => (
-        <TouchableOpacity
-            key={index}
-            style={[
-                styles.optionButton,
-                option.isSelected
-                    ? (option.isCorrect ? styles.correctOption : styles.incorrectOption)
-                    : (selectedOptionIndex !== null && option.isCorrect ? styles.correctOption : null)
-            ]}
-            onPress={() => handleAnswer(index)}
-            disabled={showNextButton || option.disabled}
-        >
-            <View style={styles.optionContent}>
-                <Text style={styles.optionText} maxFontSizeMultiplier={1.2}>{option.text}</Text>
-                <Text style={styles.transliterationText} maxFontSizeMultiplier={1.2}>{option.transliteration}</Text>
-
-                {/* Анимация при нажатии на спикер */}
-                {option.isCorrect && isPlayingLottieOnSpeaker && (
-                    <View style={styles.lottieContainer}>
-                        <LottieView
-                            ref={animationRef}
-                            source={require('./assets/Animation - 1718430107767.json')}
-                            autoPlay
-                            loop={false}
-                            style={styles.lottie}
-                        />
-                    </View>
-                )}
-
-                {/* Отображение спикера */}
-                {showNextButton && option.isCorrect && (
-                    <TouchableOpacity
-                        style={styles.speakerIconContainer}
-                        onPress={() => playSound(shuffledVerbs[currentIndex].audioFile, true)}
-                    >
-                        <Image
-                            source={require('./speaker6.png')}
-                            style={styles.speakerIcon}
-                        />
-                    </TouchableOpacity>
-                )}
+              <TouchableOpacity onPress={handleGenderToggle}>
+                <Animated.Image
+                  source={isGenderMan ? require('./GenderMan.png') : require('./GenderWoman.png')}
+                  style={[styles.buttonImage, { opacity: fadeAnim }]}
+                />
+              </TouchableOpacity>
             </View>
-        </TouchableOpacity>
-    ))}
-</Animated.View>
+          </View>
 
+          <Animated.View style={[styles.progressContainer, { resizeMode }, { opacity: fadeAnim }]}>
+            <View style={styles.textContainer}>
+              <Text style={styles.prtext} maxFontSizeMultiplier={1.2}>
+                CORRECT: {correctAnswers}
+              </Text>
+              <Text style={styles.prtext} maxFontSizeMultiplier={1.2}>
+                INCORRECT: {incorrectAnswers}
+              </Text>
+            </View>
 
-        <TouchableOpacity
-          style={[styles.nextButton, showNextButton ? styles.activeButton : styles.inactiveButton]}
-          onPress={handleNextCard}
-          disabled={!showNextButton}
-        >
-          <Text style={styles.nextButtonText} maxFontSizeMultiplier={1.2}>NEXT VERB</Text>
-        </TouchableOpacity>
+            <View style={styles.remainingTasksContainer}>
+              <Text style={styles.remainingTasksText} maxFontSizeMultiplier={1.2}>
+                {shuffledVerbs.length - currentIndex}
+              </Text>
+            </View>
 
-        {exerciseCompleted && (
-          <CompletionMessageEn
-            correctAnswers={correctAnswers}
-            incorrectAnswers={incorrectAnswers}
-            handleOK={handleExerciseCompletion}
-            navigateToMenu={navigateToMenu}
-            correctAnswersPercentage={
-              progress > 0
-                ? (((correctAnswers / (correctAnswers + incorrectAnswers)) * 100).toFixed(2))
-                : 0
-            }
-            grade={grade}
-            restartTask={resetExercise}
+            <Animated.View style={[styles.percentContainer, { backgroundColor, borderRadius: 10 }]}>
+              <Text style={styles.percentText} maxFontSizeMultiplier={1.2}>
+                {progress > 0
+                  ? ((correctAnswers / (correctAnswers + incorrectAnswers)) * 100).toFixed(2)
+                  : 0}
+                %
+              </Text>
+            </Animated.View>
+          </Animated.View>
+
+          <Animated.View style={[styles.ProgressBarcontainer, { opacity: fadeAnim }]}>
+            <ProgressBar progress={progress} totalExercises={shuffledVerbs.length} />
+          </Animated.View>
+
+          <Animated.Text style={[styles.title, { opacity: fadeAnim }]} maxFontSizeMultiplier={1.2}>
+            SELECT TRANSLATION
+          </Animated.Text>
+
+          {currentIndex < shuffledVerbs.length && (
+            <VerbCard2
+              verbData={shuffledVerbs[currentIndex]}
+              options={optionsOrder}
+              onAnswer={handleAnswer}
+            />
+          )}
+
+          <VerbDetailsContainer2
+            verbDetails={verbDetails}
+            handleSpeakerPress={handleSpeakerPress}
+            currentIndex={currentIndex}
+            animateRight={animateRight}
+            isSecondSoundFinished={isSecondSoundFinished}
+            isAnswered={isAnswered}
+            isTextVisible={isTextVisible}
+            canShowSpeaker={canShowSpeaker}
           />
-        )}
 
-        <ExitConfirmationModal
-          visible={exitConfirmationVisible}
-          onCancel={handleCancelExit}
-          onConfirm={handleConfirmExit}
-        />
-      </View>
-    </ScrollView>
-  );
+          <Animated.View
+            style={[
+              styles.optionsContainer,
+              {
+                transform: [{ translateX: optionsAnim }],
+              },
+            ]}
+          >
+            {optionsOrder.map((option, index) => (
+              <TouchableOpacity
+                key={index}
+                style={[
+                  styles.optionButton,
+                  option.isSelected
+                    ? option.isCorrect
+                      ? styles.correctOption
+                      : styles.incorrectOption
+                    : selectedOptionIndex !== null && option.isCorrect
+                    ? styles.correctOption
+                    : null,
+                ]}
+                onPress={() => handleAnswer(index)}
+                disabled={showNextButton || option.disabled}
+              >
+                <View style={styles.optionContent}>
+                  <Text style={styles.optionText} maxFontSizeMultiplier={1.2}>
+                    {option.text}
+                  </Text>
+                  <Text style={styles.transliterationText} maxFontSizeMultiplier={1.2}>
+                    {option.transliteration}
+                  </Text>
+
+                  {option.isCorrect && isPlayingLottieOnSpeaker && (
+                    <View style={styles.lottieContainer}>
+                      <LottieView
+                        ref={animationRef}
+                        source={require('./assets/Animation - 1718430107767.json')}
+                        autoPlay
+                        loop={false}
+                        style={styles.lottie}
+                      />
+                    </View>
+                  )}
+
+                  {showNextButton && option.isCorrect && (
+                    <TouchableOpacity
+                      style={styles.speakerIconContainer}
+                      onPress={() => playSound(shuffledVerbs[currentIndex].audioFile, true)}
+                    >
+                      <Image
+                        source={require('./speaker6.png')}
+                        style={styles.speakerIcon}
+                      />
+                    </TouchableOpacity>
+                  )}
+                </View>
+              </TouchableOpacity>
+            ))}
+          </Animated.View>
+
+          <TouchableOpacity
+            style={[
+              styles.nextButton,
+              showNextButton ? styles.activeButton : styles.inactiveButton,
+            ]}
+            onPress={handleNextCard}
+            disabled={!showNextButton}
+          >
+            <Text style={styles.nextButtonText} maxFontSizeMultiplier={1.2}>
+              NEXT VERB
+            </Text>
+          </TouchableOpacity>
+
+          {exerciseCompleted && (
+            <CompletionMessageEn
+              correctAnswers={correctAnswers}
+              incorrectAnswers={incorrectAnswers}
+              handleOK={handleExerciseCompletion}
+              navigateToMenu={navigateToMenu}
+              correctAnswersPercentage={
+                progress > 0
+                  ? ((correctAnswers / (correctAnswers + incorrectAnswers)) * 100).toFixed(2)
+                  : 0
+              }
+              grade={grade}
+              restartTask={resetExercise}
+            />
+          )}
+
+          <ExitConfirmationModal
+            visible={exitConfirmationVisible}
+            onCancel={handleCancelExit}
+            onConfirm={handleConfirmExit}
+          />
+        </View>
+      </ScrollView>
+    )}
+
+    {/* Модалки должны быть вне ScrollView/TouchableOpacity */}
+    <StatModal2En
+      visible={isStatModalVisible}
+      onToggle={() => setIsStatModalVisible(false)}
+      statistics={statistics}
+    />
+
+    <TaskDescriptionModal6
+      visible={isDescriptionModalVisible}
+      onToggle={toggleDescriptionModal}
+      language={language}
+      dontShowAgain2={dontShowAgain2}
+      onToggleDontShowAgain={handleToggleDontShowAgain2}
+    />
+  </>
+);
 };
+
+
 
 const styles = StyleSheet.create({
   scrollViewContent: {
@@ -1371,4 +1476,5 @@ const styles = StyleSheet.create({
   },
 });
 
+ // ← закрывает Exercise2En
 export default Exercise2En;

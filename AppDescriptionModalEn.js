@@ -138,6 +138,7 @@ const styles = StyleSheet.create({
   },
   scrollArea: {
     flex: 1,
+    marginTop: 20,
   },
   scrollViewContent: {
     padding: 20,

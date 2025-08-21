@@ -7,42 +7,10 @@ import LottieView from 'lottie-react-native';
 import AppDescriptionModal from './AppDescriptionModalEn'; // Подключаем модальное окно
 import AppInfoModal from './AppInfoModalEn'; // Подключаем модальное окно
 import Constants from 'expo-constants';
+import FadeInView from './api/FadeInView';
 
 
-import * as Notifications from 'expo-notifications';
-import { Platform } from 'react-native';
-// import { devTestNotification } from './notifications'; // если функция там
 
-// import * as Notifications from 'expo-notifications';
-
-export const devTestNotification = async () => {
-  const { status } = await Notifications.getPermissionsAsync();
-  if (status !== 'granted') {
-    const { status: newStatus } = await Notifications.requestPermissionsAsync();
-    if (newStatus !== 'granted') return;
-  }
-
-  if (Platform.OS === 'android') {
-    await Notifications.setNotificationChannelAsync('default', {
-      name: 'Основной канал',
-      importance: Notifications.AndroidImportance.HIGH,
-      sound: 'default',
-    });
-  }
-
-  await Notifications.scheduleNotificationAsync({
-    content: {
-      title: '🔔 Тестовое уведомление',
-      body: 'Если ты это видишь — всё работает! 🎉',
-      sound: 'default',
-      channelId: 'default',
-    },
-    trigger: {
-      seconds: 10,
-      repeats: false,
-    },
-  });
-};
 
 
 
@@ -317,6 +285,12 @@ export default function MenuPage({ route }) {
     borderWidth: 4,
     borderColor: '#2D4769',
   };
+
+  const hardlightedButtonStyle = {
+    backgroundColor: '#2D4769', // Желтый цвет
+    borderWidth: 4,
+    borderColor:  '#42849f',
+  };
   
 
   useFocusEffect(
@@ -577,7 +551,7 @@ export default function MenuPage({ route }) {
           style={styles.image}
         />
         <Text style={styles.greeting} maxFontSizeMultiplier={1.2}>
-          Привет, {name}! 
+          Hello, {name}! 
         </Text>
       </Animated.View>
 
@@ -596,7 +570,8 @@ export default function MenuPage({ route }) {
   ) : (
     <>
       <Image source={require('./STAT2.png')} style={styles.statsImage} />
-      <View style={styles.statsTextContainer}>
+      <FadeInView style={styles.statsTextContainer}>
+      {/* <View style={styles.statsTextContainer}> */}
         <View style={styles.statsRow}>
         <Text style={styles.statsText} maxFontSizeMultiplier={1.2}>EXERCISES COMPLETED</Text>
 <View style={styles.statsBox}>
@@ -615,7 +590,8 @@ export default function MenuPage({ route }) {
             <Text style={styles.statsValue} maxFontSizeMultiplier={1.2}>{activeDays}</Text>
           </View>
         </View>
-      </View>
+      {/* </View> */}
+      </FadeInView>
     </>
   )}
 </Animated.View>
@@ -624,7 +600,7 @@ export default function MenuPage({ route }) {
 
       <View style={styles.content}>
         <Animated.Text style={[styles.titleText, { opacity: titleOpacity }]} maxFontSizeMultiplier={1.2}>
-          ВЫБЕРИ УПРАЖНЕНИЕ
+        CHOOSE AN EXERCISE
         </Animated.Text>
 
         <Animated.View style={[styles.buttonContainer, { opacity: button1Opacity, transform: [{ translateY: button1TranslateY }] }]}>
@@ -723,7 +699,7 @@ export default function MenuPage({ route }) {
         </TouchableOpacity>
     </Animated.View>
 
-    <Animated.View style={[styles.buttonContainer, { opacity: button4Opacity, transform: [{ translateY: button4TranslateY }] }]}>
+    <Animated.View style={[styles.buttonContainer, hardlightedButtonStyle, { opacity: button4Opacity, transform: [{ translateY: button4TranslateY }] }]}>
         <TouchableOpacity onPress={() => handlePress('Exercise4En')}>
             <View style={styles.upperPart1}>
                 <Text style={styles.upperText1} maxFontSizeMultiplier={1.2}>EXERCISE 7</Text>
@@ -739,7 +715,7 @@ export default function MenuPage({ route }) {
         </TouchableOpacity>
     </Animated.View>
 
-    <Animated.View style={[styles.buttonContainer, { opacity: button7Opacity, transform: [{ translateY: button7TranslateY }] }]}>
+    <Animated.View style={[styles.buttonContainer, hardlightedButtonStyle, { opacity: button7Opacity, transform: [{ translateY: button7TranslateY }] }]}>
         <TouchableOpacity onPress={() => handlePress('Exercise7En')}>
             <View style={styles.upperPart1}>
                 <Text style={styles.upperText1} maxFontSizeMultiplier={1.2}>EXERCISE 8</Text>
@@ -774,14 +750,14 @@ export default function MenuPage({ route }) {
       <AppDescriptionModal visible={isModalVisible} onToggle={() => setIsModalVisible(false)} />
       <Animated.View style={[styles.buttonContainer1, { opacity: button9Opacity, transform: [{ translateY: button7TranslateY }] }]}>
      
-      <Image source={require('./about.png')} style={styles.buttonIcon} />
+      <Image source={require('./about4.png')} style={styles.buttonIcon} />
 <TouchableOpacity style={styles.button} onPress={() => setIsInfoModalVisible(true)}>
   <Text style={styles.titleText1} maxFontSizeMultiplier={1.2}>ABOUT THE APPLICATION</Text>
 </TouchableOpacity>
 
 </Animated.View>
 
-<AppInfoModal visible={isInfoModalVisible} onClose={() => setIsInfoModalVisible(false)} />
+<AppInfoModal visible={isInfoModalVisible} onToggle ={() => setIsInfoModalVisible(false)} />
 
 
         
@@ -824,6 +800,7 @@ const styles = StyleSheet.create({
   
   statsTextContainer: {
     flex: 1,
+    marginTop: 5,
   },
   
   statsRow: {
@@ -859,7 +836,7 @@ const styles = StyleSheet.create({
     color: '#367088',
     textAlign: 'center',  // Центрируем текст в ячейке
     textAlignVertical: 'center',
-    lineHeight: 16,  // Выравнивание по высоте ячейки
+    lineHeight: 17,  // Выравнивание по высоте ячейки
   },
   
   

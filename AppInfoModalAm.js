@@ -2,9 +2,9 @@ import React from 'react';
 import { Modal, View, Text, TouchableOpacity, StyleSheet, Image, Linking } from 'react-native';
 import Constants from 'expo-constants';
 
-const AppInfoModal = ({ visible, onClose }) => {
+const AppInfoModal = ({ visible, onToggle , updatedAt, appSize }) => {
     return (
-        <Modal animationType="slide" transparent={true} visible={visible} onRequestClose={onClose}>
+        <Modal animationType="slide" transparent={true} visible={visible} onRequestClose={onToggle }>
           <View style={styles.modalBackground}>
             <View style={styles.modalView}>
       
@@ -16,7 +16,7 @@ const AppInfoModal = ({ visible, onClose }) => {
       
               {/* ስሪት እና ዝማኔ */}
               <Text style={styles.modalText}>ስሪት: <Text style={styles.bold}>{Constants.expoConfig?.version || 'ያልታወቀ'}</Text></Text>
-              <Text style={styles.modalText}>የዘመነ: <Text style={styles.bold}>01.02.2025</Text></Text>
+              <Text style={styles.modalText}>የዘመነ: <Text style={styles.bold}>{updatedAt || '20.08.2025'}</Text></Text>
       
               {/* መሰረታዊ መረጃ
               <Text style={styles.sectionTitle}>መግለጫ:</Text>
@@ -30,19 +30,19 @@ const AppInfoModal = ({ visible, onClose }) => {
               <Text style={styles.modalText}>ድጋፍ: Android, iOS</Text>
               <Text style={styles.modalText}>ዝቅተኛ ስሪት:</Text>
               <Text style={styles.modalText}>Android 8.0+, iOS 13.0+</Text>
-              <Text style={styles.modalText}>መጠን: 148 MB</Text>
+              <Text style={styles.modalText}>መጠን: <Text style={styles.bold}>{appSize || '189 Mb'}</Text></Text>
       
               {/* እውቂያዎች */}
               <Text style={styles.sectionTitle}>እውቂያዎች:</Text>
               <Text style={styles.linkText} onPress={() => Linking.openURL('mailto:verbify2025@gmail.com')}>
                 ድጋፍ: verbify2025@gmail.com
               </Text>
-              <Text style={styles.linkText} onPress={() => Linking.openURL('https://www.verbify.com/privacy')}>
+              <Text style={styles.linkText} onPress={() => Linking.openURL('https://verbifyapp.netlify.app')}>
                 የግላዊነት መመሪያ
               </Text>
       
               {/* የመዝጊያ ቁልፍ */}
-              <TouchableOpacity style={styles.closeButton} onPress={onClose}>
+              <TouchableOpacity style={styles.closeButton} onPress={onToggle }>
                 <Text style={styles.closeButtonText}>ዝጋ</Text>
               </TouchableOpacity>
       

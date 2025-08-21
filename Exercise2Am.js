@@ -11,12 +11,14 @@ import { Audio } from 'expo-av';
 import sounds from './Soundss';
 import soundsConj from './soundconj'; // Импорт дополнительных звуков
 import { Animated } from 'react-native';
-import TaskDescriptionModal2 from './TaskDescriptionModal2Am';
+import TaskDescriptionModal6 from './TaskDescriptionModal2';
 import StatModal2Am from './StatModal2Am';
 import { updateStatistics, getStatistics } from './stat';
 import LottieView from 'lottie-react-native';
 import animation from './assets/Animation - 1723020554284.json';
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import VerbListModal from './VerbListModal'; // модалка списка глаголов
 
 const shuffleArray = (array) => {
   const shuffledArray = array.slice();
@@ -190,13 +192,119 @@ const Exercise2Am = () => {
   const [isSoundPlaying, setIsSoundPlaying] = useState(false);
   const [showLottie, setShowLottie] = useState(false);
   const [isPlayingLottieOnSpeaker, setIsPlayingLottieOnSpeaker] = useState(false);
+  const [isVerbListVisible, setIsVerbListVisible] = useState(true); // видимость модалки списка
+  const [verbListForModal, setVerbListForModal] = useState([]);
 
+
+
+  const initializeVerbList = (lang, setShuffledVerbs, setVerbListForModal) => {
+    const langMap = {
+      ru: 'translationOptions',
+      en: 'translationOptionsEn',
+      fr: 'translationOptionsFr',
+      es: 'translationOptionsEs',
+      pt: 'translationOptionsPt',
+      ar: 'translationOptionsAr',
+      am: 'translationOptionsAm',
+    };
+    const langKey = langMap[lang] || 'translationOptionsEn';
+  
+    const selected = shuffleArray([...verbsData]); // 18 глаголов
+  
+    setShuffledVerbs(selected); // ✅ для упражнения
+  
+    const sorted = selected.slice().sort((a, b) =>
+      a.verbAmharic.localeCompare(b.verbAmharic, 'am')
+    );
+  
+    const verbList = sorted.map((verb) => {
+      const correctOption = verb.verbHebrewOptions.find((opt) => opt.isCorrect);
+      return {
+        hebrewtext: correctOption?.text || '—',
+        translit: correctOption?.transliteration || '',
+        entext: verb.verbAmharic || '—',
+        mp3: verb.audioFile?.replace('.mp3', '') || '', 
+      };
+    });
+  
+    setVerbListForModal(verbList); // ✅ для модалки
+  };
+
+
+  useEffect(() => {
+    const initialize = async () => {
+      const lang = await AsyncStorage.getItem('language');
+      const hidden = await AsyncStorage.getItem('exercise2_description_hidden');
+  
+      if (lang) {
+        setLanguage(lang);
+        initializeVerbList(lang, setShuffledVerbs, setVerbListForModal); // ✅ передаём функции обновления стейта
+  
+        if (hidden !== 'true') {
+          setTimeout(() => {
+            setDescriptionModalVisible(true); // Показываем описание
+          }, 300);
+        }
+  
+        setDontShowAgain2(hidden === 'true');
+        setLanguageLoaded(true);
+      }
+    };
+  
+    initialize();
+  }, []);
   
   
 
   const toggleDescriptionModal = () => {
-    setDescriptionModalVisible(prev => !prev);
+    setDescriptionModalVisible((prev) => !prev);
   };
+
+  // const [isDescriptionModalVisible, setDescriptionModalVisible] = useState(false);
+
+  const [dontShowAgain2, setDontShowAgain2] = useState(false);
+
+  const [language, setLanguage] = useState('am'); // ← по умолчанию ru
+
+  const [languageLoaded, setLanguageLoaded] = useState(false);
+
+  useEffect(() => {
+  const checkFlagAndLang = async () => {
+    const hidden = await AsyncStorage.getItem('exercise2_description_hidden');
+    const lang = await AsyncStorage.getItem('language');
+
+    console.log('🌍 Language:', lang);
+    console.log('🧪 Hide flag:', hidden);
+
+    if (lang) {
+      setLanguage(lang);
+
+      setDontShowAgain2(hidden === 'true');
+    setLanguageLoaded(true);
+
+      if (hidden !== 'true') {
+        setTimeout(() => {
+          console.log('📢 Показываем модалку после загрузки языка');
+          setDescriptionModalVisible(true);
+        }, 100); // чуть больше времени
+      }
+    }
+
+    setDontShowAgain2(hidden === 'true');
+  };
+
+  checkFlagAndLang();
+}, []);
+
+
+
+
+const handleToggleDontShowAgain2 = async () => {
+  const newValue = !dontShowAgain2;
+  setDontShowAgain2(newValue);
+  await AsyncStorage.setItem('exercise2_description_hidden', newValue ? 'true' : '');
+  console.log('📌 Клик по чекбоксу. Было:', dontShowAgain2, 'Станет:', !dontShowAgain2);
+};
 
   const handleButton2Press = () => {
     toggleDescriptionModal();
@@ -217,6 +325,19 @@ const Exercise2Am = () => {
       soundObject2.setVolumeAsync(newVolume);
     }
 };
+
+
+// const [language, setLanguage] = useState('am'); // по умолчанию
+
+useEffect(() => {
+  const fetchLanguage = async () => {
+    const storedLang = await AsyncStorage.getItem('language');
+    if (storedLang) {
+      setLanguage(storedLang);
+    }
+  };
+  fetchLanguage();
+}, []);
 
   const [isGenderMan, setIsGenderMan] = useState(true);
 
@@ -394,38 +515,7 @@ const Exercise2Am = () => {
     }
   }, [isGenderMan, currentIndex, shuffledVerbs]);
 
-  // useEffect(() => {
-  //   const soundObjects = [];
-
-  //   const loadSounds = async () => {
-  //     try {
-  //       const correctSoundObject = new Audio.Sound();
-  //       const incorrectSoundObject = new Audio.Sound();
-
-  //       await correctSoundObject.loadAsync(require('./assets/sounds/success.mp3'));
-  //       await incorrectSoundObject.loadAsync(require('./assets/sounds/failure.mp3'));
-
-  //       soundObjects.push(correctSoundObject, incorrectSoundObject);
-
-  //       setCorrectSound(correctSoundObject);
-  //       setIncorrectSound(incorrectSoundObject);
-  //     } catch (error) {
-  //       console.error('Failed to load sounds', error);
-  //     }
-  //   };
-
-  //   loadSounds();
-
-  //   return () => {
-  //     soundObjects.forEach(async (soundObject) => {
-  //       try {
-  //         await soundObject.unloadAsync();
-  //       } catch (error) {
-  //         console.error('Failed to unload sound', error);
-  //       }
-  //     });
-  //   };
-  // }, []);
+  
 
   useEffect(() => {
     const loadSounds = async () => {
@@ -537,59 +627,7 @@ const playSound = async (audioFileName, forcePlay = false) => {
   const [isTextVisible , setisTextVisible] = useState(false);
 
 
-//   const handleAnswer = async (selectedOptionIndex) => {
-//     setSelectedOptionIndex(selectedOptionIndex);
-//     setAnimateRight(false); // Сброс анимации перед новым ответом
-//     setIsSecondSoundFinished(false); // Сбрасываем состояние перед началом ответа
-//     setIsAnswered(true);
-//     setCanShowSpeaker(false); // Скрываем спикер перед началом выполнения действий
-//     setShowLottie(true); // Показываем анимацию сразу после ответа
 
-//     const isCorrect = optionsOrder[selectedOptionIndex].isCorrect;
-
-//     const updatedOptions = optionsOrder.map((option, index) => ({
-//         ...option,
-//         isSelected: index === selectedOptionIndex,
-//         disabled: true,
-//     }));
-
-//     setOptionsOrder(updatedOptions);
-
-//     changeBackgroundColor(isCorrect);
-
-//     if (isCorrect) {
-//         setCorrectAnswers(prevCorrectAnswers => prevCorrectAnswers + 1);
-//     } else {
-//         setIncorrectAnswers(prevIncorrectAnswers => prevIncorrectAnswers + 1);
-//     }
-
-//     setProgress(prevProgress => prevProgress + 1);
-
-//     try {
-//         const firstSoundFile = shuffledVerbs[currentIndex].audioFile.replace('.mp3', '');
-//         await playSound(firstSoundFile);
-
-//         // Запускаем анимацию правой половины после завершения первого звука
-//         setAnimateRight(true);
-
-//         // Отключаем анимацию через 1 секунду после начала
-//         setTimeout(() => {
-//           setShowLottie(false);
-//       }, 800);
-
-//         await new Promise(resolve => setTimeout(resolve, 700));
-//         await playSecondSound();
-//         setIsSecondSoundFinished(true); // Устанавливаем флаг завершения второго звука
-
-//         // Устанавливаем флаг для отображения спикера только после завершения всех действий
-//         setCanShowSpeaker(true);
-//     } catch (error) {
-//         console.error("Error during sound playback:", error);
-//     }
-
-//     updateVerbDetails2(shuffledVerbs[currentIndex], true);
-//     setShowNextButton(true);
-// };
 
 const handleAnswer = async (selectedOptionIndex) => {
   setSelectedOptionIndex(selectedOptionIndex);
@@ -817,20 +855,20 @@ const handleAnswer = async (selectedOptionIndex) => {
     setResizeMode(resizeMode);
   };
 
-  const resetExercise = () => {
-    setCorrectAnswers(0);
-    setIncorrectAnswers(0);
-    setProgress(0);
-    setShowNextButton(false);
-    setExerciseCompleted(false);
-    setStatisticsUpdated(false);
+     const resetExercise = () => {
+  setCorrectAnswers(0);
+  setIncorrectAnswers(0);
+  setProgress(0);
+  setShowNextButton(false);
+  setExerciseCompleted(false);
+  setStatisticsUpdated(false);
+  setIsVerbListVisible(true);
 
-    const newShuffledVerbs = shuffleArray(verbsData);
-    setShuffledVerbs(newShuffledVerbs);
-    setCurrentIndex(0);
+ initializeVerbList(language, setShuffledVerbs, setVerbListForModal);
 
-    console.log("Exercise has been reset and restarted.");
-  };
+  setCurrentIndex(0);
+  console.log("Exercise has been reset and restarted.");
+};
 
   const calculateScore = () => {
     const totalAttempts = correctAnswers + incorrectAnswers;
@@ -882,7 +920,18 @@ const handleAnswer = async (selectedOptionIndex) => {
     }
   };
 
-  return (
+    return (
+  <>
+    {isVerbListVisible && (
+      <VerbListModal
+        visible={true}
+        language={language}
+        verbs={verbListForModal}
+        onClose={() => setIsVerbListVisible(false)}
+      />
+    )}
+
+    {!isVerbListVisible && (
     <ScrollView contentContainerStyle={styles.scrollViewContent}>
       <View style={styles.container}>
         <View style={styles.topBar}>
@@ -915,10 +964,13 @@ const handleAnswer = async (selectedOptionIndex) => {
                 source={require('./question.png')}
                 style={[styles.buttonImage, { opacity: fadeAnim }]}
               />
-              <TaskDescriptionModal2
-                visible={isDescriptionModalVisible}
-                onToggle={toggleDescriptionModal}
-              />
+              <TaskDescriptionModal6
+              visible={isDescriptionModalVisible}
+  onToggle={toggleDescriptionModal}
+  language={language}
+  dontShowAgain2={dontShowAgain2}
+  onToggleDontShowAgain={handleToggleDontShowAgain2}
+            />
             </TouchableOpacity>
 
             <TouchableOpacity onPress={handleGenderToggle}>
@@ -1060,7 +1112,24 @@ const handleAnswer = async (selectedOptionIndex) => {
         />
       </View>
     </ScrollView>
-  );
+  )}
+
+    {/* Модалки должны быть вне ScrollView/TouchableOpacity */}
+    <StatModal2Am
+      visible={isStatModalVisible}
+      onToggle={() => setIsStatModalVisible(false)}
+      statistics={statistics}
+    />
+
+    <TaskDescriptionModal6
+      visible={isDescriptionModalVisible}
+      onToggle={toggleDescriptionModal}
+      language={language}
+      dontShowAgain2={dontShowAgain2}
+      onToggleDontShowAgain={handleToggleDontShowAgain2}
+    />
+  </>
+);
 };
 
 const styles = StyleSheet.create({

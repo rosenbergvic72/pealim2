@@ -1,8 +1,9 @@
 // notifications.js
-import * as Notifications from 'expo-notifications';
+import { Platform, PermissionsAndroid, NativeModules } from 'react-native';
+import PushNotification from 'react-native-push-notification';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Platform } from 'react-native';
 
+// ===== локализация =====
 const normalizeLanguageCode = (lang) => {
   switch (lang) {
     case 'русский': return 'ru';
@@ -17,123 +18,133 @@ const normalizeLanguageCode = (lang) => {
 };
 
 const notificationMessages = {
-  ru: {
-    title: 'Не забудь потренироваться!',
-    body: '5 минут иврита сегодня — это прогресс! 💪',
-  },
-  en: {
-    title: 'Don’t forget to practice!',
-    body: '5 minutes of Hebrew today = progress! 🚀',
-  },
-  fr: {
-    title: 'N’oublie pas de t’entraîner !',
-    body: '5 minutes d’hébreu aujourd’hui = du progrès ! 📈',
-  },
-  es: {
-    title: '¡No olvides practicar!',
-    body: '5 minutos de hebreo hoy = progreso 📚',
-  },
-  pt: {
-    title: 'Não se esqueça de praticar!',
-    body: '5 minutos de hebraico hoje = progresso 🎯',
-  },
-  ar: {
-    title: 'لا تنسَ التدرب!',
-    body: '٥ دقائق من العبرية اليوم = تقدّم! ✨',
-  },
-  am: {
-    title: 'ማስተማር አትርሳ!',
-    body: 'ዛ፤ዮ 5 ደጢኪ ዮብርዕስት ማማሬር = እድገት! 🌟',
-  },
+  ru: { title: 'Это Verbify!', body: 'Не забудь потренироваться!\nСегодня практика — завтра уверенность в общении! 💪' },
+  en: { title: 'This is Verbify!', body: 'Don’t forget to practice!\nPractice today — confidence in conversation tomorrow! 💪' },
+  fr: { title: 'C’est Verbify !', body: 'N’oublie pas de t’entraîner !\nAujourd’hui l’entraînement — demain confiance dans la conversation ! 💪' },
+  es: { title: '¡Esto es Verbify!', body: '¡No olvides practicar!\nPractica hoy — confianza en la conversación mañana 💪' },
+  pt: { title: 'Este é o Verbify!', body: 'Não se esqueça de praticar!\nPratique hoje — confiança na conversa amanhã! 💪' },
+  ar: { title: 'هذا هو Verbify!', body: 'لا تنسَ التدرب!\nتمرّن اليوم — وثقة في الحديث غدًا! 💪' },
+  am: { title: 'ይህ Verbify ነው!', body: 'ማስተማርን አትርሳ!\nዛሬ ማስተማር — ነገ በንግግር እምነት! 💪' },
 };
 
-export const initializeNotificationChannel = async () => {
-  if (Platform.OS === 'android') {
-    await Notifications.setNotificationChannelAsync('default', {
-      name: 'Основной канал',
-      importance: Notifications.AndroidImportance.HIGH,
-      sound: 'default',
-    });
-    console.log('📢 Канал уведомлений создан');
+// ===== проверка наличия нативного модуля (в Expo Go его нет) =====
+export const isPushModuleAvailable = !!NativeModules.RNPushNotification;
+
+const CHANNEL_ID = 'verbify_reminders';
+
+// Android 13+ runtime permission
+export async function unifiedRequestNotificationPermission() {
+  if (Platform.OS !== 'android') return true;
+  try {
+    const already = await PermissionsAndroid.check(
+      PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS
+    );
+    if (already) return true;
+
+    const res = await PermissionsAndroid.request(
+      PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS
+    );
+    return res === PermissionsAndroid.RESULTS.GRANTED;
+  } catch {
+    return false;
   }
-};
+}
 
-export const requestNotificationPermissions = async () => {
-  const { status: existingStatus } = await Notifications.getPermissionsAsync();
-  let finalStatus = existingStatus;
-
-  if (existingStatus !== 'granted') {
-    const { status } = await Notifications.requestPermissionsAsync();
-    finalStatus = status;
-  }
-
-  if (finalStatus !== 'granted') {
-    alert('Уведомления отключены. Вы можете включить их в настройках устройства.');
+// Инициализация канала и обработчиков (синхронно с точки зрения вызова)
+export function initNotifications() {
+  if (!isPushModuleAvailable) {
+    console.log('🔕 RNPN native module NOT available (Expo Go / Bridgeless). No-op.');
     return false;
   }
 
-  return true;
-};
-
-export const scheduleDailyNotification = async () => {
-  const alreadyScheduled = await AsyncStorage.getItem('notificationScheduled');
-  if (alreadyScheduled === 'true') {
-    console.log('🔁 Уведомления уже запланированы, повторное планирование не требуется');
-    return;
-  }
-
-  await Notifications.cancelAllScheduledNotificationsAsync();
-
-  const rawLang = await AsyncStorage.getItem('language');
-  const lang = normalizeLanguageCode(rawLang);
-  const message = notificationMessages[lang] || notificationMessages.en;
-
-  const times = [
-    { hour: 11, minute: 30 },
-    // { hour: 10, minute: 21 },
-    // { hour: 10, minute: 22 },
-  ];
-
-  for (const time of times) {
-    await Notifications.scheduleNotificationAsync({
-      content: {
-        title: message.title,
-        body: message.body,
-        sound: 'default',
-        channelId: 'default',
-      },
-      trigger: {
-        ...time,
-        repeats: true,
-      },
-    });
-  }
-
-  await AsyncStorage.setItem('notificationScheduled', 'true');
-  console.log(`✅ Уведомления запланированы на языке "${lang}"`);
-};
-
-export const cancelNotifications = async () => {
-  await Notifications.cancelAllScheduledNotificationsAsync();
-  await AsyncStorage.removeItem('notificationScheduled');
-  console.log('🚫 Все уведомления отменены');
-};
-
-export const devTestNotification = async () => {
-  console.log('🔧 Нажата кнопка теста уведомлений');
-
-  await Notifications.scheduleNotificationAsync({
-    content: {
-      title: '🔔 Тестовое уведомление',
-      body: 'Если ты это видишь — всё работает! 🎉',
-      sound: 'default',
-      channelId: 'default',
+  PushNotification.createChannel(
+    {
+      channelId: CHANNEL_ID,
+      channelName: 'Verbify Reminders',
+      channelDescription: 'Daily practice notifications',
+      soundName: 'default',
+      importance: 4, // HIGH
+      vibrate: true,
     },
-    trigger: {
-      seconds: 10,
-      repeats: false,
+    (created) => console.log('📡 Channel created:', created)
+  );
+
+  PushNotification.configure({
+    onNotification(notification) {
+      console.log('📩 Notification tapped:', notification);
     },
+    requestPermissions: Platform.OS === 'ios',
   });
 
-  console.log('✅ Уведомление ЗАПЛАНИРОВАНО через 10 секунд');
-};
+  return true;
+}
+
+async function getLocalizedPayload() {
+  const raw = (await AsyncStorage.getItem('language')) || 'english';
+  const lang = normalizeLanguageCode(raw);
+  const msg = notificationMessages[lang] || notificationMessages.en;
+  return { title: msg.title, message: msg.body };
+}
+
+// Разовое уведомление через N секунд
+export async function scheduleInSeconds(seconds = 10) {
+  if (!isPushModuleAvailable) {
+    console.log('🔕 scheduleInSeconds skipped: no native module (Expo Go).');
+    return;
+  }
+  const { title, message } = await getLocalizedPayload();
+  PushNotification.localNotificationSchedule({
+    channelId: CHANNEL_ID,
+    title,
+    message: `${message}\n\n(~${seconds} sec)`,
+    date: new Date(Date.now() + seconds * 1000),
+    allowWhileIdle: true,
+  });
+  console.log(`✅ Scheduled single notification in ${seconds} sec`);
+}
+
+// Ежедневное уведомление в фиксированное время
+export async function scheduleDailyNotification(hour = 9, minute = 0) {
+  if (!isPushModuleAvailable) {
+    console.log('🔕 scheduleDailyNotification skipped: no native module (Expo Go).');
+    return;
+  }
+  const { title, message } = await getLocalizedPayload();
+
+  const now = new Date();
+  const first = new Date(now);
+  first.setHours(hour, minute, 0, 0);
+  if (first <= now) first.setDate(first.getDate() + 1);
+
+  PushNotification.localNotificationSchedule({
+  channelId: CHANNEL_ID,
+  // smallIcon: 'ic_notification', // 👈 вот это
+  // largeIcon: 'ic_launcher',
+  title,
+  message,
+  date: first,
+  allowWhileIdle: true,
+  repeatType: 'day',
+});
+  console.log(`✅ Scheduled daily notification at ${hour}:${String(minute).padStart(2, '0')}`);
+}
+
+// Отмена всех
+export function cancelNotifications() {
+  if (!isPushModuleAvailable) {
+    console.log('🔕 cancelNotifications skipped: no native module (Expo Go).');
+    return;
+  }
+  PushNotification.cancelAllLocalNotifications();
+  console.log('🗑 All notifications cancelled');
+}
+
+// Удобный бутстрап (если хочется одним вызовом)
+export async function bootstrapNotifications(hour = 9, minute = 0) {
+  const ok = initNotifications(); // вернёт false в Expo Go
+  if (!ok) return false;
+  const granted = await unifiedRequestNotificationPermission();
+  if (!granted) return false;
+  await scheduleDailyNotification(hour, minute);
+  return true;
+}

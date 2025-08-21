@@ -20,7 +20,8 @@ const SearchModal = ({ visible, onToggle, onSelectVerb }) => {
       verb.russian.toLowerCase().includes(lowerCaseQuery) ||
       verb.russiantext.toLowerCase().includes(lowerCaseQuery) ||
       verb.translit.toLowerCase().includes(lowerCaseQuery) || 
-      verb.transliteration.toLowerCase().includes(lowerCaseQuery)
+      verb.transliteration.toLowerCase().includes(lowerCaseQuery) ||
+      verb.hebrewtext.toLowerCase().includes(lowerCaseQuery)
     );
     setSearchResults(results);
   };
@@ -32,10 +33,15 @@ const SearchModal = ({ visible, onToggle, onSelectVerb }) => {
     }
   };
 
-  const handleResultPress = (result) => {
-    onSelectVerb(result);
-    onToggle();
-  };
+  // const handleResultPress = (result) => {
+  //   onSelectVerb(result);
+  //   onToggle();
+  // };
+
+    const handleResultPress = (result) => {
+  onSelectVerb(result); // вызывает handleSelectVerb
+};
+
 
   const handleSearchPress = () => {
     Keyboard.dismiss();
@@ -75,12 +81,29 @@ const SearchModal = ({ visible, onToggle, onSelectVerb }) => {
             )}
             {searchResults.map((result, index) => (
               <TouchableOpacity key={index} style={styles.resultContainer} onPress={() => handleResultPress(result)}>
-                <Text style={[styles.resultText, styles.infinitiveText]}maxFontSizeMultiplier={1.2}>{result.infinitive}</Text>
-                <Text style={[styles.resultText1, { color: '#1C3F60' }]}maxFontSizeMultiplier={1.2}>{result.russian}</Text>
-                <Text style={[styles.resultText, { color: '#FF5733' }]}maxFontSizeMultiplier={1.2}>{result.transliteration}</Text>
-                <Text style={[styles.resultText1, { color: '#1C3F60' }]}maxFontSizeMultiplier={1.2}>{result.russiantext}</Text>
-                <Text style={[styles.resultText, { color: '#FF5733' }]}maxFontSizeMultiplier={1.2}>{result.translit}</Text>
-              </TouchableOpacity>
+  {/* <Text style={[styles.resultTextHebrew]} maxFontSizeMultiplier={1.2}>
+    {result.hebrewtext}
+  </Text> */}
+  <Text style={[styles.resultText, styles.infinitiveText]} maxFontSizeMultiplier={1.2}>
+    {result.infinitive}
+  </Text>
+  <Text style={[styles.resultText1, { color: '#1C3F60' }]} maxFontSizeMultiplier={1.2}>
+    {result.russian}
+  </Text>
+  <Text style={[styles.resultText, { color: '#FF5733' }]} maxFontSizeMultiplier={1.2}>
+    {result.transliteration}
+  </Text>
+   <Text style={[styles.resultTextHebrew]} maxFontSizeMultiplier={1.2}>
+    {result.hebrewtext}
+  </Text>
+  <Text style={[styles.resultText1, { color: '#1C3F60' }]} maxFontSizeMultiplier={1.2}>
+    {result.russiantext}
+  </Text>
+  <Text style={[styles.resultText, { color: '#FF5733' }]} maxFontSizeMultiplier={1.2}>
+    {result.translit}
+  </Text>
+</TouchableOpacity>
+
             ))}
           </ScrollView>
           <TouchableOpacity
@@ -171,6 +194,8 @@ const styles = StyleSheet.create({
     color: '#1C3F60',
     fontSize: 18,
     fontWeight: 'bold',
+     textAlign: 'right',
+  writingDirection: 'rtl',
   },
 
   resultText1: {
@@ -196,7 +221,15 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 18,
     fontWeight: 'bold',
-  }
+  },
+  resultTextHebrew: {
+  fontSize: 18,
+  fontWeight: 'bold',
+  color: '#2B3270',
+  textAlign: 'right',
+  writingDirection: 'rtl', // чтобы текст на иврите был корректно выровнен
+},
+
 });
 
 export default SearchModal;

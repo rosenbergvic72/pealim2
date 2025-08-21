@@ -9,13 +9,15 @@ import sounds from './Soundss';
 import CompletionMessage from './CompletionMessage';
 import ExitConfirmationModal from './ExitConfirmationModal';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
-import TaskDescriptionModal7 from './TaskDescriptionModal7';
+import TaskDescriptionModal6 from './TaskDescriptionModal7';
 import StatModal7 from './StatModal7';
 import { updateStatistics, getStatistics } from './stat';
 import TypewriterTextRTL from './TypewriterTextRTL';
 import TypewriterTextLTR from './TypewriterTextLTR';
 import LottieView from 'lottie-react-native';
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 
 const Exercise7 = () => {
   const [verbs, setVerbs] = useState([]);
@@ -26,7 +28,7 @@ const Exercise7 = () => {
   const [incorrectCount, setIncorrectCount] = useState(0);
   const [exitConfirmationVisible, setExitConfirmationVisible] = useState(false);
   const [soundEnabled, setSoundEnabled] = useState(true);
-  const [isDescriptionModalVisible, setIsDescriptionModalVisible] = useState(false);
+  
   const [statistics, setStatistics] = useState(null);
   const [isStatModalVisible, setIsStatModalVisible] = useState(false);
   const [failureSound, setFailureSound] = useState(null);
@@ -91,6 +93,54 @@ const Exercise7 = () => {
       return 'Требуется серьезная работа! Важно не унывать и продолжать учиться.';
     }
   };
+
+
+  const [isDescriptionModalVisible, setDescriptionModalVisible] = useState(false);
+  
+    const [dontShowAgain7, setDontShowAgain7] = useState(false);
+  
+    const [language, setLanguage] = useState('ru'); // ← по умолчанию ru
+  
+    const [languageLoaded, setLanguageLoaded] = useState(false);
+  
+    useEffect(() => {
+    const checkFlagAndLang = async () => {
+      const hidden = await AsyncStorage.getItem('exercise7_description_hidden');
+      const lang = await AsyncStorage.getItem('language');
+  
+      console.log('🌍 Language:', lang);
+      console.log('🧪 Hide flag:', hidden);
+  
+      if (lang) {
+        setLanguage(lang);
+  
+        setDontShowAgain7(hidden === 'true');
+      setLanguageLoaded(true);
+  
+        if (hidden !== 'true') {
+          setTimeout(() => {
+            console.log('📢 Показываем модалку после загрузки языка');
+            setDescriptionModalVisible(true);
+          }, 100); // чуть больше времени
+        }
+      }
+  
+      setDontShowAgain7(hidden === 'true');
+    };
+  
+    checkFlagAndLang();
+  }, []);
+  
+  
+  
+  
+  const handleToggleDontShowAgain7 = async () => {
+    const newValue = !dontShowAgain7;
+    setDontShowAgain7(newValue);
+    await AsyncStorage.setItem('exercise7_description_hidden', newValue ? 'true' : '');
+    console.log('📌 Клик по чекбоксу. Было:', dontShowAgain7, 'Станет:', !dontShowAgain7);
+  };
+  
 
   const shuffleArray = (array) => {
     let newArray = array.slice();
@@ -406,7 +456,7 @@ const Exercise7 = () => {
   };
 
   const toggleDescriptionModal = () => {
-    setIsDescriptionModalVisible((prev) => !prev);
+    setDescriptionModalVisible((prev) => !prev);
   };
 
   const handleButton3Press = async () => {
@@ -559,7 +609,13 @@ const Exercise7 = () => {
           </TouchableOpacity>
           <TouchableOpacity onPress={toggleDescriptionModal}>
             <Animated.Image source={require('./question.png')} style={[styles.buttonImage, { opacity: fadeAnim }]} />
-            <TaskDescriptionModal7 visible={isDescriptionModalVisible} onToggle={toggleDescriptionModal} />
+            <TaskDescriptionModal6
+              visible={isDescriptionModalVisible}
+  onToggle={toggleDescriptionModal}
+  language={language}
+  dontShowAgain7={dontShowAgain7}
+  onToggleDontShowAgain={handleToggleDontShowAgain7}
+            />
           </TouchableOpacity>
         </View>
       </View>

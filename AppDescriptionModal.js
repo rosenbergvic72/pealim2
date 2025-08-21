@@ -150,11 +150,16 @@ const AppDescriptionModal = ({ visible, onToggle }) => {
           },
           scrollArea: {
             flex: 1,
+            marginTop: 20,
           },
           scrollViewContent: {
             padding: 20,
             paddingBottom: 30,
+            // paddingTop: 20,
           },
+
+
+          
           logoContainer: {
             alignItems: 'center',
             marginBottom: 10,

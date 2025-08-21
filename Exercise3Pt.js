@@ -8,12 +8,13 @@ import CompletionMessagePt from './CompletionMessagePt';
 import ExitConfirmationModal from './ExitConfirmationModalPt';
 import { Audio } from 'expo-av';
 import { Animated } from 'react-native';
-import TaskDescriptionModal3 from './TaskDescriptionModal3Pt';
+import TaskDescriptionModal6 from './TaskDescriptionModal3';
 import StatModal3Pt from './StatModal3Pt';
 import { updateStatistics, getStatistics } from './stat';
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import verbs1RU from './verbs11RU.json'; // Assuming this file contains the data for verbs
 import soundsConj from './soundconj'; // Импорт дополнительных звуков
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
 
@@ -92,6 +93,43 @@ const Exercise3Pt = ({ navigation }) => {
     setIsGenderMan(prev => !prev);  // Переключаем состояние
   };
 
+  const [language, setLanguage] = useState('pt'); // по умолчанию
+  
+ const [isDescriptionModalVisible, setDescriptionModalVisible] = useState(false);
+
+  const [dontShowAgain3, setDontShowAgain3] = useState(false);
+
+  
+  const [languageLoaded, setLanguageLoaded] = useState(false);
+
+  useEffect(() => {
+  const checkFlagAndLang = async () => {
+    const hidden = await AsyncStorage.getItem('exercise3_description_hidden');
+    const lang = await AsyncStorage.getItem('language');
+
+    console.log('🌍 Language:', lang);
+    console.log('🧪 Hide flag:', hidden);
+
+    if (lang) {
+      setLanguage(lang);
+
+      setDontShowAgain3(hidden === 'true');
+    setLanguageLoaded(true);
+
+      if (hidden !== 'true') {
+        setTimeout(() => {
+          console.log('📢 Показываем модалку после загрузки языка');
+          setDescriptionModalVisible(true);
+        }, 100); // чуть больше времени
+      }
+    }
+
+    setDontShowAgain3(hidden === 'true');
+  };
+
+  checkFlagAndLang();
+}, []);
+
   const toggleDescriptionModal = () => {
     setDescriptionModalVisible(prev => {
       console.log("Toggling description modal from", prev, "to", !prev);
@@ -99,7 +137,13 @@ const Exercise3Pt = ({ navigation }) => {
     });
   };
 
-  const [isDescriptionModalVisible, setDescriptionModalVisible] = useState(false);
+  const handleToggleDontShowAgain3 = async () => {
+    const newValue = !dontShowAgain3;
+    setDontShowAgain3(newValue);
+    await AsyncStorage.setItem('exercise3_description_hidden', newValue ? 'true' : '');
+    console.log('📌 Клик по чекбоксу. Было:', dontShowAgain3, 'Станет:', !dontShowAgain3);
+  }; 
+  
 
   const handleButton2Press = () => {
     toggleDescriptionModal();
@@ -641,10 +685,13 @@ useEffect(() => {
         source={require('./question.png')}  // Замените на ваше изображение кнопки
         style={[styles.buttonImage, { opacity: fadeAnim }]}
       />
-      <TaskDescriptionModal3
-      visible={isDescriptionModalVisible}
-      onToggle={toggleDescriptionModal}
-    />
+      <TaskDescriptionModal6
+                visible={isDescriptionModalVisible}
+  onToggle={toggleDescriptionModal}
+  language={language}
+  dontShowAgain3={dontShowAgain3}
+  onToggleDontShowAgain={handleToggleDontShowAgain3}
+              />
     </TouchableOpacity>
 
     <TouchableOpacity onPress={handleGenderToggle}>

@@ -9,14 +9,16 @@ import sounds from './Soundss';
 import CompletionMessageEn from './CompletionMessageEn';
 import ExitConfirmationModal from './ExitConfirmationModalEn';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
-import TaskDescriptionModal6En from './TaskDescriptionModal6En';
+import TaskDescriptionModal6 from './TaskDescriptionModal6';
 import StatModal6En from './StatModal6En';
 import { updateStatistics, getStatistics } from './stat';
 import LottieView from 'lottie-react-native';
 import SearchModalEn from './SearchModalEn';
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import { Dimensions } from 'react-native';
-// import { widthPercentageToDP as wp } from 'react-native-responsive-screen';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import VerbListModal2 from './VerbListModal2';
+import shuffleArray from './utils/shuffleArray';
 
 // import { PixelRatio } from 'react-native';
 
@@ -62,7 +64,90 @@ const Exercise6En = () => {
   const animationRef = useRef(null);
   const [isPlaying, setIsPlaying] = useState(false);
 
-  // const fontScale = PixelRatio.getFontScale(); // Получаем текущий масштаб шрифта
+const [language, setLanguage] = useState('en');
+
+
+const [mainVerb, setMainVerb] = useState(null);
+
+const [verbListForModal, setVerbListForModal] = useState([]);
+const [isVerbListVisible, setIsVerbListVisible] = useState(true); // модалка в начале
+
+const initializeVerbList = (lang, mainVerb, setVerbListForModal) => {
+  const langMap = {
+    ru: 'russian',
+    en: 'english',
+    fr: 'french',
+    es: 'spanish',
+    pt: 'portu',
+    ar: 'arabic',
+    am: 'amharic',
+  };
+  const langKey = langMap[lang] || 'english';
+
+  if (!mainVerb) {
+    console.warn('⚠️ mainVerb is undefined');
+    return;
+  }
+
+  console.log('🎯 Используем mainVerb:', mainVerb.infinitive, mainVerb[langKey]);
+
+  const allForms = verbsData.filter((v) => {
+  const sameInf = v.infinitive === mainVerb.infinitive;
+  const sameTranslation = v[langKey]?.toLowerCase().trim() === mainVerb[langKey]?.toLowerCase().trim();
+  return sameInf && (sameTranslation || !mainVerb[langKey]);
+});
+
+
+  console.log('📦 Найдено форм:', allForms.length);
+  setVerbListForModal(allForms);
+};
+
+
+
+const [showDescriptionOnce, setShowDescriptionOnce] = useState(true);
+
+useEffect(() => {
+  const initialize = async () => {
+    const lang = await AsyncStorage.getItem('language');
+    const hidden = await AsyncStorage.getItem('exercise6_description_hidden');
+    setLanguage(lang || 'en');
+    setDontShowAgain6(hidden === 'true');
+    setLanguageLoaded(true);
+
+    // Показываем модалку только если showDescriptionOnce и нет скрывающего флага
+    if (hidden !== 'true' && showDescriptionOnce) {
+      setTimeout(() => {
+        setDescriptionModalVisible(true);
+        setShowDescriptionOnce(false); // После показа сбрасываем флаг
+      }, 300);
+    }
+  };
+  initialize();
+}, []); // Только при самом первом монтировании
+
+
+
+
+
+// useEffect(() => {
+//   if (language && mainVerb) {
+//     initializeVerbList(language, mainVerb, setVerbListForModal);
+
+//     AsyncStorage.getItem('exercise6_description_hidden').then((hidden) => {
+//       if (hidden !== 'true') {
+//         console.log('📢 Показываем модалку после загрузки языка и mainVerb');
+//         setTimeout(() => {
+//           setDescriptionModalVisible(true);
+//         }, 300);
+//       }
+//     });
+//   }
+// }, [language, mainVerb]);
+
+
+
+
+
 
   const getGrade = (percentage) => {
     if (percentage === 100) {
@@ -112,6 +197,53 @@ const Exercise6En = () => {
       sound.setVolumeAsync(1);
     }
   };
+
+
+  // const [language, setLanguage] = useState('en'); // по умолчанию
+  
+  const [dontShowAgain6, setDontShowAgain6] = useState(false);
+
+
+
+  const [languageLoaded, setLanguageLoaded] = useState(false);
+
+  useEffect(() => {
+  const checkFlagAndLang = async () => {
+    const hidden = await AsyncStorage.getItem('exercise6_description_hidden');
+    const lang = await AsyncStorage.getItem('language');
+
+    console.log('🌍 Language:', lang);
+    console.log('🧪 Hide flag:', hidden);
+
+    if (lang) {
+      setLanguage(lang);
+
+      setDontShowAgain6(hidden === 'true');
+    setLanguageLoaded(true);
+
+      if (hidden !== 'true') {
+        setTimeout(() => {
+          console.log('📢 Показываем модалку после загрузки языка');
+          setDescriptionModalVisible(true);
+        }, 100); // чуть больше времени
+      }
+    }
+
+    setDontShowAgain6(hidden === 'true');
+  };
+
+  checkFlagAndLang();
+}, []);
+
+
+
+
+const handleToggleDontShowAgain6 = async () => {
+  const newValue = !dontShowAgain6;
+  setDontShowAgain6(newValue);
+  await AsyncStorage.setItem('exercise6_description_hidden', newValue ? 'true' : '');
+  console.log('📌 Клик по чекбоксу. Было:', dontShowAgain6, 'Станет:', !dontShowAgain6);
+};
 
   const fadeAnim = useRef(new Animated.Value(0)).current;
 
@@ -203,19 +335,28 @@ const Exercise6En = () => {
     return newArray;
   };
 
-  useEffect(() => {
-    if (verbsData && verbsData.length > 0) {
-      const uniqueVerbs = [...new Set(verbsData.map(item => item.infinitive))];
-      const selectedVerb = uniqueVerbs[Math.floor(Math.random() * uniqueVerbs.length)];
-      const verbConjugations = shuffleArray(verbsData.filter(verb => verb.infinitive === selectedVerb));
-      if (verbConjugations.length > 0) {
-        setCurrentVerb(verbConjugations[0]);
-        setPairs(verbConjugations);
-        setRemainingPairs(verbConjugations.length);
-        setTotalExercises(verbConjugations.length);
-      }
-    }
-  }, [verbsData]);
+useEffect(() => {
+  if (verbsData && verbsData.length > 0) {
+    const uniqueVerbs = [...new Set(verbsData.map(item => item.infinitive))];
+    const selectedVerb = uniqueVerbs[Math.floor(Math.random() * uniqueVerbs.length)];
+    const allForms = verbsData.filter(verb => verb.infinitive === selectedVerb);
+
+    setMainVerb(allForms[0]);
+    setVerbListForModal(allForms); // Модалка — логичный порядок
+
+    // Для упражнения — если хочешь перемешать, то только тут:
+    const shuffledForms = shuffleArray([...allForms]);
+    setPairs(shuffledForms);
+    setRemainingPairs(allForms.length);
+    setTotalExercises(allForms.length);
+
+    setIsVerbListVisible(true);
+    setPendingVerb(null);
+  }
+}, [verbsData]);
+
+
+
 
   useEffect(() => {
     const start = page * 6;
@@ -497,24 +638,35 @@ const Exercise6En = () => {
     await updateStatistics(exerciseId, currentScore);
   };
 
-  const resetExercise = () => {
-    setCorrectCount(0);
-    setIncorrectCount(0);
-    setProgress(0);
-    setExerciseCompleted(false);
-    setCurrentIndex(0);
-    setResolvedPairsCount(0);
-    setCorrectAnswers(new Set());
-  
-    const shuffledData = shuffleArray(verbsData);
-    const uniqueVerbs = [...new Set(shuffledData.map(item => item.infinitive))];
-    const selectedVerb = uniqueVerbs[Math.floor(Math.random() * uniqueVerbs.length)];
-    const verbConjugations = shuffledData.filter(verb => verb.infinitive === selectedVerb);
-    setCurrentVerb(verbConjugations[0]);
-    setPairs(verbConjugations);
-    setTotalExercises(verbConjugations.length);
-    setRemainingPairs(verbConjugations.length);
-  };
+ const resetExercise = () => {
+  setCorrectCount(0);
+  setIncorrectCount(0);
+  setProgress(0);
+  setExerciseCompleted(false);
+  setCurrentIndex(0);
+  setResolvedPairsCount(0);
+  setCorrectAnswers(new Set());
+
+  // Выбрать новый глагол
+  const shuffledData = shuffleArray(verbsData);
+  const uniqueVerbs = [...new Set(shuffledData.map(item => item.infinitive))];
+  const selectedVerb = uniqueVerbs[Math.floor(Math.random() * uniqueVerbs.length)];
+  const verbConjugations = shuffledData.filter(verb => verb.infinitive === selectedVerb);
+
+  setCurrentVerb(verbConjugations[0]);
+  setMainVerb(verbConjugations[0]);
+  setPairs(verbConjugations);
+  setTotalExercises(verbConjugations.length);
+  setRemainingPairs(verbConjugations.length);
+  setPendingVerb(null);
+  setVerbListForModal(verbConjugations);
+
+  // Открыть модалку только когда verbListForModal не пуст
+  setTimeout(() => {
+    setIsVerbListVisible(true);
+  }, 10);
+};
+
 
   const [isSearchModalVisible, setSearchModalVisible] = useState(false);
 
@@ -522,24 +674,50 @@ const Exercise6En = () => {
     setSearchModalVisible(true);
   };
 
-  const handleSelectVerb = (verb) => {
-    const verbConjugations = shuffleArray(verbsData.filter(item => item.infinitive === verb.infinitive));
-    if (verbConjugations.length > 0) {
-      setCurrentVerb(verbConjugations[0]);
-      setPairs(verbConjugations);
-      setRemainingPairs(verbConjugations.length);
-      setTotalExercises(verbConjugations.length);
-      setCurrentIndex(0);
-      setCorrectCount(0);
-      setIncorrectCount(0);
-      setProgress(0);
-      setCorrectAnswers(new Set());
-      setResolvedPairsCount(0);
-      setPage(0);
-      setExerciseCompleted(false);
-      setSearchModalVisible(false); // Закрываем модальное окно
-    }
-  };
+// const [verbListForModal, setVerbListForModal] = useState([]);
+// В Exercise6En.js
+
+const [pendingVerb, setPendingVerb] = useState(null);
+
+const handleSelectVerb = (verb) => {
+  setPendingVerb(verb); // временно сохраняем выбранный глагол
+  const allForms = verbsData.filter(item => item.infinitive === verb.infinitive);
+  setVerbListForModal(allForms); // показываем формы этого глагола в модалке
+  setIsVerbListVisible(true);    // открываем модалку
+  setSearchModalVisible(false);
+};
+
+const handleStartExercise = () => {
+  // Используем pendingVerb, если он есть, иначе mainVerb
+  const chosenVerb = pendingVerb || mainVerb;
+  if (!chosenVerb) return;
+  const verbConjugations = shuffleArray(verbsData.filter(item => item.infinitive === chosenVerb.infinitive));
+  if (verbConjugations.length > 0) {
+    setCurrentVerb(verbConjugations[0]);
+    setMainVerb(verbConjugations[0]);
+    setPairs(verbConjugations);
+    setRemainingPairs(verbConjugations.length);
+    setTotalExercises(verbConjugations.length);
+    setCurrentIndex(0);
+    setCorrectCount(0);
+    setIncorrectCount(0);
+    setProgress(0);
+    setCorrectAnswers(new Set());
+    setResolvedPairsCount(0);
+    setPage(0);
+    setExerciseCompleted(false);
+    setIsVerbListVisible(false); // закрываем модалку
+    setPendingVerb(null); // сбрасываем временный глагол
+  }
+};
+
+
+
+
+
+
+
+
 
   // const screenWidth = wp('100%');
 // console.log('Screen Width:', screenWidth);
@@ -550,6 +728,20 @@ console.log('Physical Screen Width:', screenWidth); // Ширина экрана
 
 
   return (
+  <>
+    {isVerbListVisible && (
+      <VerbListModal2
+  visible={isVerbListVisible}
+  language={language}
+  verbs={verbListForModal}
+  onStartExercise={handleStartExercise}
+  onClose={() => setIsVerbListVisible(false)} // на всякий случай, если понадобится
+/>
+
+      
+    )}
+
+    {!isVerbListVisible && (
     <ScrollView contentContainerStyle={styles.scrollViewContent}>
       <View style={styles.container}>
       
@@ -575,7 +767,7 @@ console.log('Physical Screen Width:', screenWidth); // Ширина экрана
             />
           </TouchableOpacity>
 
-          <TouchableOpacity onPress={handleButton3Press}>
+          {/* <TouchableOpacity onPress={handleButton3Press}>
             <Animated.Image
               source={require('./stat.png')}
               style={[styles.buttonImage, { opacity: fadeAnim }]}
@@ -585,16 +777,27 @@ console.log('Physical Screen Width:', screenWidth); // Ширина экрана
               onToggle={() => setIsStatModalVisible(false)}
               statistics={statistics}
             />
-          </TouchableOpacity>
+          </TouchableOpacity> */}
+
+          <TouchableOpacity onPress={handleButton3Press}>
+  <Animated.Image
+    source={require('./stat.png')}
+    style={[styles.buttonImage, { opacity: fadeAnim }]}
+  />
+</TouchableOpacity>
+
 
           <TouchableOpacity onPress={toggleDescriptionModal}>
             <Animated.Image
               source={require('./question.png')}
               style={[styles.buttonImage, { opacity: fadeAnim }]}
             />
-            <TaskDescriptionModal6En
+           <TaskDescriptionModal6
               visible={isDescriptionModalVisible}
-              onToggle={toggleDescriptionModal}
+  onToggle={toggleDescriptionModal}
+  language={language}
+  dontShowAgain6={dontShowAgain6}
+  onToggleDontShowAgain={handleToggleDontShowAgain6}
             />
           </TouchableOpacity>
 
@@ -603,11 +806,11 @@ console.log('Physical Screen Width:', screenWidth); // Ширина экрана
               source={require('./search1.png')}
               style={[styles.buttonImage, { opacity: fadeAnim }]}
             />
-            <SearchModalEn
-              visible={isSearchModalVisible}
-              onToggle={() => setSearchModalVisible(false)}
-              onSelectVerb={handleSelectVerb} // Передаем обработчик
-            />
+         <SearchModalEn
+  visible={isSearchModalVisible}
+  onToggle={() => setSearchModalVisible(false)}
+  onSelectVerb={handleSelectVerb}
+/>
           </TouchableOpacity>
         </View>
       </View>
@@ -698,7 +901,24 @@ console.log('Physical Screen Width:', screenWidth); // Ширина экрана
       />
       </View>
     </ScrollView>
-  );
+     )}
+
+    {/* Модалки должны быть вне ScrollView/TouchableOpacity */}
+    <StatModal6En
+      visible={isStatModalVisible}
+      onToggle={() => setIsStatModalVisible(false)}
+      statistics={statistics}
+    />
+
+    <TaskDescriptionModal6
+      visible={isDescriptionModalVisible}
+      onToggle={toggleDescriptionModal}
+      language={language}
+      dontShowAgain6={dontShowAgain6}
+      onToggleDontShowAgain={handleToggleDontShowAgain6}
+    />
+  </>
+);
 };
 
 const styles = StyleSheet.create({
@@ -877,7 +1097,8 @@ const styles = StyleSheet.create({
     width: "100%",
   },
   button: {
-    flex: 1,
+    // flex: 1.05,
+    width: '48.5%',
     marginHorizontal: 5,
     padding: 5,
     backgroundColor: '#D1E3F1',

@@ -1,8 +1,11 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image, Animated, BackHandler } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image, Animated, BackHandler, KeyboardAvoidingView, Platform, ScrollView  } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import LottieView from 'lottie-react-native';
 import { useFocusEffect } from '@react-navigation/native';
+import AppDescriptionModal from './AppDescriptionModalFr'; // Подключаем модальное окно
+import AppInfoModal from './AppInfoModalFr'; // Подключаем модальное окно
+
 
 export default function WelcomePage({ navigation, route }) {
   const [name, setName] = useState('');
@@ -23,6 +26,8 @@ export default function WelcomePage({ navigation, route }) {
   const [shadowVisible, setShadowVisible] = useState(false);
   const picOpacity = useRef(new Animated.Value(0)).current;
     const picTranslateX = useRef(new Animated.Value(-100)).current;
+    const [isModalVisible, setIsModalVisible] = useState(false); // Состояние для модального окна
+        const [isInfoModalVisible, setIsInfoModalVisible] = useState(false);
 
   // Загружаем имя при каждом возврате на экран и перезапускаем анимацию
   useFocusEffect(
@@ -180,7 +185,12 @@ export default function WelcomePage({ navigation, route }) {
   }
 
   return (
-    <View style={styles.container}>
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      >
+        <ScrollView contentContainerStyle={{ flexGrow: 1 }} keyboardShouldPersistTaps="handled">
+          <View style={styles.container}>
       <Animated.View style={[styles.imageContainer, { opacity: imageOpacity, transform: [{ translateX: imageTranslateX }] }]}>
         <Image source={require('./VERBIFY.png')} style={styles.image} />
       </Animated.View>
@@ -203,6 +213,7 @@ export default function WelcomePage({ navigation, route }) {
             styles.button,
             { backgroundColor: interpolatedBackgroundColor },
             shadowVisible && styles.shadow,
+            name.trim().length === 0 && styles.buttonDisabled, 
           ]}
           onPress={handleNextPress}
           disabled={name.length === 0}
@@ -215,7 +226,31 @@ export default function WelcomePage({ navigation, route }) {
               <Image source={require('./PICFR.png')} style={styles.picImage} />
             </Animated.View>
     </View>
-  );
+          </ScrollView>
+
+<Animated.View style={[styles.topIconsContainer, { opacity: picOpacity, transform: [{ translateX: picTranslateX }] }]}>
+      {/* <View style={styles.topIconsContainer}> */}
+  <TouchableOpacity onPress={() => setIsModalVisible(true)}>
+    <Image source={require('./question1.png')} style={styles.topIcon} />
+  </TouchableOpacity>
+
+  <TouchableOpacity onPress={() => setIsInfoModalVisible(true)}>
+    <Image source={require('./about3.png')} style={styles.topIcon} />
+  </TouchableOpacity>
+</Animated.View>
+
+<AppDescriptionModal
+  visible={isModalVisible}
+  onToggle={() => setIsModalVisible(false)}
+/>
+
+<AppInfoModal
+  visible={isInfoModalVisible}
+  onToggle={() => setIsInfoModalVisible(false)}
+/>
+
+        </KeyboardAvoidingView>
+      );
 }
 
 const styles = StyleSheet.create({
@@ -295,4 +330,20 @@ const styles = StyleSheet.create({
     width: 300,
     height: 300,
   },
+  topIconsContainer: {
+  position: 'absolute',
+  top: Platform.OS === 'ios' ? 50 : 20, // учитываем статусбар на iOS
+  right: 20,
+  flexDirection: 'row',
+  zIndex: 10,
+},
+
+topIcon: {
+ width: 36,
+  height: 36,
+  marginLeft: 15,
+},
+buttonDisabled: {
+  opacity: 0.4, // затемнение
+},
 });
