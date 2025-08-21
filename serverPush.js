@@ -4,38 +4,47 @@ import { Platform, PermissionsAndroid } from 'react-native';
 import Constants from 'expo-constants';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-// === Настройки ===
-const API_BASE = 'https://<твое-имя-сервиса>.onrender.com'; // ← твой Render URL
+// ======= НАСТРОЙКИ СЕРВЕРА =======
+const API_BASE = 'https://pealim-server.onrender.com';
 const REGISTER_PATH = '/registerDevice';
-const SCHEDULE_PATH = '/schedule';
-const DELETE_PATH = '/schedule'; // DELETE /schedule/:userId
+const SCHEDULE_PATH = '/schedule';       // POST
+const CLEAR_PATH = '/clearSchedule';     // POST
 
-// — необязательно, но удобно, если у тебя есть внутренний userId:
+// ======= ВСПОМОГАТЕЛЬНОЕ =======
 async function getUserId() {
   let id = await AsyncStorage.getItem('userId');
   if (!id) {
-    id = `u_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+    id = `u_${Platform.OS}_${Math.random().toString(36).slice(2, 10)}`;
     await AsyncStorage.setItem('userId', id);
   }
   return id;
 }
 
-// Android 13+ POST_NOTIFICATIONS
 async function ensureAndroidPermission() {
   if (Platform.OS !== 'android') return true;
   try {
-    const granted = await PermissionsAndroid.request(
+    const res = await PermissionsAndroid.request(
       PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS
     );
-    return granted === PermissionsAndroid.RESULTS.GRANTED;
+    return res === PermissionsAndroid.RESULTS.GRANTED;
   } catch {
     return false;
   }
 }
 
-// Получение Expo push token
+async function safeJson(res) {
+  try { return await res.json(); } catch { return null; }
+}
+
+// ======= ТОКЕН EXPO PUSH =======
 export async function getExpoPushTokenAsync() {
-  // iOS: спросим разрешение через expo-notifications
+  // В Expo Go (SDK 53+) удалённых пушей нет
+  if (Constants.appOwnership === 'expo') {
+    console.log('Expo Go: remote push недоступен. Используй Development Build (expo-dev-client).');
+    return null;
+  }
+
+  // Разрешения
   if (Platform.OS === 'ios') {
     const { status } = await Notifications.requestPermissionsAsync();
     if (status !== 'granted') return null;
@@ -44,22 +53,25 @@ export async function getExpoPushTokenAsync() {
     if (!ok) return null;
   }
 
-  // Для bare/dev клиентов нужен projectId; в Managed достаточно:
-  const tokenResp = await Notifications.getExpoPushTokenAsync();
-  const token = tokenResp.data;
-  await AsyncStorage.setItem('expoPushToken', token);
-  return token;
+  // Получение токена
+  // При желании можно указать projectId:
+  // const { data } = await Notifications.getExpoPushTokenAsync({ projectId: Constants?.expoConfig?.extra?.eas?.projectId });
+  const { data } = await Notifications.getExpoPushTokenAsync();
+
+  await AsyncStorage.setItem('expoPushToken', data);
+  return data;
 }
 
-// Регистрация девайса на сервере
+// ======= РЕГИСТРАЦИЯ ДЕВАЙСА НА СЕРВЕРЕ =======
 export async function registerDeviceOnServer(language = 'english') {
-  const token = (await AsyncStorage.getItem('expoPushToken')) || (await getExpoPushTokenAsync());
-  if (!token) return { ok: false, error: 'No token' };
+  const cached = await AsyncStorage.getItem('expoPushToken');
+  const token = cached || (await getExpoPushTokenAsync());
+  if (!token) return { ok: false, error: 'no_expo_token' };
 
   const userId = await getUserId();
 
   const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
-  const utcOffsetMin = -new Date().getTimezoneOffset(); // например, +180 для Израиля летом
+  const utcOffsetMin = -new Date().getTimezoneOffset(); // положительный для восточных TZ
 
   const payload = {
     userId,
@@ -67,47 +79,66 @@ export async function registerDeviceOnServer(language = 'english') {
     language,
     tz,
     utcOffsetMin,
-    appVersion: Constants.expoConfig?.version || 'unknown',
+    appVersion: Constants?.expoConfig?.version || 'unknown',
   };
 
-  const res = await fetch(API_BASE + REGISTER_PATH, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload),
-  });
-
-  return { ok: res.ok, status: res.status, data: await safeJson(res) };
+  try {
+    const res = await fetch(API_BASE + REGISTER_PATH, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    const data = await safeJson(res);
+    return { ok: res.ok, status: res.status, data };
+  } catch (e) {
+    console.log('registerDeviceOnServer error:', e);
+    return { ok: false, error: String(e) };
+  }
 }
 
-async function safeJson(res) {
-  try { return await res.json(); } catch { return null; }
-}
-
-// Создание/обновление расписания на сервере
-// daysOfWeek: массив номеров 0..6 (вс),1..6 — или передай null для «каждый день»
+// ======= УСТАНОВКА РАСПИСАНИЯ =======
+// daysOfWeek: null или массив чисел 0..6 (0=вс). Например, будни: [1,2,3,4,5]
 export async function setServerSchedule(hour = 9, minute = 0, daysOfWeek = null) {
   const userId = await getUserId();
+  // гарантируем, что токен получен
   const token = await AsyncStorage.getItem('expoPushToken');
-  if (!token) await getExpoPushTokenAsync();
+  if (!token) {
+    const t = await getExpoPushTokenAsync();
+    if (!t) return { ok: false, error: 'no_expo_token' };
+  }
 
-  const res = await fetch(API_BASE + SCHEDULE_PATH, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      userId,
-      hour,
-      minute,
-      daysOfWeek, // например [1,2,3,4,5] — будни
-    }),
-  });
-  return { ok: res.ok, status: res.status, data: await safeJson(res) };
+  const body = { userId, hour, minute };
+  if (Array.isArray(daysOfWeek) && daysOfWeek.length) {
+    body.daysOfWeek = daysOfWeek;
+  }
+
+  try {
+    const res = await fetch(API_BASE + SCHEDULE_PATH, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+    const data = await safeJson(res);
+    return { ok: res.ok, status: res.status, data };
+  } catch (e) {
+    console.log('setServerSchedule error:', e);
+    return { ok: false, error: String(e) };
+  }
 }
 
-// Удаление расписания
+// ======= ОЧИСТКА РАСПИСАНИЯ =======
 export async function clearServerSchedule() {
   const userId = await getUserId();
-  const res = await fetch(`${API_BASE + DELETE_PATH}/${encodeURIComponent(userId)}`, {
-    method: 'DELETE',
-  });
-  return { ok: res.ok, status: res.status, data: await safeJson(res) };
+  try {
+    const res = await fetch(API_BASE + CLEAR_PATH, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ userId }),
+    });
+    const data = await safeJson(res);
+    return { ok: res.ok, status: res.status, data };
+  } catch (e) {
+    console.log('clearServerSchedule error:', e);
+    return { ok: false, error: String(e) };
+  }
 }

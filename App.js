@@ -1,11 +1,12 @@
 // App.js
 import React, { useEffect, useRef, useState } from 'react';
-import { StatusBar, AppState, View, Image, Text, TouchableOpacity } from 'react-native';
+import { StatusBar, AppState, View, Image, Text, TouchableOpacity, Platform } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Font from 'expo-font';
 import { Ionicons } from '@expo/vector-icons';
+import * as Notifications from 'expo-notifications';
 
 // === Серверные пуши ===
 import {
@@ -109,6 +110,19 @@ export default function App() {
   const [notificationsReady, setNotificationsReady] = useState(false);
   const [chatVisible, setChatVisible] = useState(false);
   const [modalKey, setModalKey] = useState(0);
+
+
+
+  useEffect(() => {
+  (async () => {
+    if (Platform.OS === 'android') {
+      await Notifications.setNotificationChannelAsync('default', {
+        name: 'Default',
+        importance: Notifications.AndroidImportance.DEFAULT,
+      });
+    }
+  })();
+}, []);
 
   // стартовая логика сессии
   useEffect(() => {
