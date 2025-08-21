@@ -22,7 +22,10 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/iconjjj.png",
         "backgroundColor": "#2d4769"
-      }
+      },
+
+      "googleServicesFile": "./google-services.json"
+
     },
 
     "ios": {
