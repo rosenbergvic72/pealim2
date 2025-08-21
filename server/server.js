@@ -97,14 +97,25 @@ function buildMessage(language = 'english') {
 // ====== отправка пачки в Expo Push ======
 async function sendExpoBatch(messages) {
   if (!messages.length) return { ok: true, status: 200, sent: 0 };
+
   const resp = await fetch('https://exp.host/--/api/v2/push/send', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: {
+      'Content-Type': 'application/json',
+      'Accept-encoding': 'gzip, deflate',
+      'Accept': 'application/json',
+    },
     body: JSON.stringify(messages),
   });
+
   const data = await resp.json().catch(() => ({}));
+
+  // 👇 логируем подробно — тут видны ошибки вроде DeviceNotRegistered / MismatchSenderId / InvalidCredentials
+  console.log('[PUSH] status=', resp.status, 'resp=', JSON.stringify(data));
+
   return { ok: resp.ok, status: resp.status, data, sent: messages.length };
 }
+
 
 // ====== проверка «к кому пора» и отправка ======
 async function processDueNow() {
@@ -144,6 +155,8 @@ async function processDueNow() {
       body: msg.body,
       data: { kind: 'daily-reminder', ts: nowUtc.toISO() },
       priority: 'high',
+      channelId: 'default',   // должен совпадать с каналом в приложении
+  
     });
 
     setLastSentKey.run(sentKey, new Date().toISOString(), row.userId);
