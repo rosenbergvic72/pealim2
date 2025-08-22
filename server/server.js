@@ -7,13 +7,13 @@ import { DateTime } from 'luxon';
 
 const app = express();
 app.use(express.json());
-app.use(cors({
-  origin: '*', // при желании ограничь своим доменом/приложением
-}));
+app.use(cors({ origin: '*' }));
 
 // ====== БД (SQLite) ======
 const db = new Database('data.db');
 db.pragma('journal_mode = WAL');
+
+// Базовые таблицы
 db.exec(`
   CREATE TABLE IF NOT EXISTS devices (
     userId TEXT PRIMARY KEY,
@@ -24,16 +24,37 @@ db.exec(`
     appVersion TEXT,
     updatedAt TEXT
   );
+
   CREATE TABLE IF NOT EXISTS schedules (
     userId TEXT PRIMARY KEY,
     hour INTEGER NOT NULL,
     minute INTEGER NOT NULL,
-    daysOfWeek TEXT,   -- JSON array [0..6] или NULL (каждый день)
-    lastSentKey TEXT,  -- 'YYYY-MM-DDTHH:mm' в TZ пользователя
+    daysOfWeek TEXT,      -- JSON [0..6] или NULL (каждый день)
+    lastSentKey TEXT,     -- 'YYYY-MM-DDTHH:mm' в локальной TZ пользователя
     updatedAt TEXT
+  );
+
+  -- факты активности (день засчитан)
+  CREATE TABLE IF NOT EXISTS activity (
+    userId TEXT NOT NULL,
+    ymd TEXT NOT NULL,    -- YYYY-MM-DD в локальной TZ пользователя
+    updatedAt TEXT,
+    PRIMARY KEY (userId, ymd)
   );
 `);
 
+// Мягкая миграция: альтернативное время (например, для выходных)
+function ensureColumn(table, name, type) {
+  const cols = db.prepare(`PRAGMA table_info(${table})`).all().map(c => c.name);
+  if (!cols.includes(name)) {
+    db.exec(`ALTER TABLE ${table} ADD COLUMN ${name} ${type}`);
+  }
+}
+ensureColumn('schedules', 'altHour', 'INTEGER');
+ensureColumn('schedules', 'altMinute', 'INTEGER');
+ensureColumn('schedules', 'altDaysOfWeek', 'TEXT'); // JSON-массив, напр. [0,6]
+
+// ====== prepared statements ======
 const upsertDevice = db.prepare(`
   INSERT INTO devices (userId, expoPushToken, language, tz, utcOffsetMin, appVersion, updatedAt)
   VALUES (@userId, @expoPushToken, @language, @tz, @utcOffsetMin, @appVersion, @updatedAt)
@@ -56,9 +77,17 @@ const upsertSchedule = db.prepare(`
     updatedAt=excluded.updatedAt
 `);
 
+const updateAltSchedule = db.prepare(`
+  UPDATE schedules SET
+    altHour=@altHour, altMinute=@altMinute, altDaysOfWeek=@altDaysOfWeek, updatedAt=@updatedAt
+  WHERE userId=@userId
+`);
+
 const deleteSchedule = db.prepare(`DELETE FROM schedules WHERE userId=?`);
+
 const getAllDueJoin = db.prepare(`
   SELECT s.userId, s.hour, s.minute, s.daysOfWeek, s.lastSentKey,
+         s.altHour, s.altMinute, s.altDaysOfWeek,
          d.expoPushToken, d.language, d.tz
   FROM schedules s
   JOIN devices d ON d.userId = s.userId
@@ -66,6 +95,15 @@ const getAllDueJoin = db.prepare(`
 
 const setLastSentKey = db.prepare(`
   UPDATE schedules SET lastSentKey=?, updatedAt=? WHERE userId=?
+`);
+
+const markActivity = db.prepare(`
+  INSERT OR REPLACE INTO activity (userId, ymd, updatedAt)
+  VALUES (@userId, @ymd, @updatedAt)
+`);
+
+const hasActivityToday = db.prepare(`
+  SELECT 1 FROM activity WHERE userId=? AND ymd=?
 `);
 
 // ====== локализация текста уведомления ======
@@ -109,13 +147,10 @@ async function sendExpoBatch(messages) {
   });
 
   const data = await resp.json().catch(() => ({}));
-
-  // 👇 логируем подробно — тут видны ошибки вроде DeviceNotRegistered / MismatchSenderId / InvalidCredentials
   console.log('[PUSH] status=', resp.status, 'resp=', JSON.stringify(data));
 
   return { ok: resp.ok, status: resp.status, data, sent: messages.length };
 }
-
 
 // ====== проверка «к кому пора» и отправка ======
 async function processDueNow() {
@@ -124,24 +159,40 @@ async function processDueNow() {
 
   const toSend = [];
   for (const row of rows) {
+    // локальное время пользователя
     const tz = row.tz || 'UTC';
     let local = nowUtc.setZone(tz);
-    if (!local.isValid) local = nowUtc; // fallback
+    if (!local.isValid) local = nowUtc;
 
-    // проверка дня недели (если ограничен)
-    let days = null;
-    if (row.daysOfWeek) {
-      try { days = JSON.parse(row.daysOfWeek); } catch {}
+    // день недели 0..6 (вс..сб)
+    const dow06 = local.weekday % 7; // Luxon: 1..7 (Mon..Sun) -> 0..6
+
+    // базовые и альтернативные дни
+    let baseDays = null, altDays = null;
+    if (row.daysOfWeek)      { try { baseDays = JSON.parse(row.daysOfWeek); }      catch {} }
+    if (row.altDaysOfWeek)   { try { altDays  = JSON.parse(row.altDaysOfWeek); }   catch {} }
+
+    // выберем целевое окно (альтернативное имеет приоритет, если сегодня его день)
+    let targetHour = row.hour;
+    let targetMinute = row.minute;
+
+    const hasAltWindow = Array.isArray(altDays) && altDays.includes(dow06)
+      && row.altHour != null && row.altMinute != null;
+
+    if (hasAltWindow) {
+      targetHour = Number(row.altHour);
+      targetMinute = Number(row.altMinute);
+    } else if (Array.isArray(baseDays) && baseDays.length && !baseDays.includes(dow06)) {
+      // базовое окно не "каждый день" и сегодня не входит
+      continue;
     }
-    if (Array.isArray(days) && days.length) {
-      // Luxon: weekday 1..7 (Mon..Sun) -> 0..6 (Sun..Sat)
-      const lux = local.weekday; // 1..7
-      const dow06 = (lux === 7) ? 0 : lux; // 0..6
-      if (!days.includes(dow06)) continue;
-    }
+
+    // если пользователь уже занимался сегодня — пропускаем
+    const ymd = local.toFormat('yyyy-LL-dd');
+    if (hasActivityToday.get(row.userId, ymd)) continue;
 
     // совпала ли минута
-    if (local.hour !== row.hour || local.minute !== row.minute) continue;
+    if (local.hour !== targetHour || local.minute !== targetMinute) continue;
 
     // защита от дублей
     const sentKey = local.toFormat("yyyy-LL-dd'T'HH:mm");
@@ -155,8 +206,7 @@ async function processDueNow() {
       body: msg.body,
       data: { kind: 'daily-reminder', ts: nowUtc.toISO() },
       priority: 'high',
-      channelId: 'default',   // должен совпадать с каналом в приложении
-  
+      channelId: 'default',
     });
 
     setLastSentKey.run(sentKey, new Date().toISOString(), row.userId);
@@ -176,7 +226,7 @@ async function processDueNow() {
 
 // ====== API ======
 
-// healthcheck для Render
+// healthcheck
 app.get('/health', (_req, res) => res.json({ ok: true, ts: new Date().toISOString() }));
 
 // регистрация девайса/токена
@@ -197,7 +247,7 @@ app.post('/registerDevice', (req, res) => {
   res.json({ ok: true });
 });
 
-// создать/обновить расписание
+// создать/обновить базовое расписание
 app.post('/schedule', (req, res) => {
   const { userId, hour, minute, daysOfWeek } = req.body || {};
   if (!userId || hour == null || minute == null) return res.status(400).json({ error: 'userId, hour, minute required' });
@@ -214,20 +264,55 @@ app.post('/schedule', (req, res) => {
   res.json({ ok: true });
 });
 
+// задать альтернативное окно (например, выходные)
+app.post('/schedule/weekend', (req, res) => {
+  const { userId, hour, minute, daysOfWeek } = req.body || {};
+  if (!userId || hour == null || minute == null) return res.status(400).json({ error: 'userId, hour, minute required' });
+
+  const exists = db.prepare('SELECT 1 FROM schedules WHERE userId=?').get(userId);
+  if (!exists) return res.status(404).json({ error: 'base schedule not found' });
+
+  updateAltSchedule.run({
+    userId,
+    altHour: Math.max(0, Math.min(23, Number(hour))),
+    altMinute: Math.max(0, Math.min(59, Number(minute))),
+    altDaysOfWeek: JSON.stringify(daysOfWeek ?? [0, 6]), // по умолчанию вс(0) и сб(6)
+    updatedAt: new Date().toISOString(),
+  });
+
+  res.json({ ok: true });
+});
+
 // удалить расписание
 app.delete('/schedule/:userId', (req, res) => {
   deleteSchedule.run(req.params.userId);
   res.json({ ok: true });
 });
 
-// (опционально) посмотреть все записи — удобно для отладки
+// отметить, что "сегодня занимался"
+app.post('/activity/mark', (req, res) => {
+  const { userId } = req.body || {};
+  if (!userId) return res.status(400).json({ error: 'userId required' });
+
+  const dev = db.prepare('SELECT tz FROM devices WHERE userId=?').get(userId);
+  const tz = dev?.tz || 'UTC';
+  let now = DateTime.utc().setZone(tz);
+  if (!now.isValid) now = DateTime.utc();
+  const ymd = now.toFormat('yyyy-LL-dd');
+
+  markActivity.run({ userId, ymd, updatedAt: new Date().toISOString() });
+  res.json({ ok: true, ymd });
+});
+
+// отладка
 app.get('/debug/all', (_req, res) => {
   const devs = db.prepare('SELECT * FROM devices').all();
   const sch = db.prepare('SELECT * FROM schedules').all();
-  res.json({ devices: devs, schedules: sch });
+  const act = db.prepare('SELECT * FROM activity ORDER BY updatedAt DESC LIMIT 200').all();
+  res.json({ devices: devs, schedules: sch, activity: act });
 });
 
-// основной триггер, который будет вызывать Render Cron Job
+// крон-триггер
 app.post('/cron', async (_req, res) => {
   try {
     const out = await processDueNow();
@@ -238,9 +323,6 @@ app.post('/cron', async (_req, res) => {
   }
 });
 
-// === если у тебя гарантированно «не спящий» инстанс, можно включить node-cron:
-// import cron from 'node-cron';
-// cron.schedule('* * * * *', () => processDueNow().catch(console.error));
-
+// ====== старт ======
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log('Server up on :' + PORT));
