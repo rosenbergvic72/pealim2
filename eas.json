@@ -1,27 +1,49 @@
 {
-  "cli": {
-    "version": ">= 3.13.0"
-  },
+  "cli": { "version": ">= 3.13.0", "appVersionSource": "remote" },
   "build": {
-    "development": {
+    "development-gp": {
       "developmentClient": true,
-      "distribution": "internal"
-    },
-    "preview": {
       "distribution": "internal",
-      "android": {
-         "buildType": "apk"
-       
-      }
+      "env": { "STORE": "gp" },
+      "channel": "dev-gp"
     },
-    "production": {
-      "android": {
-         "buildType": "app-bundle"
-      }
-      
+    "development-rustore": {
+      "developmentClient": true,
+      "distribution": "internal",
+      "env": { "STORE": "rustore" },
+      "channel": "dev-rustore",
+      "android": { "buildType": "apk" }
+    },
+    "preview-gp": {
+      "distribution": "internal",
+      "android": { "buildType": "apk" },
+      "env": { "STORE": "gp" },
+      "channel": "preview-gp"
+    },
+    "preview-rustore": {
+      "distribution": "internal",
+      "android": { "buildType": "apk" },
+      "env": { "STORE": "rustore" },
+      "channel": "preview-rustore"
+    },
+    "production-gp": {
+      "android": { "buildType": "app-bundle" },
+      "env": { "STORE": "gp" },
+      "channel": "gp"
+    },
+    "production-rustore": {
+      "android": { "buildType": "apk" },
+      "env": { "STORE": "rustore" },
+      "channel": "rustore"
     }
   },
   "submit": {
-    "production": {}
+    "production-gp": {
+      "android": {
+        "serviceAccountKeyPath": "./google-play-service-account.json",
+        "track": "production"
+      }
+    },
+    "production-rustore": {}
   }
 }

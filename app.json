@@ -5,13 +5,11 @@
     "version": "1.0.8",
     "orientation": "portrait",
     "icon": "./assets/images/iconjjj.png",
-
     "extra": {
       "eas": {
         "projectId": "1c3fbe10-9608-4dd7-a477-f0ae7c294b5e"
       }
     },
-
     "android": {
       "package": "com.rosenbergvictor72.pealim2",
       "versionCode": 8,
@@ -23,18 +21,14 @@
         "foregroundImage": "./assets/images/iconjjj.png",
         "backgroundColor": "#2d4769"
       },
-
       "googleServicesFile": "./google-services.json"
-
     },
-
     "ios": {
       "bundleIdentifier": "com.rosenbergvictor72.pealim2",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false
       }
     },
-
     "plugins": [
       "expo-localization",
       "expo-notifications"

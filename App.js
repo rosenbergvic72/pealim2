@@ -11,11 +11,7 @@ import * as Notifications from 'expo-notifications';
 
 
 // === Серверные пуши ===
-import {
-  registerDeviceOnServer,
-  setServerSchedule,
-  clearServerSchedule,
-} from './serverPush';
+import { setServerSchedule, clearServerSchedule, registerDeviceOnServer, setAltServerSchedule } from './serverPush';
 
 import LanguageSelectionPage from './LanguageSelectionPage';
 import WelcomePage from './WelcomePage';
@@ -176,43 +172,61 @@ useEffect(() => {
   }, []);
 
   // первичная инициализация серверных пушей
-  useEffect(() => {
-    (async () => {
-      try {
-        // 1) восстановим флаг
-        const value = await AsyncStorage.getItem('notificationsEnabled');
-        const enabled = value === 'true';
-        setNotificationsEnabled(enabled);
+useEffect(() => {
+  (async () => {
+    try {
+      // 1) восстановим флаг
+      const value = await AsyncStorage.getItem('notificationsEnabled');
+      const enabled = value === 'true';
+      setNotificationsEnabled(enabled);
 
-        // 2) регистрация девайса/токена на сервере (и язык)
-        const lang = (await AsyncStorage.getItem('language')) || 'english';
-        const reg = await registerDeviceOnServer(lang);
-        console.log('registerDeviceOnServer:', reg);
+      // 2) регистрация девайса/токена на сервере (и язык)
+      const lang = (await AsyncStorage.getItem('language')) || 'english';
+      const reg = await registerDeviceOnServer(lang);
+      console.log('registerDeviceOnServer:', reg);
 
-        // 3) если включено и не ставили расписание — установим дефолт (09:00)
-        if (enabled) {
-          const already = await AsyncStorage.getItem('notificationScheduled');
-          if (!already) {
-            const res = await setServerSchedule(19, 45, null); // каждый день
-            if (res.ok) {
-              await AsyncStorage.setItem('notificationScheduled', 'true');
-              console.log('✅ Серверное расписание установлено при запуске');
-            } else {
-              console.log('❌ Ошибка установки расписания при запуске', res);
-            }
+      // 3) если включено и не ставили расписание — установим дефолт (19:45 ежедневно)
+      if (enabled) {
+        const scheduledKey = 'notificationScheduled';
+        const already = await AsyncStorage.getItem(scheduledKey);
+
+        if (!already) {
+          const res = await setServerSchedule(19, 45, null); // каждый день
+          if (res.ok) {
+            await AsyncStorage.setItem(scheduledKey, 'true');
+            console.log('✅ Серверное расписание установлено при запуске');
           } else {
-            console.log('🔁 Расписание уже на сервере — пропускаем');
+            console.log('❌ Ошибка установки расписания при запуске', res);
           }
         } else {
-          console.log('🔕 Уведомления выключены — ничего не планируем');
+          console.log('🔁 Расписание уже на сервере — пропускаем');
         }
-      } catch (e) {
-        console.error('❌ Ошибка инициализации серверных пушей:', e);
-      } finally {
-        setNotificationsReady(true);
+
+        // 4) альтернативное окно для пятницы 10:45 — ставим один раз
+        const altKey = 'altScheduleSet:fri-10:45';
+        const altAlready = await AsyncStorage.getItem(altKey);
+        if (!altAlready) {
+          const altRes = await setAltServerSchedule(10, 45, [5]); // 0=вс … 5=пт, 6=сб
+          if (altRes.ok) {
+            await AsyncStorage.setItem(altKey, '1');
+            console.log('✅ Альтернативное расписание (пт 10:45) установлено');
+          } else {
+            console.log('❌ Ошибка установки альтернативного расписания', altRes);
+          }
+        } else {
+          console.log('🔁 Альтернативное расписание уже настроено — пропускаем');
+        }
+      } else {
+        console.log('🔕 Уведомления выключены — ничего не планируем');
       }
-    })();
-  }, []);
+    } catch (e) {
+      console.error('❌ Ошибка инициализации серверных пушей:', e);
+    } finally {
+      setNotificationsReady(true);
+    }
+  })();
+}, []);
+
 
   // тумблер в хэдере
   const toggleNotifications = async () => {

@@ -4,13 +4,19 @@ import cors from 'cors';
 import fetch from 'node-fetch';
 import Database from 'better-sqlite3';
 import { DateTime } from 'luxon';
+import fs from 'fs';
+import path from 'path';
 
 const app = express();
 app.use(express.json());
 app.use(cors({ origin: '*' }));
 
 // ====== БД (SQLite) ======
-const db = new Database('data.db');
+const DB_PATH = process.env.DB_PATH || path.join(process.cwd(), 'data', 'data.db');
+fs.mkdirSync(path.dirname(DB_PATH), { recursive: true });
+console.log('[DB] using', DB_PATH);
+
+const db = new Database(DB_PATH);
 db.pragma('journal_mode = WAL');
 
 // Базовые таблицы
@@ -22,7 +28,9 @@ db.exec(`
     tz TEXT DEFAULT 'UTC',
     utcOffsetMin INTEGER DEFAULT 0,
     appVersion TEXT,
-    updatedAt TEXT
+    updatedAt TEXT,
+    store TEXT,     -- 'gp' | 'rustore'
+    appId TEXT      -- com.rosenbergvictor72.verbify[.ru]
   );
 
   CREATE TABLE IF NOT EXISTS schedules (
@@ -31,7 +39,10 @@ db.exec(`
     minute INTEGER NOT NULL,
     daysOfWeek TEXT,      -- JSON [0..6] или NULL (каждый день)
     lastSentKey TEXT,     -- 'YYYY-MM-DDTHH:mm' в локальной TZ пользователя
-    updatedAt TEXT
+    updatedAt TEXT,
+    altHour INTEGER,
+    altMinute INTEGER,
+    altDaysOfWeek TEXT    -- JSON-массив, напр. [0,6]
   );
 
   -- факты активности (день засчитан)
@@ -43,7 +54,7 @@ db.exec(`
   );
 `);
 
-// Мягкая миграция: альтернативное время (например, для выходных)
+// Мягкая миграция (на случай старой БД)
 function ensureColumn(table, name, type) {
   const cols = db.prepare(`PRAGMA table_info(${table})`).all().map(c => c.name);
   if (!cols.includes(name)) {
@@ -52,19 +63,23 @@ function ensureColumn(table, name, type) {
 }
 ensureColumn('schedules', 'altHour', 'INTEGER');
 ensureColumn('schedules', 'altMinute', 'INTEGER');
-ensureColumn('schedules', 'altDaysOfWeek', 'TEXT'); // JSON-массив, напр. [0,6]
+ensureColumn('schedules', 'altDaysOfWeek', 'TEXT');
+ensureColumn('devices', 'store', 'TEXT');
+ensureColumn('devices', 'appId', 'TEXT');
 
 // ====== prepared statements ======
 const upsertDevice = db.prepare(`
-  INSERT INTO devices (userId, expoPushToken, language, tz, utcOffsetMin, appVersion, updatedAt)
-  VALUES (@userId, @expoPushToken, @language, @tz, @utcOffsetMin, @appVersion, @updatedAt)
+  INSERT INTO devices (userId, expoPushToken, language, tz, utcOffsetMin, appVersion, updatedAt, store, appId)
+  VALUES (@userId, @expoPushToken, @language, @tz, @utcOffsetMin, @appVersion, @updatedAt, @store, @appId)
   ON CONFLICT(userId) DO UPDATE SET
     expoPushToken=excluded.expoPushToken,
     language=excluded.language,
     tz=excluded.tz,
     utcOffsetMin=excluded.utcOffsetMin,
     appVersion=excluded.appVersion,
-    updatedAt=excluded.updatedAt
+    updatedAt=excluded.updatedAt,
+    store=excluded.store,
+    appId=excluded.appId
 `);
 
 const upsertSchedule = db.prepare(`
@@ -164,15 +179,15 @@ async function processDueNow() {
     let local = nowUtc.setZone(tz);
     if (!local.isValid) local = nowUtc;
 
-    // день недели 0..6 (вс..сб)
-    const dow06 = local.weekday % 7; // Luxon: 1..7 (Mon..Sun) -> 0..6
+    // день недели 0..6 (вс=0 .. сб=6)
+    const dow06 = local.weekday % 7; // Luxon: Mon..Sun = 1..7 → 1..6,0
 
     // базовые и альтернативные дни
     let baseDays = null, altDays = null;
-    if (row.daysOfWeek)      { try { baseDays = JSON.parse(row.daysOfWeek); }      catch {} }
-    if (row.altDaysOfWeek)   { try { altDays  = JSON.parse(row.altDaysOfWeek); }   catch {} }
+    if (row.daysOfWeek)    { try { baseDays = JSON.parse(row.daysOfWeek); }    catch {} }
+    if (row.altDaysOfWeek) { try { altDays  = JSON.parse(row.altDaysOfWeek); } catch {} }
 
-    // выберем целевое окно (альтернативное имеет приоритет, если сегодня его день)
+    // выбираем целевое окно (alt приоритетнее, если сегодня его день)
     let targetHour = row.hour;
     let targetMinute = row.minute;
 
@@ -231,26 +246,40 @@ app.get('/health', (_req, res) => res.json({ ok: true, ts: new Date().toISOStrin
 
 // регистрация девайса/токена
 app.post('/registerDevice', (req, res) => {
-  const { userId, expoPushToken, language, tz, utcOffsetMin, appVersion } = req.body || {};
-  if (!userId || !expoPushToken) return res.status(400).json({ error: 'userId and expoPushToken are required' });
+  try {
+    const {
+      userId, expoPushToken, language, tz, utcOffsetMin, appVersion,
+      store, appId
+    } = req.body || {};
+    if (!userId || !expoPushToken) {
+      return res.status(400).json({ error: 'userId and expoPushToken are required' });
+    }
 
-  upsertDevice.run({
-    userId,
-    expoPushToken,
-    language: language || 'english',
-    tz: tz || 'UTC',
-    utcOffsetMin: Number.isFinite(utcOffsetMin) ? utcOffsetMin : 0,
-    appVersion: appVersion || 'unknown',
-    updatedAt: new Date().toISOString(),
-  });
+    upsertDevice.run({
+      userId,
+      expoPushToken,
+      language: language || 'english',
+      tz: tz || 'UTC',
+      utcOffsetMin: Number.isFinite(utcOffsetMin) ? utcOffsetMin : 0,
+      appVersion: appVersion || 'unknown',
+      updatedAt: new Date().toISOString(),
+      store: store || null,
+      appId: appId || null,
+    });
 
-  res.json({ ok: true });
+    res.json({ ok: true });
+  } catch (e) {
+    console.error('[registerDevice] error:', e);
+    res.status(500).json({ ok: false, error: String(e) });
+  }
 });
 
 // создать/обновить базовое расписание
 app.post('/schedule', (req, res) => {
   const { userId, hour, minute, daysOfWeek } = req.body || {};
-  if (!userId || hour == null || minute == null) return res.status(400).json({ error: 'userId, hour, minute required' });
+  if (!userId || hour == null || minute == null) {
+    return res.status(400).json({ error: 'userId, hour, minute required' });
+  }
 
   const payload = {
     userId,
@@ -264,10 +293,12 @@ app.post('/schedule', (req, res) => {
   res.json({ ok: true });
 });
 
-// задать альтернативное окно (например, выходные)
+// задать альтернативное окно (например, выходные или пятница)
 app.post('/schedule/weekend', (req, res) => {
   const { userId, hour, minute, daysOfWeek } = req.body || {};
-  if (!userId || hour == null || minute == null) return res.status(400).json({ error: 'userId, hour, minute required' });
+  if (!userId || hour == null || minute == null) {
+    return res.status(400).json({ error: 'userId, hour, minute required' });
+  }
 
   const exists = db.prepare('SELECT 1 FROM schedules WHERE userId=?').get(userId);
   if (!exists) return res.status(404).json({ error: 'base schedule not found' });
@@ -276,7 +307,7 @@ app.post('/schedule/weekend', (req, res) => {
     userId,
     altHour: Math.max(0, Math.min(23, Number(hour))),
     altMinute: Math.max(0, Math.min(59, Number(minute))),
-    altDaysOfWeek: JSON.stringify(daysOfWeek ?? [0, 6]), // по умолчанию вс(0) и сб(6)
+    altDaysOfWeek: JSON.stringify(daysOfWeek ?? [0, 6]),
     updatedAt: new Date().toISOString(),
   });
 
@@ -310,6 +341,18 @@ app.get('/debug/all', (_req, res) => {
   const sch = db.prepare('SELECT * FROM schedules').all();
   const act = db.prepare('SELECT * FROM activity ORDER BY updatedAt DESC LIMIT 200').all();
   res.json({ devices: devs, schedules: sch, activity: act });
+});
+
+// быстрый health со счетчиками
+app.get('/debug/health', (_req, res) => {
+  try {
+    const d = db.prepare('SELECT COUNT(*) c FROM devices').get().c;
+    const s = db.prepare('SELECT COUNT(*) c FROM schedules').get().c;
+    const a = db.prepare('SELECT COUNT(*) c FROM activity').get().c;
+    res.json({ ok: true, dbPath: DB_PATH, devices: d, schedules: s, activity: a, ts: new Date().toISOString() });
+  } catch (e) {
+    res.status(500).json({ ok: false, error: String(e) });
+  }
 });
 
 // крон-триггер

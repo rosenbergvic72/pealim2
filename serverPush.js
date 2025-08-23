@@ -2,9 +2,10 @@
 import * as Notifications from 'expo-notifications';
 import { Platform, PermissionsAndroid } from 'react-native';
 import Constants from 'expo-constants';
+import * as Application from 'expo-application';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-// ======= НАСТРОЙКИ СЕРВЕРА =======
+// ======= СЕРВЕР =======
 const API_BASE = 'https://pealim-server.onrender.com';
 const REGISTER_PATH = '/registerDevice';
 const SCHEDULE_PATH = '/schedule'; // POST
@@ -50,26 +51,42 @@ export async function getExpoPushTokenAsync() {
     // Разрешения
     if (Platform.OS === 'ios') {
       const { status } = await Notifications.requestPermissionsAsync();
-      if (status !== 'granted') return null;
+      if (status !== 'granted') {
+        console.log('[push] iOS: permission denied');
+        return null;
+      }
     } else {
       const ok = await ensureAndroidPermission();
-      if (!ok) return null;
+      if (!ok) {
+        console.log('[push] Android: POST_NOTIFICATIONS denied');
+        return null;
+      }
     }
 
-    // projectId обязателен для Dev Client / standalone
-    const projectId =
+    // Expo Go не поддерживает удалённые пуши
+    if (Constants.appOwnership === 'expo') {
+      console.log('[push] Expo Go detected: remote push is not available');
+      return null;
+    }
+
+    // В SDK 52 для dev-client/standalone НУЖНО передавать projectId
+    const configProjectId =
       Constants?.expoConfig?.extra?.eas?.projectId ??
       Constants?.easConfig?.projectId ??
       null;
 
-    const { data } = await Notifications.getExpoPushTokenAsync(
-      projectId ? { projectId } : undefined
-    );
+    // Жёсткий fallback — твой EAS projectId (из app.json: extra.eas.projectId)
+    const HARD_CODED_PROJECT_ID = '1c3fbe10-9608-4dd7-a477-f0ae7c294b5e';
+    const projectId = configProjectId || HARD_CODED_PROJECT_ID;
+
+    const { data } = await Notifications.getExpoPushTokenAsync({ projectId });
 
     if (data) {
       await AsyncStorage.setItem('expoPushToken', data);
+      console.log('[push] got expo token:', data);
       return data;
     }
+    console.log('[push] token empty');
     return null;
   } catch (e) {
     console.warn('getExpoPushTokenAsync failed:', e);
@@ -81,12 +98,21 @@ export async function getExpoPushTokenAsync() {
 export async function registerDeviceOnServer(language = 'english') {
   const cached = await AsyncStorage.getItem('expoPushToken');
   const token = cached || (await getExpoPushTokenAsync());
-  if (!token) return { ok: false, error: 'no_expo_token' };
+  if (!token) {
+    console.log('[register] skip: no_expo_token (dev-client not installed? permissions?)');
+    return { ok: false, error: 'no_expo_token' };
+  }
 
   const userId = await getUserId();
-
   const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
   const utcOffsetMin = -new Date().getTimezoneOffset(); // положительный для восточных TZ
+
+  // Маркет и реальный applicationId сборки (для диагностики/аналитики)
+  const store = Constants?.expoConfig?.extra?.store ?? 'gp'; // 'gp' | 'rustore'
+  const appId =
+    Application.applicationId ??
+    Constants?.expoConfig?.android?.package ??
+    null;
 
   const payload = {
     userId,
@@ -95,6 +121,8 @@ export async function registerDeviceOnServer(language = 'english') {
     tz,
     utcOffsetMin,
     appVersion: Constants?.expoConfig?.version || 'unknown',
+    store,
+    appId,
   };
 
   try {
@@ -104,6 +132,7 @@ export async function registerDeviceOnServer(language = 'english') {
       body: JSON.stringify(payload),
     });
     const data = await safeJson(res);
+    console.log('[register] status', res.status, 'resp', data);
     return { ok: res.ok, status: res.status, data };
   } catch (e) {
     console.log('registerDeviceOnServer error:', e);
@@ -135,6 +164,7 @@ export async function setServerSchedule(hour = 20, minute = 0, daysOfWeek = null
       body: JSON.stringify(body),
     });
     const data = await safeJson(res);
+    console.log('[schedule] set base time', { hour, minute, daysOfWeek, status: res.status });
     return { ok: res.ok, status: res.status, data };
   } catch (e) {
     console.log('setServerSchedule error:', e);
@@ -150,6 +180,7 @@ export async function clearServerSchedule() {
       method: 'DELETE',
     });
     const data = await safeJson(res);
+    console.log('[schedule] cleared', { status: res.status });
     return { ok: res.ok, status: res.status, data };
   } catch (e) {
     console.log('clearServerSchedule error:', e);
@@ -166,6 +197,7 @@ export async function markActivityToday() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ userId }),
     });
+    console.log('[activity] mark today status', res.status);
     return { ok: res.ok, status: res.status };
   } catch (e) {
     console.warn('markActivityToday failed', e);
@@ -181,4 +213,22 @@ export async function ensureMarkedToday() {
   const res = await markActivityToday();
   if (res.ok) await AsyncStorage.setItem(key, '1');
   return res;
+}
+
+// Альтернативное окно (например, пятница 10:45)
+export async function setAltServerSchedule(hour, minute, daysOfWeek = [5]) {
+  const userId = await getUserId();
+  try {
+    const res = await fetch(`${API_BASE}/schedule/weekend`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ userId, hour, minute, daysOfWeek }),
+    });
+    const data = await safeJson(res);
+    console.log('[schedule] set ALT time', { hour, minute, daysOfWeek, status: res.status });
+    return { ok: res.ok, status: res.status, data };
+  } catch (e) {
+    console.log('setAltServerSchedule error:', e);
+    return { ok: false, error: String(e) };
+  }
 }
