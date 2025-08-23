@@ -36,3 +36,6 @@ yarn-error.*
 
 /android
 /ios
+
+# Secrets
+service-account*.json

@@ -7,8 +7,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 // ======= НАСТРОЙКИ СЕРВЕРА =======
 const API_BASE = 'https://pealim-server.onrender.com';
 const REGISTER_PATH = '/registerDevice';
-const SCHEDULE_PATH = '/schedule';       // POST
-const CLEAR_PATH = '/clearSchedule';     // POST
+const SCHEDULE_PATH = '/schedule'; // POST
+// У серверного API нет /clearSchedule — используем DELETE /schedule/:userId
 
 // ======= ВСПОМОГАТЕЛЬНОЕ =======
 async function getUserId() {
@@ -36,30 +36,45 @@ async function safeJson(res) {
   try { return await res.json(); } catch { return null; }
 }
 
+function todayLocalYMD() {
+  const d = new Date();
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const dd = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${dd}`; // локальная дата устройства
+}
+
 // ======= ТОКЕН EXPO PUSH =======
 export async function getExpoPushTokenAsync() {
-  // В Expo Go (SDK 53+) удалённых пушей нет
-  if (Constants.appOwnership === 'expo') {
-    console.log('Expo Go: remote push недоступен. Используй Development Build (expo-dev-client).');
+  try {
+    // Разрешения
+    if (Platform.OS === 'ios') {
+      const { status } = await Notifications.requestPermissionsAsync();
+      if (status !== 'granted') return null;
+    } else {
+      const ok = await ensureAndroidPermission();
+      if (!ok) return null;
+    }
+
+    // projectId обязателен для Dev Client / standalone
+    const projectId =
+      Constants?.expoConfig?.extra?.eas?.projectId ??
+      Constants?.easConfig?.projectId ??
+      null;
+
+    const { data } = await Notifications.getExpoPushTokenAsync(
+      projectId ? { projectId } : undefined
+    );
+
+    if (data) {
+      await AsyncStorage.setItem('expoPushToken', data);
+      return data;
+    }
+    return null;
+  } catch (e) {
+    console.warn('getExpoPushTokenAsync failed:', e);
     return null;
   }
-
-  // Разрешения
-  if (Platform.OS === 'ios') {
-    const { status } = await Notifications.requestPermissionsAsync();
-    if (status !== 'granted') return null;
-  } else {
-    const ok = await ensureAndroidPermission();
-    if (!ok) return null;
-  }
-
-  // Получение токена
-  // При желании можно указать projectId:
-  // const { data } = await Notifications.getExpoPushTokenAsync({ projectId: Constants?.expoConfig?.extra?.eas?.projectId });
-  const { data } = await Notifications.getExpoPushTokenAsync();
-
-  await AsyncStorage.setItem('expoPushToken', data);
-  return data;
 }
 
 // ======= РЕГИСТРАЦИЯ ДЕВАЙСА НА СЕРВЕРЕ =======
@@ -98,13 +113,14 @@ export async function registerDeviceOnServer(language = 'english') {
 
 // ======= УСТАНОВКА РАСПИСАНИЯ =======
 // daysOfWeek: null или массив чисел 0..6 (0=вс). Например, будни: [1,2,3,4,5]
-export async function setServerSchedule(hour = 9, minute = 0, daysOfWeek = null) {
+export async function setServerSchedule(hour = 20, minute = 0, daysOfWeek = null) {
   const userId = await getUserId();
-  // гарантируем, что токен получен
-  const token = await AsyncStorage.getItem('expoPushToken');
+
+  // гарантируем, что токен получен (регистрация могла не успеть)
+  let token = await AsyncStorage.getItem('expoPushToken');
   if (!token) {
-    const t = await getExpoPushTokenAsync();
-    if (!t) return { ok: false, error: 'no_expo_token' };
+    token = await getExpoPushTokenAsync();
+    if (!token) return { ok: false, error: 'no_expo_token' };
   }
 
   const body = { userId, hour, minute };
@@ -130,10 +146,8 @@ export async function setServerSchedule(hour = 9, minute = 0, daysOfWeek = null)
 export async function clearServerSchedule() {
   const userId = await getUserId();
   try {
-    const res = await fetch(API_BASE + CLEAR_PATH, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ userId }),
+    const res = await fetch(`${API_BASE}/schedule/${encodeURIComponent(userId)}`, {
+      method: 'DELETE',
     });
     const data = await safeJson(res);
     return { ok: res.ok, status: res.status, data };
@@ -141,4 +155,30 @@ export async function clearServerSchedule() {
     console.log('clearServerSchedule error:', e);
     return { ok: false, error: String(e) };
   }
+}
+
+// ======= АКТИВНЫЙ ДЕНЬ =======
+export async function markActivityToday() {
+  const userId = await getUserId();
+  try {
+    const res = await fetch(API_BASE + '/activity/mark', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ userId }),
+    });
+    return { ok: res.ok, status: res.status };
+  } catch (e) {
+    console.warn('markActivityToday failed', e);
+    return { ok: false, error: String(e) };
+  }
+}
+
+// Один раз в день — локальный предохранитель
+export async function ensureMarkedToday() {
+  const key = 'activityMarked:' + todayLocalYMD();
+  const already = await AsyncStorage.getItem(key);
+  if (already === '1') return { ok: true, cached: true };
+  const res = await markActivityToday();
+  if (res.ok) await AsyncStorage.setItem(key, '1');
+  return res;
 }

@@ -8,6 +8,8 @@ import * as Font from 'expo-font';
 import { Ionicons } from '@expo/vector-icons';
 import * as Notifications from 'expo-notifications';
 
+
+
 // === Серверные пуши ===
 import {
   registerDeviceOnServer,
@@ -112,17 +114,34 @@ export default function App() {
   const [modalKey, setModalKey] = useState(0);
 
 
+  // Показывать баннер даже когда приложение открыто
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowAlert: true,
+    shouldPlaySound: true,
+    shouldSetBadge: false,
+  }),
+});
 
-  useEffect(() => {
+
+
+
+
+useEffect(() => {
   (async () => {
     if (Platform.OS === 'android') {
       await Notifications.setNotificationChannelAsync('default', {
         name: 'Default',
-        importance: Notifications.AndroidImportance.DEFAULT,
+        importance: Notifications.AndroidImportance.HIGH, // было DEFAULT
+        vibrationPattern: [0, 250, 250, 250],
+        lockscreenVisibility: Notifications.AndroidNotificationVisibility.PUBLIC,
+        bypassDnd: false,
+        sound: 'default',
       });
     }
   })();
 }, []);
+
 
   // стартовая логика сессии
   useEffect(() => {
@@ -174,7 +193,7 @@ export default function App() {
         if (enabled) {
           const already = await AsyncStorage.getItem('notificationScheduled');
           if (!already) {
-            const res = await setServerSchedule(9, 0, null); // каждый день
+            const res = await setServerSchedule(19, 45, null); // каждый день
             if (res.ok) {
               await AsyncStorage.setItem('notificationScheduled', 'true');
               console.log('✅ Серверное расписание установлено при запуске');
@@ -217,7 +236,7 @@ export default function App() {
     }
 
     // включаем: ставим расписание (пример — 09:00 ежедневно)
-    const res = await setServerSchedule(9, 0, null);
+    const res = await setServerSchedule(19, 45, null);
     if (res.ok) {
       await AsyncStorage.setItem('notificationScheduled', 'true');
       console.log('✅ Серверное расписание установлено (при включении)');

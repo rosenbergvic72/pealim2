@@ -916,7 +916,11 @@ const loadData = async () => {
   style={[
     styles.inputWithButton,
     isLoading && styles.inputDisabled,
-    lang === 'العربية' && { paddingRight: 60, textAlign: 'right' }, // 👈 добавлено
+    (lang === 'العربية' || lang === 'עברית' || lang === 'አማርኛ') && { 
+      paddingLeft: 60,   // 👉 отступ слева для RTL
+      paddingRight: 36,  // чуть меньше, чтобы текст не прилипал к кнопке
+      textAlign: 'right' // текст справа налево
+    }
   ]}
   multiline
   editable={!isLoading}
@@ -1102,23 +1106,24 @@ const styles = StyleSheet.create({
   },
   
   inputWithButton: {
-    borderWidth: 1,
-    borderColor: '#999',
-    borderRadius: 10,
-    paddingVertical: 10,
-    paddingHorizontal: 16,
-    paddingRight: 44, // отступ справа для иконки
-    minHeight: 44,
-    maxHeight: 100,
-    fontSize: 16,
-    backgroundColor: '#f5f5f5',
-  },
+  borderWidth: 1,
+  borderColor: '#999',
+  borderRadius: 10,
+  paddingVertical: 10,
+  paddingHorizontal: 16,
+  paddingRight: 44, // отступ под кнопку (по умолчанию для LTR)
+  minHeight: 44,
+  maxHeight: 100,
+  fontSize: 16,
+  backgroundColor: '#f5f5f5',
+},
   
   sendButton: {
     position: 'absolute',
     right: 10,
     top: '40%',
     transform: [{ translateY: -14 }],
+    
   },
   loadingWrapper: {
     flexDirection: 'row',

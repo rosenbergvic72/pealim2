@@ -8,7 +8,7 @@ import AppDescriptionModal from './AppDescriptionModalEn'; // Подключае
 import AppInfoModal from './AppInfoModalEn'; // Подключаем модальное окно
 import Constants from 'expo-constants';
 import FadeInView from './api/FadeInView';
-
+import { ensureMarkedToday } from './serverPush';
 
 
 
@@ -176,12 +176,30 @@ export default function MenuPage({ route }) {
     
         console.log("📥 previousTotal (из AsyncStorage):", previousTotal);
     
-        if (totalCompletedNow > previousTotal) {
-          console.log("🟢 Прогресс есть! Засчитываем день.");
-          await saveExerciseDate();
-        } else {
-          console.log("🟡 Прогресса нет. День не засчитан.");
-        }
+         if (totalCompletedNow > previousTotal) {
+        console.log('🟢 Прогресс есть! Засчитываем день.');
+        await saveExerciseDate();
+               try {
+        await ensureMarkedToday().catch(e => console.log('mark today failed', e));
+        console.log('✅ Сервер пометил активность на сегодня');
+       } catch (e) {
+        console.log('⚠️ Не удалось пометить активность на сервере:', e);
+       }
+      } else {
+  console.log('🟡 Прогресса нет. День не засчитан.');
+  // Если локально день уже активен — всё равно подсинхроним с сервером
+  const today = new Date().toISOString().slice(0,10);
+  const storedDates = await AsyncStorage.getItem('activeDays');
+  const activeDates = storedDates ? JSON.parse(storedDates) : [];
+  if (activeDates.includes(today)) {
+    try {
+      await ensureMarkedToday();
+      console.log('↔️ Синхронизировали активный день с сервером.');
+    } catch (e) {
+      console.log('⚠️ Не удалось синхронизировать активность:', e);
+    }
+  }
+}
     
         await AsyncStorage.setItem(PREVIOUS_TOTAL_KEY, totalCompletedNow.toString());
         console.log("💾 Сохранили новое значение:", totalCompletedNow);
