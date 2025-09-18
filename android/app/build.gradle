@@ -31,7 +31,7 @@ android {
     applicationId 'com.rosenbergvictor72.pealim2'
     minSdkVersion rootProject.ext.minSdkVersion
     targetSdkVersion rootProject.ext.targetSdkVersion
-    versionCode 11
+    versionCode 2000010
     versionName "1.1.1"
 
     // Всегда подсказываем выбор flavor’а зависимостям (react-native-iap и т.п.)
