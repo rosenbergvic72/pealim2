@@ -1,42 +1,41 @@
 {
   "cli": { "version": ">= 3.13.0", "appVersionSource": "remote" },
+
   "build": {
-    "development-gp": {
-      "developmentClient": true,
+    "internal-noiap-aab": {
+      "android": { "buildType": "app-bundle" },
       "distribution": "internal",
-      "env": { "STORE": "gp" },
-      "channel": "dev-gp"
+      "env": {
+        "STORE": "gp",
+        "EXPO_PUBLIC_DISABLE_IAP": "1",
+        "EXPO_PUBLIC_PRO_BYPASS": "1"
+      },
+      "channel": "internal-noiap-aab"
     },
-    "development-rustore": {
-      "developmentClient": true,
-      "distribution": "internal",
-      "env": { "STORE": "rustore" },
-      "channel": "dev-rustore",
-      "android": { "buildType": "apk" }
-    },
-    "preview-gp": {
-      "distribution": "internal",
-      "android": { "buildType": "apk" },
-      "env": { "STORE": "gp" },
-      "channel": "preview-gp"
-    },
-    "preview-rustore": {
-      "distribution": "internal",
-      "android": { "buildType": "apk" },
-      "env": { "STORE": "rustore" },
-      "channel": "preview-rustore"
-    },
+
     "production-gp": {
       "android": { "buildType": "app-bundle" },
-      "env": { "STORE": "gp" },
+      "env": {
+        "STORE": "gp",
+        "GOOGLE_SERVICES_JSON": "@project:GOOGLE_SERVICES_JSON",
+        "EAS_BUILD": "true",
+        "EXPO_PUBLIC_DISABLE_IAP": "0"
+      },
       "channel": "gp"
     },
-    "production-rustore": {
-      "android": { "buildType": "apk" },
-      "env": { "STORE": "rustore" },
-      "channel": "rustore"
+
+    "production-rustore-aab": {
+      "android": { "buildType": "app-bundle" },
+      "env": {
+        "STORE": "rustore",
+        "GOOGLE_SERVICES_JSON_RU": "@project:GOOGLE_SERVICES_JSON_RU",
+        "EAS_BUILD": "true",
+        "EXPO_PUBLIC_DISABLE_IAP": "1"
+      },
+      "channel": "rustore-aab"
     }
   },
+
   "submit": {
     "production-gp": {
       "android": {
@@ -44,6 +43,6 @@
         "track": "production"
       }
     },
-    "production-rustore": {}
+    "production-rustore-aab": {}
   }
 }
