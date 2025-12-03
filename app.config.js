@@ -28,40 +28,42 @@ function writeIfJsonish(value, outAbsPath) {
 }
 
 /* ====================== google-services.json resolver ====================== */
+/**
+ * Важно: больше НЕ трогаем android/app напрямую.
+ * Работаем только с файлами в КОРНЕ проекта:
+ *   - google-services.json            (GP)
+ *   - google-services-rustore.json    (RuStore)
+ * Expo сам скопирует файл в android/app/google-services.json.
+ */
 function resolveGoogleServices({ isCI, isRu }) {
   const ROOT = process.cwd();
-  const ANDROID_APP = path.join(ROOT, 'android', 'app');
-  const appJsonPath = path.join(ANDROID_APP, 'google-services.json'); // основной для Gradle
-  const rootGpPath  = path.join(ROOT, 'google-services.json');        // локальный fallback (GP)
-  const rootRuPath  = path.join(ROOT, 'google-services-rustore.json'); // локальный fallback (RuStore)
 
-  // 1) Уже лежит в android/app — отлично.
-  if (fs.existsSync(appJsonPath)) return appJsonPath;
+  // пути только в корне репо
+  const rootGpPath = path.join(ROOT, 'google-services.json');
+  const rootRuPath = path.join(ROOT, 'google-services-rustore.json');
+  const targetPath = isRu ? rootRuPath : rootGpPath;
 
-  // 2) Есть локальный fallback в корне репо — копируем в android/app.
-  const localFallback = isRu ? rootRuPath : rootGpPath;
-  if (fs.existsSync(localFallback)) {
-    try {
-      ensureDir(appJsonPath);
-      fs.copyFileSync(localFallback, appJsonPath);
-      return appJsonPath;
-    } catch {
-      // Если копия не удалась, используем исходный путь как есть (на всякий)
-      return localFallback;
+  // 1) Файл уже есть в корне — отлично.
+  if (fs.existsSync(targetPath)) {
+    return targetPath; // абсолютный путь
+  }
+
+  // 2) На CI материализуем из переменной окружения (сырой JSON)
+  if (isCI) {
+    const envValue = isRu
+      ? process.env.GOOGLE_SERVICES_JSON_RU
+      : process.env.GOOGLE_SERVICES_JSON;
+
+    const materialized = writeIfJsonish(envValue, targetPath);
+    if (materialized && fs.existsSync(targetPath)) {
+      return targetPath;
     }
   }
 
-  // 3) На CI материализуем из секрета (переменная окружения содержит «сырой» JSON).
-  if (isCI) {
-    const envValue = isRu ? process.env.GOOGLE_SERVICES_JSON_RU : process.env.GOOGLE_SERVICES_JSON;
-    const materialized = writeIfJsonish(envValue, appJsonPath);
-    if (materialized && fs.existsSync(appJsonPath)) return appJsonPath;
-  }
-
-  // 4) Не нашли — предупредим. Возможно, проект собирается без Firebase.
+  // 3) Не нашли — просто предупреждение. Сборка упадёт только если реально нужен Firebase.
   console.warn(
     `[config] google-services.json not found for STORE=${isRu ? 'rustore' : 'gp'}; ` +
-    `Gradle will fail if Firebase/FCM is required.`
+      `Gradle will fail if Firebase/FCM is required.`
   );
   return undefined;
 }
@@ -74,7 +76,7 @@ export default ({ config }) => {
   const isCI = process.env.EAS_BUILD === 'true' || process.env.CI === 'true';
 
   const disableIap = process.env.EXPO_PUBLIC_DISABLE_IAP === '1';
-  const proBypass  = process.env.EXPO_PUBLIC_PRO_BYPASS === '1';
+  const proBypass = process.env.EXPO_PUBLIC_PRO_BYPASS === '1';
 
   // URL серверной верификации IAP (можно также задать в eas.json -> env)
   const iapVerifyUrlFromEnv =
@@ -93,18 +95,18 @@ export default ({ config }) => {
     ? 'com.rosenbergvictor72.verbify.ru'
     : 'com.rosenbergvictor72.pealim2';
 
-  const appVersion     = '1.1.2';
-  const versionCode    = isRu ? 1000010 : 2000100; // инкрементируйте при каждом релизе
+  const appVersion = '1.1.2';
+  const versionCode = isRu ? 1000010 : 2000100; // инкрементируйте при каждом релизе
   const runtimeVersion = `${appVersion}-${isRu ? 'ru' : 'gp'}`;
 
-  // ===== Подготовим google-services.json =====
+  // ===== Подготовим google-services.json (в корне проекта) =====
   const gsPath = resolveGoogleServices({ isCI, isRu });
 
-  // На CI для GP — жёсткая проверка: файл должен оказаться в android/app
+  // На CI для GP — жёсткая проверка, но уже без привязки к android/app
   if (isCI && !isRu && !gsPath) {
     throw new Error(
       '[config] GOOGLE_SERVICES_JSON is missing for GP build ' +
-      '(expected at android/app/google-services.json)'
+        '(expected google-services.json in project root or GOOGLE_SERVICES_JSON env)'
     );
   }
 
@@ -126,19 +128,23 @@ export default ({ config }) => {
       ...config.android,
       package: androidPackage,
       versionCode,
-      // Для managed/prebuild: подсказываем где взять google-services.json
-      ...(gsPath ? { googleServicesFile: path.relative(process.cwd(), gsPath) } : {}),
+      // Для managed/prebuild: подсказываем, где взять google-services.json (в корне)
+      ...(gsPath
+        ? { googleServicesFile: path.relative(process.cwd(), gsPath) }
+        : {}),
     },
 
     extra: {
       ...config.extra,
-      store: STORE,                                 // 'gp' | 'rustore'
+      store: STORE, // 'gp' | 'rustore'
       paymentsProvider: isRu ? 'rustore' : 'gp',
-      disableIap,                                   // отключить IAP на клиенте (UI/логика)
-      proBypass,                                    // (dev) принудительный Pro
+      disableIap, // отключить IAP на клиенте (UI/логика)
+      proBypass, // (dev) принудительный Pro
 
       // IAP Verify URL и (опц.) API key для заголовка x-api-key
-      IAP_VERIFY_URL: iapVerifyUrlFromEnv || 'https://iap-server.onrender.com/iap/google/subscription/verify',
+      IAP_VERIFY_URL:
+        iapVerifyUrlFromEnv ||
+        'https://iap-server.onrender.com/iap/google/subscription/verify',
       IAP_API_KEY: iapApiKeyFromEnv,
     },
 
