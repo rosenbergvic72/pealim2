@@ -301,6 +301,9 @@ leshachnea: require('./assets/leshachnea.mp3'),
 lehatzia: require('./assets/lehatzia.mp3'),
 litpos: require('./assets/litpos.mp3'),
 lizrok: require('./assets/lizrok.mp3'),
+lehachzik: require('./assets/lehachzik.mp3'),
+limzog: require('./assets/limzog.mp3'),
+letargem: require('./assets/letargem.mp3'),
 lehakot: require('./assets/lehakot.mp3')
 
 

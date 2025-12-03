@@ -32,7 +32,7 @@ const CompletionMessageAr = ({
         </TouchableOpacity>
     
         <TouchableOpacity onPress={() => {
-          handleOK();
+          // handleOK();
           navigation.navigate('MenuAr'); // Направляем на экран MenuEn
         }}>
           <Text style={styles.completeButton} maxFontSizeMultiplier={1.2}>القائمة</Text>

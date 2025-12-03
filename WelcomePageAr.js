@@ -5,6 +5,7 @@ import LottieView from 'lottie-react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import AppDescriptionModal from './AppDescriptionModalAr'; // Подключаем модальное окно
 import AppInfoModal from './AppInfoModalAr'; // Подключаем модальное окно
+import Constants from 'expo-constants';
 
 
 export default function WelcomePage({ navigation, route }) {
@@ -158,11 +159,29 @@ export default function WelcomePage({ navigation, route }) {
   };
 
   // Обработка нажатия кнопки "Далее"
-  const handleNextPress = async () => {
-    await AsyncStorage.setItem('name', name); // Сохраняем имя при нажатии "Далее"
-    await AsyncStorage.setItem('language', language); 
-    navigation.navigate('MenuAr', { name });
-  };
+ const handleNextPress = async () => {
+  if (!name.trim()) return;
+  try {
+    await AsyncStorage.setItem('name', name);
+    await AsyncStorage.setItem('language', language);
+
+    const extra = Constants.expoConfig?.extra || {};
+    const USE_IAP = extra.store === 'gp' && !extra.disableIap;
+
+    if (USE_IAP) {
+      // GP: показываем Paywall + запускаем внутренний 5-дневный триал
+      navigation.replace('Paywall', {
+        segment: 'promo',
+        startTrial: true,
+      });
+    } else {
+      // Без IAP (rustore/internal): сразу в меню этого языка
+      navigation.replace('MenuAr', { name });
+    }
+  } catch (e) {
+    console.error('Ошибка при переходе:', e);
+  }
+};
 
   const interpolatedBackgroundColor = buttonBackgroundColor.interpolate({
     inputRange: [0, 1],

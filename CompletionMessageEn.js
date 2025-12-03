@@ -32,7 +32,7 @@ const CompletionMessageEn = ({
         </TouchableOpacity>
     
         <TouchableOpacity onPress={() => {
-          handleOK();
+          // handleOK();
           navigation.navigate('MenuEn'); // Направляем на экран MenuEn
         }}>
           <Text style={styles.completeButton} maxFontSizeMultiplier={1.2}>MENU</Text>

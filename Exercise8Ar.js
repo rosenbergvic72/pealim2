@@ -55,6 +55,7 @@ const Exercise8Ar = () => {
   const [progress, setProgress] = useState(0);
   const [totalConjugations, setTotalConjugations] = useState(36);
   const AnimatedText = Animated.createAnimatedComponent(Text);
+  const modalCloseReasonRef = useRef(null); // 'start' | 'menu' | null
 
   const navigateToMenu = () => {
     console.log('Navigating to MenuAr, current state:', navigation.getState());
@@ -303,32 +304,110 @@ useEffect(() => {
   // }, []);
 
 useEffect(() => {
-  if (verbs.length > 0) {
-    const currentVerb = verbs[currentIndex];
-    const sameInfinitiveVerbs = verbs.filter(verb => verb.infinitive === currentVerb.infinitive);
-    const incorrectAnswers = shuffleArray(
-      sameInfinitiveVerbs.filter((verb) => verb.artext !== currentVerb.artext)
-    ).slice(0, 5);
+  if (!verbs || verbs.length === 0) return;
 
-    const answers = shuffleArray([{ artext: currentVerb.artext, gender: currentVerb.gender }, ...incorrectAnswers]);
+  const currentVerb = verbs[currentIndex];
+  if (!currentVerb) return;
 
-    setDisplayPairs(
-      answers.map((answer) => ({
-        ...answer,
-        hebrewtext: currentVerb.hebrewtext,
-        translit: currentVerb.translit
-      }))
-    );
+  const currentGender = currentVerb.gender;
+  const MAX_INCORRECT = 5;          // до 5 неправильных
+  const MIN_SAME_GENDER_TOTAL = 3;  // минимум 3 варианта с тем же gender (включая правильный)
 
-    setShowInfinitive(false);
-    setCurrentAudioFile(currentVerb.mp3);
+  // Берём варианты только для текущего инфинитива
+  const sameInfinitiveVerbs = verbs.filter(
+    v => v.infinitive === currentVerb.infinitive
+  );
 
-    // ЗВУК — только если модалка скрыта
-    if (!isVerbListVisible) {
-      playAudio(currentVerb.mp3);
+  // 1) Пул кандидатов:
+  //    - есть artext
+  //    - отличается от правильного
+  //    - отличается по hebrewtext (убираем совпадающие формы 3 ж. / 2 м. и т.п.)
+  //    - уникальные по artext
+  const poolMap = new Map(); // key = artext.trim()
+
+  for (const v of sameInfinitiveVerbs) {
+    if (!v.artext) continue;
+
+    if (v.artext === currentVerb.artext) continue;         // тот же арабский текст
+    if (v.hebrewtext === currentVerb.hebrewtext) continue; // та же форма на иврите
+
+    const key = v.artext.trim();
+    if (!poolMap.has(key)) {
+      poolMap.set(key, v); // первый встретившийся вариант
+    }
+  }
+
+  const uniquePool = Array.from(poolMap.values());
+
+  // 2) Разделяем по gender
+  const sameGenderPool  = uniquePool.filter(v => v.gender === currentGender);
+  const otherGenderPool = uniquePool.filter(v => v.gender !== currentGender);
+
+  // Сколько нужно неправильных с тем же gender:
+  // всего хотим MIN_SAME_GENDER_TOTAL, один уже даёт правильный ответ
+  const needSameGenderIncorrect = Math.max(0, MIN_SAME_GENDER_TOTAL - 1);
+
+  const shuffledSameGender  = shuffleArray(sameGenderPool);
+  const sameGenderIncorrect = shuffledSameGender.slice(
+    0,
+    Math.min(needSameGenderIncorrect, MAX_INCORRECT, sameGenderPool.length)
+  );
+
+  const remainingSlots = MAX_INCORRECT - sameGenderIncorrect.length;
+
+  const shuffledOtherGender  = shuffleArray(otherGenderPool);
+  const otherGenderIncorrect = shuffledOtherGender.slice(0, remainingSlots);
+
+  const incorrectAnswersVerbs = [
+    ...sameGenderIncorrect,
+    ...otherGenderIncorrect,
+  ];
+
+  const incorrectAnswers = incorrectAnswersVerbs.map(v => ({
+    artext: v.artext,
+    gender: v.gender,
+  }));
+
+  // 3) Правильный + неправильные и финальная защита от дублей по artext
+  const allCandidates = [
+    { artext: currentVerb.artext, gender: currentVerb.gender },
+    ...incorrectAnswers,
+  ];
+
+  const answersMap = new Map();
+  const dedupedAnswers = [];
+  for (const a of allCandidates) {
+    const key = (a.artext || '').trim();
+    if (!key) continue;
+    if (!answersMap.has(key)) {
+      answersMap.set(key, true);
+      dedupedAnswers.push(a);
+    }
+  }
+
+  const answers = shuffleArray(dedupedAnswers);
+
+  // Пары для рендера
+  setDisplayPairs(
+    answers.map(answer => ({
+      ...answer,
+      hebrewtext: currentVerb.hebrewtext,
+      translit: currentVerb.translit,
+    }))
+  );
+
+  setShowInfinitive(false);
+  setCurrentAudioFile(currentVerb.mp3);
+
+  // Автозвук только если модалка закрыта ради старта упражнения (а не при уходе в меню)
+  if (!isVerbListVisible && modalCloseReasonRef.current !== 'menu') {
+    playAudio(currentVerb.mp3);
+    if (modalCloseReasonRef.current === 'start') {
+      modalCloseReasonRef.current = null;
     }
   }
 }, [currentIndex, verbs, isVerbListVisible]);
+
 
 
 
@@ -630,34 +709,51 @@ useEffect(() => {
     return true;
   };
 
-  useFocusEffect(
-                  useCallback(() => {
-                    const onBackPress = () => {
-                      if (exitConfirmationVisible) {
-                        return false;
-                      }
-                      setExitConfirmationVisible(true);
-                      return true;
-                    };
-                
-                    const backHandler = BackHandler.addEventListener(
-                      'hardwareBackPress',
-                      onBackPress
-                    );
-                
-                    const unsubscribe = navigation.addListener('beforeRemove', (e) => {
-                      if (!exitConfirmationVisible) {
-                        e.preventDefault(); // Блокируем навигацию назад
-                        setExitConfirmationVisible(true); // Показываем модалку
-                      }
-                    });
-                
-                    return () => {
-                      backHandler.remove();
-                      unsubscribe();
-                    };
-                  }, [exitConfirmationVisible, navigation])
-                );
+// 1) Пока открыт список форм — «Назад» уходит в меню/назад, ничего не блокируем
+useFocusEffect(
+  useCallback(() => {
+    if (!isVerbListVisible) return; // активируем только при открытой модалке
+
+    const onBackPress = () => {
+      if (navigation.canGoBack()) navigation.goBack();
+      else navigation.navigate('MenuAr');
+      return true;
+    };
+
+    const bh = BackHandler.addEventListener('hardwareBackPress', onBackPress);
+
+    // Ничего не вешаем на beforeRemove, чтобы не мешать выходу
+    return () => {
+      bh.remove();
+    };
+  }, [isVerbListVisible, navigation])
+);
+
+// 2) Когда модалка закрыта (идёт упражнение) — блокируем «Назад» и показываем модалку подтверждения
+useFocusEffect(
+  useCallback(() => {
+    if (isVerbListVisible) return; // активируем только во время упражнения
+
+    const onBackPress = () => {
+      if (exitConfirmationVisible) return false;
+      setExitConfirmationVisible(true);
+      return true; // блокируем pop
+    };
+
+    const bh = BackHandler.addEventListener('hardwareBackPress', onBackPress);
+    const unsubscribe = navigation.addListener('beforeRemove', (e) => {
+      if (exitConfirmationVisible) return;
+      e.preventDefault();
+      setExitConfirmationVisible(true);
+    });
+
+    return () => {
+      bh.remove();
+      unsubscribe();
+    };
+  }, [isVerbListVisible, exitConfirmationVisible, navigation])
+);
+
       
         useEffect(() => {
             navigation.setOptions({
@@ -761,10 +857,12 @@ const handleSelectVerb = (verb) => {
 const handleStartExercise = () => {
   const chosenVerb = pendingVerb || mainVerb;
   if (!chosenVerb) return;
+  modalCloseReasonRef.current = 'start'; // ← хотим звук
   initializeExercise(chosenVerb);
   setIsVerbListVisible(false);
   setPendingVerb(null);
 };
+
 
 
 
@@ -783,8 +881,15 @@ const [currentVerb, setCurrentVerb] = useState({
   language={language}
   verbs={verbListForModal}
   onStartExercise={handleStartExercise}
-  onClose={() => setIsVerbListVisible(false)} // на всякий случай, если понадобится
+  onClose={() => {
+    modalCloseReasonRef.current = 'menu'; // ← звука НЕ хотим
+    // дальше ваш переход:
+    if (navigation.canGoBack()) navigation.goBack();
+    else navigation.navigate('MenuAr');
+  }}
 />
+
+
 
       
     )}
@@ -1036,12 +1141,18 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     width: '50%',
+    marginTop: 10,
   },
   prtext: {
-    fontSize: 12,
+    fontSize: 13,
     color: 'white',
     textAlign: 'left',
     marginLeft: 15,
+    marginLeft: 15,
+     lineHeight: 20,
+    fontWeight: 'bold',
+    includeFontPadding: false,
+    textAlignVertical: 'center',
   },
   percentContainer: {
     alignItems: 'center',
@@ -1219,7 +1330,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   text: {
-    fontSize: 13,
+    fontSize: 15,
     fontWeight: 'bold',
   },
   russianText: {

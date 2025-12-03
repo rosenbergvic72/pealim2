@@ -16,7 +16,7 @@ const AppInfoModal = ({ visible, onToggle, updatedAt, appSize }) => {
 
           {/* Версия и обновление */}
           <Text style={styles.modalText}>Версия: <Text style={styles.bold}>{Constants.expoConfig?.version || 'Неизвестно'}</Text></Text>
-          <Text style={styles.modalText}>Обновлено: <Text style={styles.bold}>{updatedAt || '20.08.2025'}</Text></Text>
+          <Text style={styles.modalText}>Обновлено: <Text style={styles.bold}>{updatedAt || '26.11.2025'}</Text></Text>
 
           {/* Основная информация
           <Text style={styles.sectionTitle}>Описание:</Text>

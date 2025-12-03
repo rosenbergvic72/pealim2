@@ -1,0 +1,33 @@
+@"
+node_modules
+.expo
+.expo-shared
+.git
+.idea
+.vscode
+*.iml
+
+# Android
+android/.gradle
+android/.cxx
+android/build
+android/app/build
+pepk.jar
+pepk_out.zip
+android/key.properties
+
+# iOS
+ios/Pods
+ios/build
+ios/DerivedData
+
+# Прочее
+coverage
+dist
+build
+tmp
+temp
+
+# Если сервер лежит внутри проекта
+iap-server
+"@ | Set-Content .easignore -Encoding UTF8

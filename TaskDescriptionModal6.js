@@ -196,7 +196,7 @@ const styles = StyleSheet.create({
   },
   modalView: {
     width: '92%',
-    height: windowHeight * 0.95,
+    height: windowHeight * 0.88,
     // maxHeight: Platform.OS === 'android'
     //   ? windowHeight * 0.98
     //   : windowHeight * 0.98,

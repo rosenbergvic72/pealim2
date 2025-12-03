@@ -1,16 +1,15 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { ScrollView, View, Text, TouchableOpacity, StyleSheet, Image, BackHandler } from 'react-native';
+import { ScrollView, View, Text, TouchableOpacity, StyleSheet, Image, BackHandler, Animated } from 'react-native';
 import VerbCard2 from './VerbCard2';
 import verbsData from './verbs2.json';
-import verbs1RU from './verbs11RU.json'; // Подключаем данные
+import verbs1RU from './verbs11RU.json';
 import ProgressBar from './ProgressBar';
 import CompletionMessage from './CompletionMessage';
-import { useNavigation, useFocusEffect } from '@react-navigation/native';
+import { useNavigation, useFocusEffect, CommonActions } from '@react-navigation/native';
 import ExitConfirmationModal from './ExitConfirmationModal';
 import { Audio } from 'expo-av';
 import sounds from './Soundss';
-import soundsConj from './soundconj'; // Импорт дополнительных звуков
-import { Animated } from 'react-native';
+import soundsConj from './soundconj';
 import TaskDescriptionModal6 from './TaskDescriptionModal2';
 import StatModal2 from './StatModal2';
 import { updateStatistics, getStatistics } from './stat';
@@ -18,7 +17,9 @@ import LottieView from 'lottie-react-native';
 import animation from './assets/Animation - 1723020554284.json';
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import VerbListModal from './VerbListModal'; // модалка списка глаголов
+import VerbListModal from './VerbListModal';
+
+/* ===================== helpers ===================== */
 
 const shuffleArray = (array) => {
   const shuffledArray = array.slice();
@@ -55,125 +56,152 @@ const getGrade = (percentage) => {
   }
 };
 
-const VerbDetailsContainer2 = ({ verbDetails, handleSpeakerPress, currentIndex, animateRight, isAnswered, canShowSpeaker }) => {
+const normalize = (v) => String(v || '').trim().toLowerCase();
+const normAudio = (v) => normalize(String(v || '').replace(/\.mp3$/i, ''));
+
+/**
+ * Находит подходящую запись в verbs11RU.json для глагола из verbs2.json.
+ * Приоритет:
+ * 1) по audioFile (инфинитиву)
+ * 2) если несколько — сузить по russian
+ * 3) если по audio не нашли — fallback по russian
+ */
+const findVerbMatchForExercise2 = (currentVerb) => {
+  if (!currentVerb) return null;
+
+  const baseAudio = normAudio(currentVerb.audioFile);
+  const ruCurrent = normalize(currentVerb.verbRussian);
+
+  let candidates = (verbs1RU || []).filter(
+    (v) => normAudio(v.audioFile) === baseAudio
+  );
+
+  if (candidates.length > 1 && ruCurrent) {
+    const byRu = candidates.filter(
+      (v) => normalize(v.russian) === ruCurrent
+    );
+    if (byRu.length) {
+      candidates = byRu;
+    }
+  }
+
+  if (!candidates.length && ruCurrent) {
+    candidates = (verbs1RU || []).filter(
+      (v) => normalize(v.russian) === ruCurrent
+    );
+  }
+
+  return candidates[0] || null;
+};
+
+/* ===================== Вертикальная плашка деталей ===================== */
+
+const VerbDetailsContainer2 = ({
+  verbDetails,
+  handleSpeakerPress,
+  currentIndex,
+  animateRight,
+  isAnswered,
+  canShowSpeaker,
+}) => {
   const leftFillAnim = useRef(new Animated.Value(0)).current;
   const rightFillAnim = useRef(new Animated.Value(0)).current;
   const animationRef = useRef(null);
   const [isTextVisible, setIsTextVisible] = useState(false);
 
-  // Анимация левой половины при смене опций (каждый раз при смене currentIndex)
   useEffect(() => {
-      leftFillAnim.setValue(0);
-      setIsTextVisible(false); // Скрываем текст перед началом анимации
+    leftFillAnim.setValue(0);
+    setIsTextVisible(false);
 
-      Animated.timing(leftFillAnim, {
-          toValue: 1,
-          duration: 600,
-          useNativeDriver: false,
-      }).start(() => {
-          setIsTextVisible(true); // Показываем текст после завершения анимации
-      });
+    Animated.timing(leftFillAnim, {
+      toValue: 1,
+      duration: 600,
+      useNativeDriver: false,
+    }).start(() => {
+      setIsTextVisible(true);
+    });
 
-      // Запускаем Lottie анимацию при каждом обновлении currentIndex
+    if (animationRef.current) {
+      animationRef.current.reset();
+      animationRef.current.play();
+    }
+  }, [currentIndex]);
+
+  useEffect(() => {
+    rightFillAnim.setValue(0);
+  }, [currentIndex]);
+
+  useEffect(() => {
+    if (isAnswered && animationRef.current) {
+      animationRef.current.reset();
+    }
+
+    return () => {
       if (animationRef.current) {
-          animationRef.current.reset();
-          animationRef.current.play();
+        animationRef.current.reset();
       }
-  }, [currentIndex]);
-
-  // Сбрасываем цвет правой половины при генерации новых опций
-  useEffect(() => {
-      rightFillAnim.setValue(0);
-  }, [currentIndex]);
-
-  // Остановка Lottie анимации после того, как пользователь дал ответ
-  useEffect(() => {
-      if (isAnswered && animationRef.current) {
-          animationRef.current.reset(); // Сбрасываем анимацию
-      }
-
-      return () => {
-        if (animationRef.current) {
-          animationRef.current.reset(); // сбрасываем анимацию
-        }
-      };
+    };
   }, [isAnswered]);
 
-  // Анимация правой половины после ответаs
   useEffect(() => {
-      if (animateRight) {
-          setTimeout(() => {
-              Animated.timing(rightFillAnim, {
-                  toValue: 1,
-                  duration: 1000, // Увеличиваем продолжительность
-                  useNativeDriver: false,
-              }).start();
-          }, 500); // Задержка перед анимацией в миллисекундах (500 мс)
-      }
+    if (animateRight) {
+      setTimeout(() => {
+        Animated.timing(rightFillAnim, {
+          toValue: 1,
+          duration: 1000,
+          useNativeDriver: false,
+        }).start();
+      }, 500);
+    }
   }, [animateRight]);
 
   const leftWidth = leftFillAnim.interpolate({
-      inputRange: [0, 1],
-      outputRange: ['0%', '50%'],
+    inputRange: [0, 1],
+    outputRange: ['0%', '50%'],
   });
 
   const rightWidth = rightFillAnim.interpolate({
-      inputRange: [0, 1],
-      outputRange: ['0%', '51%'],
+    inputRange: [0, 1],
+    outputRange: ['0%', '51%'],
   });
 
   return (
-      <View style={styles.verbDetailsContainer}>
-          <Animated.View style={[styles.verbDetailsHalf, styles.verbDetailsLeft, { width: leftWidth }]} />
-          <Animated.View style={[styles.verbDetailsHalf, styles.verbDetailsRight, { width: rightWidth }]} />
-          <View style={styles.verbDetailsContent}>
-              <View style={styles.verbDetailsLeftContent}>
-                  <Text style={styles.verbDetailsRussian} maxFontSizeMultiplier={1.2}>{verbDetails.russiantext}</Text>
-              </View>
-              <View style={styles.verbDetailsRightContent}>
-                  {isAnswered ? (
-                      <>
-                          <Text style={styles.verbDetailsHebrew} maxFontSizeMultiplier={1.2}>{verbDetails.hebrewtext}</Text>
-                          {verbDetails.translit && (
-                              <Text style={styles.verbDetailsTranslit} maxFontSizeMultiplier={1.2}>
-                                  {verbDetails.translit}
-                              </Text>
-                          )}
-                          {isTextVisible && canShowSpeaker && verbDetails.mp3 && (
-                              <TouchableOpacity style={styles.speakerButton} onPress={() => handleSpeakerPress(verbDetails.mp3)}>
-                                  <Image source={require('./speaker1.png')} style={styles.speakerIcon1} />
-                              </TouchableOpacity>
-                          )}
-                      </>
-                  ) : (
-                      <LottieView
-                          ref={animationRef}
-                          source={animation}
-                          loop
-                          autoPlay
-                          style={styles.lottieAnimation}
-                      />
-                  )}
-              </View>
-          </View>
+    <View style={styles.verbDetailsContainer}>
+      <Animated.View style={[styles.verbDetailsHalf, styles.verbDetailsLeft, { width: leftWidth }]} />
+      <Animated.View style={[styles.verbDetailsHalf, styles.verbDetailsRight, { width: rightWidth }]} />
+      <View style={styles.verbDetailsContent}>
+        <View style={styles.verbDetailsLeftContent}>
+          <Text style={styles.verbDetailsRussian} maxFontSizeMultiplier={1.2}>
+            {verbDetails.russiantext}
+          </Text>
+        </View>
+        <View style={styles.verbDetailsRightContent}>
+          {isAnswered ? (
+            <>
+              <Text style={styles.verbDetailsHebrew} maxFontSizeMultiplier={1.2}>
+                {verbDetails.hebrewtext}
+              </Text>
+              {verbDetails.translit ? (
+                <Text style={styles.verbDetailsTranslit} maxFontSizeMultiplier={1.2}>
+                  {verbDetails.translit}
+                </Text>
+              ) : null}
+              {isTextVisible && canShowSpeaker && verbDetails.mp3 ? (
+                <TouchableOpacity style={styles.speakerButton} onPress={() => handleSpeakerPress(verbDetails.mp3)}>
+                  <Image source={require('./speaker1.png')} style={styles.speakerIcon1} />
+                </TouchableOpacity>
+              ) : null}
+            </>
+          ) : (
+            <LottieView ref={animationRef} source={animation} loop autoPlay style={styles.lottieAnimation} />
+          )}
+        </View>
       </View>
+    </View>
   );
 };
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+/* ===================== Основной компонент ===================== */
 
 const Exercise2 = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -186,140 +214,137 @@ const Exercise2 = () => {
   const [progress, setProgress] = useState(0);
   const [showNextButton, setShowNextButton] = useState(false);
   const [currentGrade, setCurrentGrade] = useState('');
-  const grade = getGrade((correctAnswers / progress) * 100);
+
   const [correctSound, setCorrectSound] = useState();
   const [incorrectSound, setIncorrectSound] = useState();
+
   const backgroundColorAnim = useRef(new Animated.Value(0)).current;
   const optionsAnim = useRef(new Animated.Value(-500)).current;
-  // const [isDescriptionModalVisible, setDescriptionModalVisible] = useState(false);
+
   const [soundEnabled, setSoundEnabled] = useState(true);
   const [autoPlayEnabled, setAutoPlayEnabled] = useState(true);
+
   const animationRef = useRef(null);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [verbDetails, setVerbDetails] = useState({ hebrewtext: '', translit: '', russiantext: '' });
-  const [triggerRightAnimation, setTriggerRightAnimation] = useState(false);
+
+  const [verbDetails, setVerbDetails] = useState({
+    hebrewtext: '',
+    translit: '',
+    russiantext: '',
+    mp3: '',
+  });
+
   const [isSecondSoundFinished, setIsSecondSoundFinished] = useState(false);
   const [canShowSpeaker, setCanShowSpeaker] = useState(false);
   const [isSoundPlaying, setIsSoundPlaying] = useState(false);
   const [showLottie, setShowLottie] = useState(false);
   const [isPlayingLottieOnSpeaker, setIsPlayingLottieOnSpeaker] = useState(false);
-  const [isVerbListVisible, setIsVerbListVisible] = useState(true); // видимость модалки списка
+
+  const [isVerbListVisible, setIsVerbListVisible] = useState(true);
   const [verbListForModal, setVerbListForModal] = useState([]);
-  
-  
-const initializeVerbList = (lang, setShuffledVerbs, setVerbListForModal) => {
-  const langMap = {
-    ru: 'translationOptions',
-    en: 'translationOptionsEn',
-    fr: 'translationOptionsFr',
-    es: 'translationOptionsEs',
-    pt: 'translationOptionsPt',
-    ar: 'translationOptionsAr',
-    am: 'translationOptionsAm',
+  const modalCloseReasonRef = useRef(null);
+
+  const allowLeaveRef = useRef(false);
+
+  const navigation = useNavigation();
+
+  const goToMenu = () => {
+    allowLeaveRef.current = true;
+    setExitConfirmationVisible(false);
+    navigation.dispatch(
+      CommonActions.reset({
+        index: 0,
+        routes: [{ name: 'Menu' }],
+      }),
+    );
   };
-  const langKey = langMap[lang] || 'translationOptions';
 
-  const selected = shuffleArray([...verbsData]); // 18 глаголов
+  /* ======== инициализация списка глаголов + данных для модалки ======== */
 
-  setShuffledVerbs(selected); // ✅ для упражнения
+  const initializeVerbList = (lang, setShuffledVerbsFn, setVerbListForModalFn) => {
+    const selected = shuffleArray([...verbsData]);
+    setShuffledVerbsFn(selected);
 
-  const sorted = selected.slice().sort((a, b) =>
-    a.verbRussian.localeCompare(b.verbRussian, 'ru')
-  );
+    const sorted = selected.slice().sort((a, b) =>
+      String(a.verbRussian || '').localeCompare(String(b.verbRussian || ''), 'ru'),
+    );
 
-  const verbList = sorted.map((verb) => {
-    const correctOption = verb.verbHebrewOptions.find((opt) => opt.isCorrect);
-    return {
-      hebrewtext: correctOption?.text || '—',
-      translit: correctOption?.transliteration || '',
-      entext: verb.verbRussian || '—',
-      mp3: verb.audioFile?.replace('.mp3', '') || '', 
-    };
-  });
+    const verbList = sorted.map((verb) => {
+      const correctOption = (verb.verbHebrewOptions || []).find((opt) => opt?.isCorrect);
 
-  setVerbListForModal(verbList); // ✅ для модалки
-};
-  
-  
+      const match = findVerbMatchForExercise2(verb);
+
+      const mp3Inf = String(verb.audioFile || '').replace(/\.mp3$/i, '').trim();
+      const mp3Conj = match ? String(match.mp3 || '').replace(/\.mp3$/i, '').trim() : '';
+
+      return {
+        hebrewtext: correctOption?.text || '—',
+        translit: correctOption?.transliteration || '',
+        entext: verb.verbRussian || '—', // в списке показываем русский инфинитив
+
+        mp3: mp3Inf,
+        mp3Inf,
+        mp3Conj,
+        gender: match?.gender || undefined,
+      };
+    });
+
+    console.log('[initializeVerbList] selected:', selected.length);
+    console.log('[initializeVerbList] verbListForModal:', verbList.length);
+    if (verbList.length) {
+      console.log('[initializeVerbList] sample item:', verbList[0]);
+    }
+
+    setVerbListForModalFn(verbList);
+  };
 
   const toggleDescriptionModal = () => {
-    setDescriptionModalVisible(prev => !prev);
+    setDescriptionModalVisible((prev) => !prev);
   };
 
   const handleButton2Press = () => {
     toggleDescriptionModal();
   };
 
-  const handleSoundToggle = () => {
-    setSoundEnabled(!soundEnabled);
-    setAutoPlayEnabled(!autoPlayEnabled);
-
-
-    if (correctSound && incorrectSound) {
-      const newVolume = !soundEnabled ? 1 : 0;
-      correctSound.setVolumeAsync(newVolume);
-      incorrectSound.setVolumeAsync(newVolume);
-    }
-
-    // Если второй звук создан с помощью другого объекта:
-    if (soundObject2) {
-      soundObject2.setVolumeAsync(newVolume);
-    }
-};
-
-const [isDescriptionModalVisible, setDescriptionModalVisible] = useState(false);
-
+  const [isDescriptionModalVisible, setDescriptionModalVisible] = useState(false);
   const [dontShowAgain2, setDontShowAgain2] = useState(false);
-
-  const [language, setLanguage] = useState('ru'); // ← по умолчанию ru
-
+  const [language, setLanguage] = useState('ru');
   const [languageLoaded, setLanguageLoaded] = useState(false);
 
-
-
-
-
-
-const handleToggleDontShowAgain2 = async () => {
-  const newValue = !dontShowAgain2;
-  setDontShowAgain2(newValue);
-  await AsyncStorage.setItem('exercise2_description_hidden', newValue ? 'true' : '');
-  console.log('📌 Клик по чекбоксу. Было:', dontShowAgain2, 'Станет:', !dontShowAgain2);
-};
-
-useEffect(() => {
-  const initialize = async () => {
-    const lang = await AsyncStorage.getItem('language');
-    const hidden = await AsyncStorage.getItem('exercise2_description_hidden');
-
-    if (lang) {
-      setLanguage(lang);
-      initializeVerbList(lang, setShuffledVerbs, setVerbListForModal); // ✅ передаём функции обновления стейта
-
-      if (hidden !== 'true') {
-        setTimeout(() => {
-          setDescriptionModalVisible(true); // Показываем описание
-        }, 300);
-      }
-
-      setDontShowAgain2(hidden === 'true');
-      setLanguageLoaded(true);
-    }
+  const handleToggleDontShowAgain2 = async () => {
+    const newValue = !dontShowAgain2;
+    setDontShowAgain2(newValue);
+    await AsyncStorage.setItem('exercise2_description_hidden', newValue ? 'true' : '');
+    console.log('📌 Клик по чекбоксу. Было:', dontShowAgain2, 'Станет:', !dontShowAgain2);
   };
 
-  initialize();
-}, []);
+  useEffect(() => {
+    const initialize = async () => {
+      const lang = await AsyncStorage.getItem('language');
+      const hidden = await AsyncStorage.getItem('exercise2_description_hidden');
 
+      if (lang) {
+        setLanguage(lang);
+        initializeVerbList(lang, setShuffledVerbs, setVerbListForModal);
 
+        if (hidden !== 'true') {
+          setTimeout(() => {
+            setDescriptionModalVisible(true);
+          }, 300);
+        }
 
+        setDontShowAgain2(hidden === 'true');
+        setLanguageLoaded(true);
+      }
+    };
 
-
-
+    initialize();
+  }, []);
 
   const [isGenderMan, setIsGenderMan] = useState(true);
 
   const handleGenderToggle = () => {
-    setIsGenderMan(!isGenderMan);
+    setIsGenderMan((prev) => !prev);
   };
 
   useEffect(() => {
@@ -386,14 +411,9 @@ useEffect(() => {
     outputRange: ['#83A3CD', '#AFFFCA', '#FFBCBC'],
   });
 
-  const navigation = useNavigation();
-
   const navigateToMenu = () => {
-    console.log('Navigating to MenuEn, current state:', navigation.getState());
-    navigation.reset({
-      index: 0,
-      routes: [{ name: 'Menu' }],
-    });
+    console.log('Navigating to Menu, current state:', navigation.getState());
+    goToMenu();
   };
 
   const handleBackButtonPress = () => {
@@ -403,39 +423,56 @@ useEffect(() => {
 
   useFocusEffect(
     useCallback(() => {
-      if (exerciseCompleted) return; // 🔥 Критически важно!
-  
+      if (!isVerbListVisible) return;
+
       const onBackPress = () => {
-        if (exitConfirmationVisible) return false;
+        if (navigation.canGoBack()) navigation.goBack();
+        else goToMenu();
+        return true;
+      };
+
+      const bh = BackHandler.addEventListener('hardwareBackPress', onBackPress);
+      return () => bh.remove();
+    }, [isVerbListVisible, navigation]),
+  );
+
+  useFocusEffect(
+    useCallback(() => {
+      if (isVerbListVisible) return;
+
+      const onBackPress = () => {
         setExitConfirmationVisible(true);
         return true;
       };
-  
-      const backHandler = BackHandler.addEventListener(
-        'hardwareBackPress',
-        onBackPress
-      );
-  
+
+      const bh = BackHandler.addEventListener('hardwareBackPress', onBackPress);
+
       const unsubscribe = navigation.addListener('beforeRemove', (e) => {
-        if (!exitConfirmationVisible) {
-          e.preventDefault();
-          setExitConfirmationVisible(true);
+        if (exitConfirmationVisible) return;
+
+        if (allowLeaveRef.current) {
+          allowLeaveRef.current = false;
+          return;
         }
+
+        e.preventDefault();
+        setExitConfirmationVisible(true);
       });
-  
+
       return () => {
-        backHandler.remove();
+        bh.remove();
         unsubscribe();
       };
-    }, [exitConfirmationVisible, navigation, exerciseCompleted])
+    }, [isVerbListVisible, exitConfirmationVisible, navigation]),
   );
-  
-  
-    useEffect(() => {
-        navigation.setOptions({
-          headerLeft: () => null, // Убирает кнопку "Назад" в заголовке
-        });
-      }, [navigation]);
+
+  useEffect(() => {
+    navigation.setOptions({
+      headerLeft: () => null,
+    });
+  }, [navigation]);
+
+  /* ======== загрузка звуков правильного/неправильного ответа ======== */
 
   useEffect(() => {
     async function loadSounds() {
@@ -470,22 +507,37 @@ useEffect(() => {
     }
   }, [soundEnabled, correctSound, incorrectSound]);
 
-  const updateVerbDetails2 = (currentVerb, showHebrewText = false) => {
-    if (!currentVerb || !currentVerb.verbRussian) return;
+  /* ======== плашка с примером (Я еду / Я читаю и т.д.) ======== */
 
-    const matchedVerbs = verbs1RU.filter(
-      (verb) => verb.russian?.toLowerCase() === currentVerb.verbRussian?.toLowerCase()
-    );
-    if (matchedVerbs.length > 0) {
-      const selectedVerb = isGenderMan ? matchedVerbs[0] : matchedVerbs[1];
+  const updateVerbDetails2 = (currentVerb, showHebrewText = false) => {
+    if (!currentVerb) return;
+
+    const baseMatch = findVerbMatchForExercise2(currentVerb);
+
+    if (baseMatch) {
+      const baseAudio = normAudio(currentVerb.audioFile);
+
+      const femaleVerb = verbs1RU.find(
+        (v) =>
+          normAudio(v.audioFile) === baseAudio &&
+          normalize(v.gender) === 'woman'
+      );
+
+      const selectedVerb = isGenderMan ? baseMatch : (femaleVerb || baseMatch);
+
       setVerbDetails({
         hebrewtext: showHebrewText ? selectedVerb.hebrewtext : '',
         translit: showHebrewText ? selectedVerb.translit : '',
-        russiantext: selectedVerb.russiantext,
+        russiantext: selectedVerb.russiantext, // «Я еду», «Я читаю» и т.п.
         mp3: selectedVerb.mp3,
       });
     } else {
-      setVerbDetails({ hebrewtext: '', translit: '', russiantext: 'Глагол не найден', mp3: '' });
+      setVerbDetails({
+        hebrewtext: '',
+        translit: '',
+        russiantext: 'Глагол не найден',
+        mp3: '',
+      });
     }
   };
 
@@ -493,288 +545,227 @@ useEffect(() => {
     if (shuffledVerbs.length > 0) {
       updateVerbDetails2(shuffledVerbs[currentIndex], showNextButton);
     }
-  }, [isGenderMan, currentIndex, shuffledVerbs]);
+  }, [isGenderMan, currentIndex, shuffledVerbs, showNextButton]);
 
-  
-
-  useEffect(() => {
-    const loadSounds = async () => {
-      try {
-        const correctSoundObject = new Audio.Sound();
-        const incorrectSoundObject = new Audio.Sound();
-  
-        await correctSoundObject.loadAsync(require('./assets/sounds/success.mp3'));
-        await incorrectSoundObject.loadAsync(require('./assets/sounds/failure.mp3'));
-  
-        setCorrectSound(correctSoundObject);
-        setIncorrectSound(incorrectSoundObject);
-  
-        if (soundEnabled) {
-          await correctSoundObject.setVolumeAsync(1);
-          await incorrectSoundObject.setVolumeAsync(1);
-        } else {
-          await correctSoundObject.setVolumeAsync(0);
-          await incorrectSoundObject.setVolumeAsync(0);
-        }
-      } catch (error) {
-        console.error('Ошибка загрузки звуков:', error);
-      }
-    };
-  
-    loadSounds();
-  
-    return () => {
-      correctSound?.unloadAsync();
-      incorrectSound?.unloadAsync();
-    };
-  }, [soundEnabled]);
-  
+  /* ======== воспроизведение звуков ======== */
 
   const handleSpeakerPress = async (audioFile) => {
     if (!audioFile) {
-        console.error("Audio file is undefined.");
-        return;
+      console.error('Audio file is undefined.');
+      return;
     }
 
     const soundFile = soundsConj[audioFile.replace('.mp3', '')];
     if (!soundFile) {
-        console.error(`Audio file ${audioFile} not found in soundsConj.`);
-        return;
+      console.error(`Audio file ${audioFile} not found in soundsConj.`);
+      return;
     }
 
     const soundObject = new Audio.Sound();
     try {
-        setIsSoundPlaying(true); // Включаем анимацию перед началом воспроизведения
-        if (animationRef.current) {
-            animationRef.current.reset();
-            animationRef.current.play();
-        }
+      setIsSoundPlaying(true);
+      if (animationRef.current) {
+        animationRef.current.reset();
+        animationRef.current.play();
+      }
 
-        await soundObject.loadAsync(soundFile);
-        await soundObject.playAsync();
-        soundObject.setOnPlaybackStatusUpdate(async (status) => {
-            if (status.didJustFinish) {
-                await soundObject.unloadAsync(); // Освобождаем память после завершения воспроизведения
-                setIsSoundPlaying(false); // Останавливаем анимацию после завершения звука
-            }
-        });
-    } catch (error) {
-        console.log('Error playing sound:', error);
-        await soundObject.unloadAsync(); // Освобождаем память даже при ошибке
-        setIsSoundPlaying(false); // Останавливаем анимацию при ошибке
-    }
-};
-
-const playSound = async (audioFileName, forcePlay = false) => {
-  if (!soundEnabled && !forcePlay) return;
-
-  const audioFile = sounds[audioFileName.replace('.mp3', '')];
-  if (audioFile) {
-    const soundObject = new Audio.Sound();
-    try {
-      setIsPlayingLottieOnSpeaker(true); // Включаем анимацию
-
-      await soundObject.loadAsync(audioFile);
+      await soundObject.loadAsync(soundFile);
       await soundObject.playAsync();
-
-      setTimeout(() => {
-        setIsPlayingLottieOnSpeaker(false); // Останавливаем анимацию через 1 секунду
-      }, 800); // Время анимации 1 секунда
-
-      soundObject.setOnPlaybackStatusUpdate(async (playbackStatus) => {
-        if (playbackStatus.didJustFinish && !playbackStatus.isLooping) {
-          await soundObject.unloadAsync(); // Освобождаем ресурсы после воспроизведения
-          setIsPlaying(false);
+      soundObject.setOnPlaybackStatusUpdate(async (status) => {
+        if (status.didJustFinish) {
+          await soundObject.unloadAsync();
+          setIsSoundPlaying(false);
         }
       });
     } catch (error) {
-      console.error("Ошибка при воспроизведении звука:", error);
-      await soundObject.unloadAsync(); // Освобождаем ресурсы при ошибке
+      console.log('Error playing sound:', error);
+      await soundObject.unloadAsync();
+      setIsSoundPlaying(false);
+    }
+  };
+
+  const playSound = async (audioFileName, forcePlay = false) => {
+    if (!soundEnabled && !forcePlay) return;
+
+    const audioFile = sounds[audioFileName.replace('.mp3', '')];
+    if (audioFile) {
+      const soundObject = new Audio.Sound();
+      try {
+        setIsPlayingLottieOnSpeaker(true);
+
+        await soundObject.loadAsync(audioFile);
+        await soundObject.playAsync();
+
+        setTimeout(() => {
+          setIsPlayingLottieOnSpeaker(false);
+        }, 800);
+
+        soundObject.setOnPlaybackStatusUpdate(async (playbackStatus) => {
+          if (playbackStatus.didJustFinish && !playbackStatus.isLooping) {
+            await soundObject.unloadAsync();
+            setIsPlaying(false);
+          }
+        });
+      } catch (error) {
+        console.error('Ошибка при воспроизведении звука:', error);
+        await soundObject.unloadAsync();
+        setIsPlaying(false);
+      }
+    } else {
+      console.error(`Аудиофайл ${audioFileName} не найден в объекте sounds.`);
       setIsPlaying(false);
     }
-  } else {
-    console.error(`Аудиофайл ${audioFileName} не найден в объекте sounds.`);
-    setIsPlaying(false);
-  }
-};
-
+  };
 
   const [selectedOptionIndex, setSelectedOptionIndex] = useState(null);
-
   const [animateRight, setAnimateRight] = useState(false);
-
   const [isAnswered, setIsAnswered] = useState(false);
-
-  const [isTextVisible , setisTextVisible] = useState(false);
-
-
-
-
-
-const handleAnswer = async (selectedOptionIndex) => {
-  setSelectedOptionIndex(selectedOptionIndex);
-  setAnimateRight(false);
-  setIsAnswered(true);
-  setCanShowSpeaker(false);
-  setShowLottie(true);
-
-  const isCorrect = optionsOrder[selectedOptionIndex].isCorrect;
-
-  const updatedOptions = optionsOrder.map((option, index) => ({
-    ...option,
-    isSelected: index === selectedOptionIndex,
-    disabled: true,
-  }));
-
-  setOptionsOrder(updatedOptions);
-  changeBackgroundColor(isCorrect);
-
-  if (isCorrect) {
-    setCorrectAnswers(prevCorrectAnswers => prevCorrectAnswers + 1);
-    // Воспроизведение звука правильного ответа
-    try {
-      await correctSound?.replayAsync();
-    } catch (error) {
-      console.error('Ошибка воспроизведения звука правильного ответа:', error);
-    }
-  } else {
-    setIncorrectAnswers(prevIncorrectAnswers => prevIncorrectAnswers + 1);
-    // Воспроизведение звука неправильного ответа
-    try {
-      await incorrectSound?.replayAsync();
-    } catch (error) {
-      console.error('Ошибка воспроизведения звука неправильного ответа:', error);
-    }
-  }
-
-  setProgress(prevProgress => prevProgress + 1);
-
-  try {
-    const firstSoundFile = shuffledVerbs[currentIndex].audioFile.replace('.mp3', '');
-    await playSound(firstSoundFile);
-
-    setAnimateRight(true);
-
-    setTimeout(() => {
-      setShowLottie(false);
-    }, 800);
-
-    await new Promise(resolve => setTimeout(resolve, 700));
-    await playSecondSound();
-    setIsSecondSoundFinished(true);
-    setCanShowSpeaker(true);
-  } catch (error) {
-    console.error('Ошибка при воспроизведении звуков:', error);
-  }
-
-  updateVerbDetails2(shuffledVerbs[currentIndex], true);
-  setShowNextButton(true);
-};
-
-
-  
-
-
-  const handleNextCard = () => {
-    resetState();
-    setAnimateRight(false); // Сброс анимации правой половины перед генерацией новых опций
-    setSelectedOptionIndex(null);
-    const nextIndex = (currentIndex + 1) % shuffledVerbs.length;
-
-    if (nextIndex === 0) {
-      if (exerciseCompleted) {
-        setCorrectAnswers(0);
-        setIncorrectAnswers(0);
-        setProgress(0);
-      }
-      setExerciseCompleted(true);
-      handleExerciseCompletion();
-    } else {
-      setExerciseCompleted(false);
-    }
-
-    setOptionsOrder(generateOptions(shuffledVerbs[nextIndex]).map(option => ({
-      ...option,
-      disabled: false,
-      isSelected: false,
-    })));
-
-    setCurrentIndex(nextIndex);
-  };
-
+  const [isTextVisible, setisTextVisible] = useState(false);
   const [soundObject2, setSoundObject2] = useState(null);
 
-  const playSecondSound = async () => {
-  const audioFile = verbDetails.mp3;
-  if (!audioFile) {
-    console.error("Audio file is undefined.");
-    return;
-  }
+  const handleSoundToggle = () => {
+    setSoundEnabled((prev) => !prev);
+    setAutoPlayEnabled((prev) => !prev);
 
-  try {
-    const secondSoundFile = soundsConj[audioFile.replace('.mp3', '')];
-    if (!secondSoundFile) {
-      console.error(`Second sound file not found for: ${audioFile}`);
-      return;
+    if (correctSound && incorrectSound) {
+      const newVolume = !soundEnabled ? 1 : 0;
+      correctSound.setVolumeAsync(newVolume);
+      incorrectSound.setVolumeAsync(newVolume);
     }
 
-    const soundObject2 = new Audio.Sound(); // Создаем новый объект для второго звука
-    console.log("Loading second sound...");
-    await soundObject2.loadAsync(secondSoundFile);
-    console.log("Playing second sound...");
-    
-    // Проверяем, включен ли звук
-    if (!soundEnabled) {
-      console.log("Sound is muted, stopping second sound.");
-      await soundObject2.stopAsync();
-      await soundObject2.unloadAsync(); // Убираем второй звук
-      return;
+    if (soundObject2) {
+      const newVolume = !soundEnabled ? 1 : 0;
+      soundObject2.setVolumeAsync(newVolume);
     }
-
-    await soundObject2.playAsync(); // Воспроизводим второй звук
-
-    soundObject2.setOnPlaybackStatusUpdate(async (status) => {
-      if (status.didJustFinish) {
-        console.log("Second sound finished, unloading...");
-        await soundObject2.unloadAsync(); // Освобождаем ресурсы после второго звука
-      }
-    });
-  } catch (error) {
-    console.error("Error during second sound playback:", error);
-  }
-};
-
-  const resetState = () => {
-    setShowNextButton(false);
-    setOptionsOrder([]);
-    setSelectedOptionIndex(null); // Сброс состояния выбранной опции
-    setIsSecondSoundFinished(false);
-    setIsAnswered(false); // Сброс состояния флага ответа
-    setisTextVisible (false); // Сброс состояния флага ответа
-    // Сброс других состояний, если необходимо
   };
 
-  useEffect(() => {
-    setShuffledVerbs(shuffleArray(verbsData));
-  }, []);
-
-  useEffect(() => {
-    if (shuffledVerbs.length > 0) {
-      setOptionsOrder(generateOptions(shuffledVerbs[currentIndex]).map(option => ({
-        ...option,
-        isSelected: false, // Сбрасываем состояние выбора
-      })));
+  const handleNextCard = () => {
+    if (currentIndex + 1 >= shuffledVerbs.length) {
+      setExerciseCompleted(true);
+      setShowNextButton(false);
+      setOptionsOrder([]);
+      return;
     }
-  }, [currentIndex, shuffledVerbs]);
 
-  useEffect(() => {
-    if (exerciseCompleted) {
-      const percentage = (correctAnswers / (correctAnswers + incorrectAnswers)) * 100;
-      const newGrade = getGrade(percentage);
-      setCurrentGrade(newGrade);
-      handleExerciseCompletion();
+    const next = currentIndex + 1;
+
+    setCurrentIndex(next);
+    setShowNextButton(false);
+    setAnimateRight(false);
+    setIsAnswered(false);
+    setSelectedOptionIndex(null);
+    setIsSecondSoundFinished(false);
+    setCanShowSpeaker(false);
+    setisTextVisible(false);
+
+    const nextOptions = generateOptions(shuffledVerbs[next]).map((o) => ({
+      ...o,
+      isSelected: false,
+      disabled: false,
+    }));
+    setOptionsOrder(nextOptions);
+    updateVerbDetails2(shuffledVerbs[next], false);
+  };
+
+  const handleAnswer = async (selectedOptionIdx) => {
+    setSelectedOptionIndex(selectedOptionIdx);
+    setAnimateRight(false);
+    setIsAnswered(true);
+    setCanShowSpeaker(false);
+    setShowLottie(true);
+
+    const isCorrect = optionsOrder[selectedOptionIdx].isCorrect;
+
+    const updatedOptions = optionsOrder.map((option, index) => ({
+      ...option,
+      isSelected: index === selectedOptionIdx,
+      disabled: true,
+    }));
+
+    setOptionsOrder(updatedOptions);
+    changeBackgroundColor(isCorrect);
+
+    if (isCorrect) {
+      setCorrectAnswers((prev) => prev + 1);
+      try {
+        await correctSound?.replayAsync();
+      } catch (error) {
+        console.error('Ошибка воспроизведения звука правильного ответа:', error);
+      }
+    } else {
+      setIncorrectAnswers((prev) => prev + 1);
+      try {
+        await incorrectSound?.replayAsync();
+      } catch (error) {
+        console.error('Ошибка воспроизведения звука неправильного ответа:', error);
+      }
     }
-  }, [exerciseCompleted, correctAnswers, incorrectAnswers]);
+
+    setProgress((prev) => prev + 1);
+
+    try {
+      const firstSoundFile = shuffledVerbs[currentIndex].audioFile.replace('.mp3', '');
+      await playSound(firstSoundFile);
+
+      setAnimateRight(true);
+
+      setTimeout(() => {
+        setShowLottie(false);
+      }, 800);
+
+      await new Promise((resolve) => setTimeout(resolve, 700));
+      await playSecondSound();
+      setIsSecondSoundFinished(true);
+      setCanShowSpeaker(true);
+    } catch (error) {
+      console.error('Ошибка при воспроизведении звуков:', error);
+    }
+
+    updateVerbDetails2(shuffledVerbs[currentIndex], true);
+    setShowNextButton(true);
+  };
+
+  const playSecondSound = async () => {
+    const audioFile = verbDetails.mp3;
+    if (!audioFile) {
+      console.error('Audio file is undefined.');
+      return;
+    }
+
+    try {
+      const secondSoundFile = soundsConj[audioFile.replace('.mp3', '')];
+      if (!secondSoundFile) {
+        console.error(`Second sound file not found for: ${audioFile}`);
+        return;
+      }
+
+      const snd2 = new Audio.Sound();
+      setSoundObject2(snd2);
+      console.log('Loading second sound...');
+      await snd2.loadAsync(secondSoundFile);
+      console.log('Playing second sound...');
+
+      if (!soundEnabled) {
+        console.log('Sound is muted, stopping second sound.');
+        await snd2.stopAsync();
+        await snd2.unloadAsync();
+        return;
+      }
+
+      await snd2.playAsync();
+
+      snd2.setOnPlaybackStatusUpdate(async (status) => {
+        if (status.didJustFinish) {
+          console.log('Second sound finished, unloading...');
+          await snd2.unloadAsync();
+        }
+      });
+    } catch (error) {
+      console.error('Error during second sound playback:', error);
+    }
+  };
+
+  /* ======== генерация вариантов ======== */
 
   const generateOptions = (verbData) => {
     const correctAnswerIndex = verbData.verbHebrewOptions.findIndex((option) => option.isCorrect);
@@ -785,14 +776,14 @@ const handleAnswer = async (selectedOptionIndex) => {
       console.log(`Ошибка: У глагола "${verbData.verbRussian}" отсутствует правильный перевод.`);
     }
 
-    const incorrectOptions = verbData.verbHebrewOptions.filter(
-      (_, index) => index !== correctAnswerIndex
-    );
+    const incorrectOptions = verbData.verbHebrewOptions.filter((_, index) => index !== correctAnswerIndex);
 
     const shuffledOptions = shuffleArray(
       incorrectOptions.map((option, index) => {
         if (!option.text) {
-          console.log(`Ошибка: У глагола "${verbData.verbRussian}" отсутствует текст у одного из вариантов.`);
+          console.log(
+            `Ошибка: У глагола "${verbData.verbRussian}" отсутствует текст у одного из вариантов.`,
+          );
         }
         return {
           text: option.text,
@@ -802,62 +793,42 @@ const handleAnswer = async (selectedOptionIndex) => {
           isHighlighted: false,
           index,
         };
-      })
+      }),
     );
 
-    shuffledOptions.splice(
-      Math.floor(Math.random() * (shuffledOptions.length + 1)),
-      0,
-      {
-        text: correctTranslation,
-        transliteration: transliteration,
-        isCorrect: true,
-        isSelected: false,
-        isHighlighted: false,
-        index: shuffledOptions.length,
-      }
-    );
+    shuffledOptions.splice(Math.floor(Math.random() * (shuffledOptions.length + 1)), 0, {
+      text: correctTranslation,
+      transliteration,
+      isCorrect: true,
+      isSelected: false,
+      isHighlighted: false,
+      index: shuffledOptions.length,
+    });
 
     return shuffledOptions;
   };
 
-  const handleConfirmExit = () => {
-    navigation.reset({
-      index: 0,
-      routes: [{ name: 'Menu' }],
-    });
-  };
+  useEffect(() => {
+    if (shuffledVerbs.length > 0) {
+      setOptionsOrder(
+        generateOptions(shuffledVerbs[currentIndex]).map((option) => ({
+          ...option,
+          isSelected: false,
+        })),
+      );
+    }
+  }, [currentIndex, shuffledVerbs]);
 
-  const handleCancelExit = () => {
-    setExitConfirmationVisible(false);
-  };
-
-  const [resizeMode, setResizeMode] = useState('contain');
-
-  const handleResizeModeChange = (resizeMode) => {
-    setResizeMode(resizeMode);
-  };
-
-   const resetExercise = () => {
-  setCorrectAnswers(0);
-  setIncorrectAnswers(0);
-  setProgress(0);
-  setShowNextButton(false);
-  setExerciseCompleted(false);
-  setStatisticsUpdated(false);
-  setIsVerbListVisible(true);
-
- initializeVerbList(language, setShuffledVerbs, setVerbListForModal);
-
-  setCurrentIndex(0);
-  console.log("Exercise has been reset and restarted.");
-};
+  /* ======== завершение упражнения + статистика ======== */
 
   const calculateScore = () => {
     const totalAttempts = correctAnswers + incorrectAnswers;
     if (totalAttempts === 0) return 0;
-    return totalAttempts > 0 ? ((correctAnswers / totalAttempts) * 100).toFixed(2) : 0;
+    return Number(((correctAnswers / totalAttempts) * 100).toFixed(2));
   };
+
+  const percent = calculateScore();
+  const grade = getGrade(percent);
 
   const [statistics, setStatistics] = useState(null);
   const [isStatModalVisible, setIsStatModalVisible] = useState(false);
@@ -878,17 +849,59 @@ const handleAnswer = async (selectedOptionIndex) => {
     }
   };
 
-  const SpeakerButton = ({ onPress }) => (
-    <TouchableOpacity
-      style={styles.speakerIconContainer}
-      onPress={onPress}
-    >
-      <Image
-        source={require('./speaker1.png')}
-        style={styles.speakerIcon}
-      />
-    </TouchableOpacity>
-  );
+  useEffect(() => {
+    if (exerciseCompleted) {
+      const percentage = calculateScore();
+      const newGrade = getGrade(percentage);
+      setCurrentGrade(newGrade);
+      handleExerciseCompletion();
+    }
+  }, [exerciseCompleted, correctAnswers, incorrectAnswers]);
+
+  const handleConfirmExit = () => {
+    goToMenu();
+  };
+
+  const handleCancelExit = () => {
+    setExitConfirmationVisible(false);
+  };
+
+  const [resizeMode, setResizeMode] = useState('contain');
+
+  const handleResizeModeChange = (resizeModeVal) => {
+    setResizeMode(resizeModeVal);
+  };
+
+  const resetExercise = () => {
+    setCorrectAnswers(0);
+    setIncorrectAnswers(0);
+    setProgress(0);
+    setShowNextButton(false);
+    setExerciseCompleted(false);
+    setStatisticsUpdated(false);
+
+    setOptionsOrder([]);
+    setSelectedOptionIndex(null);
+    setIsAnswered(false);
+    setAnimateRight(false);
+    setIsSecondSoundFinished(false);
+    setCanShowSpeaker(false);
+    setisTextVisible(false);
+
+    setVerbDetails({
+      hebrewtext: '',
+      translit: '',
+      russiantext: '',
+      mp3: '',
+    });
+
+    setIsVerbListVisible(true);
+
+    initializeVerbList(language, setShuffledVerbs, setVerbListForModal);
+
+    setCurrentIndex(0);
+    console.log('Exercise has been reset and restarted.');
+  };
 
   const handleButton3Press = async () => {
     const exerciseId = 'exercise2';
@@ -903,220 +916,260 @@ const handleAnswer = async (selectedOptionIndex) => {
     }
   };
 
+  /* ===================== RENDER ===================== */
+
   return (
-  <>
-    {isVerbListVisible && (
-      <VerbListModal
-        visible={true}
-        language={language}
-        verbs={verbListForModal}
-        onClose={() => setIsVerbListVisible(false)}
-      />
-    )}
+    <>
+      {isVerbListVisible && (
+        <VerbListModal
+          visible={isVerbListVisible}
+          language={language}
+          verbs={verbListForModal}
+          onStartExercise={() => {
+            modalCloseReasonRef.current = 'start';
 
-    {!isVerbListVisible && (
-    <ScrollView contentContainerStyle={styles.scrollViewContent}>
-      <View style={styles.container}>
-        <View style={styles.topBar}>
-          <Animated.Image
-            source={require('./VERBIFY.png')}
-            style={[styles.logoImage, { opacity: fadeAnim }]}
-          />
-          <View style={styles.buttonContainer}>
-            <TouchableOpacity onPress={handleSoundToggle}>
-              <Animated.Image
-                source={soundEnabled ? require('./SoundOn.png') : require('./SoundOff.png')}
-                style={[styles.buttonImage, { opacity: fadeAnim }]}
-              />
-            </TouchableOpacity>
+            setSelectedOptionIndex(null);
+            setShowNextButton(false);
+            setIsAnswered(false);
+            setAnimateRight(false);
+            setIsSecondSoundFinished(false);
+            setCanShowSpeaker(false);
+            setisTextVisible(false);
 
-            <TouchableOpacity onPress={handleButton3Press}>
-              <Animated.Image
-                source={require('./stat.png')}
-                style={[styles.buttonImage, { opacity: fadeAnim }]}
-              />
-              <StatModal2
-                visible={isStatModalVisible}
-                onToggle={() => setIsStatModalVisible(false)}
-                statistics={statistics}
-              />
-            </TouchableOpacity>
+            setIsVerbListVisible(false);
 
-            <TouchableOpacity onPress={handleButton2Press}>
-              <Animated.Image
-                source={require('./question.png')}
-                style={[styles.buttonImage, { opacity: fadeAnim }]}
-              />
-              <TaskDescriptionModal6
-                visible={isDescriptionModalVisible}
-  onToggle={toggleDescriptionModal}
-  language={language}
-  dontShowAgain2={dontShowAgain2}
-  onToggleDontShowAgain={handleToggleDontShowAgain2}
-              />
-            </TouchableOpacity>
-
-            <TouchableOpacity onPress={handleGenderToggle}>
-              <Animated.Image
-                source={isGenderMan ? require('./GenderMan.png') : require('./GenderWoman.png')}
-                style={[styles.buttonImage, { opacity: fadeAnim }]}
-              />
-            </TouchableOpacity>
-          </View>
-        </View>
-
-        <Animated.View style={[styles.progressContainer, { resizeMode }, { opacity: fadeAnim }]}>
-          <View style={styles.textContainer}>
-            <Text style={styles.prtext} maxFontSizeMultiplier={1.2}>
-              ВЕРНО: {correctAnswers}
-            </Text>
-            <Text style={styles.prtext} maxFontSizeMultiplier={1.2}>
-              НЕВЕРНО: {incorrectAnswers}
-            </Text>
-          </View>
-
-          <View style={styles.remainingTasksContainer}>
-            <Text style={styles.remainingTasksText} maxFontSizeMultiplier={1.2}>
-              {shuffledVerbs.length - currentIndex}
-            </Text>
-          </View>
-
-          <Animated.View style={[styles.percentContainer, { backgroundColor, borderRadius: 10 }]}>
-            <Text style={styles.percentText} maxFontSizeMultiplier={1.2}>
-              {progress > 0 ? (((correctAnswers / (correctAnswers + incorrectAnswers))) * 100).toFixed(2) : 0}%
-            </Text>
-          </Animated.View>
-        </Animated.View>
-
-        <Animated.View style={[styles.ProgressBarcontainer, { opacity: fadeAnim }]}>
-          <ProgressBar progress={progress} totalExercises={shuffledVerbs.length} />
-        </Animated.View>
-
-        <Animated.Text style={[styles.title, { opacity: fadeAnim }]} maxFontSizeMultiplier={1.2}>ВЫБЕРИ ПЕРЕВОД</Animated.Text>
-
-        {currentIndex < shuffledVerbs.length && (
-          <VerbCard2 verbData={shuffledVerbs[currentIndex]} options={optionsOrder} onAnswer={handleAnswer} />
-        )}
-
-        <VerbDetailsContainer2
-          verbDetails={verbDetails}
-          handleSpeakerPress={handleSpeakerPress}
-          currentIndex={currentIndex} // Убедитесь, что currentIndex передается правильно
-          animateRight={animateRight}
-          isSecondSoundFinished={isSecondSoundFinished}
-          isAnswered={isAnswered}
-          isTextVisible={isTextVisible}
-          canShowSpeaker={canShowSpeaker} 
+            if (shuffledVerbs.length) {
+              setCurrentIndex(0);
+              setOptionsOrder(
+                generateOptions(shuffledVerbs[0]).map((o) => ({
+                  ...o,
+                  isSelected: false,
+                  disabled: false,
+                })),
+              );
+              updateVerbDetails2(shuffledVerbs[0], false);
+            }
+          }}
+          onClose={() => {
+            modalCloseReasonRef.current = 'menu';
+            setIsVerbListVisible(false);
+            goToMenu();
+          }}
         />
+      )}
 
-<Animated.View
-    style={[
-        styles.optionsContainer,
-        {
-            transform: [{ translateX: optionsAnim }]
-        }
-    ]}
->
-    {optionsOrder.map((option, index) => (
-        <TouchableOpacity
-            key={index}
-            style={[
-                styles.optionButton,
-                option.isSelected
-                    ? (option.isCorrect ? styles.correctOption : styles.incorrectOption)
-                    : (selectedOptionIndex !== null && option.isCorrect ? styles.correctOption : null)
-            ]}
-            onPress={() => handleAnswer(index)}
-            disabled={showNextButton || option.disabled}
-        >
-            <View style={styles.optionContent}>
-                <Text style={styles.optionText} maxFontSizeMultiplier={1.2}>{option.text}</Text>
-                <Text style={styles.transliterationText} maxFontSizeMultiplier={1.2}>{option.transliteration}</Text>
+      {!isVerbListVisible && (
+        <ScrollView contentContainerStyle={styles.scrollViewContent}>
+          <View style={styles.container}>
+            <View style={styles.topBar}>
+              <Animated.Image
+                source={require('./VERBIFY.png')}
+                style={[styles.logoImage, { opacity: fadeAnim }]}
+              />
+              <View style={styles.buttonContainer}>
+                <TouchableOpacity onPress={handleSoundToggle}>
+                  <Animated.Image
+                    source={soundEnabled ? require('./SoundOn.png') : require('./SoundOff.png')}
+                    style={[styles.buttonImage, { opacity: fadeAnim }]}
+                  />
+                </TouchableOpacity>
 
-                {/* Анимация при нажатии на спикер */}
-                {option.isCorrect && isPlayingLottieOnSpeaker && (
-                    <View style={styles.lottieContainer}>
+                <TouchableOpacity onPress={handleButton3Press}>
+                  <Animated.Image
+                    source={require('./stat.png')}
+                    style={[styles.buttonImage, { opacity: fadeAnim }]}
+                  />
+                  <StatModal2
+                    visible={isStatModalVisible}
+                    onToggle={() => setIsStatModalVisible(false)}
+                    statistics={statistics}
+                  />
+                </TouchableOpacity>
+
+                <TouchableOpacity onPress={handleButton2Press}>
+                  <Animated.Image
+                    source={require('./question.png')}
+                    style={[styles.buttonImage, { opacity: fadeAnim }]}
+                  />
+                  <TaskDescriptionModal6
+                    visible={isDescriptionModalVisible}
+                    onToggle={toggleDescriptionModal}
+                    language={language}
+                    dontShowAgain2={dontShowAgain2}
+                    onToggleDontShowAgain={handleToggleDontShowAgain2}
+                  />
+                </TouchableOpacity>
+
+                <TouchableOpacity onPress={handleGenderToggle}>
+                  <Animated.Image
+                    source={isGenderMan ? require('./GenderMan.png') : require('./GenderWoman.png')}
+                    style={[styles.buttonImage, { opacity: fadeAnim }]}
+                  />
+                </TouchableOpacity>
+              </View>
+            </View>
+
+            <Animated.View style={[styles.progressContainer, { resizeMode }, { opacity: fadeAnim }]}>
+              <View style={styles.textContainer}>
+                <Text style={styles.prtext} maxFontSizeMultiplier={1.2}>
+                  ВЕРНО: {correctAnswers}
+                </Text>
+                <Text style={styles.prtext} maxFontSizeMultiplier={1.2}>
+                  НЕВЕРНО: {incorrectAnswers}
+                </Text>
+              </View>
+
+              <View style={styles.remainingTasksContainer}>
+                <Text style={styles.remainingTasksText} maxFontSizeMultiplier={1.2}>
+                  {shuffledVerbs.length - currentIndex}
+                </Text>
+              </View>
+
+              <Animated.View
+                style={[styles.percentContainer, { backgroundColor, borderRadius: 10 }]}
+              >
+                <Text style={styles.percentText} maxFontSizeMultiplier={1.2}>
+                  {progress > 0
+                    ? ((correctAnswers / (correctAnswers + incorrectAnswers || 1)) * 100).toFixed(2)
+                    : 0}
+                  %
+                </Text>
+              </Animated.View>
+            </Animated.View>
+
+            <Animated.View style={[styles.ProgressBarcontainer, { opacity: fadeAnim }]}>
+              <ProgressBar progress={progress} totalExercises={shuffledVerbs.length} />
+            </Animated.View>
+
+            <Animated.Text style={[styles.title, { opacity: fadeAnim }]} maxFontSizeMultiplier={1.2}>
+              ВЫБЕРИ ПЕРЕВОД
+            </Animated.Text>
+
+            {currentIndex < shuffledVerbs.length && (
+              <VerbCard2
+                verbData={shuffledVerbs[currentIndex]}
+                options={optionsOrder}
+                onAnswer={handleAnswer}
+              />
+            )}
+
+            <VerbDetailsContainer2
+              verbDetails={verbDetails}
+              handleSpeakerPress={handleSpeakerPress}
+              currentIndex={currentIndex}
+              animateRight={animateRight}
+              isAnswered={isAnswered}
+              canShowSpeaker={canShowSpeaker}
+            />
+
+            <Animated.View
+              style={[
+                styles.optionsContainer,
+                {
+                  transform: [{ translateX: optionsAnim }],
+                },
+              ]}
+            >
+              {optionsOrder.map((option, index) => (
+                <TouchableOpacity
+                  key={index}
+                  style={[
+                    styles.optionButton,
+                    option.isSelected
+                      ? option.isCorrect
+                        ? styles.correctOption
+                        : styles.incorrectOption
+                      : selectedOptionIndex !== null && option.isCorrect
+                      ? styles.correctOption
+                      : null,
+                  ]}
+                  onPress={() => handleAnswer(index)}
+                  disabled={showNextButton || option.disabled}
+                >
+                  <View style={styles.optionContent}>
+                    <Text style={styles.optionText} maxFontSizeMultiplier={1.2}>
+                      {option.text}
+                    </Text>
+                    <Text style={styles.transliterationText} maxFontSizeMultiplier={1.2}>
+                      {option.transliteration}
+                    </Text>
+
+                    {option.isCorrect && isPlayingLottieOnSpeaker && (
+                      <View style={styles.lottieContainer}>
                         <LottieView
-                            ref={animationRef}
-                            source={require('./assets/Animation - 1718430107767.json')}
-                            autoPlay
-                            loop={false}
-                            style={styles.lottie}
+                          ref={animationRef}
+                          source={require('./assets/Animation - 1718430107767.json')}
+                          autoPlay
+                          loop={false}
+                          style={styles.lottie}
                         />
-                    </View>
-                )}
+                      </View>
+                    )}
 
-                {/* Отображение спикера */}
-                {showNextButton && option.isCorrect && (
-                    <TouchableOpacity
+                    {showNextButton && option.isCorrect && (
+                      <TouchableOpacity
                         style={styles.speakerIconContainer}
                         onPress={() => playSound(shuffledVerbs[currentIndex].audioFile, true)}
-                    >
-                        <Image
-                            source={require('./speaker6.png')}
-                            style={styles.speakerIcon}
-                        />
-                    </TouchableOpacity>
-                )}
-            </View>
-        </TouchableOpacity>
-    ))}
-</Animated.View>
+                      >
+                        <Image source={require('./speaker6.png')} style={styles.speakerIcon} />
+                      </TouchableOpacity>
+                    )}
+                  </View>
+                </TouchableOpacity>
+              ))}
+            </Animated.View>
 
+            <TouchableOpacity
+              style={[styles.nextButton, showNextButton ? styles.activeButton : styles.inactiveButton]}
+              onPress={handleNextCard}
+              disabled={!showNextButton}
+            >
+              <Text style={styles.nextButtonText} maxFontSizeMultiplier={1.2}>
+                СЛЕДУЮЩИЙ ГЛАГОЛ
+              </Text>
+            </TouchableOpacity>
 
-        <TouchableOpacity
-          style={[styles.nextButton, showNextButton ? styles.activeButton : styles.inactiveButton]}
-          onPress={handleNextCard}
-          disabled={!showNextButton}
-        >
-          <Text style={styles.nextButtonText} maxFontSizeMultiplier={1.2}>СЛЕДУЮЩИЙ ГЛАГОЛ</Text>
-        </TouchableOpacity>
+            {exerciseCompleted && (
+              <CompletionMessage
+                correctAnswers={correctAnswers}
+                incorrectAnswers={incorrectAnswers}
+                handleOK={handleExerciseCompletion}
+                navigateToMenu={navigateToMenu}
+                correctAnswersPercentage={percent}
+                grade={grade}
+                restartTask={resetExercise}
+              />
+            )}
 
-        {exerciseCompleted && (
-          <CompletionMessage
-            correctAnswers={correctAnswers}
-            incorrectAnswers={incorrectAnswers}
-            handleOK={handleExerciseCompletion}
-            navigateToMenu={navigateToMenu}
-            correctAnswersPercentage={
-              progress > 0
-                ? (((correctAnswers / (correctAnswers + incorrectAnswers)) * 100).toFixed(2))
-                : 0
-            }
-            grade={grade}
-            restartTask={resetExercise}
-          />
-        )}
+            {!exerciseCompleted && (
+              <ExitConfirmationModal
+                visible={exitConfirmationVisible}
+                onCancel={handleCancelExit}
+                onConfirm={handleConfirmExit}
+              />
+            )}
+          </View>
+        </ScrollView>
+      )}
 
-{!exerciseCompleted && (
-  <ExitConfirmationModal
-    visible={exitConfirmationVisible}
-    onCancel={handleCancelExit} 
-    onConfirm={handleConfirmExit}
-  />
-)}
+      <StatModal2
+        visible={isStatModalVisible}
+        onToggle={() => setIsStatModalVisible(false)}
+        statistics={statistics}
+      />
 
-      </View>
-    </ScrollView>
-  )}
-
-    {/* Модалки должны быть вне ScrollView/TouchableOpacity */}
-    <StatModal2
-      visible={isStatModalVisible}
-      onToggle={() => setIsStatModalVisible(false)}
-      statistics={statistics}
-    />
-
-    <TaskDescriptionModal6
-      visible={isDescriptionModalVisible}
-      onToggle={toggleDescriptionModal}
-      language={language}
-      dontShowAgain2={dontShowAgain2}
-      onToggleDontShowAgain={handleToggleDontShowAgain2}
-    />
-  </>
-);
+      <TaskDescriptionModal6
+        visible={isDescriptionModalVisible}
+        onToggle={toggleDescriptionModal}
+        language={language}
+        dontShowAgain2={dontShowAgain2}
+        onToggleDontShowAgain={handleToggleDontShowAgain2}
+      />
+    </>
+  );
 };
+
+/* ===================== STYLES ===================== */
 
 const styles = StyleSheet.create({
   scrollViewContent: {
@@ -1142,7 +1195,6 @@ const styles = StyleSheet.create({
     width: '100%',
     paddingTop: 0,
     marginTop: 0,
-
   },
   logoImage: {
     width: 90,
@@ -1179,7 +1231,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFDEF',
     marginBottom: 10,
     borderRadius: 10,
-    shadowColor: "#000",
+    shadowColor: '#000',
     shadowOffset: {
       width: 0,
       height: 2,
@@ -1187,7 +1239,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
     elevation: 5,
-    position: 'relative', // add this line
+    position: 'relative',
   },
   optionContent: {
     flex: 1,
@@ -1213,7 +1265,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     textAlign: 'center',
     marginBottom: 30,
-    shadowColor: "#000",
+    shadowColor: '#000',
     shadowOffset: {
       width: 0,
       height: 2,
@@ -1244,8 +1296,8 @@ const styles = StyleSheet.create({
   },
 
   ProgressBarcontainer: {
-    width: "100%",
-    marginBottom: 10
+    width: '100%',
+    marginBottom: 10,
   },
 
   progressContainer: {
@@ -1309,8 +1361,8 @@ const styles = StyleSheet.create({
 
   speakerIconContainer: {
     position: 'absolute',
-    bottom: -8, // позиция в нижнем углу
-    right: -8, // позиция в правом углу
+    bottom: -8,
+    right: -8,
   },
 
   speakerIcon1: {
@@ -1332,13 +1384,12 @@ const styles = StyleSheet.create({
   verbDetailsContainer: {
     height: 66,
     backgroundColor: '#83A3CD',
-
     marginBottom: 20,
     width: '100%',
     position: 'relative',
     borderRadius: 10,
     overflow: 'hidden',
-    shadowColor: "#000",
+    shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,
     shadowRadius: 3.84,

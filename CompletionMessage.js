@@ -35,7 +35,7 @@ const CompletionMessage = ({
 </TouchableOpacity>
 
           <TouchableOpacity onPress={() => {
-            handleOK();
+            // handleOK();
             navigateToMenu();
           }}>
             <Text style={styles.completeButton}maxFontSizeMultiplier={1.2}>МЕНЮ</Text>

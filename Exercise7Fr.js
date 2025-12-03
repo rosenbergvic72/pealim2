@@ -156,32 +156,93 @@ const Exercise7Fr = () => {
     }
   }, []);
 
+  // useEffect(() => {
+  //   if (verbs.length > 0) {
+  //     const currentVerb = verbs[currentIndex];
+
+  //     const incorrectAnswers = shuffleArray(
+  //       verbs
+  //         .filter((verb) => verb.frtext !== currentVerb.frtext)
+  //         .map((verb) => ({
+  //           frtext: verb.frtext,
+  //           gender: verb.gender,
+  //         }))
+  //     ).slice(0, 5);
+  //     const answers = shuffleArray([{ frtext: currentVerb.frtext, gender: currentVerb.gender }, ...incorrectAnswers]);
+
+  //     setDisplayPairs(
+  //       answers.map((answer) => ({
+  //         ...currentVerb,
+  //         frtext: answer.frtext,
+  //         gender: answer.gender,
+  //       }))
+  //     );
+  //     playAudio(currentVerb.mp3);
+  //     setShowInfinitive(false); // Сброс состояния
+  //     setCurrentAudioFile(currentVerb.mp3); // Сохранение текущего аудиофайла
+  //   }
+  // }, [currentIndex, verbs]);
+
   useEffect(() => {
-    if (verbs.length > 0) {
-      const currentVerb = verbs[currentIndex];
+  if (verbs.length > 0) {
+    const currentVerb = verbs[currentIndex];
 
-      const incorrectAnswers = shuffleArray(
-        verbs
-          .filter((verb) => verb.frtext !== currentVerb.frtext)
-          .map((verb) => ({
-            frtext: verb.frtext,
-            gender: verb.gender,
-          }))
-      ).slice(0, 5);
-      const answers = shuffleArray([{ frtext: currentVerb.frtext, gender: currentVerb.gender }, ...incorrectAnswers]);
+    // 1. Определяем, какие гендеры нам подходят
+    const getAllowedGenders = (gender) => {
+      if (gender === 'man' || gender === 'men') {
+        return ['man', 'men'];
+      }
+      if (gender === 'woman' || gender === 'women') {
+        return ['woman', 'women'];
+      }
+      // на всякий случай — если вдруг что-то другое или пусто
+      return gender ? [gender] : [];
+    };
 
-      setDisplayPairs(
-        answers.map((answer) => ({
-          ...currentVerb,
-          frtext: answer.frtext,
-          gender: answer.gender,
-        }))
-      );
-      playAudio(currentVerb.mp3);
-      setShowInfinitive(false); // Сброс состояния
-      setCurrentAudioFile(currentVerb.mp3); // Сохранение текущего аудиофайла
-    }
-  }, [currentIndex, verbs]);
+    const allowedGenders = getAllowedGenders(currentVerb.gender);
+
+    // 2. Фильтруем возможные "неверные" ответы:
+    //    - не совпадают по russiantext с текущим
+    //    - попадают в нужную группу полов (если она есть)
+    const incorrectPool = verbs.filter((verb) => {
+      if (verb.frtext === currentVerb.frtext) return false;
+
+      if (allowedGenders.length > 0) {
+        return allowedGenders.includes(verb.gender);
+      }
+
+      // если по какой-то причине allowedGenders пустой — не фильтруем по полу
+      return true;
+    });
+
+    const incorrectAnswers = shuffleArray(
+      incorrectPool.map((verb) => ({
+        frtext: verb.frtext,
+        gender: verb.gender,
+      }))
+    ).slice(0, 5);
+
+    // 3. Правильный ответ + неправильные, потом перемешиваем
+    const answers = shuffleArray([
+      { frtext: currentVerb.frtext, gender: currentVerb.gender },
+      ...incorrectAnswers,
+    ]);
+
+    setDisplayPairs(
+      answers.map((answer) => ({
+        ...currentVerb,
+        frtext: answer.frtext,
+        gender: answer.gender,
+      }))
+    );
+
+    // как и было
+    playAudio(currentVerb.mp3);
+    setShowInfinitive(false);
+    setCurrentAudioFile(currentVerb.mp3);
+  }
+}, [currentIndex, verbs]);
+
 
   useEffect(() => {
     setShowTranslation(false); // Сброс состояния перевода при смене карточки

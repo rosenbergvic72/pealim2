@@ -304,7 +304,7 @@
   },
   {
       "hebrewVerb": "לנצח",
-      "root": "צ-ל-ח",
+      "root": "נ-צ-ח",
       "binyan": "PI'EL",
       "transliteration": "lenatzeach",
       "audioFile": "lenatzeach.mp3",
@@ -928,7 +928,7 @@
           "Вызывать",
           "Называть"
       ],
-      "translationOptionsEn": ["to read", "to call", "to summon", "to name"],
+      "translationOptionsEn": ["to read", "to order", "to summon", "to name"],
 "translationOptionsFr": ["lire", "appeler", "invoquer", "nommer"],
 "translationOptionsEs": ["leer", "llamar", "invocar", "nombrar"],
 "translationOptionsPt": ["ler", "chamar", "invocar", "nomear"],
@@ -2243,7 +2243,7 @@
   {
       "hebrewVerb": "לשנות",
       "root": "ש-נ-ה",
-      "binyan": "PA'AL",
+      "binyan": "PI'EL",
       "transliteration": "leshanot",
       "audioFile": "lishnot.mp3",
       "translationOptions": [
@@ -3226,7 +3226,7 @@
       "translationOptionsEn": ["to marry", "to love", "to miss", "to wait"],
 "translationOptionsFr": ["se marier", "aimer", "manquer", "attendre"],
 "translationOptionsEs": ["casarse", "amar", "echar de menos", "esperar"],
-"translationOptionsPt": ["casar", "amar", "sentir falta", "esperar"],
+"translationOptionsPt": ["casar-se", "amar", "sentir falta", "esperar"],
 "translationOptionsAr": ["أن يتزوج", "أن يخطط", "أن يستلقي", "أن يكون مريضاً"],
 "translationOptionsAm": ["መጋባት", "መውደቅ", "መጠበቅ", "መጠባበቅ"],
 
@@ -3342,7 +3342,7 @@
       "hebrewVerb": "לחנות",
       "root": "ח-נ-ה",
       "binyan": "PA'AL",
-      "transliteration": "lachnot",
+      "transliteration": "lachanot",
       "audioFile": "lachanot.mp3",
       "translationOptions": [
           "Парковаться",
@@ -3535,7 +3535,7 @@
     "transliteration": "levashel",
     "audioFile": "levashel.mp3",
     "translationOptions": [
-    "Готовить",
+    "Варить",
     "Переходить",
     "Печатать",
     "Рисовать"
@@ -4114,7 +4114,7 @@
         "Жевать",
         "Учить"
         ],
-        "translationOptionsEn": ["to regret", "to be ill", "to chew", "to teach"],
+        "translationOptionsEn": ["to be sorry", "to be ill", "to chew", "to teach"],
 "translationOptionsFr": ["regretter", "être malade", "mâcher", "enseigner"],
 "translationOptionsEs": ["lamentar", "estar enfermo", "masticar", "enseñar"],
 "translationOptionsPt": ["lamentar", "estar doente", "mastigar", "ensinar"],
@@ -4264,7 +4264,7 @@
         "translationOptionsEn": ["to sunbathe", "to wish", "to drink", "to dig"],
 "translationOptionsFr": ["bronzer", "souhaiter", "boire", "creuser"],
 "translationOptionsEs": ["broncearse", "desear", "beber", "cavar"],
-"translationOptionsPt": ["bronzejar-se", "desejar", "beber", "cavar"],
+"translationOptionsPt": ["bronzear-se", "desejar", "beber", "cavar"],
 "translationOptionsAr": ["أن يتشمس", "أن تطلب", "أن تحمل", "أن تمرض"],
 "translationOptionsAm": ["ፀሐይ መሞቅ", "መፍላት", "መጠጣት", "መጠበቅ"]
 ,
@@ -5519,28 +5519,7 @@
 ,
                         "correctTranslationIndex": 0
                     },
-                    {
-                        "hebrewVerb": "לבלות",
-                        "root": "ב-ל-ה",
-                        "binyan": "PI'EL",
-                        "transliteration": "levalot",
-                        "audioFile": "levalot.mp3",
-                        "translationOptions": [
-                            "Тратить",
-                            "Хранить",
-                             "Жить",
-                             "Мечтать"
-
-                        ],
-                        "translationOptionsEn": ["to spend", "to keep", "to live", "to dream"],
-"translationOptionsFr": ["dépenser", "garder", "vivre", "rêver"],
-"translationOptionsEs": ["gastar", "guardar", "vivir", "soñar"],
-"translationOptionsPt": ["gastar", "guardar", "viver", "sonhar"],
-"translationOptionsAr": ["أن ينفق", "أن توصل", "أن تحترم", "أن تقابل"],
-"translationOptionsAm": ["ማውጣት", "መያዝ", "መኖር", "መህልም"]
-,
-                        "correctTranslationIndex": 0
-                    },
+               
                     {
                         "hebrewVerb": "לבנות",
                         "root": "ב-נ-ה",
@@ -5756,27 +5735,7 @@
                         "correctTranslationIndex": 0
                     },
 
-                    {
-                        "hebrewVerb": "להיעצר",
-                        "root": "ע-צ-ר",
-                        "binyan": "NIF'AL",
-                        "transliteration": "lehe'atzer",
-                        "audioFile": "leheatzer.mp3",
-                        "translationOptions": [
-                            "Остановиться",
-                            "Вступать",
-                            "Работать",
-                            "Начинать"
-                        ],
-                        "translationOptionsEn": ["to stop", "to join", "to work", "to start"],
-"translationOptionsFr": ["s'arrêter", "adhérer", "travailler", "commencer"],
-"translationOptionsEs": ["parar", "unirse", "trabajar", "empezar"],
-"translationOptionsPt": ["parar", "aderir", "trabalhar", "começar"],
-"translationOptionsAr": ["أن يتوقف", "أن تأخذ", "أن تفرح", "أن تندهش"],
-"translationOptionsAm": ["መቆም", "መቀላቀል", "መስራት", "መጀመር"]
-,
-                        "correctTranslationIndex": 0
-                    },
+            
                     {
                         "hebrewVerb": "להמליץ",
                         "root": "מ-ל-ץ",
@@ -6195,6 +6154,72 @@
 "translationOptionsAm": ["ቀንድ ማሰማት", "መፍጠር", "መዘገየት", "መምረጥ"],
 
     "correctTranslationIndex": 0
+},
+
+{
+  "hebrewVerb": "להחזיק",
+  "root": "ח-ז-ק",
+  "binyan": "HIF'IL",
+  "transliteration": "lehachzik",
+  "audioFile": "lehachzik.mp3",
+  "translationOptions": [
+    "Держать",
+    "Купить",
+    "Найти",
+    "Бросать"
+  ],
+  "translationOptionsEn": ["to hold", "to buy", "to find", "to throw"],
+  "translationOptionsFr": ["tenir", "acheter", "trouver", "jeter"],
+  "translationOptionsEs": ["sujetar", "comprar", "encontrar", "tirar"],
+  "translationOptionsPt": ["segurar", "comprar", "encontrar", "jogar"],
+  "translationOptionsAr": ["أن يمسك", "أن يشتري", "أن يجد", "أن يرمي"],
+  "translationOptionsAm": ["መያዝ", "መግዛት", "መፈለግ", "መወረድ"],
+  "correctTranslationIndex": 0
+},
+
+{
+  "hebrewVerb": "למזוג",
+  "root": "מ-ז-ג",
+  "binyan": "PA'AL",
+  "transliteration": "limzog",
+  "audioFile": "limzog.mp3",
+  "translationOptions": [
+    "Наливать",
+    "Писать",
+    "Сидеть",
+    "Смеяться"
+  ],
+  "translationOptionsEn": ["to pour", "to write", "to sit", "to laugh"],
+  "translationOptionsFr": ["verser", "écrire", "s'asseoir", "rire"],
+  "translationOptionsEs": ["verter", "escribir", "sentarse", "reír"],
+  "translationOptionsPt": ["despejar", "escrever", "sentar", "rir"],
+  "translationOptionsAr": ["أن يصب", "أن يكتب", "أن يجلس", "أن يضحك"],
+  "translationOptionsAm": ["መምዘጋት", "መጻፍ", "መቀመጥ", "መሳቅ"],
+  "correctTranslationIndex": 0
+},
+
+{
+  "hebrewVerb": "לתרגם",
+  "root": "ת-ר-ג-ם",
+  "binyan": "PI'EL",
+  "transliteration": "letargem",
+  "audioFile": "letargem.mp3",
+  "translationOptions": [
+    "Переводить (язык)",
+    "Писать",
+    "Понимать",
+    "Считать"
+  ],
+  "translationOptionsEn": ["to translate", "to write", "to understand", "to count"],
+  "translationOptionsFr": ["traduire", "écrire", "comprendre", "compter"],
+  "translationOptionsEs": ["traducir", "escribir", "entender", "contar"],
+  "translationOptionsPt": ["traduzir", "escrever", "entender", "contar"],
+  "translationOptionsAr": ["أن يترجم", "أن يكتب", "أن يفهم", "أن يعد"],
+  "translationOptionsAm": ["መተርጎም", "መጻፍ", "መረዳት", "መቁጠር"],
+  "correctTranslationIndex": 0
 }
+
+
+
 
 ]

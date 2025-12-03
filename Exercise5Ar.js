@@ -994,19 +994,25 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     width: '50%',
+     marginTop: 10,
   },
   text: {
     fontSize: 14,
     color: 'white',
     textAlign: 'left',
     marginLeft: 15,
+      lineHeight: 20,
+    fontWeight: 'bold',
+    includeFontPadding: false,
+    textAlignVertical: 'center',
+   
   },
   percentContainer: {
     alignItems: 'center',
     marginRight: 10,
   },
   percentText: {
-    fontSize: 22,
+    fontSize: 20,
     color: 'white',
     fontWeight: 'bold',
     textAlign: 'center',
@@ -1020,7 +1026,7 @@ const styles = StyleSheet.create({
     marginRight: 10,
   },
   remainingTasksText: {
-    fontSize: 22,
+    fontSize: 20,
     color: 'white',
     fontWeight: 'bold',
     textAlign: 'center',

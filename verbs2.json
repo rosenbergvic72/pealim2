@@ -2484,7 +2484,7 @@
         ]
       },
       {
-        "verbRussian": "Пробовать",
+        "verbRussian": "Пытаться",
         "verbEnglish": "to try",
 "verbFrench": "essayer",
 "verbSpanish": "intentar",
@@ -2760,7 +2760,7 @@
         "verbEnglish": "to marry",
 "verbFrench": "se marier",
 "verbSpanish": "casarse",
-"verbPortuguese": "casar",
+"verbPortuguese": "casar-se",
 "verbArabic": "أن يتزوج",
 "verbAmharic": "መጋባት ",
 
@@ -3011,7 +3011,7 @@
         ]
       },
       {
-        "verbRussian": "Готовить",
+        "verbRussian": "Варить",
         "verbEnglish": "to cook",
 "verbFrench": "cuisiner",
 "verbSpanish": "cocinar",
@@ -3595,7 +3595,7 @@
         "verbEnglish": "to sunbathe",
 "verbFrench": "bronzer",
 "verbSpanish": "broncearse",
-"verbPortuguese": "bronzejar-se",
+"verbPortuguese": "bronzear-se",
 "verbArabic": "أن يتشمس",
 "verbAmharic": "ጸሀይ መቀበል",
 
@@ -3692,24 +3692,7 @@
           { "text": "להירדם", "transliteration": "leheradem", "isCorrect": false }
         ]
       },
-      {
-        "verbRussian": "Остановиться",
-        "verbEnglish": "to stop",
-"verbFrench": "s'arrêter",
-"verbSpanish": "detenerse",
-"verbPortuguese": "parar",
-"verbArabic": "أن يتوقف",
-"verbAmharic": "መቆም",
 
-        "audioFile": "leheatzer.mp3",
-        "verbHebrewOptions": [
-          { "text": "להיעצר", "transliteration": "lehe'atzer", "isCorrect": true },
-          { "text": "להימצא", "transliteration": "lehimatze", "isCorrect": false },
-          { "text": "להיגמר", "transliteration": "lehigamer", "isCorrect": false },
-          { "text": "להירדם", "transliteration": "leheradem", "isCorrect": false }
-         
-        ]
-      },
       {
         "verbRussian": "Находиться",
         "verbEnglish": "to be found",
@@ -4627,23 +4610,7 @@
           { "text": "לנצח", "transliteration": "lenatzeach", "isCorrect": false }
         ]
       },
-      {
-        "verbRussian": "Тратить",
-        "verbEnglish": "to spend",
-"verbFrench": "dépenser",
-"verbSpanish": "gastar",
-"verbPortuguese": "gastar",
-"verbArabic": "أن ينفق",
-"verbAmharic": "ማውጣት",
-
-        "audioFile": "levalot.mp3",
-        "verbHebrewOptions": [
-          { "text": "לבלות", "transliteration": "levalot", "isCorrect": true },
-          { "text": "להפסיד", "transliteration": "lehafsid", "isCorrect": false },
-          { "text": "לנצח", "transliteration": "lenatzeach", "isCorrect": false },
-          { "text": "להרגיש", "transliteration": "lehargish", "isCorrect": false }
-        ]
-      },
+      
       {
         "verbRussian": "Строить",
         "verbEnglish": "to build",
@@ -4832,23 +4799,6 @@
       ]
     },
 
-    {
-      "verbRussian": "Остановиться",
-      "verbEnglish": "to stop",
-"verbFrench": "s'arrêter",
-"verbSpanish": "parar",
-"verbPortuguese": "parar",
-"verbArabic": "أن يتوقف",
-"verbAmharic": "መቆም",
-
-      "audioFile": "leheatzer.mp3",
-      "verbHebrewOptions": [
-        { "text": "להיעצר", "transliteration": "lehe'atzer", "isCorrect": true },
-        { "text": "להסביר", "transliteration": "lehasbir", "isCorrect": false },
-        { "text": "להפסיד", "transliteration": "lehafsid", "isCorrect": false },
-        { "text": "לנצח", "transliteration": "lenatzeach", "isCorrect": false }
-      ]
-    },
     {
       "verbRussian": "Рекомендовать",
       "verbEnglish": "to recommend",
@@ -5183,7 +5133,64 @@
         { "text": "לשמור", "transliteration": "lishmor", "isCorrect": false },
         { "text": "ללמד", "transliteration": "lelamed", "isCorrect": false }
       ]
-    }
+    },
+
+    {
+  "verbRussian": "Держать",
+  "verbEnglish": "to hold",
+  "verbFrench": "tenir",
+  "verbSpanish": "sujetar",
+  "verbPortuguese": "segurar",
+  "verbArabic": "أن يمسك",
+  "verbAmharic": "መያዝ",
+
+  "audioFile": "lehachzik.mp3",
+  "verbHebrewOptions": [
+    { "text": "להחזיק", "transliteration": "lehachzik", "isCorrect": true },
+    { "text": "לעזוב", "transliteration": "la'azov", "isCorrect": false },
+    { "text": "לסגור", "transliteration": "lisgor", "isCorrect": false },
+    { "text": "לשכוח", "transliteration": "lishkoach", "isCorrect": false }
+  ]
+},
+
+{
+  "verbRussian": "Наливать",
+  "verbEnglish": "to pour",
+  "verbFrench": "verser",
+  "verbSpanish": "verter",
+  "verbPortuguese": "despejar",
+  "verbArabic": "أن يصب",
+  "verbAmharic": "መምዘጋት",
+
+  "audioFile": "limzog.mp3",
+  "verbHebrewOptions": [
+    { "text": "למזוג", "transliteration": "limzog", "isCorrect": true },
+    { "text": "למשוך", "transliteration": "limshokh", "isCorrect": false },
+    { "text": "לפתוח", "transliteration": "liftoach", "isCorrect": false },
+    { "text": "לכתוב", "transliteration": "lichtov", "isCorrect": false }
+  ]
+},
+
+{
+  "verbRussian": "Переводить (язык)",
+  "verbEnglish": "to translate",
+  "verbFrench": "traduire",
+  "verbSpanish": "traducir",
+  "verbPortuguese": "traduzir",
+  "verbArabic": "أن يترجم",
+  "verbAmharic": "መተርጎም",
+
+  "audioFile": "letargem.mp3",
+  "verbHebrewOptions": [
+    { "text": "לתרגם", "transliteration": "letargem", "isCorrect": true },
+    { "text": "לכתוב", "transliteration": "lichtov", "isCorrect": false },
+    { "text": "לדבר", "transliteration": "ledaber", "isCorrect": false },
+    { "text": "לחשוב", "transliteration": "lakhshov", "isCorrect": false }
+  ]
+}
+
+
+
     
 
 

@@ -4389,7 +4389,17 @@ animaka: require('./assets/conj/other/animaka.mp3'),
 zotnigmeret: require('./assets/conj/other/zotnigmeret.mp3'),
 zenigmar: require('./assets/conj/other/zenigmar.mp3'),
 noladeti1: require('./assets/conj/other/noladeti1.mp3'),
-noladeti2: require('./assets/conj/other/noladeti2.mp3')
+noladeti2: require('./assets/conj/other/noladeti2.mp3'),
+animachzik: require('./assets/conj/other/animachzik.mp3'),
+animachzika: require('./assets/conj/other/animachzika.mp3'),
+animozeg: require('./assets/conj/other/animozeg.mp3'),
+animozeget: require('./assets/conj/other/animozeget.mp3'),
+animetargem: require('./assets/conj/other/animetargem.mp3'),
+animetargemet: require('./assets/conj/other/animetargemet.mp3'),
+
+
+
+
 
 
 

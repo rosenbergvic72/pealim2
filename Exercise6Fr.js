@@ -557,34 +557,51 @@ useEffect(() => {
     return true;
   };
 
-  useFocusEffect(
-                useCallback(() => {
-                  const onBackPress = () => {
-                    if (exitConfirmationVisible) {
-                      return false;
-                    }
-                    setExitConfirmationVisible(true);
-                    return true;
-                  };
-              
-                  const backHandler = BackHandler.addEventListener(
-                    'hardwareBackPress',
-                    onBackPress
-                  );
-              
-                  const unsubscribe = navigation.addListener('beforeRemove', (e) => {
-                    if (!exitConfirmationVisible) {
-                      e.preventDefault(); // Блокируем навигацию назад
-                      setExitConfirmationVisible(true); // Показываем модалку
-                    }
-                  });
-              
-                  return () => {
-                    backHandler.remove();
-                    unsubscribe();
-                  };
-                }, [exitConfirmationVisible, navigation])
-              );
+// 1) Пока открыт список форм — «Назад» уходит в меню/назад, ничего не блокируем
+useFocusEffect(
+  useCallback(() => {
+    if (!isVerbListVisible) return; // активируем только при открытой модалке
+
+    const onBackPress = () => {
+      if (navigation.canGoBack()) navigation.goBack();
+      else navigation.navigate('MenuFr');
+      return true;
+    };
+
+    const bh = BackHandler.addEventListener('hardwareBackPress', onBackPress);
+
+    // Ничего не вешаем на beforeRemove, чтобы не мешать выходу
+    return () => {
+      bh.remove();
+    };
+  }, [isVerbListVisible, navigation])
+);
+
+// 2) Когда модалка закрыта (идёт упражнение) — блокируем «Назад» и показываем модалку подтверждения
+useFocusEffect(
+  useCallback(() => {
+    if (isVerbListVisible) return; // активируем только во время упражнения
+
+    const onBackPress = () => {
+      if (exitConfirmationVisible) return false;
+      setExitConfirmationVisible(true);
+      return true; // блокируем pop
+    };
+
+    const bh = BackHandler.addEventListener('hardwareBackPress', onBackPress);
+    const unsubscribe = navigation.addListener('beforeRemove', (e) => {
+      if (exitConfirmationVisible) return;
+      e.preventDefault();
+      setExitConfirmationVisible(true);
+    });
+
+    return () => {
+      bh.remove();
+      unsubscribe();
+    };
+  }, [isVerbListVisible, exitConfirmationVisible, navigation])
+);
+
     
       useEffect(() => {
           navigation.setOptions({
@@ -696,8 +713,13 @@ console.log('Physical Screen Width:', screenWidth); // Ширина экрана
   language={language}
   verbs={verbListForModal}
   onStartExercise={handleStartExercise}
-  onClose={() => setIsVerbListVisible(false)} // на всякий случай, если понадобится
+  onClose={() => {
+    setIsVerbListVisible(false);
+    if (navigation.canGoBack()) navigation.goBack();
+    else navigation.navigate('Menu');
+  }}
 />
+
 
       
     )}

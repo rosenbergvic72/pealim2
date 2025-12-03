@@ -5719,7 +5719,257 @@
               "picture": ["women.png"],
               "mp4": ["hake!", "haki!", "haku!", "makot!"],
               "mp3": "haku"
-            }
+            },
+
+            {
+  "Imper": "Переводи!",
+  "ImperAr": "تَرْجِمْ!",
+  "ImperAm": "ተተርጎም!",
+  "hebrewVerb": "לתרגם",
+  "root": "ת-ר-ג-ם",
+  "gender": "man",
+  "transliteration": "letargem",
+  "audioFile": "letargem.mp3",
+  "translationOptions": [
+    "תרגם!",
+    "תרגמי!",
+    "תרגמו!",
+    "מתרגם!"
+  ],
+  "correctTranslationIndex": 0,
+  "picture": "man.png",
+  "mp4": ["targem!", "targemi!", "targemu!", "metargem!"],
+  "mp3": "targem"
+},
+{
+  "Imper": "Переводи!",
+  "ImperAr": "تَرْجِمِي!",
+  "ImperAm": "ተተርጎሚ!",
+  "hebrewVerb": "לתרגם",
+  "root": "ת-ר-ג-ם",
+  "gender": "woman",
+  "transliteration": "letargem",
+  "audioFile": "letargem.mp3",
+  "translationOptions": [
+    "תרגם!",
+    "תרגמי!",
+    "תרגמו!",
+    "מתרגמת!"
+  ],
+  "correctTranslationIndex": 1,
+  "picture": "woman.png",
+  "mp4": ["targem!", "targemi!", "targemu!", "metargemet!"],
+  "mp3": "targemi"
+},
+{
+  "Imper": "Переводите!",
+  "ImperAr": "تَرْجِمُوا!",
+  "ImperAm": "ተተርጎሙ!",
+  "hebrewVerb": "לתרגם",
+  "root": "ת-ר-ג-ם",
+  "gender": "people",
+  "transliteration": "letargem",
+  "audioFile": "letargem.mp3",
+  "translationOptions": [
+    "תרגם!",
+    "תרגמי!",
+    "תרגמו!",
+    "מתרגמים!"
+  ],
+  "correctTranslationIndex": 2,
+  "picture": ["people.png", "men.png"],
+  "mp4": ["targem!", "targemi!", "targemu!", "metargmim!"],
+  "mp3": "targemu"
+},
+{
+  "Imper": "Переводите!",
+  "ImperAr": "تَرْجِمْنَ!",
+  "ImperAm": "ተተርጎሙ!",
+  "hebrewVerb": "לתרגם",
+  "root": "ת-ר-ג-ם",
+  "gender": "women",
+  "transliteration": "letargem",
+  "audioFile": "letargem.mp3",
+  "translationOptions": [
+    "תרגם!",
+    "תרגמי!",
+    "תרגמו!",
+    "מתרגמות!"
+  ],
+  "correctTranslationIndex": 2,
+  "picture": ["women.png"],
+  "mp4": ["targem!", "targemi!", "targemu!", "metargmot!"],
+  "mp3": "targemu"
+},
+
+{
+  "Imper": "Наливай!",
+  "ImperAr": "اِسْكُبْ!",
+  "ImperAm": "አፍስስ!",
+  "hebrewVerb": "למזוג",
+  "root": "מ-ז-ג",
+  "gender": "man",
+  "transliteration": "limzog",
+  "audioFile": "limzog.mp3",
+  "translationOptions": [
+    "מזוג!",
+    "מזגי!",
+    "מזגו!",
+    "מוזג!"
+  ],
+  "correctTranslationIndex": 0,
+  "picture": "man.png",
+  "mp4": ["mezog!", "mizgi!", "mizgu!", "mozeg!"],
+  "mp3": "mezog"
+},
+{
+  "Imper": "Наливай!",
+  "ImperAr": "اِسْكُبِي!",
+  "ImperAm": "አፍስሺ!",
+  "hebrewVerb": "למזוג",
+  "root": "מ-ז-ג",
+  "gender": "woman",
+  "transliteration": "limzog",
+  "audioFile": "limzog.mp3",
+  "translationOptions": [
+    "מזוג!",
+    "מזגי!",
+    "מזגו!",
+    "מוזגת!"
+  ],
+  "correctTranslationIndex": 1,
+  "picture": "woman.png",
+  "mp4": ["mezog!", "mizgi!", "mizgu!", "mozeget!"],
+  "mp3": "mizgi"
+},
+{
+  "Imper": "Наливайте!",
+  "ImperAr": "اِسْكُبُوا!",
+  "ImperAm": "አፍስሱ!",
+  "hebrewVerb": "למזוג",
+  "root": "מ-ז-ג",
+  "gender": "people",
+  "transliteration": "limzog",
+  "audioFile": "limzog.mp3",
+  "translationOptions": [
+    "מזוג!",
+    "מזגי!",
+    "מזגו!",
+    "מוזגים!"
+  ],
+  "correctTranslationIndex": 2,
+  "picture": ["people.png", "men.png"],
+  "mp4": ["mezog!", "mizgi!", "mizgu!", "mozgim!"],
+  "mp3": "mizgu"
+},
+{
+  "Imper": "Наливайте!",
+  "ImperAr": "اِسْكُبْنَ!",
+  "ImperAm": "አፍስሱ!",
+  "hebrewVerb": "למזוג",
+  "root": "מ-ז-ג",
+  "gender": "women",
+  "transliteration": "limzog",
+  "audioFile": "limzog.mp3",
+  "translationOptions": [
+    "מזוג!",
+    "מזגי!",
+    "מזגו!",
+    "מוזגות!"
+  ],
+  "correctTranslationIndex": 2,
+  "picture": ["women.png"],
+  "mp4": ["mezog!", "mizgi!", "mizgu!", "mozgots!"],
+  "mp3": "mizgu"
+},
+
+{
+  "Imper": "Держи!",
+  "ImperAr": "أَمْسِكْ!",
+  "ImperAm": "ያዝ!",
+  "hebrewVerb": "להחזיק",
+  "root": "ח-ז-ק",
+  "gender": "man",
+  "transliteration": "lehachzik",
+  "audioFile": "lehachzik.mp3",
+  "translationOptions": [
+    "החזק!",
+    "החזיקי!",
+    "החזיקו!",
+    "מחזיק!"
+  ],
+  "correctTranslationIndex": 0,
+  "picture": "man.png",
+  "mp4": ["hachzek!", "hachziki!", "hachziku!", "machzik!"],
+  "mp3": "hachzek"
+},
+{
+  "Imper": "Держи!",
+  "ImperAr": "أَمْسِكِي!",
+  "ImperAm": "ያዝ!",
+  "hebrewVerb": "להחזיק",
+  "root": "ח-ז-ק",
+  "gender": "woman",
+  "transliteration": "lehachzik",
+  "audioFile": "lehachzik.mp3",
+  "translationOptions": [
+    "החזק!",
+    "החזיקי!",
+    "החזיקו!",
+    "מחזיקה!"
+  ],
+  "correctTranslationIndex": 1,
+  "picture": "woman.png",
+  "mp4": ["hachzek!", "hachziki!", "hachziku!", "machzika!"],
+  "mp3": "hachziki"
+},
+{
+  "Imper": "Держите!",
+  "ImperAr": "أَمْسِكُوا!",
+  "ImperAm": "ያዙ!",
+  "hebrewVerb": "להחזיק",
+  "root": "ח-ז-ק",
+  "gender": "people",
+  "transliteration": "lehachzik",
+  "audioFile": "lehachzik.mp3",
+  "translationOptions": [
+    "החזק!",
+    "החזיקי!",
+    "החזיקו!",
+    "מחזיקים!"
+  ],
+  "correctTranslationIndex": 2,
+  "picture": ["people.png", "men.png"],
+  "mp4": ["hachzek!", "hachziki!", "hachziku!", "machzikim!"],
+  "mp3": "hachziku"
+},
+{
+  "Imper": "Держите!",
+  "ImperAr": "أَمْسِكْنَ!",
+  "ImperAm": "ያዙ!",
+  "hebrewVerb": "להחזיק",
+  "root": "ח-ז-ק",
+  "gender": "women",
+  "transliteration": "lehachzik",
+  "audioFile": "lehachzik.mp3",
+  "translationOptions": [
+    "החזק!",
+    "החזיקי!",
+    "החזיקו!",
+    "מחזיקות!"
+  ],
+  "correctTranslationIndex": 2,
+  "picture": ["women.png"],
+  "mp4": ["hachzek!", "hachziki!", "hachziku!", "machzikot!"],
+  "mp3": "hachziku"
+}
+
+
+
+
+
+
+
 
           
           
