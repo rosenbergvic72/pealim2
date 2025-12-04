@@ -1,6 +1,7 @@
 apply plugin: "com.android.application"
 apply plugin: "org.jetbrains.kotlin.android"
 apply plugin: "com.facebook.react"
+apply plugin: "expo"
 
 def projectRoot = rootDir.getAbsoluteFile().getParentFile().getAbsolutePath()
 
@@ -28,12 +29,13 @@ android {
     namespace 'com.rosenbergvictor72.verbify.ru'
 
     defaultConfig {
-        applicationId 'com.rosenbergvictor72.verbify.ru'
+
+        applicationId "com.rosenbergvictor72.pealim2"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
 
         // ОБЯЗАТЕЛЬНО > старого versionCode
-        versionCode 2000094
+        versionCode 2000096
         versionName "1.1.4"
 
         // чтобы выбрать play-вариант react-native-iap
