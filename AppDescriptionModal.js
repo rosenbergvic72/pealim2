@@ -55,163 +55,227 @@ const AppDescriptionModal = ({ visible, onToggle }) => {
               showsVerticalScrollIndicator={true}
               keyboardShouldPersistTaps="handled"
             >
-
-            {/* Логотип */}
-            <View style={styles.logoContainer}>
-              <Image source={require('./VERBIFY.png')} style={styles.logo} />
-            </View>
-
-            {/* Заголовок */}
-            <Text style={styles.modalTitle}>ОПИСАНИЕ ПРИЛОЖЕНИЯ</Text>
-
-            <Text style={styles.modalText}>
-              Это <Text style={styles.bold}>эффективный тренажер и инструмент</Text> для тех, кто уже изучает иврит, 
-              обладает <Text style={styles.bold}>базовыми знаниями, </Text> хочет 
-              <Text style={styles.bold}> научиться быстро и правильно спрягать глаголы</Text> или <Text style={styles.bold}>совершенствовать этот навык</Text>. 
-              Приложение также полезно <Text style={styles.bold}>начинающим</Text>, так как включает упражнения 
-              для <Text style={styles.bold}>запоминания глаголов</Text>, их форм,<Text style={styles.bold}> биньянов</Text> и 
-              <Text style={styles.bold}> тренировки использования повелительного наклонения (императивов)</Text>.
-            </Text>
-
-            {/* Основные упражнения */}
-            <Text style={styles.modalTitle}>ОСНОВНЫЕ УПРАЖНЕНИЯ</Text>
-
-            <Text style={styles.modalText}>
-             <Text style={styles.bold}>Спряжение глаголов – ключевая часть приложения.</Text>
-            </Text>
-            <Text style={styles.listItem}>
-              <Text style={styles.bold}>• Упражнения 5 и 6 -</Text> это основные задания для тренировки спряжения. Рекомендуем регулярно выполнять их, пока навык не станет автоматическим.
-              
-            </Text>
-            <Text style={styles.listItem}>
-              <Text style={styles.bold}>• Упражнения 7 и 8 -</Text> усложненные версии упражнений 5 и 6. Они предназначены для тех, кто уже достиг уверенных результатов и хочет вывести свою практику на новый уровень.
-              
-            </Text>
-
-            <Text style={styles.listItem}>
-              <Text style={styles.bold}>• Совет:</Text> сначала отработайте спряжение в упражнениях 5 и 6, а затем переходите к более сложным 7 и 8! 
-              
-            </Text>
-
-            <Text style={styles.modalText}>
-               <Text style={styles.bold}>Упражнения для изучения основ.</Text>
-            </Text>
-            <Text style={styles.listItem}>
-              <Text style={styles.bold}>• Упражнения 1 и 2 -</Text> помогают запомнить около 300 ключевых глаголов и их основные формы.
-            </Text>
-            <Text style={styles.listItem}>
-              <Text style={styles.bold}>• Упражнение 3 -</Text> тренировка определения биньяна глагола (необходимы базовые знания).
-            </Text>
-            <Text style={styles.listItem}>
-              <Text style={styles.bold}>• Упражнение 4 -</Text> тренажер для отработки повелительного наклонения в иврите.
-            </Text>
-
-            {/* Финальный блок */}
-            <Text style={styles.finalText}>
-              <Text style={styles.bold}>Постоянное выполнение упражнений закладывают прочную основу для правильного применения глаголов и их спряжений в повседневной речи!</Text> 
-            </Text>
-
-          </ScrollView>
-
-          {/* Кнопка закрытия */}
-          <View style={styles.buttonWrapper}>
-            <TouchableOpacity style={styles.button} onPress={onToggle}>
-              <Text style={styles.textStyle}>Закрыть</Text>
-            </TouchableOpacity>
-          </View>
-          {/* <TouchableOpacity style={styles.button} onPress={onToggle}>
-            <Text style={styles.textStyle}>Закрыть</Text>
-          </TouchableOpacity> */}
-
-         </View>
-                </Animated.View>
+              {/* Логотип */}
+              <View style={styles.logoContainer}>
+                <Image source={require('./VERBIFY.png')} style={styles.logo} />
               </View>
-            </Modal>
-          );
-        };
-        
-        const styles = StyleSheet.create({
-          overlay: {
-            flex: 1,
-            backgroundColor: 'rgba(0,0,0,0.5)',
-            justifyContent: 'center',
-            alignItems: 'center',
-          },
-          modalView: {
-            width: '90%',
-            height: SCREEN_HEIGHT * 0.85,
-            backgroundColor: '#FFFDEF',
-            borderRadius: 10,
-            overflow: 'hidden',
-          },
-          contentWrapper: {
-            flex: 1,
-            justifyContent: 'space-between',
-          },
-          scrollArea: {
-            flex: 1,
-            marginTop: 20,
-          },
-          scrollViewContent: {
-            padding: 20,
-            paddingBottom: 30,
-            // paddingTop: 20,
-          },
 
+              {/* Заголовок */}
+              <Text style={styles.modalTitle}>ОПИСАНИЕ ПРИЛОЖЕНИЯ</Text>
 
-          
-          logoContainer: {
-            alignItems: 'center',
-            marginBottom: 10,
-          },
-          logo: {
-            width: 120,
-            height: 120,
-            resizeMode: 'contain',
-          },
-          modalTitle: {
-            fontSize: 18,
-            fontWeight: 'bold',
-            textAlign: 'center',
-            marginBottom: 15,
-          },
-          modalText: {
-            fontSize: 16,
-            textAlign: 'center',
-            marginBottom: 10,
-          },
-          listItem: {
-            fontSize: 16,
-            textAlign: 'left',
-            marginBottom: 5,
-          },
-          finalText: {
-            fontSize: 16,
-            fontWeight: 'bold',
-            textAlign: 'center',
-            marginTop: 15,
-          },
-          bold: {
-            fontWeight: 'bold',
-          },
-          buttonWrapper: {
-            alignItems: 'center',
-          },
-          button: {
-            backgroundColor: '#2D4769',
-            padding: 12,
-            alignItems: 'center',
-            justifyContent: 'center',
-            width: '40%', // или сколько нужно
-            borderRadius: 8,
-            marginTop: 10,
-            marginBottom: 30,
-          },
-          textStyle: {
-            color: 'white',
-            fontWeight: 'bold',
-            fontSize: 16,
-          },
-        });
-        
-        export default AppDescriptionModal;
+              <Text style={styles.modalText}>
+                Это{' '}
+                <Text style={[styles.bold, styles.highlightMain]}>
+                  эффективный тренажер и инструмент
+                </Text>{' '}
+                для тех, кто уже изучает иврит, обладает{' '}
+                <Text style={[styles.bold, styles.highlightMain]}>
+                  базовыми знаниями
+                </Text>
+                , хочет{' '}
+                <Text style={[styles.bold, styles.highlightMain]}>
+                  научиться быстро и правильно спрягать глаголы
+                </Text>{' '}
+                или{' '}
+                <Text style={[styles.bold, styles.highlightMain]}>
+                  совершенствовать этот навык
+                </Text>
+                . Приложение также полезно{' '}
+                <Text style={[styles.bold, styles.highlightAccent]}>
+                  начинающим
+                </Text>
+                , так как включает упражнения для{' '}
+                <Text style={[styles.bold, styles.highlightMain]}>
+                  запоминания глаголов
+                </Text>
+                , их форм,{' '}
+                <Text style={[styles.bold, styles.highlightAccent]}>биньянов</Text> и{' '}
+                <Text style={[styles.bold, styles.highlightAccent]}>
+                  тренировки использования повелительного наклонения (императивов)
+                </Text>
+                .
+              </Text>
+
+              {/* Основные упражнения */}
+              <Text style={styles.modalTitle}>ОСНОВНЫЕ УПРАЖНЕНИЯ</Text>
+
+              <Text style={styles.modalText}>
+                <Text style={[styles.bold, styles.highlightMain]}>
+                  Спряжение глаголов – ключевая часть приложения.
+                </Text>
+              </Text>
+
+              <Text style={styles.listItem}>
+                <Text style={[styles.bold, styles.highlightExercise]}>
+                  • Упражнения 5 и 6 –
+                </Text>{' '}
+                это основные задания для тренировки спряжения. Рекомендуем регулярно выполнять их, пока
+                навык не станет автоматическим.
+              </Text>
+
+              <Text style={styles.listItem}>
+                <Text style={[styles.bold, styles.highlightExercise]}>
+                  • Упражнения 7 и 8 –
+                </Text>{' '}
+                усложненные версии упражнений 5 и 6. Они предназначены для тех, кто уже достиг уверенных
+                результатов и хочет вывести свою практику на новый уровень.
+              </Text>
+
+              <Text style={styles.listItem}>
+                <Text style={[styles.bold, styles.highlightTip]}>• Совет:</Text>{' '}
+                сначала отработайте спряжение в упражнениях 5 и 6, а затем переходите к более сложным 7 и 8!
+              </Text>
+
+              <Text style={styles.modalText}>
+                <Text style={[styles.bold, styles.highlightMain]}>
+                  Упражнения для изучения основ.
+                </Text>
+              </Text>
+
+              <Text style={styles.listItem}>
+                <Text style={[styles.bold, styles.highlightExercise]}>
+                  • Упражнения 1 и 2 –
+                </Text>{' '}
+                помогают запомнить около 300 ключевых глаголов и их основные формы.
+              </Text>
+
+              <Text style={styles.listItem}>
+                <Text style={[styles.bold, styles.highlightExercise]}>
+                  • Упражнение 3 –
+                </Text>{' '}
+                тренировка определения биньяна глагола (необходимы базовые знания).
+              </Text>
+
+              <Text style={styles.listItem}>
+                <Text style={[styles.bold, styles.highlightExercise]}>
+                  • Упражнение 4 –
+                </Text>{' '}
+                тренажер для отработки повелительного наклонения в иврите.
+              </Text>
+
+              {/* Финальный блок */}
+              <Text style={styles.finalText}>
+                <Text style={[styles.bold, styles.highlightFinal]}>
+                  Постоянное выполнение упражнений закладывает прочную основу для правильного применения
+                  глаголов и их спряжений в повседневной речи!
+                </Text>
+              </Text>
+            </ScrollView>
+
+            {/* Кнопка закрытия */}
+            <View style={styles.buttonWrapper}>
+              <TouchableOpacity style={styles.button} onPress={onToggle}>
+                <Text style={styles.textStyle}>Закрыть</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </Animated.View>
+      </View>
+    </Modal>
+  );
+};
+
+const styles = StyleSheet.create({
+  overlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalView: {
+    width: '90%',
+    height: SCREEN_HEIGHT * 0.85,
+    backgroundColor: '#FFFDEF',
+    borderRadius: 10,
+    overflow: 'hidden',
+  },
+  contentWrapper: {
+    flex: 1,
+    justifyContent: 'space-between',
+  },
+  scrollArea: {
+    flex: 1,
+    marginTop: 20,
+  },
+  scrollViewContent: {
+    padding: 20,
+    paddingBottom: 30,
+  },
+
+  logoContainer: {
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  logo: {
+    width: 120,
+    height: 120,
+    resizeMode: 'contain',
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    marginBottom: 15,
+    color: '#1C3F60',
+  },
+  modalText: {
+    fontSize: 16,
+    textAlign: 'center',
+    marginBottom: 10,
+    color: '#333652',
+  },
+  listItem: {
+    fontSize: 16,
+    textAlign: 'left',
+    marginBottom: 5,
+    color: '#333652',
+  },
+  finalText: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    marginTop: 15,
+    color: '#333652',
+  },
+  bold: {
+    fontWeight: 'bold',
+  },
+
+  // 🔹 Цветовые акценты:
+  highlightMain: {
+    color: '#0F4C81', // тёмно-синий — ключевые идеи
+  },
+  highlightExercise: {
+    color: '#C8502D', // тёплый акцент для упражнений
+  },
+  highlightTip: {
+    color: '#00796B', // зелёный для советов
+  },
+  highlightAccent: {
+    color: '#8E24AA', // фиолетовый для важных терминов (биньяны, императивы, начинающие)
+  },
+  highlightFinal: {
+    color: '#D81B60', // яркий фуксия для финальной мотивационной фразы
+  },
+
+  buttonWrapper: {
+    alignItems: 'center',
+  },
+  button: {
+    backgroundColor: '#2D4769',
+    padding: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: '40%',
+    borderRadius: 8,
+    marginTop: 10,
+    marginBottom: 30,
+  },
+  textStyle: {
+    color: 'white',
+    fontWeight: 'bold',
+    fontSize: 16,
+  },
+});
+
+export default AppDescriptionModal;

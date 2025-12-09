@@ -1,5 +1,17 @@
 import React, { useState, useCallback, useEffect, useRef } from 'react';
-import { ScrollView, TouchableOpacity, Image, View, Text, StyleSheet, Animated, BackHandler } from 'react-native';
+import {
+  ScrollView,
+  TouchableOpacity,
+  Image,
+  View,
+  Text,
+  StyleSheet,
+  Animated,
+  BackHandler,
+  Linking,
+  Alert,
+  Platform,
+} from 'react-native';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { getStatistics } from './stat';
@@ -10,8 +22,9 @@ import FadeInView from './api/FadeInView';
 import { ensureMarkedToday } from './serverPush';
 import { useIap } from './src/iap/IapProvider';
 import StatsReportModalMulti from './StatsReportModalMulti';
+import Constants from 'expo-constants';
 
-// первые 2 упражнения — всегда бесплатны
+// Бесплатные экраны для AM
 const FREE_ROUTES_AM = new Set(['Exercise1Am', 'Exercise2Am']);
 
 const localstyle = StyleSheet.create({
@@ -41,7 +54,7 @@ export default function MenuPage({ route }) {
   const navigation = useNavigation();
   const { hasPro } = useIap();
 
-  // приглушённый вид заблокированных карточек
+  // Приглушение заблокированных карточек
   const lockStyle = { opacity: 0.45, backgroundColor: '#6f7f90' };
   const isLocked = (routeName) => !hasPro && !FREE_ROUTES_AM.has(routeName);
 
@@ -120,47 +133,53 @@ export default function MenuPage({ route }) {
   const PREVIOUS_TOTAL_KEY = 'previousTotalExercises';
 
   const fetchStatistics = async () => {
-    const exerciseIds = ['exercise1Am', 'exercise2Am', 'exercise3Am', 'exercise5Am', 'exercise6Am', 'exercise8Am', 'exercise4Am', 'exercise7Am'];
+    const exerciseIds = [
+      'exercise1Am',
+      'exercise2Am',
+      'exercise3Am',
+      'exercise5Am',
+      'exercise6Am',
+      'exercise8Am',
+      'exercise4Am',
+      'exercise7Am',
+    ];
     const statsData = {};
 
     for (let id of exerciseIds) {
       const stat = await getStatistics(id);
       statsData[id] = stat
-        ? { timesCompleted: stat.timesCompleted ?? 0, averageCompletionRate: stat.averageCompletionRate ?? 0 }
+        ? {
+            timesCompleted: stat.timesCompleted ?? 0,
+            averageCompletionRate: stat.averageCompletionRate ?? 0,
+          }
         : { timesCompleted: 0, averageCompletionRate: 0 };
     }
 
-    console.log('📊 Загруженная статистика:', statsData);
     setStats(statsData);
 
-    const totalCompletedNow = Object.values(statsData).reduce((sum, stat) => sum + (stat?.timesCompleted || 0), 0);
-
-    console.log('🧮 totalCompletedNow:', totalCompletedNow);
+    const totalCompletedNow = Object.values(statsData).reduce(
+      (sum, stat) => sum + (stat?.timesCompleted || 0),
+      0
+    );
 
     try {
       const storedPrev = await AsyncStorage.getItem(PREVIOUS_TOTAL_KEY);
       const previousTotal = storedPrev ? parseInt(storedPrev, 10) : 0;
 
-      console.log('📥 previousTotal (из AsyncStorage):', previousTotal);
-
       if (totalCompletedNow > previousTotal) {
         await saveExerciseDate();
-        console.log('🟢 Прогресс есть! Засчитываем день.');
         try {
           await ensureMarkedToday().catch((e) => console.log('mark today failed', e));
-          console.log('✅ Сервер пометил активность на сегодня');
         } catch (e) {
           console.log('⚠️ Не удалось пометить активность на сервере:', e);
         }
       } else {
-        console.log('🟡 Прогресса нет. День не засчитан.');
         const today = new Date().toISOString().slice(0, 10);
         const storedDates = await AsyncStorage.getItem('activeDays');
         const activeDates = storedDates ? JSON.parse(storedDates) : [];
         if (activeDates.includes(today)) {
           try {
             await ensureMarkedToday();
-            console.log('↔️ Синхронизировали активный день с сервером.');
           } catch (e) {
             console.log('⚠️ Не удалось синхронизировать активность:', e);
           }
@@ -168,7 +187,6 @@ export default function MenuPage({ route }) {
       }
 
       await AsyncStorage.setItem(PREVIOUS_TOTAL_KEY, totalCompletedNow.toString());
-      console.log('💾 Сохранили новое значение:', totalCompletedNow);
     } catch (error) {
       console.error('❌ Ошибка при работе с previousTotalExercises:', error);
     }
@@ -198,11 +216,6 @@ export default function MenuPage({ route }) {
       setTotalExercisesCompleted(totalCompleted);
       setAverageCompletionRate(count > 0 ? (totalRate / count).toFixed(2) : 0);
       setActiveDays(uniqueDays.size);
-
-      console.log('✅ Итоговая статистика:');
-      console.log('📌 Всего выполнено:', totalCompleted);
-      console.log('📊 Средний результат:', count > 0 ? (totalRate / count).toFixed(2) : 0);
-      console.log('📅 Активных дней:', uniqueDays.size);
     } catch (error) {
       console.error('❌ Ошибка при вычислении статистики:', error);
     }
@@ -224,7 +237,6 @@ export default function MenuPage({ route }) {
 
       const updatedDates = await AsyncStorage.getItem('activeDays');
       let parsed = updatedDates ? JSON.parse(updatedDates) : [];
-      console.log('📂 Список сохранённых дней после:', parsed);
       setActiveDays(new Set(parsed).size);
     } catch (error) {
       console.error('❌ Ошибка при сохранении даты активности:', error);
@@ -242,6 +254,89 @@ export default function MenuPage({ route }) {
     borderWidth: 4,
     borderColor: '#bd462a',
   };
+
+  // Кнопка REPORT BUG
+  
+const handleReportBug = useCallback(async () => {
+  const to = 'verbify2025@gmail.com';
+  const subject = encodeURIComponent('የVERBIFY መረጃ ጎታ ስህተት ሪፖርት (AM)');
+
+  const body = encodeURIComponent(
+    [
+      'VERBIFY መተግበሪያውን በመጠቀም እና ስህተቶችን ለመከላከል የምትረዱልን በጣም እናመሰግናለን!',
+      '',
+      'መልዕክትዎ ትርጉሞችን፣ ምሳሌዎችን እና ሰዋሰውን (እንዲሁም ድምጽ) ስህተቶችን እንድንፈርስ ይረዳናል።',
+      '',
+      'እባክዎ የሚችሉትን መረጃ በተቻለ መጠን ይሙሉ:',
+      '',
+      '1) ስህተቱን ያገኙት የት ነው?',
+      '',
+      '   • የበይነመረብ / መተግበሪያ ቋንቋ (am/en/ru/...):',
+      '',
+      '     ______________________________',
+      '',
+      '   • ልምምድ / ስክሪን (ምሳሌ፡ ልምምድ 1, የግስ ዝርዝር ወዘተ):',
+      '',
+      '     ______________________________',
+      '',
+      '   • ግስ / ቃል (የዕብራይስጥ ኢንፊኒቲቭ + ትርጉም):',
+      '',
+      '     ______________________________',
+      '',
+      '',
+      '2) ትክክለኛው ምንድን ነው የተሳሳተው? (የሚመረጡትን ይቀርቡ):',
+      '',
+      '   • የትርጉም ስህተት',
+      '   • የትራንስሊተሬሽን ስህተት',
+      '   • የሰዋሰው ስህተት (ጾታ / ብዛት / ጊዜ / ሰው ወዘተ)',
+      '   • በምሳሌ ነገር ውስጥ ስህተት (የቃላት ቅደም ተከተል፣ የቅጽ ስህተት ወዘተ)',
+      '   • የድምጽ ስህተት (ሌላ ቅጽ / ሌላ ግስ / ድምጽ ጥራት)',
+      '   • ሌላ፡',
+      '',
+      '     ______________________________',
+      '',
+      '',
+      '3) ዝርዝር መግለጫ:',
+      '',
+      '   • አሁን እንዴት ነው (የተሳሳተው ቅጽ):',
+      '',
+      '     ______________________________',
+      '',
+      '   • እንዴት መሆን አለበት (ትክክለኛው ቅጽ):',
+      '',
+      '     ______________________________',
+      '',
+      '',
+      '4) ከፈለጉ እንዲሁም የስክሪንሹት መጠቆሚያ ምስል መያዝ ትችላላችሁ።',
+      '',
+      '',
+      '5) መተግበሪያውን እንዴት እንደሚሻሻል የምትመኑት ተጨማሪ ሃሳቦች ካሉዎት እባክዎ ይጨምሩ:',
+      '',
+      '     ______________________________',
+      '',
+      '---',
+      '',
+      'ቴክኒክ መረጃ:',
+      `App version: ${Constants?.expoConfig?.version || 'unknown'}`,
+      `Platform: ${Platform.OS} (${Platform.Version})`,
+    ].join('\n')
+  );
+
+  const url = `mailto:${to}?subject=${subject}&body=${body}`;
+
+  try {
+    const canOpen = await Linking.canOpenURL(url);
+    if (canOpen) {
+      await Linking.openURL(url);
+    } else {
+      console.warn('Cannot open mail client for bug report (am)');
+    }
+  } catch (e) {
+    console.warn('Error opening mail client for bug report (am):', e);
+  }
+}, []);
+
+
 
   useFocusEffect(
     useCallback(() => {
@@ -363,368 +458,483 @@ export default function MenuPage({ route }) {
   }
 
   return (
-     <View style={{ flex: 1 }}>
-    <ScrollView style={styles.container}>
-      <Animated.View style={[styles.headerContainer, { opacity: headerOpacity }]}>
-        <Image source={require('./VERBIFY.png')} style={styles.image} />
-        <Text style={styles.greeting} maxFontSizeMultiplier={1.2}>
-          ሰላም, {name}!
-        </Text>
-      </Animated.View>
+    <View style={{ flex: 1 }}>
+      <ScrollView style={styles.container}>
+        <Animated.View style={[styles.headerContainer, { opacity: headerOpacity }]}>
+          <Image source={require('./VERBIFY.png')} style={styles.image} />
+          <Text style={styles.greeting} maxFontSizeMultiplier={1.2}>
+            ሰላም, {name}!
+          </Text>
+        </Animated.View>
 
-         {/* Статистика (теперь кнопка-обёртка) */}
-           <TouchableOpacity
-             activeOpacity={0.9}
-             onPress={() => setIsStatModalVisible(true)}
-           >
-      <Animated.View style={[styles.statsContainer, { opacity: titleOpacity }]}>
-        {!statsAnimationFinished ? (
-          <LottieView
-            source={require('./Animation - 1741202326129.json')}
-            autoPlay
-            loop={false}
-            onAnimationFinish={() => setStatsAnimationFinished(true)}
-            style={styles.statsAnimation}
+        {/* Статистика как кнопка */}
+        <TouchableOpacity activeOpacity={0.9} onPress={() => setIsStatModalVisible(true)}>
+          <Animated.View style={[styles.statsContainer, { opacity: titleOpacity }]}>
+            {!statsAnimationFinished ? (
+              <LottieView
+                source={require('./Animation - 1741202326129.json')}
+                autoPlay
+                loop={false}
+                onAnimationFinish={() => setStatsAnimationFinished(true)}
+                style={styles.statsAnimation}
+              />
+            ) : (
+              <>
+                <Image source={require('./STAT2.png')} style={styles.statsImage} />
+                <FadeInView style={styles.statsTextContainer}>
+                  <View style={styles.statsRow}>
+                    <Text style={styles.statsText} maxFontSizeMultiplier={1.2}>
+                      የተጠናቀቁ እቃዎች
+                    </Text>
+                    <View style={styles.statsBox}>
+                      <Text style={styles.statsValue} maxFontSizeMultiplier={1.2}>
+                        {totalExercisesCompleted}
+                      </Text>
+                    </View>
+                  </View>
+                  <View style={styles.statsRow}>
+                    <Text style={styles.statsText} maxFontSizeMultiplier={1.2}>
+                      የመካከለኛ ውጤት
+                    </Text>
+                    <View style={styles.statsBox}>
+                      <Text style={styles.statsValue} maxFontSizeMultiplier={1.2}>
+                        {averageCompletionRate}%
+                      </Text>
+                    </View>
+                  </View>
+                  <View style={styles.statsRow}>
+                    <Text style={styles.statsText} maxFontSizeMultiplier={1.2}>
+                      የስልጠና ቀናት
+                    </Text>
+                    <View style={styles.statsBox}>
+                      <Text style={styles.statsValue} maxFontSizeMultiplier={1.2}>
+                        {activeDays}
+                      </Text>
+                    </View>
+                  </View>
+                </FadeInView>
+              </>
+            )}
+          </Animated.View>
+        </TouchableOpacity>
+
+        <View style={styles.content}>
+          <Animated.Text
+            style={[styles.titleText, { opacity: titleOpacity }]}
+            maxFontSizeMultiplier={1.2}
+          >
+            ልምምድ ይምረጡ
+          </Animated.Text>
+
+          {/* 1 — FREE */}
+          <Animated.View
+            style={[
+              styles.buttonContainer,
+              { opacity: button1Opacity, transform: [{ translateY: button1TranslateY }] },
+            ]}
+          >
+            <TouchableOpacity onPress={() => handlePress('Exercise1Am')}>
+              <View style={styles.upperPart1}>
+                <Text style={styles.upperText1} maxFontSizeMultiplier={1.2}>
+                  ልምምድ 1
+                </Text>
+                <Image source={require('./star1.png')} style={styles.image1} />
+              </View>
+              <View style={styles.upperPart2}>
+                <Text style={styles.upperText} maxFontSizeMultiplier={1.2}>
+                  የዕብራይስጥ–አማርኛ ግስ ካርታዎች
+                </Text>
+              </View>
+              <View style={styles.lowerRight}>
+                <Text style={styles.lowerText} maxFontSizeMultiplier={1.2}>
+                  ተጠናቀቀ{' '}
+                  <Text style={styles.statValue}>
+                    {stats['exercise1Am'] ? stats['exercise1Am'].timesCompleted : 0}
+                  </Text>
+                </Text>
+                <Text style={styles.lowerText} maxFontSizeMultiplier={1.2}>
+                  የመካከለኛ ውጤት{' '}
+                  <Text style={styles.statValue}>
+                    {stats['exercise1Am']
+                      ? stats['exercise1Am'].averageCompletionRate.toFixed(2)
+                      : 0}
+                    %
+                  </Text>
+                </Text>
+              </View>
+            </TouchableOpacity>
+          </Animated.View>
+
+          {/* 2 — FREE */}
+          <Animated.View
+            style={[
+              styles.buttonContainer,
+              { opacity: button2Opacity, transform: [{ translateY: button2TranslateY }] },
+            ]}
+          >
+            <TouchableOpacity onPress={() => handlePress('Exercise2Am')}>
+              <View style={styles.upperPart1}>
+                <Text style={styles.upperText1} maxFontSizeMultiplier={1.2}>
+                  ልምምድ 2
+                </Text>
+                <Image source={require('./star2.png')} style={styles.image1} />
+              </View>
+              <View style={styles.upperPart2}>
+                <Text style={styles.upperText} maxFontSizeMultiplier={1.2}>
+                  የአማርኛ–ዕብራይስጥ ግስ ካርታዎች
+                </Text>
+              </View>
+              <View style={styles.lowerRight}>
+                <Text style={styles.lowerText} maxFontSizeMultiplier={1.2}>
+                  ተጠናቀቀ{' '}
+                  <Text style={styles.statValue}>
+                    {stats['exercise2Am'] ? stats['exercise2Am'].timesCompleted : 0}
+                  </Text>
+                </Text>
+                <Text style={styles.lowerText} maxFontSizeMultiplier={1.2}>
+                  የመካከለኛ ውጤት{' '}
+                  <Text style={styles.statValue}>
+                    {stats['exercise2Am']
+                      ? stats['exercise2Am'].averageCompletionRate.toFixed(2)
+                      : 0}
+                    %
+                  </Text>
+                </Text>
+              </View>
+            </TouchableOpacity>
+          </Animated.View>
+
+          {/* 3 — LOCKED if !PRO */}
+          <Animated.View
+            style={[
+              styles.buttonContainer,
+              { opacity: button3Opacity, transform: [{ translateY: button3TranslateY }] },
+              isLocked('Exercise3Am') && lockStyle,
+            ]}
+          >
+            <TouchableOpacity onPress={() => handlePress('Exercise3Am')}>
+              <View style={styles.upperPart1}>
+                <Text style={styles.upperText1} maxFontSizeMultiplier={1.2}>
+                  ልምምድ 3
+                </Text>
+                <Image source={require('./star3.png')} style={styles.image1} />
+              </View>
+              <View style={styles.upperPart2}>
+                <Text style={styles.upperText} maxFontSizeMultiplier={1.2}>
+                  ቢንያን ይለዩ
+                </Text>
+              </View>
+              <View style={styles.lowerRight}>
+                <Text style={styles.lowerText} maxFontSizeMultiplier={1.2}>
+                  ተጠናቀቀ{' '}
+                  <Text style={styles.statValue}>
+                    {stats['exercise3Am'] ? stats['exercise3Am'].timesCompleted : 0}
+                  </Text>
+                </Text>
+                <Text style={styles.lowerText} maxFontSizeMultiplier={1.2}>
+                  የመካከለኛ ውጤት{' '}
+                  <Text style={styles.statValue}>
+                    {stats['exercise3Am']
+                      ? stats['exercise3Am'].averageCompletionRate.toFixed(2)
+                      : 0}
+                    %
+                  </Text>
+                </Text>
+              </View>
+            </TouchableOpacity>
+          </Animated.View>
+
+          {/* 4 (route 5) — LOCKED if !PRO */}
+          <Animated.View
+            style={[
+              styles.buttonContainer,
+              { opacity: button6Opacity, transform: [{ translateY: button6TranslateY }] },
+              isLocked('Exercise5Am') && lockStyle,
+            ]}
+          >
+            <TouchableOpacity onPress={() => handlePress('Exercise5Am')}>
+              <View style={styles.upperPart1}>
+                <Text style={styles.upperText1} maxFontSizeMultiplier={1.2}>
+                  ልምምድ 4
+                </Text>
+                <Image source={require('./star3.png')} style={styles.image1} />
+              </View>
+              <View style={styles.upperPart2}>
+                <Text style={styles.upperText} maxFontSizeMultiplier={1.2}>
+                  ትዕዛዝ ቅጽ (Imperative)
+                </Text>
+              </View>
+              <View style={styles.lowerRight}>
+                <Text style={styles.lowerText} maxFontSizeMultiplier={1.2}>
+                  ተጠናቀቀ{' '}
+                  <Text style={styles.statValue}>
+                    {stats['exercise5Am'] ? stats['exercise5Am'].timesCompleted : 0}
+                  </Text>
+                </Text>
+                <Text style={styles.lowerText} maxFontSizeMultiplier={1.2}>
+                  የመካከለኛ ውጤት{' '}
+                  <Text style={styles.statValue}>
+                    {stats['exercise5Am']
+                      ? stats['exercise5Am'].averageCompletionRate.toFixed(2)
+                      : 0}
+                    %
+                  </Text>
+                </Text>
+              </View>
+            </TouchableOpacity>
+          </Animated.View>
+
+          {/* 5 — LOCKED if !PRO */}
+          <Animated.View
+            style={[
+              styles.buttonContainer,
+              highlightedButtonStyle,
+              { opacity: button5Opacity, transform: [{ translateY: button5TranslateY }] },
+              isLocked('Exercise6Am') && lockStyle,
+            ]}
+          >
+            <TouchableOpacity onPress={() => handlePress('Exercise6Am')}>
+              <View style={styles.upperPart1}>
+                <Text style={styles.upperText1} maxFontSizeMultiplier={1.2}>
+                  ልምምድ 5
+                </Text>
+                <Image source={require('./star4.png')} style={styles.image1} />
+              </View>
+              <View style={styles.upperPart2}>
+                <Text style={styles.upperText} maxFontSizeMultiplier={1.2}>
+                  የአማርኛ–ዕብራይስጥ ግስ ማጣመር
+                </Text>
+              </View>
+              <View style={styles.lowerRight}>
+                <Text style={styles.lowerText} maxFontSizeMultiplier={1.2}>
+                  ተጠናቀቀ{' '}
+                  <Text style={styles.statValue}>
+                    {stats['exercise6Am'] ? stats['exercise6Am'].timesCompleted : 0}
+                  </Text>
+                </Text>
+                <Text style={styles.lowerText} maxFontSizeMultiplier={1.2}>
+                  የመካከለኛ ውጤት{' '}
+                  <Text style={styles.statValue}>
+                    {stats['exercise6Am']
+                      ? stats['exercise6Am'].averageCompletionRate.toFixed(2)
+                      : 0}
+                    %
+                  </Text>
+                </Text>
+              </View>
+            </TouchableOpacity>
+          </Animated.View>
+
+          {/* 6 — LOCKED if !PRO */}
+          <Animated.View
+            style={[
+              styles.buttonContainer,
+              highlightedButtonStyle,
+              { opacity: button8Opacity, transform: [{ translateY: button8TranslateY }] },
+              isLocked('Exercise8Am') && lockStyle,
+            ]}
+          >
+            <TouchableOpacity onPress={() => handlePress('Exercise8Am')}>
+              <View style={styles.upperPart1}>
+                <Text style={styles.upperText1} maxFontSizeMultiplier={1.2}>
+                  ልምምድ 6
+                </Text>
+                <Image source={require('./star4.png')} style={styles.image1} />
+              </View>
+              <View style={styles.upperPart2}>
+                <Text style={styles.upperText} maxFontSizeMultiplier={1.2}>
+                  የዕብራይስጥ–አማርኛ ግስ ማጣመር
+                </Text>
+              </View>
+              <View style={styles.lowerRight}>
+                <Text style={styles.lowerText} maxFontSizeMultiplier={1.2}>
+                  ተጠናቀቀ{' '}
+                  <Text style={styles.statValue}>
+                    {stats['exercise8Am'] ? stats['exercise8Am'].timesCompleted : 0}
+                  </Text>
+                </Text>
+                <Text style={styles.lowerText} maxFontSizeMultiplier={1.2}>
+                  የመካከለኛ ውጤት{' '}
+                  <Text style={styles.statValue}>
+                    {stats['exercise8Am']
+                      ? stats['exercise8Am'].averageCompletionRate.toFixed(2)
+                      : 0}
+                    %
+                  </Text>
+                </Text>
+              </View>
+            </TouchableOpacity>
+          </Animated.View>
+
+          {/* 7 — LOCKED if !PRO */}
+          <Animated.View
+            style={[
+              styles.buttonContainer,
+              hardlightedButtonStyle,
+              { opacity: button4Opacity, transform: [{ translateY: button4TranslateY }] },
+              isLocked('Exercise4Am') && lockStyle,
+            ]}
+          >
+            <TouchableOpacity onPress={() => handlePress('Exercise4Am')}>
+              <View style={styles.upperPart1}>
+                <Text style={styles.upperText1} maxFontSizeMultiplier={1.2}>
+                  ልምምድ 7
+                </Text>
+                <Image source={require('./star5.png')} style={styles.image1} />
+              </View>
+              <View style={styles.upperPart2}>
+                <Text style={styles.upperText} maxFontSizeMultiplier={1.2}>
+                  የአማርኛ–ዕብራይስጥ መለዋወጫ ግሶች
+                </Text>
+              </View>
+              <View style={styles.lowerRight}>
+                <Text style={styles.lowerText} maxFontSizeMultiplier={1.2}>
+                  ተጠናቀቀ{' '}
+                  <Text style={styles.statValue}>
+                    {stats['exercise4Am'] ? stats['exercise4Am'].timesCompleted : 0}
+                  </Text>
+                </Text>
+                <Text style={styles.lowerText} maxFontSizeMultiplier={1.2}>
+                  የመካከለኛ ውጤት{' '}
+                  <Text style={styles.statValue}>
+                    {stats['exercise4Am']
+                      ? stats['exercise4Am'].averageCompletionRate.toFixed(2)
+                      : 0}
+                    %
+                  </Text>
+                </Text>
+              </View>
+            </TouchableOpacity>
+          </Animated.View>
+
+          {/* 8 — LOCKED if !PRO */}
+          <Animated.View
+            style={[
+              styles.buttonContainer,
+              hardlightedButtonStyle,
+              { opacity: button7Opacity, transform: [{ translateY: button7TranslateY }] },
+              isLocked('Exercise7Am') && lockStyle,
+            ]}
+          >
+            <TouchableOpacity onPress={() => handlePress('Exercise7Am')}>
+              <View style={styles.upperPart1}>
+                <Text style={styles.upperText1} maxFontSizeMultiplier={1.2}>
+                  ልምምድ 8
+                </Text>
+                <Image source={require('./star5.png')} style={styles.image1} />
+              </View>
+              <View style={styles.upperPart2}>
+                <Text style={styles.upperText} maxFontSizeMultiplier={1.2}>
+                  የዕብራይስጥ–አማርኛ መለዋወጫ ግሶች
+                </Text>
+              </View>
+              <View style={styles.lowerRight}>
+                <Text style={styles.lowerText} maxFontSizeMultiplier={1.2}>
+                  ተጠናቀቀ{' '}
+                  <Text style={styles.statValue}>
+                    {stats['exercise7Am'] ? stats['exercise7Am'].timesCompleted : 0}
+                  </Text>
+                </Text>
+                <Text style={styles.lowerText} maxFontSizeMultiplier={1.2}>
+                  የመካከለኛ ውጤት{' '}
+                  <Text style={styles.statValue}>
+                    {stats['exercise7Am']
+                      ? stats['exercise7Am'].averageCompletionRate.toFixed(2)
+                      : 0}
+                    %
+                  </Text>
+                </Text>
+              </View>
+            </TouchableOpacity>
+          </Animated.View>
+
+          {/* DESCRIPTION */}
+          <Animated.View
+            style={[
+              styles.infoWrap,
+              { opacity: button9Opacity, transform: [{ translateY: button7TranslateY }] },
+            ]}
+          >
+            <TouchableOpacity
+              style={styles.infoButton}
+              onPress={() => setIsModalVisible(true)}
+            >
+              <Image source={require('./quest.png')} style={styles.infoIcon} />
+              <Text
+                style={styles.infoText}
+                numberOfLines={2}
+                ellipsizeMode="tail"
+                maxFontSizeMultiplier={1.2}
+              >
+                የመተግበሪያው መግለጫ
+              </Text>
+            </TouchableOpacity>
+          </Animated.View>
+          <AppDescriptionModal
+            visible={isModalVisible}
+            onToggle={() => setIsModalVisible(false)}
           />
-        ) : (
-          <>
-            <Image source={require('./STAT2.png')} style={styles.statsImage} />
-            <FadeInView style={styles.statsTextContainer}>
-              <View className="row" style={styles.statsRow}>
-                <Text style={styles.statsText} maxFontSizeMultiplier={1.2}>
-                  የተጠናቀቁ ልምምዶች
-                </Text>
-                <View style={styles.statsBox}>
-                  <Text style={styles.statsValue} maxFontSizeMultiplier={1.2}>
-                    {totalExercisesCompleted}
-                  </Text>
-                </View>
-              </View>
-              <View style={styles.statsRow}>
-                <Text style={styles.statsText} maxFontSizeMultiplier={1.2}>
-                  አማካይ ውጤት
-                </Text>
-                <View style={styles.statsBox}>
-                  <Text style={styles.statsValue} maxFontSizeMultiplier={1.2}>
-                    {averageCompletionRate}%
-                  </Text>
-                </View>
-              </View>
-              <View style={styles.statsRow}>
-                <Text style={styles.statsText} maxFontSizeMultiplier={1.2}>
-                  የሥልጠና ቀናት
-                </Text>
-                <View style={styles.statsBox}>
-                  <Text style={styles.statsValue} maxFontSizeMultiplier={1.2}>
-                    {activeDays}
-                  </Text>
-                </View>
-              </View>
-            </FadeInView>
-          </>
-        )}
-      </Animated.View>
-      </TouchableOpacity>
 
-      <View style={styles.content}>
-        <Animated.Text style={[styles.titleText, { opacity: titleOpacity }]} maxFontSizeMultiplier={1.2}>
-          ልምምድ ምረጥ
-        </Animated.Text>
+          {/* ABOUT */}
+          <Animated.View
+            style={[
+              styles.infoWrap,
+              { opacity: button9Opacity, transform: [{ translateY: button7TranslateY }] },
+            ]}
+          >
+            <TouchableOpacity
+              style={styles.infoButton}
+              onPress={() => setIsInfoModalVisible(true)}
+            >
+              <Image source={require('./about4.png')} style={styles.infoIcon} />
+              <Text
+                style={styles.infoText}
+                numberOfLines={2}
+                ellipsizeMode="tail"
+                maxFontSizeMultiplier={1.2}
+              >
+                ስለ መተግበሪያው
+              </Text>
+            </TouchableOpacity>
+          </Animated.View>
+          <AppInfoModal
+            visible={isInfoModalVisible}
+            onToggle={() => setIsInfoModalVisible(false)}
+          />
 
-        {/* Exercise 1 — FREE */}
-        <Animated.View style={[styles.buttonContainer, { opacity: button1Opacity, transform: [{ translateY: button1TranslateY }] }]}>
-          <TouchableOpacity onPress={() => handlePress('Exercise1Am')}>
-            <View style={styles.upperPart1}>
-              <Text style={styles.upperText1} maxFontSizeMultiplier={1.2}>
-                ልምምድ አንድ
+          {/* REPORT BUG (NO ICON) — ПОСЛЕДНЯЯ КНОПКА */}
+          <Animated.View
+            style={[
+              styles.infoWrap,
+              { opacity: button9Opacity, transform: [{ translateY: button7TranslateY }] },
+            ]}
+          >
+            <TouchableOpacity
+              style={[
+                styles.infoButton,
+                { backgroundColor: '#bd462a', borderColor: '#2D4769' },
+              ]}
+              onPress={handleReportBug}
+            >
+              <Text
+                style={styles.infoText}
+                numberOfLines={2}
+                ellipsizeMode="tail"
+                maxFontSizeMultiplier={1.2}
+              >
+                 ስህተት ያመልክቱ
               </Text>
-              <Image source={require('./star1.png')} style={[styles.image1]} />
-            </View>
-            <View style={styles.upperPart2}>
-              <Text style={styles.upperText} maxFontSizeMultiplier={1.2}>
-                ከዕብራይስጥ ወደ አማርኛ የግል ስሞች ካርዶች
-              </Text>
-            </View>
-            <View style={styles.lowerRight}>
-              <Text style={styles.lowerText} maxFontSizeMultiplier={1.2}>
-                የተጠናቀቀ ጊዜ <Text style={styles.statValue}>{stats['exercise1Am'] ? stats['exercise1Am'].timesCompleted : 0}</Text>
-              </Text>
-              <Text style={styles.lowerText} maxFontSizeMultiplier={1.2}>
-                አማካይ ውጤት{' '}
-                <Text style={styles.statValue}>{stats['exercise1Am'] ? stats['exercise1Am'].averageCompletionRate.toFixed(2) : 0}%</Text>
-              </Text>
-            </View>
-          </TouchableOpacity>
-        </Animated.View>
+            </TouchableOpacity>
+          </Animated.View>
+        </View>
+      </ScrollView>
 
-        {/* Exercise 2 — FREE */}
-        <Animated.View style={[styles.buttonContainer, { opacity: button2Opacity, transform: [{ translateY: button2TranslateY }] }]}>
-          <TouchableOpacity onPress={() => handlePress('Exercise2Am')}>
-            <View style={styles.upperPart1}>
-              <Text style={styles.upperText1} maxFontSizeMultiplier={1.2}>
-                ልምምድ ሁለት
-              </Text>
-              <Image source={require('./star2.png')} style={[styles.image1]} />
-            </View>
-            <View style={styles.upperPart2}>
-              <Text style={styles.upperText} maxFontSizeMultiplier={1.2}>
-                ከአማርኛ ወደ ዕብራይስጥ የግል ስሞች ካርዶች
-              </Text>
-            </View>
-            <View style={styles.lowerRight}>
-              <Text style={styles.lowerText} maxFontSizeMultiplier={1.2}>
-                የተጠናቀቀ ጊዜ <Text style={styles.statValue}>{stats['exercise2Am'] ? stats['exercise2Am'].timesCompleted : 0}</Text>
-              </Text>
-              <Text style={styles.lowerText} maxFontSizeMultiplier={1.2}>
-                አማካይ ውጤት{' '}
-                <Text style={styles.statValue}>{stats['exercise2Am'] ? stats['exercise2Am'].averageCompletionRate.toFixed(2) : 0}%</Text>
-              </Text>
-            </View>
-          </TouchableOpacity>
-        </Animated.View>
-
-        {/* Exercise 3 — LOCKED if !PRO */}
-        <Animated.View
-          style={[
-            styles.buttonContainer,
-            { opacity: button3Opacity, transform: [{ translateY: button3TranslateY }] },
-            isLocked('Exercise3Am') && lockStyle,
-          ]}
-        >
-          <TouchableOpacity onPress={() => handlePress('Exercise3Am')}>
-            <View style={styles.upperPart1}>
-              <Text style={styles.upperText1} maxFontSizeMultiplier={1.2}>
-                ልምምድ ሶስት
-              </Text>
-              <Image source={require('./star3.png')} style={[styles.image1]} />
-            </View>
-            <View style={styles.upperPart2}>
-              <Text style={styles.upperText} maxFontSizeMultiplier={1.2}>
-                በቢንያንን መለየት
-              </Text>
-            </View>
-            <View style={styles.lowerRight}>
-              <Text style={styles.lowerText} maxFontSizeMultiplier={1.2}>
-                የተጠናቀቀ ጊዜ <Text style={styles.statValue}>{stats['exercise3Am'] ? stats['exercise3Am'].timesCompleted : 0}</Text>
-              </Text>
-              <Text style={styles.lowerText} maxFontSizeMultiplier={1.2}>
-                አማካይ ውጤት{' '}
-                <Text style={styles.statValue}>{stats['exercise3Am'] ? stats['exercise3Am'].averageCompletionRate.toFixed(2) : 0}%</Text>
-              </Text>
-            </View>
-          </TouchableOpacity>
-        </Animated.View>
-
-        {/* Exercise 5 — LOCKED if !PRO */}
-        <Animated.View
-          style={[
-            styles.buttonContainer,
-            { opacity: button6Opacity, transform: [{ translateY: button6TranslateY }] },
-            isLocked('Exercise5Am') && lockStyle,
-          ]}
-        >
-          <TouchableOpacity onPress={() => handlePress('Exercise5Am')}>
-            <View style={styles.upperPart1}>
-              <Text style={styles.upperText1} maxFontSizeMultiplier={1.2}>
-                ልምምድ አራት
-              </Text>
-              <Image source={require('./star3.png')} style={[styles.image1]} />
-            </View>
-            <View style={styles.upperPart2}>
-              <Text style={styles.upperText} maxFontSizeMultiplier={1.2}>
-                የትእዛዝ ቅርጽ
-              </Text>
-            </View>
-            <View style={styles.lowerRight}>
-              <Text style={styles.lowerText} maxFontSizeMultiplier={1.2}>
-                የተጠናቀቀ ጊዜ <Text style={styles.statValue}>{stats['exercise5Am'] ? stats['exercise5Am'].timesCompleted : 0}</Text>
-              </Text>
-              <Text style={styles.lowerText} maxFontSizeMultiplier={1.2}>
-                አማካይ ውጤት{' '}
-                <Text style={styles.statValue}>{stats['exercise5Am'] ? stats['exercise5Am'].averageCompletionRate.toFixed(2) : 0}%</Text>
-              </Text>
-            </View>
-          </TouchableOpacity>
-        </Animated.View>
-
-        {/* Exercise 6 — LOCKED if !PRO */}
-        <Animated.View
-          style={[
-            styles.buttonContainer,
-            highlightedButtonStyle,
-            { opacity: button5Opacity, transform: [{ translateY: button5TranslateY }] },
-            isLocked('Exercise6Am') && lockStyle,
-          ]}
-        >
-          <TouchableOpacity onPress={() => handlePress('Exercise6Am')}>
-            <View style={styles.upperPart1}>
-              <Text style={styles.upperText1} maxFontSizeMultiplier={1.2}>
-                ልምምድ አምስት
-              </Text>
-              <Image source={require('./star4.png')} style={[styles.image1]} />
-            </View>
-            <View style={styles.upperPart2}>
-              <Text style={styles.upperText} maxFontSizeMultiplier={1.2}>
-                የአማርኛ ግስ ወደ ዕብራይስጥ መቀየር
-              </Text>
-            </View>
-            <View style={styles.lowerRight}>
-              <Text style={styles.lowerText} maxFontSizeMultiplier={1.2}>
-                የተጠናቀቀ ጊዜ <Text style={styles.statValue}>{stats['exercise6Am'] ? stats['exercise6Am'].timesCompleted : 0}</Text>
-              </Text>
-              <Text style={styles.lowerText} maxFontSizeMultiplier={1.2}>
-                አማካይ ውጤት{' '}
-                <Text style={styles.statValue}>{stats['exercise6Am'] ? stats['exercise6Am'].averageCompletionRate.toFixed(2) : 0}%</Text>
-              </Text>
-            </View>
-          </TouchableOpacity>
-        </Animated.View>
-
-        {/* Exercise 8 — LOCKED if !PRO */}
-        <Animated.View
-          style={[
-            styles.buttonContainer,
-            highlightedButtonStyle,
-            { opacity: button8Opacity, transform: [{ translateY: button8TranslateY }] },
-            isLocked('Exercise8Am') && lockStyle,
-          ]}
-        >
-          <TouchableOpacity onPress={() => handlePress('Exercise8Am')}>
-            <View style={styles.upperPart1}>
-              <Text style={styles.upperText1} maxFontSizeMultiplier={1.2}>
-                ልምምድ ስድስት
-              </Text>
-              <Image source={require('./star4.png')} style={[styles.image1]} />
-            </View>
-            <View style={styles.upperPart2}>
-              <Text style={styles.upperText} maxFontSizeMultiplier={1.2}>
-                የዕብራይስጥ ግስ ወደ አማርኛ መቀየር
-              </Text>
-            </View>
-            <View style={styles.lowerRight}>
-              <Text style={styles.lowerText} maxFontSizeMultiplier={1.2}>
-                የተጠናቀቀ ጊዜ <Text style={styles.statValue}>{stats['exercise8Am'] ? stats['exercise8Am'].timesCompleted : 0}</Text>
-              </Text>
-              <Text style={styles.lowerText} maxFontSizeMultiplier={1.2}>
-                አማካይ ውጤት{' '}
-                <Text style={styles.statValue}>{stats['exercise8Am'] ? stats['exercise8Am'].averageCompletionRate.toFixed(2) : 0}%</Text>
-              </Text>
-            </View>
-          </TouchableOpacity>
-        </Animated.View>
-
-        {/* Exercise 7 — LOCKED if !PRO */}
-        <Animated.View
-          style={[
-            styles.buttonContainer,
-            hardlightedButtonStyle,
-            { opacity: button4Opacity, transform: [{ translateY: button4TranslateY }] },
-            isLocked('Exercise4Am') && lockStyle,
-          ]}
-        >
-          <TouchableOpacity onPress={() => handlePress('Exercise4Am')}>
-            <View style={styles.upperPart1}>
-              <Text style={styles.upperText1} maxFontSizeMultiplier={1.2}>
-                ልምምድ ሰባት
-              </Text>
-              <Image source={require('./star5.png')} style={[styles.image1]} />
-            </View>
-            <View style={styles.upperPart2}>
-              <Text style={styles.upperText} maxFontSizeMultiplier={1.2}>
-                የአማርኛ ግስ ወደ ዕብራይስጥ መቀየር
-              </Text>
-            </View>
-            <View style={styles.lowerRight}>
-              <Text style={styles.lowerText} maxFontSizeMultiplier={1.2}>
-                የተጠናቀቀ ጊዜ <Text style={styles.statValue}>{stats['exercise4Am'] ? stats['exercise4Am'].timesCompleted : 0}</Text>
-              </Text>
-              <Text style={styles.lowerText} maxFontSizeMultiplier={1.2}>
-                አማካይ ውጤት{' '}
-                <Text style={styles.statValue}>{stats['exercise4Am'] ? stats['exercise4Am'].averageCompletionRate.toFixed(2) : 0}%</Text>
-              </Text>
-            </View>
-          </TouchableOpacity>
-        </Animated.View>
-
-        {/* Exercise 8 — LOCKED if !PRO (second block is Exercise7Am) */}
-        <Animated.View
-          style={[
-            styles.buttonContainer,
-            hardlightedButtonStyle,
-            { opacity: button7Opacity, transform: [{ translateY: button7TranslateY }] },
-            isLocked('Exercise7Am') && lockStyle,
-          ]}
-        >
-          <TouchableOpacity onPress={() => handlePress('Exercise7Am')}>
-            <View style={styles.upperPart1}>
-              <Text style={styles.upperText1} maxFontSizeMultiplier={1.2}>
-                ልምምድ ስምንት
-              </Text>
-              <Image source={require('./star5.png')} style={[styles.image1]} />
-            </View>
-            <View style={styles.upperPart2}>
-              <Text style={styles.upperText} maxFontSizeMultiplier={1.2}>
-                የዕብራይስጥ ግስ ወደ አማርኛ መቀየር
-              </Text>
-            </View>
-            <View style={styles.lowerRight}>
-              <Text style={styles.lowerText} maxFontSizeMultiplier={1.2}>
-                የተጠናቀቀ ጊዜ <Text style={styles.statValue}>{stats['exercise7Am'] ? stats['exercise7Am'].timesCompleted : 0}</Text>
-              </Text>
-              <Text style={styles.lowerText} maxFontSizeMultiplier={1.2}>
-                አማካይ ውጤት{' '}
-                <Text style={styles.statValue}>{stats['exercise7Am'] ? stats['exercise7Am'].averageCompletionRate.toFixed(2) : 0}%</Text>
-              </Text>
-            </View>
-          </TouchableOpacity>
-        </Animated.View>
-
-     {/* DESCRIPTION */}
-<Animated.View
-  style={[styles.infoWrap, { opacity: button9Opacity, transform: [{ translateY: button7TranslateY }] }]}
->
-  <TouchableOpacity style={styles.infoButton} onPress={() => setIsModalVisible(true)}>
-    <Image source={require('./quest.png')} style={styles.infoIcon} />
-    <Text
-      style={styles.infoText}
-      numberOfLines={2}
-      ellipsizeMode="tail"
-      maxFontSizeMultiplier={1.2}
-    >
-       የመተግበሪያ መግለጫ
-    </Text>
-  </TouchableOpacity>
-</Animated.View>
-<AppDescriptionModal visible={isModalVisible} onToggle={() => setIsModalVisible(false)} />
-
-{/* ABOUT */}
-<Animated.View
-  style={[styles.infoWrap, { opacity: button9Opacity, transform: [{ translateY: button7TranslateY }] }]}
->
-  <TouchableOpacity style={styles.infoButton} onPress={() => setIsInfoModalVisible(true)}>
-    <Image source={require('./about4.png')} style={styles.infoIcon} />
-    <Text
-      style={styles.infoText}
-      numberOfLines={2}
-      ellipsizeMode="tail"
-      maxFontSizeMultiplier={1.2}
-    >
-      ስለ መተግበሪያው
-    </Text>
-  </TouchableOpacity>
-</Animated.View>
-<AppInfoModal visible={isInfoModalVisible} onToggle={() => setIsInfoModalVisible(false)} />
-
-      </View>
-
-         </ScrollView>
-
-    <StatsReportModalMulti
-      visible={isStatModalVisible}
-      onClose={() => setIsStatModalVisible(false)}
-      language="am"
-    />
-  </View>
+      <StatsReportModalMulti
+        visible={isStatModalVisible}
+        onClose={() => setIsStatModalVisible(false)}
+        language="am"
+      />
+    </View>
   );
 }
 
@@ -735,6 +945,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     left: 30,
   },
+
   statsContainer: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -746,22 +957,26 @@ const styles = StyleSheet.create({
     borderColor: '#2D4769',
     height: 90,
   },
+
   statsImage: {
     width: 80,
     height: 80,
     marginRight: 12,
     marginLeft: 10,
   },
+
   statsTextContainer: {
     flex: 1,
     marginTop: 5,
   },
+
   statsRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: 5,
   },
+
   statsText: {
     fontSize: 11,
     fontWeight: 'bold',
@@ -770,50 +985,38 @@ const styles = StyleSheet.create({
     marginRight: 8,
     flex: 1,
   },
+
   statsBox: {
-    width: 60,
+    minWidth: 50,
     height: 20,
+    paddingHorizontal: 4,
     backgroundColor: 'white',
     borderRadius: 5,
     justifyContent: 'center',
     alignItems: 'center',
-    alignSelf: 'center',
-    textAlignVertical: 'center',
   },
+
   statsValue: {
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: 'bold',
     color: '#367088',
     textAlign: 'center',
+    lineHeight: 14,
+    includeFontPadding: false,
     textAlignVertical: 'center',
-    lineHeight: 17,
+    marginTop: -1,
   },
+
   container: {
     flex: 1,
     paddingHorizontal: 10,
     paddingVertical: 0,
     backgroundColor: '#f0f0f0',
   },
-  title: {
-    alignItems: 'center',
-  },
-  headerContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: -5,
-  },
-  image: {
-    width: 90,
-    height: 90,
-    marginRight: 20,
-    marginLeft: 5,
-  },
-  greeting: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#2D4769',
-    marginLeft: 10,
-  },
+  title: { alignItems: 'center' },
+  headerContainer: { flexDirection: 'row', alignItems: 'center', marginBottom: -5 },
+  image: { width: 90, height: 90, marginRight: 20, marginLeft: 5 },
+  greeting: { fontSize: 16, fontWeight: 'bold', color: '#2D4769', marginLeft: 10 },
   titleText: {
     fontSize: 20,
     fontWeight: 'bold',
@@ -899,42 +1102,19 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginLeft: 1,
   },
-  image1: {
-    width: 100,
-    height: 25,
-    marginLeft: 10,
-    marginRight: 10,
-    marginTop: -5,
-  },
-  statValue: {
-    color: 'red',
-    fontWeight: 'bold',
-    textAlignVertical: 'center',
-    fontSize: 12,
-  },
-  animationContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#f0f0f0',
-  },
-  lottie: {
-    width: 300,
-    height: 300,
-  },
-  statsAnimation: {
-    width: '100%',
-    height: '150%',
-  },
+  image1: { width: 100, height: 25, marginLeft: 10, marginRight: 10, marginTop: -5 },
+  statValue: { color: 'red', fontWeight: 'bold', textAlignVertical: 'center', fontSize: 12 },
+  animationContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#f0f0f0' },
+  lottie: { width: 300, height: 300 },
+  statsAnimation: { width: '100%', height: '150%' },
 
-  // Новый обёртчик: просто центрирует кнопку по ширине
+  // Обёртка для нижних кнопок
   infoWrap: {
     width: '100%',
     alignItems: 'center',
     marginBottom: 10,
   },
 
-  // Сама кнопка: стабильная высота и корректное центрирование
   infoButton: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -945,29 +1125,27 @@ const styles = StyleSheet.create({
     borderColor: '#367088',
     paddingVertical: 12,
     paddingHorizontal: 20,
-    minHeight: 52,       // фикс от «скачков» высоты
+    minHeight: 52,
     width: '100%',
   },
 
-  // Иконка слева, без absolute
   infoIcon: {
     width: 24,
     height: 24,
     marginRight: 12,
   },
 
-  // Текст без внешних margin, чтобы не раздувал высоту
   infoText: {
     flexShrink: 1,
     textAlign: 'center',
     color: 'white',
     fontSize: 14,
     fontWeight: 'bold',
-    includeFontPadding: false,   // ровнее на Android
+    includeFontPadding: false,
     textAlignVertical: 'center',
-    lineHeight: 18,              // предсказуемая высота строки
+    lineHeight: 18,
     marginTop: 0,
     marginBottom: 0,
-    marginLeft: 0,               // исправлено с marginleft
+    marginLeft: 0,
   },
 });

@@ -63,6 +63,7 @@ const getGrade = (percentage) => {
 };
 
 // Компонент для отображения деталей глагола
+// Компонент для отображения деталей глагола (РУ-версия)
 const VerbDetailsContainer = ({ verbDetails, showRussianText, handleSpeakerPress }) => {
   const leftFillAnim = useRef(new Animated.Value(0)).current;
   const rightFillAnim = useRef(new Animated.Value(0)).current;
@@ -105,35 +106,58 @@ const VerbDetailsContainer = ({ verbDetails, showRussianText, handleSpeakerPress
 
   return (
     <View style={styles.verbDetailsContainer}>
-      <Animated.View style={[styles.verbDetailsHalf, styles.verbDetailsLeft, { width: leftWidth }]} />
-      <Animated.View style={[styles.verbDetailsHalf, styles.verbDetailsRight, { width: rightWidth }]} />
+      <Animated.View
+        style={[styles.verbDetailsHalf, styles.verbDetailsLeft, { width: leftWidth }]}
+      />
+      <Animated.View
+        style={[styles.verbDetailsHalf, styles.verbDetailsRight, { width: rightWidth }]}
+      />
+
       <View style={styles.verbDetailsContent}>
+        {/* Левая часть: иврит + транслит */}
         <View style={styles.verbDetailsLeftContent}>
-          <Text style={styles.verbDetailsHebrew} maxFontSizeMultiplier={1.2}>{verbDetails.hebrewtext}</Text>
-          <Text style={styles.verbDetailsTranslit} maxFontSizeMultiplier={1.2}>{verbDetails.translit}</Text>
+          <Text style={styles.verbDetailsHebrew} maxFontSizeMultiplier={1.2}>
+            {verbDetails.hebrewtext}
+          </Text>
+          <Text style={styles.verbDetailsTranslit} maxFontSizeMultiplier={1.2}>
+            {verbDetails.translit}
+          </Text>
         </View>
+
+        {/* Правая часть: либо анимация ожидания, либо перевод */}
         <View style={styles.verbDetailsRightContent}>
           {showRussianText ? (
-            <Text style={styles.verbDetailsRussian} maxFontSizeMultiplier={1.2}>{verbDetails.russiantext}</Text>
+            <Text style={styles.verbDetailsRussian} maxFontSizeMultiplier={1.2}>
+              {verbDetails.russiantext}
+            </Text>
           ) : (
             <LottieView
+              ref={animationRef}
               source={animation}
               autoPlay
               loop
               onAnimationFinish={() => {
-                animationRef.current?.reset();
+                animationRef.current?.reset?.();
               }}
               style={styles.lottieAnimation}
             />
           )}
         </View>
-        <TouchableOpacity style={styles.speakerButton} onPress={() => handleSpeakerPress(verbDetails.mp3)}>
-          <Image source={require('./speaker1.png')} style={styles.speakerIcon} />
-        </TouchableOpacity>
+
+        {/* 🔊 Спикер — ТОЛЬКО когда уже есть перевод */}
+        {showRussianText && !!verbDetails.mp3 && (
+          <TouchableOpacity
+            style={styles.speakerButton}
+            onPress={() => handleSpeakerPress(verbDetails.mp3)}
+          >
+            <Image source={require('./speaker1.png')} style={styles.speakerIcon} />
+          </TouchableOpacity>
+        )}
       </View>
     </View>
   );
 };
+
 
 const cachedSounds = {};
 

@@ -55,160 +55,230 @@ const AppDescriptionModal = ({ visible, onToggle }) => {
               showsVerticalScrollIndicator={true}
               keyboardShouldPersistTaps="handled"
             >
-  
-            {/* Logotipo */}
-            <View style={styles.logoContainer}>
-              <Image source={require('./VERBIFY.png')} style={styles.logo} />
-            </View>
-  
-            {/* Título */}
-            <Text style={styles.modalTitle}>DESCRIÇÃO DO APLICATIVO</Text>
-  
-            <Text style={styles.modalText}>
-              Este é um <Text style={styles.bold}>treinador e ferramenta eficaz</Text> para aqueles que já estão estudando hebraico,
-              têm <Text style={styles.bold}>conhecimento básico,</Text> querem
-              <Text style={styles.bold}>aprender a conjugar verbos de forma rápida e correta</Text> ou <Text style={styles.bold}>melhorar esta habilidade</Text>.
-              O aplicativo também é útil para <Text style={styles.bold}>iniciantes</Text>, pois inclui exercícios
-              para <Text style={styles.bold}>memorizar verbos</Text>, suas formas, <Text style={styles.bold}>binyanim</Text> e
-              <Text style={styles.bold}>praticar o uso do modo imperativo (imperativos)</Text>.
-            </Text>
-  
-            {/* Exercícios Principais */}
-            <Text style={styles.modalTitle}>EXERCÍCIOS PRINCIPAIS</Text>
-  
-            <Text style={styles.modalText}>
-              <Text style={styles.bold}>A conjugação de verbos é uma parte fundamental do aplicativo.</Text>
-            </Text>
-            <Text style={styles.listItem}>
-              <Text style={styles.bold}>• Exercícios 5 e 6 -</Text> estas são as principais tarefas para praticar a conjugação. Recomendamos fazê-las regularmente até que a habilidade se torne automática.
-  
-            </Text>
-            <Text style={styles.listItem}>
-              <Text style={styles.bold}>• Exercícios 7 e 8 -</Text> versões avançadas dos exercícios 5 e 6. Eles são projetados para aqueles que já alcançaram resultados confiantes e desejam levar sua prática para o próximo nível.
-  
-            </Text>
-  
-            <Text style={styles.listItem}>
-              <Text style={styles.bold}>• Dica:</Text> primeiro pratique a conjugação nos exercícios 5 e 6, e depois passe para os mais complexos 7 e 8!
-  
-            </Text>
-  
-            <Text style={styles.modalText}>
-              <Text style={styles.bold}>Exercícios para aprender o básico.</Text>
-            </Text>
-            <Text style={styles.listItem}>
-              <Text style={styles.bold}>• Exercícios 1 e 2 -</Text> ajudam a memorizar cerca de 300 verbos chave e suas formas básicas.
-            </Text>
-            <Text style={styles.listItem}>
-              <Text style={styles.bold}>• Exercício 3 -</Text> prática para determinar o binyan de um verbo (conhecimento básico é necessário).
-            </Text>
-            <Text style={styles.listItem}>
-              <Text style={styles.bold}>• Exercício 4 -</Text> treinador para praticar o modo imperativo em hebraico.
-            </Text>
-  
-            {/* Bloco final */}
-            <Text style={styles.finalText}>
-              <Text style={styles.bold}>A prática constante de exercícios estabelece uma base sólida para o uso correto de verbos e suas conjugações na fala cotidiana!</Text>
-            </Text>
-  
-          </ScrollView>
-  
-          {/* Botão de fechar */}
-          {/* <TouchableOpacity style={styles.button} onPress={onToggle}>
-            <Text style={styles.textStyle}>Fechar</Text>
-          </TouchableOpacity> */}
-  
-        {/* Fixed Close Button */}
-                    <View style={styles.buttonWrapper}>
-          <TouchableOpacity style={styles.button} onPress={onToggle}>
-            <Text style={styles.textStyle}>Fechar</Text>
-          </TouchableOpacity>
-        </View>
-                  </View>
-                </Animated.View>
+
+              {/* Logotipo */}
+              <View style={styles.logoContainer}>
+                <Image source={require('./VERBIFY.png')} style={styles.logo} />
               </View>
-            </Modal>
-          );
-        };
-        
-        const styles = StyleSheet.create({
-          overlay: {
-            flex: 1,
-            backgroundColor: 'rgba(0,0,0,0.5)',
-            justifyContent: 'center',
-            alignItems: 'center',
-          },
-          modalView: {
-            width: '90%',
-            height: SCREEN_HEIGHT * 0.85,
-            backgroundColor: '#FFFDEF',
-            borderRadius: 10,
-            overflow: 'hidden',
-          },
-          contentWrapper: {
-            flex: 1,
-            justifyContent: 'space-between',
-          },
-          scrollArea: {
-            flex: 1,
-            marginTop: 20,
-          },
-          scrollViewContent: {
-            padding: 20,
-            paddingBottom: 30,
-          },
-          logoContainer: {
-            alignItems: 'center',
-            marginBottom: 10,
-          },
-          logo: {
-            width: 120,
-            height: 120,
-            resizeMode: 'contain',
-          },
-          modalTitle: {
-            fontSize: 18,
-            fontWeight: 'bold',
-            textAlign: 'center',
-            marginBottom: 15,
-          },
-          modalText: {
-            fontSize: 16,
-            textAlign: 'center',
-            marginBottom: 10,
-          },
-          listItem: {
-            fontSize: 16,
-            textAlign: 'left',
-            marginBottom: 5,
-          },
-          finalText: {
-            fontSize: 16,
-            fontWeight: 'bold',
-            textAlign: 'center',
-            marginTop: 15,
-          },
-          bold: {
-            fontWeight: 'bold',
-          },
-          buttonWrapper: {
-            alignItems: 'center',
-          },
-          button: {
-            backgroundColor: '#2D4769',
-            padding: 12,
-            alignItems: 'center',
-            justifyContent: 'center',
-            width: '40%', // или сколько нужно
-            borderRadius: 8,
-            marginTop: 10,
-            marginBottom: 30,
-          },
-          textStyle: {
-            color: 'white',
-            fontWeight: 'bold',
-            fontSize: 16,
-          },
-        });
-        
-        export default AppDescriptionModal;
+
+              {/* Título */}
+              <Text style={styles.modalTitle}>DESCRIÇÃO DO APLICATIVO</Text>
+
+              <Text style={styles.modalText}>
+                Este é um{' '}
+                <Text style={[styles.bold, styles.highlightMain]}>
+                  treinador e ferramenta eficaz
+                </Text>{' '}
+                para aqueles que já estão estudando hebraico,
+                têm{' '}
+                <Text style={[styles.bold, styles.highlightMain]}>
+                  conhecimento básico
+                </Text>
+                , querem{' '}
+                <Text style={[styles.bold, styles.highlightMain]}>
+                  aprender a conjugar verbos de forma rápida e correta
+                </Text>{' '}
+                ou{' '}
+                <Text style={[styles.bold, styles.highlightMain]}>
+                  melhorar esta habilidade
+                </Text>
+                .
+                O aplicativo também é útil para{' '}
+                <Text style={[styles.bold, styles.highlightAccent]}>
+                  iniciantes
+                </Text>
+                , pois inclui exercícios para{' '}
+                <Text style={[styles.bold, styles.highlightMain]}>
+                  memorizar verbos
+                </Text>
+                , suas formas,{' '}
+                <Text style={[styles.bold, styles.highlightAccent]}>
+                  binyanim
+                </Text>{' '}
+                e{' '}
+                <Text style={[styles.bold, styles.highlightAccent]}>
+                  praticar o uso do modo imperativo (imperativos)
+                </Text>
+                .
+              </Text>
+
+              {/* Exercícios Principais */}
+              <Text style={styles.modalTitle}>EXERCÍCIOS PRINCIPAIS</Text>
+
+              <Text style={styles.modalText}>
+                <Text style={[styles.bold, styles.highlightMain]}>
+                  A conjugação de verbos é uma parte fundamental do aplicativo.
+                </Text>
+              </Text>
+
+              <Text style={styles.listItem}>
+                <Text style={[styles.bold, styles.highlightExercise]}>
+                  • Exercícios 5 e 6 -
+                </Text>{' '}
+                estas são as principais tarefas para praticar a conjugação. Recomendamos fazê-las regularmente até que a habilidade se torne automática.
+              </Text>
+
+              <Text style={styles.listItem}>
+                <Text style={[styles.bold, styles.highlightExercise]}>
+                  • Exercícios 7 e 8 -
+                </Text>{' '}
+                versões avançadas dos exercícios 5 e 6. Eles são projetados para aqueles que já alcançaram resultados confiantes e desejam levar sua prática para o próximo nível.
+              </Text>
+
+              <Text style={styles.listItem}>
+                <Text style={[styles.bold, styles.highlightTip]}>
+                  • Dica:
+                </Text>{' '}
+                primeiro pratique a conjugação nos exercícios 5 e 6, e depois passe para os mais complexos 7 e 8!
+              </Text>
+
+              <Text style={styles.modalText}>
+                <Text style={[styles.bold, styles.highlightMain]}>
+                  Exercícios para aprender o básico.
+                </Text>
+              </Text>
+
+              <Text style={styles.listItem}>
+                <Text style={[styles.bold, styles.highlightExercise]}>
+                  • Exercícios 1 e 2 -
+                </Text>{' '}
+                ajudam a memorizar cerca de 300 verbos chave e suas formas básicas.
+              </Text>
+              <Text style={styles.listItem}>
+                <Text style={[styles.bold, styles.highlightExercise]}>
+                  • Exercício 3 -
+                </Text>{' '}
+                prática para determinar o binyan de um verbo (conhecimento básico é necessário).
+              </Text>
+              <Text style={styles.listItem}>
+                <Text style={[styles.bold, styles.highlightExercise]}>
+                  • Exercício 4 -
+                </Text>{' '}
+                treinador para praticar o modo imperativo em hebraico.
+              </Text>
+
+              {/* Bloco final */}
+              <Text style={styles.finalText}>
+                <Text style={[styles.bold, styles.highlightFinal]}>
+                  A prática constante de exercícios estabelece uma base sólida para o uso correto de verbos e suas conjugações na fala cotidiana!
+                </Text>
+              </Text>
+
+            </ScrollView>
+
+            {/* Fixed Close Button */}
+            <View style={styles.buttonWrapper}>
+              <TouchableOpacity style={styles.button} onPress={onToggle}>
+                <Text style={styles.textStyle}>Fechar</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </Animated.View>
+      </View>
+    </Modal>
+  );
+};
+
+const styles = StyleSheet.create({
+  overlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalView: {
+    width: '90%',
+    height: SCREEN_HEIGHT * 0.85,
+    backgroundColor: '#FFFDEF',
+    borderRadius: 10,
+    overflow: 'hidden',
+  },
+  contentWrapper: {
+    flex: 1,
+    justifyContent: 'space-between',
+  },
+  scrollArea: {
+    flex: 1,
+    marginTop: 20,
+  },
+  scrollViewContent: {
+    padding: 20,
+    paddingBottom: 30,
+  },
+  logoContainer: {
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  logo: {
+    width: 120,
+    height: 120,
+    resizeMode: 'contain',
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    marginBottom: 15,
+    color: '#1C3F60', // тёмно-синий заголовок
+  },
+  modalText: {
+    fontSize: 16,
+    textAlign: 'center',
+    marginBottom: 10,
+    color: '#333652',
+  },
+  listItem: {
+    fontSize: 16,
+    textAlign: 'left',
+    marginBottom: 5,
+    color: '#333652',
+  },
+  finalText: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    marginTop: 15,
+    color: '#333652',
+  },
+  bold: {
+    fontWeight: 'bold',
+  },
+
+  // 🔹 Цветовые акценты
+  highlightMain: {
+    color: '#0F4C81', // ключевые идеи / общий смысл
+  },
+  highlightExercise: {
+    color: '#C8502D', // блоки об упражнениях
+  },
+  highlightTip: {
+    color: '#00796B', // советы
+  },
+  highlightAccent: {
+    color: '#8E24AA', // особые термины / группы
+  },
+  highlightFinal: {
+    color: '#D81B60', // яркий финальный вывод
+  },
+
+  buttonWrapper: {
+    alignItems: 'center',
+  },
+  button: {
+    backgroundColor: '#2D4769',
+    padding: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: '40%', // или сколько нужно
+    borderRadius: 8,
+    marginTop: 10,
+    marginBottom: 30,
+  },
+  textStyle: {
+    color: 'white',
+    fontWeight: 'bold',
+    fontSize: 16,
+  },
+});
+
+export default AppDescriptionModal;

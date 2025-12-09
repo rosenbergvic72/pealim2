@@ -16,7 +16,7 @@ const AppInfoModal = ({ visible, onToggle , updatedAt, appSize }) => {
       
               {/* ስሪት እና ዝማኔ */}
               <Text style={styles.modalText}>ስሪት: <Text style={styles.bold}>{Constants.expoConfig?.version || 'ያልታወቀ'}</Text></Text>
-              <Text style={styles.modalText}>የዘመነ: <Text style={styles.bold}>{updatedAt || '26.11.2025'}</Text></Text>
+              <Text style={styles.modalText}>የዘመነ: <Text style={styles.bold}>{updatedAt || '09.12.2025'}</Text></Text>
       
               {/* መሰረታዊ መረጃ
               <Text style={styles.sectionTitle}>መግለጫ:</Text>
@@ -30,7 +30,7 @@ const AppInfoModal = ({ visible, onToggle , updatedAt, appSize }) => {
               <Text style={styles.modalText}>ድጋፍ: Android, iOS</Text>
               <Text style={styles.modalText}>ዝቅተኛ ስሪት:</Text>
               <Text style={styles.modalText}>Android 8.0+, iOS 13.0+</Text>
-              <Text style={styles.modalText}>መጠን: <Text style={styles.bold}>{appSize || '189 Mb'}</Text></Text>
+              <Text style={styles.modalText}>መጠን: <Text style={styles.bold}>{appSize || '135 Mb'}</Text></Text>
       
               {/* እውቂያዎች */}
               <Text style={styles.sectionTitle}>እውቂያዎች:</Text>

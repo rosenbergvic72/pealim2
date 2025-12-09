@@ -16,7 +16,7 @@ const AppInfoModal = ({ visible, onToggle , updatedAt, appSize }) => {
       
               {/* الإصدار والتحديث */}
               <Text style={styles.modalText}>الإصدار: <Text style={styles.bold}>{Constants.expoConfig?.version || 'غير معروف'}</Text></Text>
-              <Text style={styles.modalText}>تم التحديث:  <Text style={styles.bold}>{updatedAt || '26.11.2025'}</Text></Text>
+              <Text style={styles.modalText}>تم التحديث:  <Text style={styles.bold}>{updatedAt || '09.12.2025'}</Text></Text>
       
               {/* المعلومات الأساسية
               <Text style={styles.sectionTitle}>الوصف:</Text>
@@ -30,7 +30,7 @@ const AppInfoModal = ({ visible, onToggle , updatedAt, appSize }) => {
               <Text style={styles.modalText}>الدعم: Android, iOS</Text>
               <Text style={styles.modalText}>الحد الأدنى للإصدار:</Text>
               <Text style={styles.modalText}>Android 8.0+, iOS 13.0+</Text>
-              <Text style={styles.modalText}>الحجم: <Text style={styles.bold}>{appSize || '189 Mb'}</Text></Text>
+              <Text style={styles.modalText}>الحجم: <Text style={styles.bold}>{appSize || '135 Mb'}</Text></Text>
       
               {/* جهات الاتصال */}
               <Text style={styles.sectionTitle}>جهات الاتصال:</Text>

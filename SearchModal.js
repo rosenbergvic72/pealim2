@@ -1,5 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { Modal, View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, Keyboard } from 'react-native';
+import {
+  Modal,
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
+  ScrollView,
+  Keyboard,
+} from 'react-native';
 import verbsData from './verbs6RU.json';
 
 const SearchModal = ({ visible, onToggle, onSelectVerb }) => {
@@ -8,18 +17,25 @@ const SearchModal = ({ visible, onToggle, onSelectVerb }) => {
 
   useEffect(() => {
     if (visible) {
-      setSearchQuery('');  // Очищаем строку поиска при каждом открытии модального окна
-      setSearchResults([]);  // Очищаем результаты поиска при каждом открытии модального окна
+      setSearchQuery('');
+      setSearchResults([]);
     }
   }, [visible]);
 
   const handleSearch = () => {
-    const lowerCaseQuery = searchQuery.toLowerCase();
-    const results = verbsData.filter(verb => 
-      verb.infinitive.toLowerCase().includes(lowerCaseQuery) || 
+    const trimmed = searchQuery.trim();
+    if (trimmed.length < 3) {
+      // защита: не ищем, если меньше 3 символов
+      setSearchResults([]);
+      return;
+    }
+
+    const lowerCaseQuery = trimmed.toLowerCase();
+    const results = verbsData.filter((verb) =>
+      verb.infinitive.toLowerCase().includes(lowerCaseQuery) ||
       verb.russian.toLowerCase().includes(lowerCaseQuery) ||
       verb.russiantext.toLowerCase().includes(lowerCaseQuery) ||
-      verb.translit.toLowerCase().includes(lowerCaseQuery) || 
+      verb.translit.toLowerCase().includes(lowerCaseQuery) ||
       verb.transliteration.toLowerCase().includes(lowerCaseQuery) ||
       verb.hebrewtext.toLowerCase().includes(lowerCaseQuery)
     );
@@ -33,15 +49,9 @@ const SearchModal = ({ visible, onToggle, onSelectVerb }) => {
     }
   };
 
-  // const handleResultPress = (result) => {
-  //   onSelectVerb(result);
-  //   onToggle();
-  // };
-
-    const handleResultPress = (result) => {
-  onSelectVerb(result); // вызывает handleSelectVerb
-};
-
+  const handleResultPress = (result) => {
+    onSelectVerb(result);
+  };
 
   const handleSearchPress = () => {
     Keyboard.dismiss();
@@ -49,8 +59,13 @@ const SearchModal = ({ visible, onToggle, onSelectVerb }) => {
   };
 
   const handleBlur = () => {
-    handleSearch();
+    // автопоиск только если введено 3+ символов
+    if (searchQuery.trim().length >= 3) {
+      handleSearch();
+    }
   };
+
+  const isSearchEnabled = searchQuery.trim().length >= 3;
 
   return (
     <Modal
@@ -61,56 +76,102 @@ const SearchModal = ({ visible, onToggle, onSelectVerb }) => {
     >
       <View style={styles.centeredView}>
         <View style={styles.modalView}>
-          <Text style={styles.modalText}maxFontSizeMultiplier={1.2}>Поиск по упражнению</Text>
+          <Text style={styles.modalText} maxFontSizeMultiplier={1.2}>
+            Поиск по упражнению
+          </Text>
+
           <TextInput
             style={styles.input}
             placeholder="Введите слово для поиска"
             onChangeText={handleInputChange}
             value={searchQuery}
-            onBlur={handleBlur} maxFontSizeMultiplier={1.2}
+            onBlur={handleBlur}
+            maxFontSizeMultiplier={1.2}
           />
-          <TouchableOpacity
-            style={styles.button}
-            onPress={handleSearchPress}
-          >
-            <Text style={styles.buttonText}maxFontSizeMultiplier={1.2}>Искать</Text>
-          </TouchableOpacity>
-          <ScrollView>
-            {searchResults.length > 0 && (
-              <Text style={styles.hintText}maxFontSizeMultiplier={1.2}>Нажми для спряжения</Text>
-            )}
-            {searchResults.map((result, index) => (
-              <TouchableOpacity key={index} style={styles.resultContainer} onPress={() => handleResultPress(result)}>
-  {/* <Text style={[styles.resultTextHebrew]} maxFontSizeMultiplier={1.2}>
-    {result.hebrewtext}
-  </Text> */}
-  <Text style={[styles.resultText, styles.infinitiveText]} maxFontSizeMultiplier={1.2}>
-    {result.infinitive}
-  </Text>
-  <Text style={[styles.resultText1, { color: '#1C3F60' }]} maxFontSizeMultiplier={1.2}>
-    {result.russian}
-  </Text>
-  <Text style={[styles.resultText, { color: '#FF5733' }]} maxFontSizeMultiplier={1.2}>
-    {result.transliteration}
-  </Text>
-   <Text style={[styles.resultTextHebrew]} maxFontSizeMultiplier={1.2}>
-    {result.hebrewtext}
-  </Text>
-  <Text style={[styles.resultText1, { color: '#1C3F60' }]} maxFontSizeMultiplier={1.2}>
-    {result.russiantext}
-  </Text>
-  <Text style={[styles.resultText, { color: '#FF5733' }]} maxFontSizeMultiplier={1.2}>
-    {result.translit}
-  </Text>
-</TouchableOpacity>
 
+          <TouchableOpacity
+            style={[
+              styles.button,
+              !isSearchEnabled && styles.buttonDisabled,
+            ]}
+            onPress={handleSearchPress}
+            disabled={!isSearchEnabled}
+          >
+            <Text style={styles.buttonText} maxFontSizeMultiplier={1.2}>
+              Искать
+            </Text>
+          </TouchableOpacity>
+
+          <ScrollView
+            style={styles.resultsScroll}
+            contentContainerStyle={styles.resultsContent}
+          >
+            {searchResults.length > 0 && (
+              <Text style={styles.hintText} maxFontSizeMultiplier={1.2}>
+                Нажми для спряжения
+              </Text>
+            )}
+
+            {searchResults.map((result, index) => (
+              <TouchableOpacity
+                key={index}
+                style={styles.resultContainer}
+                onPress={() => handleResultPress(result)}
+              >
+                {/* верхний блок — инфинитив + краткий перевод + основная транслит */}
+                <Text
+                  style={[styles.resultTextBase, styles.infinitiveText]}
+                  maxFontSizeMultiplier={1.2}
+                >
+                  {result.infinitive}
+                </Text>
+
+                <Text
+                  style={[styles.resultTextBase, styles.russianShortText]}
+                  maxFontSizeMultiplier={1.2}
+                >
+                  {result.russian}
+                </Text>
+
+                <Text
+                  style={[styles.resultTextBase, styles.translitMainText]}
+                  maxFontSizeMultiplier={1.2}
+                >
+                  {result.transliteration}
+                </Text>
+
+                {/* нижний блок — 3 строки, другие цвета и выравнивание вправо */}
+                <Text
+                  style={[styles.resultTextBase, styles.resultTextHebrew]}
+                  maxFontSizeMultiplier={1.2}
+                >
+                  {result.hebrewtext}
+                </Text>
+
+                <Text
+                  style={[styles.resultTextBase, styles.russianPhraseText]}
+                  maxFontSizeMultiplier={1.2}
+                >
+                  {result.russiantext}
+                </Text>
+
+                <Text
+                  style={[styles.resultTextBase, styles.translitAltText]}
+                  maxFontSizeMultiplier={1.2}
+                >
+                  {result.translit}
+                </Text>
+              </TouchableOpacity>
             ))}
           </ScrollView>
+
           <TouchableOpacity
             style={styles.closeButton}
             onPress={onToggle}
           >
-            <Text style={styles.closeButtonText}maxFontSizeMultiplier={1.2}>Закрыть</Text>
+            <Text style={styles.closeButtonText} maxFontSizeMultiplier={1.2}>
+              Закрыть
+            </Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -121,115 +182,143 @@ const SearchModal = ({ visible, onToggle, onSelectVerb }) => {
 const styles = StyleSheet.create({
   centeredView: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    marginTop: 22
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 22,
   },
   modalView: {
-    margin: 20,
+    margin: 0,
     backgroundColor: '#FFFDEF',
     borderRadius: 20,
-    padding: 35,
-    alignItems: "center",
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 2
-    },
+    padding: 20,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
     elevation: 5,
-    width: '90%',
-    maxHeight: '80%'
+    width: '94%',
+    maxHeight: '94%',
   },
   modalText: {
-    marginBottom: 16,
+    marginBottom: 12,
     fontWeight: 'bold',
-    textAlign: "center",
+    textAlign: 'center',
     fontSize: 18,
-    color: '#2B3270'
+    color: '#2B3270',
   },
   input: {
     width: '100%',
     height: 40,
-    borderColor: 'gray',
+    borderColor: '#C3C3C3',
     borderWidth: 1,
-    padding: 8,
+    paddingHorizontal: 10,
+    paddingVertical: 0,
     borderRadius: 10,
-    marginBottom: 20
+    marginBottom: 12,
+    backgroundColor: '#FFFFFF',
+    textAlignVertical: 'center',
   },
   button: {
     backgroundColor: '#1C3F60',
     borderRadius: 10,
-    padding: 10,
+    paddingVertical: 10,
+    paddingHorizontal: 12,
     width: '100%',
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 20
+    marginBottom: 12,
+  },
+  buttonDisabled: {
+    backgroundColor: '#9CA9B5', // более бледный цвет для неактивной кнопки
   },
   buttonText: {
     color: 'white',
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: 'bold',
   },
-  resultContainer: {
-    padding: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: '#ccc',
+
+  resultsScroll: {
     width: '100%',
-    backgroundColor: '#AFC1D0',
-    marginBottom: 10,
-    borderRadius: 10
+    flexGrow: 0,
+  },
+  resultsContent: {
+    paddingBottom: 8,
   },
 
   hintText: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: 'bold',
     color: '#2B3270',
     textAlign: 'center',
-    marginBottom: 10
+    marginBottom: 6,
+  },
+
+  resultContainer: {
+    width: '100%',
+    alignSelf: 'stretch',
+    paddingVertical: 3,
+    paddingHorizontal: 10,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#C3D1E0',
+    backgroundColor: '#E4ECF5',
+    marginBottom: 6,
+  },
+
+  resultTextBase: {
+    fontSize: 14,
+    color: '#333',
+    marginBottom: 1,
   },
 
   infinitiveText: {
-    color: '#1C3F60',
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: 'bold',
-     textAlign: 'right',
-  writingDirection: 'rtl',
+    color: '#1C3F60',
+  },
+  russianShortText: {
+    fontWeight: '600',
+    color: '#1C3F60',
+  },
+  translitMainText: {
+    fontStyle: 'italic',
+    color: '#FF5733',
   },
 
-  resultText1: {
+  resultTextHebrew: {
     fontSize: 16,
-    color: '#333',
-    fontWeight: 'bold'
+    fontWeight: 'bold',
+    color: '#1D3557',
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
-  resultText: {
-    fontSize: 16,
-    color: '#333',
+  russianPhraseText: {
+    fontWeight: '500',
+    color: '#0B7285',
+    textAlign: 'right',
+  },
+  translitAltText: {
+    fontStyle: 'italic',
+    color: '#B23A48',
+    textAlign: 'right',
   },
 
   closeButton: {
     backgroundColor: '#1C3F60',
     borderRadius: 10,
-    padding: 10,
+    paddingVertical: 10,
+    paddingHorizontal: 12,
     width: '100%',
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop: 20
+    marginTop: 10,
   },
   closeButtonText: {
     color: 'white',
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: 'bold',
   },
-  resultTextHebrew: {
-  fontSize: 18,
-  fontWeight: 'bold',
-  color: '#2B3270',
-  textAlign: 'right',
-  writingDirection: 'rtl', // чтобы текст на иврите был корректно выровнен
-},
-
 });
 
 export default SearchModal;

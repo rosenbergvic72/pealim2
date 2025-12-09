@@ -16,7 +16,7 @@ const AppInfoModal = ({ visible, onToggle , updatedAt, appSize }) => {
       
               {/* Version et Mise à jour */}
               <Text style={styles.modalText}>Version : <Text style={styles.bold}>{Constants.expoConfig?.version || 'Inconnu'}</Text></Text>
-              <Text style={styles.modalText}>Mise à jour :  <Text style={styles.bold}>{updatedAt || '26.11.2025'}</Text></Text>
+              <Text style={styles.modalText}>Mise à jour :  <Text style={styles.bold}>{updatedAt || '09.12.2025'}</Text></Text>
       
               {/* Informations de base
               <Text style={styles.sectionTitle}>Description :</Text>
@@ -30,7 +30,7 @@ const AppInfoModal = ({ visible, onToggle , updatedAt, appSize }) => {
               <Text style={styles.modalText}>Support : Android, iOS</Text>
               <Text style={styles.modalText}>Version minimale :</Text>
               <Text style={styles.modalText}>Android 8.0+, iOS 13.0+</Text>
-              <Text style={styles.modalText}>Taille : <Text style={styles.bold}>{appSize || '189 Mb'}</Text></Text>
+              <Text style={styles.modalText}>Taille : <Text style={styles.bold}>{appSize || '135 Mb'}</Text></Text>
       
               {/* Contacts */}
               <Text style={styles.sectionTitle}>Contacts :</Text>

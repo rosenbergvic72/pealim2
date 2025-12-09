@@ -1,8 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, Image, TouchableOpacity, StyleSheet, Animated } from 'react-native';
 import { Audio } from 'expo-av';
-// ❌ Lottie убран
-// import LottieView from 'lottie-react-native';
+import LottieView from 'lottie-react-native';
 import sounds from './Soundss';
 import TypewriterTextRTL from './TypewriterTextRTL';
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
@@ -10,6 +9,7 @@ import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-nat
 const VerbCard1 = ({ verbData, onAnswer, soundEnabled }) => {
   const soundRef = useRef(null);
   const [isPlaying, setIsPlaying] = useState(false);
+  const animationRef = useRef(null);
 
   useEffect(() => {
     return () => {
@@ -38,6 +38,7 @@ const VerbCard1 = ({ verbData, onAnswer, soundEnabled }) => {
       soundRef.current = sound;
       setIsPlaying(true);
       await sound.playAsync();
+
       setTimeout(() => {
         setIsPlaying(false);
       }, 1000);
@@ -76,31 +77,49 @@ const VerbCard1 = ({ verbData, onAnswer, soundEnabled }) => {
     }, 300);
   }, [verbData]);
 
+  // Следим за isPlaying, чтобы запускать/останавливать Lottie (как в EN-версии)
+  useEffect(() => {
+    if (isPlaying) {
+      animationRef.current?.play?.();
+    } else {
+      animationRef.current?.reset?.();
+    }
+  }, [isPlaying]);
+
   return (
     <Animated.View style={[styles.cardContainer, shadowEnabled && styles.cardShadow]}>
       <View style={styles.hebrewVerbContainer}>
-        {/* Вместо Lottie — простая иконка при воспроизведении */}
+        {/* 🔹 Здесь теперь Lottie, а не картинка-спикер */}
         {isPlaying && (
-          <Image
-            source={require('./speaker3.png')}
-            style={styles.playingIcon}
+          <LottieView
+            ref={animationRef}
+            source={require('./assets/Animation - 1718430107767.json')}
+            autoPlay
+            loop={false}
+            style={styles.lottieAnimation}
           />
         )}
+
         <TypewriterTextRTL
           text={verbData.hebrewVerb}
           maxFontSizeMultiplier={1.2}
           typingSpeed={100}
           style={styles.hebrewVerb}
         />
+
         <Animated.Text style={[styles.translit, { opacity: opacity2 }]} maxFontSizeMultiplier={1.2}>
           {verbData.transliteration}
         </Animated.Text>
+
         <Animated.Text style={[styles.root, { opacity: opacity3 }]} maxFontSizeMultiplier={1.2}>
           {`Корень: ${verbData.root}`}
         </Animated.Text>
+
         <Animated.Text style={[styles.bin, { opacity: opacity4 }]} maxFontSizeMultiplier={1.2}>
           {`Биньян: ${verbData.binyan}`}
         </Animated.Text>
+
+        {/* Спикер — только внизу справа, как и было */}
         <TouchableOpacity onPress={() => playAudio(verbData.audioFile)} style={styles.audioButton}>
           <Image source={require('./speaker3.png')} style={styles.audioIcon} />
         </TouchableOpacity>
@@ -118,7 +137,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFDEF',
   },
   cardShadow: {
-    shadowColor: "#000",
+    shadowColor: '#000',
     shadowOffset: {
       width: 0,
       height: hp('0.25%'),
@@ -131,7 +150,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     position: 'relative',
   },
-  playingIcon: {
+  lottieAnimation: {
     position: 'absolute',
     top: 0,
     left: 0,

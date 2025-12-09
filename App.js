@@ -635,7 +635,7 @@ function AppInner() {
                   fontFamily: rtl ? 'ar-bold' : 'mt-bold',
                   marginRight: rtl ? 8 : 12,
                   marginLeft: rtl ? 6 : 0,
-                  marginTop: rtl ? 8 : 0,
+                  marginTop: rtl ? 4 : 0,
                   writingDirection: rtl ? 'rtl' : 'ltr',
                 }}
               >

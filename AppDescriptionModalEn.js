@@ -62,44 +62,101 @@ const AppDescriptionModal = ({ visible, onToggle }) => {
               <Text style={styles.modalTitle}>APP DESCRIPTION</Text>
 
               <Text style={styles.modalText}>
-                This is an <Text style={styles.bold}>effective trainer and tool</Text> for those who are already studying Hebrew,
-                have <Text style={styles.bold}>basic knowledge</Text>, want to
-                <Text style={styles.bold}> learn to conjugate verbs quickly and correctly</Text> or <Text style={styles.bold}>improve this skill</Text>.
-                The application is also useful for <Text style={styles.bold}>beginners</Text>, as it includes exercises
-                for <Text style={styles.bold}>memorizing verbs</Text>, their forms, <Text style={styles.bold}>binyanim</Text> and
-                <Text style={styles.bold}> practicing the use of the imperative mood</Text>.
+                This is an{' '}
+                <Text style={[styles.bold, styles.highlightMain]}>
+                  effective trainer and tool
+                </Text>{' '}
+                for those who are already studying Hebrew,
+                have{' '}
+                <Text style={[styles.bold, styles.highlightMain]}>
+                  basic knowledge
+                </Text>
+                , want to
+                <Text style={[styles.bold, styles.highlightMain]}>
+                  {' '}learn to conjugate verbs quickly and correctly
+                </Text>{' '}
+                or{' '}
+                <Text style={[styles.bold, styles.highlightMain]}>
+                  improve this skill
+                </Text>
+                .
+                The application is also useful for{' '}
+                <Text style={[styles.bold, styles.highlightAccent]}>
+                  beginners
+                </Text>
+                , as it includes exercises for{' '}
+                <Text style={[styles.bold, styles.highlightMain]}>
+                  memorizing verbs
+                </Text>
+                , their forms,{' '}
+                <Text style={[styles.bold, styles.highlightAccent]}>
+                  binyanim
+                </Text>{' '}
+                and{' '}
+                <Text style={[styles.bold, styles.highlightAccent]}>
+                  practicing the use of the imperative mood
+                </Text>
+                .
               </Text>
 
               <Text style={styles.modalTitle}>MAIN EXERCISES</Text>
 
               <Text style={styles.modalText}>
-                <Text style={styles.bold}>Verb conjugation is a key part of the application.</Text>
+                <Text style={[styles.bold, styles.highlightMain]}>
+                  Verb conjugation is a key part of the application.
+                </Text>
               </Text>
+
               <Text style={styles.listItem}>
-                <Text style={styles.bold}>• Exercises 5 and 6 -</Text> practice conjugation regularly until it's automatic.
+                <Text style={[styles.bold, styles.highlightExercise]}>
+                  • Exercises 5 and 6 -
+                </Text>{' '}
+                practice conjugation regularly until it's automatic.
               </Text>
+
               <Text style={styles.listItem}>
-                <Text style={styles.bold}>• Exercises 7 and 8 -</Text> advanced versions of 5 and 6.
+                <Text style={[styles.bold, styles.highlightExercise]}>
+                  • Exercises 7 and 8 -
+                </Text>{' '}
+                advanced versions of 5 and 6.
               </Text>
+
               <Text style={styles.listItem}>
-                <Text style={styles.bold}>• Tip:</Text> master 5 and 6 before moving to 7 and 8.
+                <Text style={[styles.bold, styles.highlightTip]}>
+                  • Tip:
+                </Text>{' '}
+                master 5 and 6 before moving to 7 and 8.
               </Text>
 
               <Text style={styles.modalText}>
-                <Text style={styles.bold}>Basic learning exercises:</Text>
+                <Text style={[styles.bold, styles.highlightMain]}>
+                  Basic learning exercises:
+                </Text>
               </Text>
+
               <Text style={styles.listItem}>
-                <Text style={styles.bold}>• Exercises 1 and 2 -</Text> help memorize about 300 key verbs.
+                <Text style={[styles.bold, styles.highlightExercise]}>
+                  • Exercises 1 and 2 -
+                </Text>{' '}
+                help memorize about 300 key verbs.
               </Text>
+
               <Text style={styles.listItem}>
-                <Text style={styles.bold}>• Exercise 3 -</Text> practice identifying the binyan (basic knowledge needed).
+                <Text style={[styles.bold, styles.highlightExercise]}>
+                  • Exercise 3 -
+                </Text>{' '}
+                practice identifying the binyan (basic knowledge needed).
               </Text>
+
               <Text style={styles.listItem}>
-                <Text style={styles.bold}>• Exercise 4 -</Text> trainer for the imperative mood in Hebrew.
+                <Text style={[styles.bold, styles.highlightExercise]}>
+                  • Exercise 4 -
+                </Text>{' '}
+                trainer for the imperative mood in Hebrew.
               </Text>
 
               <Text style={styles.finalText}>
-                <Text style={styles.bold}>
+                <Text style={[styles.bold, styles.highlightFinal]}>
                   Constant exercise lays a solid foundation for the correct use of verbs in everyday speech!
                 </Text>
               </Text>
@@ -107,10 +164,10 @@ const AppDescriptionModal = ({ visible, onToggle }) => {
 
             {/* Fixed Close Button */}
             <View style={styles.buttonWrapper}>
-  <TouchableOpacity style={styles.button} onPress={onToggle}>
-    <Text style={styles.textStyle}>Close</Text>
-  </TouchableOpacity>
-</View>
+              <TouchableOpacity style={styles.button} onPress={onToggle}>
+                <Text style={styles.textStyle}>Close</Text>
+              </TouchableOpacity>
+            </View>
           </View>
         </Animated.View>
       </View>
@@ -158,26 +215,48 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     textAlign: 'center',
     marginBottom: 15,
+    color: '#1C3F60',      // тёмно-синий для заголовков
   },
   modalText: {
     fontSize: 16,
     textAlign: 'center',
     marginBottom: 10,
+    color: '#333652',      // основной текст
   },
   listItem: {
     fontSize: 16,
     textAlign: 'left',
     marginBottom: 5,
+    color: '#333652',
   },
   finalText: {
     fontSize: 16,
     fontWeight: 'bold',
     textAlign: 'center',
     marginTop: 15,
+    color: '#333652',
   },
   bold: {
     fontWeight: 'bold',
   },
+
+  // 🔹 Цветовые акценты
+  highlightMain: {
+    color: '#0F4C81',   // ключевые идеи / общий смысл
+  },
+  highlightExercise: {
+    color: '#C8502D',   // про упражнения
+  },
+  highlightTip: {
+    color: '#00796B',   // советы
+  },
+  highlightAccent: {
+    color: '#8E24AA',   // термины: binyanim, imperative, beginners
+  },
+  highlightFinal: {
+    color: '#D81B60',   // яркий финальный вывод
+  },
+
   buttonWrapper: {
     alignItems: 'center',
   },
@@ -186,7 +265,7 @@ const styles = StyleSheet.create({
     padding: 12,
     alignItems: 'center',
     justifyContent: 'center',
-    width: '40%', // или сколько нужно
+    width: '40%',
     borderRadius: 8,
     marginTop: 10,
     marginBottom: 30,

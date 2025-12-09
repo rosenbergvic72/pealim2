@@ -443,10 +443,10 @@ export function IapProvider({ children, initialSegment = 'basic' }) {
       const promoAnnual  = firstPaidPhase(segAnnualOffer )?.formatted || baseAnnual;
 
       const newPrices = {
-        baseMonthly: baseMonthly || '₪10',
-        baseAnnual:  baseAnnual  || '₪80',
-        promoMonthly: promoMonthly || baseMonthly || '₪10',
-        promoAnnual:  promoAnnual  || baseAnnual  || '₪80',
+        baseMonthly: baseMonthly || '₪19,90',
+        baseAnnual:  baseAnnual  || '₪159,90',
+        promoMonthly: promoMonthly || baseMonthly || '₪13,90',
+        promoAnnual:  promoAnnual  || baseAnnual  || '₪111,90',
       };
 
       setDisplayPrices(newPrices);

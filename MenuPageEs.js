@@ -1,5 +1,16 @@
 import React, { useState, useCallback, useEffect, useRef } from 'react';
-import { ScrollView, TouchableOpacity, Image, View, Text, StyleSheet, Animated, BackHandler } from 'react-native';
+import {
+  ScrollView,
+  TouchableOpacity,
+  Image,
+  View,
+  Text,
+  StyleSheet,
+  Animated,
+  BackHandler,
+  Linking,
+  Platform,
+} from 'react-native';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { getStatistics } from './stat';
@@ -10,6 +21,7 @@ import FadeInView from './api/FadeInView';
 import { ensureMarkedToday } from './serverPush';
 import { useIap } from './src/iap/IapProvider';
 import StatsReportModalMulti from './StatsReportModalMulti';
+import Constants from 'expo-constants';
 
 // Бесплатные упражнения
 const FREE_ROUTES_ES = new Set(['Exercise1Es', 'Exercise2Es']);
@@ -150,7 +162,10 @@ export default function MenuPage({ route }) {
 
     setStats(statsData);
 
-    const totalCompletedNow = Object.values(statsData).reduce((sum, stat) => sum + (stat?.timesCompleted || 0), 0);
+    const totalCompletedNow = Object.values(statsData).reduce(
+      (sum, stat) => sum + (stat?.timesCompleted || 0),
+      0
+    );
 
     try {
       const storedPrev = await AsyncStorage.getItem(PREVIOUS_TOTAL_KEY);
@@ -230,6 +245,86 @@ export default function MenuPage({ route }) {
       console.error('❌ Ошибка при сохранении даты активности:', error);
     }
   };
+
+  // === КНОПКА "REPORTAR UN ERROR" ===
+  const handleReportBug = useCallback(async () => {
+    const to = 'verbify2025@gmail.com';
+    const subject = encodeURIComponent('Informe de error en la base de Verbify');
+
+    const body = encodeURIComponent(
+      [
+        'Gracias por usar la aplicación VERBIFY y por ayudarnos a mejorarla.',
+        '',
+        'Tu mensaje nos ayuda a corregir errores en traducciones, ejemplos y gramática.',
+        '',
+        'POR FAVOR, RELLENA LO QUE PUEDAS (PUEDES ESCRIBIR EN CUALQUIER IDIOMA):',
+        '',
+        '1) DÓNDE ENCONTRASTE EL ERROR:',
+        '',
+        '   • Idioma de la interfaz (es/en/...):',
+        '',
+        '     ______________________________',
+        '',
+        '   • Ejercicio / pantalla (por ejemplo, Ejercicio 1, lista de verbos, etc.):',
+        '',
+        '     ______________________________',
+        '',
+        '   • Verbo / palabra (infinitivo en hebreo + traducción):',
+        '',
+        '     ______________________________',
+        '',
+        '',
+        '2) QUÉ EXACTAMENTE ES INCORRECTO (MARCA LO NECESARIO):',
+        '',
+        '   • Error de traducción',
+        '   • Error de transliteración',
+        '   • Error gramatical (género / número / tiempo / persona, etc.)',
+        '   • Error en el ejemplo (frase, orden de palabras, etc.)',
+        '   • Audio incorrecto (otra forma / otro verbo / mala calidad)',
+        '   • Otro:',
+        '',
+        '     ______________________________',
+        '',
+        '',
+        '3) DETALLES:',
+        '',
+        '   • Cómo es ahora (versión incorrecta):',
+        '',
+        '     ______________________________',
+        '',
+        '   • Cómo debería ser (versión correcta):',
+        '',
+        '     ______________________________',
+        '',
+        '',
+        '4) SI LO DESEAS, PUEDES AÑADIR UNA CAPTURA DE PANTALLA',
+        '',
+        '',
+        '5) ¿QUÉ CREES QUE SE PODRÍA AÑADIR O CAMBIAR EN LA APLICACIÓN PARA MEJORARLA?:',
+        '',
+        '     ______________________________',
+        '',
+        '---',
+        '',
+        'INFORMACIÓN TÉCNICA:',
+        `Versión de la aplicación: ${Constants?.expoConfig?.version || 'unknown'}`,
+        `Plataforma: ${Platform.OS} (${Platform.Version})`,
+      ].join('\n')
+    );
+
+    const mailtoUrl = `mailto:${to}?subject=${subject}&body=${body}`;
+
+    try {
+      const canOpen = await Linking.canOpenURL(mailtoUrl);
+      if (canOpen) {
+        await Linking.openURL(mailtoUrl);
+      } else {
+        console.log('No email client available');
+      }
+    } catch (e) {
+      console.log('Error while trying to open mailto:', e);
+    }
+  }, []);
 
   const highlightedButtonStyle = {
     backgroundColor: '#367088',
@@ -376,360 +471,481 @@ export default function MenuPage({ route }) {
   }
 
   return (
-     <View style={{ flex: 1 }}>
-    <ScrollView style={styles.container}>
-      <Animated.View style={[styles.headerContainer, { opacity: headerOpacity }]}>
-        <Image source={require('./VERBIFY.png')} style={styles.image} />
-        <Text style={styles.greeting} maxFontSizeMultiplier={1.2}>
-          Hola, {name}!
-        </Text>
-      </Animated.View>
+    <View style={{ flex: 1 }}>
+      <ScrollView style={styles.container}>
+        <Animated.View style={[styles.headerContainer, { opacity: headerOpacity }]}>
+          <Image source={require('./VERBIFY.png')} style={styles.image} />
+          <Text style={styles.greeting} maxFontSizeMultiplier={1.2}>
+            Hola, {name}!
+          </Text>
+        </Animated.View>
 
-         {/* Статистика (теперь кнопка-обёртка) */}
-           <TouchableOpacity
-             activeOpacity={0.9}
-             onPress={() => setIsStatModalVisible(true)}
-           >
-      <Animated.View style={[styles.statsContainer, { opacity: titleOpacity }]}>
-        {!statsAnimationFinished ? (
-          <LottieView
-            source={require('./Animation - 1741202326129.json')}
-            autoPlay
-            loop={false}
-            onAnimationFinish={() => setStatsAnimationFinished(true)}
-            style={styles.statsAnimation}
+        {/* Статистика (теперь кнопка-обёртка) */}
+        <TouchableOpacity activeOpacity={0.9} onPress={() => setIsStatModalVisible(true)}>
+          <Animated.View style={[styles.statsContainer, { opacity: titleOpacity }]}>
+            {!statsAnimationFinished ? (
+              <LottieView
+                source={require('./Animation - 1741202326129.json')}
+                autoPlay
+                loop={false}
+                onAnimationFinish={() => setStatsAnimationFinished(true)}
+                style={styles.statsAnimation}
+              />
+            ) : (
+              <>
+                <Image source={require('./STAT2.png')} style={styles.statsImage} />
+                <FadeInView style={styles.statsTextContainer}>
+                  <View style={styles.statsRow}>
+                    <Text style={styles.statsText} maxFontSizeMultiplier={1.2}>
+                      EJERCICIOS COMPLETADOS
+                    </Text>
+                    <View style={styles.statsBox}>
+                      <Text style={styles.statsValue} maxFontSizeMultiplier={1.2}>
+                        {totalExercisesCompleted}
+                      </Text>
+                    </View>
+                  </View>
+                  <View style={styles.statsRow}>
+                    <Text style={styles.statsText} maxFontSizeMultiplier={1.2}>
+                      RESULTADO PROMEDIO
+                    </Text>
+                    <View style={styles.statsBox}>
+                      <Text style={styles.statsValue} maxFontSizeMultiplier={1.2}>
+                        {averageCompletionRate}%
+                      </Text>
+                    </View>
+                  </View>
+                  <View style={styles.statsRow}>
+                    <Text style={styles.statsText} maxFontSizeMultiplier={1.2}>
+                      DÍAS DE ENTRENAMIENTO
+                    </Text>
+                    <View style={styles.statsBox}>
+                      <Text style={styles.statsValue} maxFontSizeMultiplier={1.2}>
+                        {activeDays}
+                      </Text>
+                    </View>
+                  </View>
+                </FadeInView>
+              </>
+            )}
+          </Animated.View>
+        </TouchableOpacity>
+
+        <View style={styles.content}>
+          <Animated.Text
+            style={[styles.titleText, { opacity: titleOpacity }]}
+            maxFontSizeMultiplier={1.2}
+          >
+            SELECCIONA UN EJERCICIO
+          </Animated.Text>
+
+          {/* 1 — FREE */}
+          <Animated.View
+            style={[
+              styles.buttonContainer,
+              { opacity: button1Opacity, transform: [{ translateY: button1TranslateY }] },
+            ]}
+          >
+            <TouchableOpacity onPress={() => handlePress('Exercise1Es')}>
+              <View style={styles.upperPart1}>
+                <Text style={styles.upperText1} maxFontSizeMultiplier={1.2}>
+                  EJERCICIO  1
+                </Text>
+                <Image source={require('./star1.png')} style={[styles.image1]} />
+              </View>
+              <View style={styles.upperPart2}>
+                <Text style={styles.upperText} maxFontSizeMultiplier={1.2}>
+                  TARJETAS DE VERBOS HEBREO-ESPAÑOL
+                </Text>
+              </View>
+              <View style={styles.lowerRight}>
+                <Text style={styles.lowerText} maxFontSizeMultiplier={1.2}>
+                  COMPLETADO{' '}
+                  <Text style={styles.statValue}>
+                    {stats['exercise1Es'] ? stats['exercise1Es'].timesCompleted : 0}
+                  </Text>
+                </Text>
+                <Text style={styles.lowerText} maxFontSizeMultiplier={1.2}>
+                  PUNTAJE PROMEDIO{' '}
+                  <Text style={styles.statValue}>
+                    {stats['exercise1Es']
+                      ? stats['exercise1Es'].averageCompletionRate.toFixed(2)
+                      : 0}
+                    %
+                  </Text>
+                </Text>
+              </View>
+            </TouchableOpacity>
+          </Animated.View>
+
+          {/* 2 — FREE */}
+          <Animated.View
+            style={[
+              styles.buttonContainer,
+              { opacity: button2Opacity, transform: [{ translateY: button2TranslateY }] },
+            ]}
+          >
+            <TouchableOpacity onPress={() => handlePress('Exercise2Es')}>
+              <View style={styles.upperPart1}>
+                <Text style={styles.upperText1} maxFontSizeMultiplier={1.2}>
+                  EJERCICIO  2
+                </Text>
+                <Image source={require('./star2.png')} style={[styles.image1]} />
+              </View>
+              <View style={styles.upperPart2}>
+                <Text style={styles.upperText} maxFontSizeMultiplier={1.2}>
+                  TARJETAS DE VERBOS ESPAÑOL-HEBREO
+                </Text>
+              </View>
+              <View style={styles.lowerRight}>
+                <Text style={styles.lowerText} maxFontSizeMultiplier={1.2}>
+                  COMPLETADO{' '}
+                  <Text style={styles.statValue}>
+                    {stats['exercise2Es'] ? stats['exercise2Es'].timesCompleted : 0}
+                  </Text>
+                </Text>
+                <Text style={styles.lowerText} maxFontSizeMultiplier={1.2}>
+                  PUNTAJE PROMEDIO{' '}
+                  <Text style={styles.statValue}>
+                    {stats['exercise2Es']
+                      ? stats['exercise2Es'].averageCompletionRate.toFixed(2)
+                      : 0}
+                    %
+                  </Text>
+                </Text>
+              </View>
+            </TouchableOpacity>
+          </Animated.View>
+
+          {/* 3 — LOCKED if !PRO */}
+          <Animated.View
+            style={[
+              styles.buttonContainer,
+              { opacity: button3Opacity, transform: [{ translateY: button3TranslateY }] },
+              isLocked('Exercise3Es') && lockStyle,
+            ]}
+          >
+            <TouchableOpacity onPress={() => handlePress('Exercise3Es')}>
+              <View style={styles.upperPart1}>
+                <Text style={styles.upperText1} maxFontSizeMultiplier={1.2}>
+                  EJERCICIO  3
+                </Text>
+                <Image source={require('./star3.png')} style={[styles.image1]} />
+              </View>
+              <View style={styles.upperPart2}>
+                <Text style={styles.upperText} maxFontSizeMultiplier={1.2}>
+                  IDENTIFICAR EL BINYAN
+                </Text>
+              </View>
+              <View style={styles.lowerRight}>
+                <Text style={styles.lowerText} maxFontSizeMultiplier={1.2}>
+                  COMPLEТADO{' '}
+                  <Text style={styles.statValue}>
+                    {stats['exercise3Es'] ? stats['exercise3Es'].timesCompleted : 0}
+                  </Text>
+                </Text>
+                <Text style={styles.lowerText} maxFontSizeMultiplier={1.2}>
+                  PUNTAJE PROMEDIO{' '}
+                  <Text style={styles.statValue}>
+                    {stats['exercise3Es']
+                      ? stats['exercise3Es'].averageCompletionRate.toFixed(2)
+                      : 0}
+                    %
+                  </Text>
+                </Text>
+              </View>
+            </TouchableOpacity>
+          </Animated.View>
+
+          {/* 4 (route 5) — LOCKED if !PRO */}
+          <Animated.View
+            style={[
+              styles.buttonContainer,
+              { opacity: button6Opacity, transform: [{ translateY: button6TranslateY }] },
+              isLocked('Exercise5Es') && lockStyle,
+            ]}
+          >
+            <TouchableOpacity onPress={() => handlePress('Exercise5Es')}>
+              <View style={styles.upperPart1}>
+                <Text style={styles.upperText1} maxFontSizeMultiplier={1.2}>
+                  EJERCICIO  4
+                </Text>
+                <Image source={require('./star3.png')} style={[styles.image1]} />
+              </View>
+              <View style={styles.upperPart2}>
+                <Text style={styles.upperText} maxFontSizeMultiplier={1.2}>
+                  MODO IMPERATIVO
+                </Text>
+              </View>
+              <View style={styles.lowerRight}>
+                <Text style={styles.lowerText} maxFontSizeMultiplier={1.2}>
+                  COMPLEТADO{' '}
+                  <Text style={styles.statValue}>
+                    {stats['exercise5Es'] ? stats['exercise5Es'].timesCompleted : 0}
+                  </Text>
+                </Text>
+                <Text style={styles.lowerText} maxFontSizeMultiplier={1.2}>
+                  PUNTAJE PROMEDIO{' '}
+                  <Text style={styles.statValue}>
+                    {stats['exercise5Es']
+                      ? stats['exercise5Es'].averageCompletionRate.toFixed(2)
+                      : 0}
+                    %
+                  </Text>
+                </Text>
+              </View>
+            </TouchableOpacity>
+          </Animated.View>
+
+          {/* 5 — LOCKED if !PRO */}
+          <Animated.View
+            style={[
+              styles.buttonContainer,
+              highlightedButtonStyle,
+              { opacity: button5Opacity, transform: [{ translateY: button5TranslateY }] },
+              isLocked('Exercise6Es') && lockStyle,
+            ]}
+          >
+            <TouchableOpacity onPress={() => handlePress('Exercise6Es')}>
+              <View style={styles.upperPart1}>
+                <Text style={styles.upperText1} maxFontSizeMultiplier={1.2}>
+                  EJERCICIO  5
+                </Text>
+                <Image source={require('./star4.png')} style={[styles.image1]} />
+              </View>
+              <View style={styles.upperPart2}>
+                <Text style={styles.upperText} maxFontSizeMultiplier={1.2}>
+                  CONJUGACIÓN DE VERBOS ESPAÑOL-HEBREO
+                </Text>
+              </View>
+              <View style={styles.lowerRight}>
+                <Text style={styles.lowerText} maxFontSizeMultiplier={1.2}>
+                  COMPLEТADO{' '}
+                  <Text style={styles.statValue}>
+                    {stats['exercise6Es'] ? stats['exercise6Es'].timesCompleted : 0}
+                  </Text>
+                </Text>
+                <Text style={styles.lowerText} maxFontSizeMultiplier={1.2}>
+                  PUNTAJE PROMEDIO{' '}
+                  <Text style={styles.statValue}>
+                    {stats['exercise6Es']
+                      ? stats['exercise6Es'].averageCompletionRate.toFixed(2)
+                      : 0}
+                    %
+                  </Text>
+                </Text>
+              </View>
+            </TouchableOpacity>
+          </Animated.View>
+
+          {/* 6 — LOCKED if !PRO */}
+          <Animated.View
+            style={[
+              styles.buttonContainer,
+              highlightedButtonStyle,
+              { opacity: button8Opacity, transform: [{ translateY: button8TranslateY }] },
+              isLocked('Exercise8Es') && lockStyle,
+            ]}
+          >
+            <TouchableOpacity onPress={() => handlePress('Exercise8Es')}>
+              <View style={styles.upperPart1}>
+                <Text style={styles.upperText1} maxFontSizeMultiplier={1.2}>
+                  EJERCICIO  6
+                </Text>
+                <Image source={require('./star4.png')} style={[styles.image1]} />
+              </View>
+              <View style={styles.upperPart2}>
+                <Text style={styles.upperText} maxFontSizeMultiplier={1.2}>
+                  CONJUGACIÓN DE VERBOS HEBREO-ESPAÑOL
+                </Text>
+              </View>
+              <View style={styles.lowerRight}>
+                <Text style={styles.lowerText} maxFontSizeMultiplier={1.2}>
+                  COMPLEТADO{' '}
+                  <Text style={styles.statValue}>
+                    {stats['exercise8Es'] ? stats['exercise8Es'].timesCompleted : 0}
+                  </Text>
+                </Text>
+                <Text style={styles.lowerText} maxFontSizeMultiplier={1.2}>
+                  PUNTAJE PROMEDIO{' '}
+                  <Text style={styles.statValue}>
+                    {stats['exercise8Es']
+                      ? stats['exercise8Es'].averageCompletionRate.toFixed(2)
+                      : 0}
+                    %
+                  </Text>
+                </Text>
+              </View>
+            </TouchableOpacity>
+          </Animated.View>
+
+          {/* 7 — LOCKED if !PRO */}
+          <Animated.View
+            style={[
+              styles.buttonContainer,
+              hardlightedButtonStyle,
+              { opacity: button4Opacity, transform: [{ translateY: button4TranslateY }] },
+              isLocked('Exercise4Es') && lockStyle,
+            ]}
+          >
+            <TouchableOpacity onPress={() => handlePress('Exercise4Es')}>
+              <View style={styles.upperPart1}>
+                <Text style={styles.upperText1} maxFontSizeMultiplier={1.2}>
+                  EJERCICIO  7
+                </Text>
+                <Image source={require('./star5.png')} style={[styles.image1]} />
+              </View>
+              <View style={styles.upperPart2}>
+                <Text style={styles.upperText} maxFontSizeMultiplier={1.2}>
+                  CONJUGACIÓN DE VERBOS ESPAÑOL-HEBREO
+                </Text>
+              </View>
+              <View style={styles.lowerRight}>
+                <Text style={styles.lowerText} maxFontSizeMultiplier={1.2}>
+                  COMPLEТADO{' '}
+                  <Text style={styles.statValue}>
+                    {stats['exercise4Es'] ? stats['exercise4Es'].timesCompleted : 0}
+                  </Text>
+                </Text>
+                <Text style={styles.lowerText} maxFontSizeMultiplier={1.2}>
+                  PUNTAJE PROMEDIO{' '}
+                  <Text style={styles.statValue}>
+                    {stats['exercise4Es']
+                      ? stats['exercise4Es'].averageCompletionRate.toFixed(2)
+                      : 0}
+                    %
+                  </Text>
+                </Text>
+              </View>
+            </TouchableOpacity>
+          </Animated.View>
+
+          {/* 8 — LOCKED if !PRO */}
+          <Animated.View
+            style={[
+              styles.buttonContainer,
+              hardlightedButtonStyle,
+              { opacity: button7Opacity, transform: [{ translateY: button7TranslateY }] },
+              isLocked('Exercise7Es') && lockStyle,
+            ]}
+          >
+            <TouchableOpacity onPress={() => handlePress('Exercise7Es')}>
+              <View style={styles.upperPart1}>
+                <Text style={styles.upperText1} maxFontSizeMultiplier={1.2}>
+                  EJERCICIO  8
+                </Text>
+                <Image source={require('./star5.png')} style={[styles.image1]} />
+              </View>
+              <View style={styles.upperPart2}>
+                <Text style={styles.upperText} maxFontSizeMultiplier={1.2}>
+                  CONJUGACIÓN DE VERBOS HEBREO-ESPAÑOL
+                </Text>
+              </View>
+              <View style={styles.lowerRight}>
+                <Text style={styles.lowerText} maxFontSizeMultiplier={1.2}>
+                  COMPLEТADO{' '}
+                  <Text style={styles.statValue}>
+                    {stats['exercise7Es'] ? stats['exercise7Es'].timesCompleted : 0}
+                  </Text>
+                </Text>
+                <Text style={styles.lowerText} maxFontSizeMultiplier={1.2}>
+                  PUNTAJE PROMEDIO{' '}
+                  <Text style={styles.statValue}>
+                    {stats['exercise7Es']
+                      ? stats['exercise7Es'].averageCompletionRate.toFixed(2)
+                      : 0}
+                    %
+                  </Text>
+                </Text>
+              </View>
+            </TouchableOpacity>
+          </Animated.View>
+
+          {/* DESCRIPTION */}
+          <Animated.View
+            style={[
+              styles.infoWrap,
+              { opacity: button9Opacity, transform: [{ translateY: button7TranslateY }] },
+            ]}
+          >
+            <TouchableOpacity style={styles.infoButton} onPress={() => setIsModalVisible(true)}>
+              <Image source={require('./quest.png')} style={styles.infoIcon} />
+              <Text
+                style={styles.infoText}
+                numberOfLines={2}
+                ellipsizeMode="tail"
+                maxFontSizeMultiplier={1.2}
+              >
+                DESCRIPCIÓN DE LA APLICACIÓN
+              </Text>
+            </TouchableOpacity>
+          </Animated.View>
+          <AppDescriptionModal
+            visible={isModalVisible}
+            onToggle={() => setIsModalVisible(false)}
           />
-        ) : (
-          <>
-            <Image source={require('./STAT2.png')} style={styles.statsImage} />
-            <FadeInView style={styles.statsTextContainer}>
-              <View style={styles.statsRow}>
-                <Text style={styles.statsText} maxFontSizeMultiplier={1.2}>
-                  EJERCICIOS COMPLETADOS
-                </Text>
-                <View style={styles.statsBox}>
-                  <Text style={styles.statsValue} maxFontSizeMultiplier={1.2}>
-                    {totalExercisesCompleted}
-                  </Text>
-                </View>
-              </View>
-              <View style={styles.statsRow}>
-                <Text style={styles.statsText} maxFontSizeMultiplier={1.2}>
-                  RESULTADO PROMEDIO
-                </Text>
-                <View style={styles.statsBox}>
-                  <Text style={styles.statsValue} maxFontSizeMultiplier={1.2}>
-                    {averageCompletionRate}%
-                  </Text>
-                </View>
-              </View>
-              <View style={styles.statsRow}>
-                <Text style={styles.statsText} maxFontSizeMultiplier={1.2}>
-                  DÍAS DE ENTRENAMIENTO
-                </Text>
-                <View style={styles.statsBox}>
-                  <Text style={styles.statsValue} maxFontSizeMultiplier={1.2}>
-                    {activeDays}
-                  </Text>
-                </View>
-              </View>
-            </FadeInView>
-          </>
-        )}
-      </Animated.View>
-      </TouchableOpacity>
 
-      <View style={styles.content}>
-        <Animated.Text style={[styles.titleText, { opacity: titleOpacity }]} maxFontSizeMultiplier={1.2}>
-          SELECCIONA UN EJERCICIO
-        </Animated.Text>
+          {/* ABOUT */}
+          <Animated.View
+            style={[
+              styles.infoWrap,
+              { opacity: button9Opacity, transform: [{ translateY: button7TranslateY }] },
+            ]}
+          >
+            <TouchableOpacity style={styles.infoButton} onPress={() => setIsInfoModalVisible(true)}>
+              <Image source={require('./about4.png')} style={styles.infoIcon} />
+              <Text
+                style={styles.infoText}
+                numberOfLines={2}
+                ellipsizeMode="tail"
+                maxFontSizeMultiplier={1.2}
+              >
+                ACERCA DE LA APLICACIÓN
+              </Text>
+            </TouchableOpacity>
+          </Animated.View>
+          <AppInfoModal
+            visible={isInfoModalVisible}
+            onToggle={() => setIsInfoModalVisible(false)}
+          />
 
-        {/* 1 — FREE */}
-        <Animated.View style={[styles.buttonContainer, { opacity: button1Opacity, transform: [{ translateY: button1TranslateY }] }]}>
-          <TouchableOpacity onPress={() => handlePress('Exercise1Es')}>
-            <View style={styles.upperPart1}>
-              <Text style={styles.upperText1} maxFontSizeMultiplier={1.2}>
-                EJERCICIO  1
-              </Text>
-              <Image source={require('./star1.png')} style={[styles.image1]} />
-            </View>
-            <View style={styles.upperPart2}>
-              <Text style={styles.upperText} maxFontSizeMultiplier={1.2}>
-                TARJETAS DE VERBOS HEBREO-ESPAÑOL
-              </Text>
-            </View>
-            <View style={styles.lowerRight}>
-              <Text style={styles.lowerText} maxFontSizeMultiplier={1.2}>
-                COMPLETADO <Text style={styles.statValue}>{stats['exercise1Es'] ? stats['exercise1Es'].timesCompleted : 0}</Text>
-              </Text>
-              <Text style={styles.lowerText} maxFontSizeMultiplier={1.2}>
-                PUNTAJE PROMEDIO <Text style={styles.statValue}>{stats['exercise1Es'] ? stats['exercise1Es'].averageCompletionRate.toFixed(2) : 0}%</Text>
-              </Text>
-            </View>
-          </TouchableOpacity>
-        </Animated.View>
+{/* REPORTAR ERROR */}
 
-        {/* 2 — FREE */}
-        <Animated.View style={[styles.buttonContainer, { opacity: button2Opacity, transform: [{ translateY: button2TranslateY }] }]}>
-          <TouchableOpacity onPress={() => handlePress('Exercise2Es')}>
-            <View style={styles.upperPart1}>
-              <Text style={styles.upperText1} maxFontSizeMultiplier={1.2}>
-                EJERCICIO  2
-              </Text>
-              <Image source={require('./star2.png')} style={[styles.image1]} />
-            </View>
-            <View style={styles.upperPart2}>
-              <Text style={styles.upperText} maxFontSizeMultiplier={1.2}>
-                TARJETAS DE VERBOS ESPAÑOL-HEBREO
-              </Text>
-            </View>
-            <View style={styles.lowerRight}>
-              <Text style={styles.lowerText} maxFontSizeMultiplier={1.2}>
-                COMPLETADO <Text style={styles.statValue}>{stats['exercise2Es'] ? stats['exercise2Es'].timesCompleted : 0}</Text>
-              </Text>
-              <Text style={styles.lowerText} maxFontSizeMultiplier={1.2}>
-                PUNTAJE PROMEDIO <Text style={styles.statValue}>{stats['exercise2Es'] ? stats['exercise2Es'].averageCompletionRate.toFixed(2) : 0}%</Text>
-              </Text>
-            </View>
-          </TouchableOpacity>
-        </Animated.View>
-
-        {/* 3 — LOCKED if !PRO */}
-        <Animated.View
-          style={[
-            styles.buttonContainer,
-            { opacity: button3Opacity, transform: [{ translateY: button3TranslateY }] },
-            isLocked('Exercise3Es') && lockStyle,
-          ]}
-        >
-          <TouchableOpacity onPress={() => handlePress('Exercise3Es')}>
-            <View style={styles.upperPart1}>
-              <Text style={styles.upperText1} maxFontSizeMultiplier={1.2}>
-                EJERCICIO  3
-              </Text>
-              <Image source={require('./star3.png')} style={[styles.image1]} />
-            </View>
-            <View style={styles.upperPart2}>
-              <Text style={styles.upperText} maxFontSizeMultiplier={1.2}>
-                IDENTIFICAR EL BINYAN
-              </Text>
-            </View>
-            <View style={styles.lowerRight}>
-              <Text style={styles.lowerText} maxFontSizeMultiplier={1.2}>
-                COMPLETADO <Text style={styles.statValue}>{stats['exercise3Es'] ? stats['exercise3Es'].timesCompleted : 0}</Text>
-              </Text>
-              <Text style={styles.lowerText} maxFontSizeMultiplier={1.2}>
-                PUNTAJE PROMEDIO <Text style={styles.statValue}>{stats['exercise3Es'] ? stats['exercise3Es'].averageCompletionRate.toFixed(2) : 0}%</Text>
-              </Text>
-            </View>
-          </TouchableOpacity>
-        </Animated.View>
-
-        {/* 4 (route 5) — LOCKED if !PRO */}
-        <Animated.View
-          style={[
-            styles.buttonContainer,
-            { opacity: button6Opacity, transform: [{ translateY: button6TranslateY }] },
-            isLocked('Exercise5Es') && lockStyle,
-          ]}
-        >
-          <TouchableOpacity onPress={() => handlePress('Exercise5Es')}>
-            <View style={styles.upperPart1}>
-              <Text style={styles.upperText1} maxFontSizeMultiplier={1.2}>
-                EJERCICIO  4
-              </Text>
-              <Image source={require('./star3.png')} style={[styles.image1]} />
-            </View>
-            <View style={styles.upperPart2}>
-              <Text style={styles.upperText} maxFontSizeMultiplier={1.2}>
-                MODO IMPERATIVO
-              </Text>
-            </View>
-            <View style={styles.lowerRight}>
-              <Text style={styles.lowerText} maxFontSizeMultiplier={1.2}>
-                COMPLEТADO <Text style={styles.statValue}>{stats['exercise5Es'] ? stats['exercise5Es'].timesCompleted : 0}</Text>
-              </Text>
-              <Text style={styles.lowerText} maxFontSizeMultiplier={1.2}>
-                PUNTAJE PROMEDIO <Text style={styles.statValue}>{stats['exercise5Es'] ? stats['exercise5Es'].averageCompletionRate.toFixed(2) : 0}%</Text>
-              </Text>
-            </View>
-          </TouchableOpacity>
-        </Animated.View>
-
-        {/* 5 — LOCKED if !PRO */}
-        <Animated.View
-          style={[
-            styles.buttonContainer,
-            highlightedButtonStyle,
-            { opacity: button5Opacity, transform: [{ translateY: button5TranslateY }] },
-            isLocked('Exercise6Es') && lockStyle,
-          ]}
-        >
-          <TouchableOpacity onPress={() => handlePress('Exercise6Es')}>
-            <View style={styles.upperPart1}>
-              <Text style={styles.upperText1} maxFontSizeMultiplier={1.2}>
-                EJERCICIO  5
-              </Text>
-              <Image source={require('./star4.png')} style={[styles.image1]} />
-            </View>
-            <View style={styles.upperPart2}>
-              <Text style={styles.upperText} maxFontSizeMultiplier={1.2}>
-                CONJUGACIÓN DE VERBOS ESPAÑOL-HEBREO
-              </Text>
-            </View>
-            <View style={styles.lowerRight}>
-              <Text style={styles.lowerText} maxFontSizeMultiplier={1.2}>
-                COMPLETADO <Text style={styles.statValue}>{stats['exercise6Es'] ? stats['exercise6Es'].timesCompleted : 0}</Text>
-              </Text>
-              <Text style={styles.lowerText} maxFontSizeMultiplier={1.2}>
-                PUNTAJE PROMEDIO <Text style={styles.statValue}>{stats['exercise6Es'] ? stats['exercise6Es'].averageCompletionRate.toFixed(2) : 0}%</Text>
-              </Text>
-            </View>
-          </TouchableOpacity>
-        </Animated.View>
-
-        {/* 6 — LOCKED if !PRO */}
-        <Animated.View
-          style={[
-            styles.buttonContainer,
-            highlightedButtonStyle,
-            { opacity: button8Opacity, transform: [{ translateY: button8TranslateY }] },
-            isLocked('Exercise8Es') && lockStyle,
-          ]}
-        >
-          <TouchableOpacity onPress={() => handlePress('Exercise8Es')}>
-            <View style={styles.upperPart1}>
-              <Text style={styles.upperText1} maxFontSizeMultiplier={1.2}>
-                EJERCICIO  6
-              </Text>
-              <Image source={require('./star4.png')} style={[styles.image1]} />
-            </View>
-            <View style={styles.upperPart2}>
-              <Text style={styles.upperText} maxFontSizeMultiplier={1.2}>
-                CONJUGACIÓN DE VERBOS HEBREO-ESPAÑOL
-              </Text>
-            </View>
-            <View style={styles.lowerRight}>
-              <Text style={styles.lowerText} maxFontSizeMultiplier={1.2}>
-                COMPLETADO <Text style={styles.statValue}>{stats['exercise8Es'] ? stats['exercise8Es'].timesCompleted : 0}</Text>
-              </Text>
-              <Text style={styles.lowerText} maxFontSizeMultiplier={1.2}>
-                PUNTAJE PROMEDIO <Text style={styles.statValue}>{stats['exercise8Es'] ? stats['exercise8Es'].averageCompletionRate.toFixed(2) : 0}%</Text>
-              </Text>
-            </View>
-          </TouchableOpacity>
-        </Animated.View>
-
-        {/* 7 — LOCKED if !PRO */}
-        <Animated.View
-          style={[
-            styles.buttonContainer,
-            hardlightedButtonStyle,
-            { opacity: button4Opacity, transform: [{ translateY: button4TranslateY }] },
-            isLocked('Exercise4Es') && lockStyle,
-          ]}
-        >
-          <TouchableOpacity onPress={() => handlePress('Exercise4Es')}>
-            <View style={styles.upperPart1}>
-              <Text style={styles.upperText1} maxFontSizeMultiplier={1.2}>
-                EJERCICIO  7
-              </Text>
-              <Image source={require('./star5.png')} style={[styles.image1]} />
-            </View>
-            <View style={styles.upperPart2}>
-              <Text style={styles.upperText} maxFontSizeMultiplier={1.2}>
-                CONJUGACIÓN DE VERBOS ESPAÑOL-HEBREO
-              </Text>
-            </View>
-            <View style={styles.lowerRight}>
-              <Text style={styles.lowerText} maxFontSizeMultiplier={1.2}>
-                COMPLETADO <Text style={styles.statValue}>{stats['exercise4Es'] ? stats['exercise4Es'].timesCompleted : 0}</Text>
-              </Text>
-              <Text style={styles.lowerText} maxFontSizeMultiplier={1.2}>
-                PUNTAJE PROMEDIO <Text style={styles.statValue}>{stats['exercise4Es'] ? stats['exercise4Es'].averageCompletionRate.toFixed(2) : 0}%</Text>
-              </Text>
-            </View>
-          </TouchableOpacity>
-        </Animated.View>
-
-        {/* 8 — LOCKED if !PRO */}
-        <Animated.View
-          style={[
-            styles.buttonContainer,
-            hardlightedButtonStyle,
-            { opacity: button7Opacity, transform: [{ translateY: button7TranslateY }] },
-            isLocked('Exercise7Es') && lockStyle,
-          ]}
-        >
-          <TouchableOpacity onPress={() => handlePress('Exercise7Es')}>
-            <View style={styles.upperPart1}>
-              <Text style={styles.upperText1} maxFontSizeMultiplier={1.2}>
-                EJERCICIO  8
-              </Text>
-              <Image source={require('./star5.png')} style={[styles.image1]} />
-            </View>
-            <View style={styles.upperPart2}>
-              <Text style={styles.upperText} maxFontSizeMultiplier={1.2}>
-                CONJUGACIÓN DE VERBOS HEBREO-ESPAÑOL
-              </Text>
-            </View>
-            <View style={styles.lowerRight}>
-              <Text style={styles.lowerText} maxFontSizeMultiplier={1.2}>
-                COMPLETADO <Text style={styles.statValue}>{stats['exercise7Es'] ? stats['exercise7Es'].timesCompleted : 0}</Text>
-              </Text>
-              <Text style={styles.lowerText} maxFontSizeMultiplier={1.2}>
-                PUNTAJE PROMEDIO <Text style={styles.statValue}>{stats['exercise7Es'] ? stats['exercise7Es'].averageCompletionRate.toFixed(2) : 0}%</Text>
-              </Text>
-            </View>
-          </TouchableOpacity>
-        </Animated.View>
-
-      {/* DESCRIPTION */}
 <Animated.View
-  style={[styles.infoWrap, { opacity: button9Opacity, transform: [{ translateY: button7TranslateY }] }]}
+  style={[
+    styles.infoWrap,
+    { opacity: button9Opacity, transform: [{ translateY: button7TranslateY }] },
+  ]}
 >
-  <TouchableOpacity style={styles.infoButton} onPress={() => setIsModalVisible(true)}>
-    <Image source={require('./quest.png')} style={styles.infoIcon} />
+  <TouchableOpacity
+    style={[
+      styles.infoButton,
+      { backgroundColor: '#bd462a', borderColor: '#2D4769' }, // как в EN
+    ]}
+    onPress={handleReportBug}
+  >
     <Text
       style={styles.infoText}
       numberOfLines={2}
       ellipsizeMode="tail"
       maxFontSizeMultiplier={1.2}
     >
-       DESCRIPCIÓN DE LA APLICACIÓN
+      REPORTAR UN ERROR
     </Text>
   </TouchableOpacity>
 </Animated.View>
-<AppDescriptionModal visible={isModalVisible} onToggle={() => setIsModalVisible(false)} />
 
-{/* ABOUT */}
-<Animated.View
-  style={[styles.infoWrap, { opacity: button9Opacity, transform: [{ translateY: button7TranslateY }] }]}
->
-  <TouchableOpacity style={styles.infoButton} onPress={() => setIsInfoModalVisible(true)}>
-    <Image source={require('./about4.png')} style={styles.infoIcon} />
-    <Text
-      style={styles.infoText}
-      numberOfLines={2}
-      ellipsizeMode="tail"
-      maxFontSizeMultiplier={1.2}
-    >
-      ACERCA DE LA APLICACIÓN
-    </Text>
-  </TouchableOpacity>
-</Animated.View>
-<AppInfoModal visible={isInfoModalVisible} onToggle={() => setIsInfoModalVisible(false)} />
 
-      </View>
 
-         </ScrollView>
+        </View>
+      </ScrollView>
 
-    <StatsReportModalMulti
-      visible={isStatModalVisible}
-      onClose={() => setIsStatModalVisible(false)}
-      language="es"
-    />
-  </View>
+      <StatsReportModalMulti
+        visible={isStatModalVisible}
+        onClose={() => setIsStatModalVisible(false)}
+        language="es"
+      />
+    </View>
   );
 }
 
@@ -782,23 +998,24 @@ const styles = StyleSheet.create({
   },
 
   statsBox: {
-    width: 60,
+    minWidth: 50,
     height: 20,
+    paddingHorizontal: 4,
     backgroundColor: 'white',
     borderRadius: 5,
     justifyContent: 'center',
     alignItems: 'center',
-    alignSelf: 'center',
-    textAlignVertical: 'center',
   },
 
   statsValue: {
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: 'bold',
     color: '#367088',
     textAlign: 'center',
+    lineHeight: 14, // меньше высоты бокса
+    includeFontPadding: false,
     textAlignVertical: 'center',
-    lineHeight: 17,
+    marginTop: -1, // чуть приподнимаем текст
   },
 
   container: {
@@ -958,7 +1175,7 @@ const styles = StyleSheet.create({
     borderColor: '#367088',
     paddingVertical: 12,
     paddingHorizontal: 20,
-    minHeight: 52,       // фикс от «скачков» высоты
+    minHeight: 52, // фикс от «скачков» высоты
     width: '100%',
   },
 
@@ -976,11 +1193,13 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 14,
     fontWeight: 'bold',
-    includeFontPadding: false,   // ровнее на Android
+    includeFontPadding: false, // ровнее на Android
     textAlignVertical: 'center',
-    lineHeight: 18,              // предсказуемая высота строки
+    lineHeight: 18, // предсказуемая высота строки
     marginTop: 0,
     marginBottom: 0,
-    marginLeft: 0,               // исправлено с marginleft
+    marginLeft: 0,
   },
+
+  
 });

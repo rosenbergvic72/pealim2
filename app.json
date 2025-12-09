@@ -5,14 +5,22 @@
     "version": "1.1.1",
     "orientation": "portrait",
     "icon": "./assets/images/iconjjj.png",
+
+    "splash": {
+      "image": "./assets/images/icon512.png",  
+      "resizeMode": "contain",
+      "backgroundColor": "#2d4769"
+    },
+
     "extra": {
       "eas": {
         "projectId": "1c3fbe10-9608-4dd7-a477-f0ae7c294b5e"
       }
     },
+
     "android": {
       "package": "com.rosenbergvictor72.pealim2",
-      "versionCode": 2000009,
+      "versionCode": 2000098,
       "permissions": [
         "RECORD_AUDIO",
         "POST_NOTIFICATIONS"
@@ -23,15 +31,25 @@
       },
       "googleServicesFile": "./google-services.json"
     },
+
     "ios": {
       "bundleIdentifier": "com.rosenbergvictor72.pealim2",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false
       }
     },
+
     "plugins": [
       "expo-localization",
-      "expo-notifications"
+      "expo-notifications",
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/images/splash.png",
+          "resizeMode": "contain",
+          "backgroundColor": "#2d4769"
+        }
+      ]
     ]
   }
 }

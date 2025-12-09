@@ -1,66 +1,31 @@
-// VerbListModal2.js
-
-import React, { useEffect, useMemo } from 'react';
+// VerbListModal2.jsx
+import React, { useCallback, useState } from 'react';
 import {
   Modal,
   View,
   Text,
   StyleSheet,
   TouchableOpacity,
-  FlatList,
+  ScrollView,
   Image,
-  Vibration,
-  BackHandler,
 } from 'react-native';
-import FadeInView from './api/FadeInView';
 import { Audio } from 'expo-av';
-import soundsConj from './soundconj';
+import soundsconj from './soundconj';
 
-const titles = {
-  ru: 'Глагол упражнения и спряжения',
-  en: 'Exercise verb & conjugations',
-  fr: 'Verbe et conjugaisons',
-  es: 'Verbo y conjugaciones',
-  pt: 'Verbo e conjugações',
-  ar: 'فعل التمرين وتصريفاته',
-  am: 'የልምምዱ ግስ እና ቅጾቹ',
-  he: 'הפועל בתרגיל והטיותיו',
-};
+// props:
+// visible, language, verbs, onStartExercise, onClose
+const VerbListModal2 = ({
+  visible,
+  language = 'ru',
+  verbs = [],
+  onStartExercise,
+  onClose,
+}) => {
+  const [sound, setSound] = useState(null);
 
-const buttonTexts = {
-  ru: 'Начать упражнение',
-  en: 'Start Exercise',
-  fr: 'Commencer l’exercice',
-  es: 'Comenzar ejercicio',
-  pt: 'Começar exercício',
-  ar: 'ابدأ التمرين',
-  am: 'ልምምዱን ጀምር',
-  he: 'התחל תרגול',
-};
-
-const translationFieldMap = {
-  ru: 'russiantext',
-  en: 'entext',
-  fr: 'frtext',
-  es: 'estext',
-  pt: 'pttext',
-  ar: 'artext',
-  am: 'amtext',
-  he: 'hebrewtext',
-};
-
-const VerbListModal2 = ({ visible, onClose, onStartExercise, verbs, language }) => {
-  const fallbackLang = 'en';
-
+  /* === НОРМАЛИЗАЦИЯ ЯЗЫКА === */
   const languageMap = {
-    русский: 'ru',
-    english: 'en',
-    français: 'fr',
-    español: 'es',
-    português: 'pt',
-    العربية: 'ar',
-    አማርኛ: 'am',
-    עברית: 'he',
+    // коды
     ru: 'ru',
     en: 'en',
     fr: 'fr',
@@ -69,8 +34,32 @@ const VerbListModal2 = ({ visible, onClose, onStartExercise, verbs, language }) 
     ar: 'ar',
     am: 'am',
     he: 'he',
+    // названия
+    русский: 'ru',
+    english: 'en',
+    français: 'fr',
+    español: 'es',
+    português: 'pt',
+    العربية: 'ar',
+    አማርኛ: 'am',
+    עברית: 'he',
   };
 
+  const langCode = languageMap[language] || language || 'ru';
+
+  /* === ЗАГОЛОВОК МОДАЛКИ === */
+  const headerTitleByLang = {
+    ru: 'Глагол упражнения и спряжения',
+    en: 'Exercise verb & conjugations',
+    fr: "Verbe de l’exercice et conjugaisons",
+    es: 'Verbo del ejercicio y conjugaciones',
+    pt: 'Verbo do exercício e conjugações',
+    ar: 'فعل التمرين والتصريفات',
+    am: 'ግስ እና ልዩ ልዩ ቅጾች',
+    he: 'הפועל בתרגיל והטיותיו',
+  };
+
+  /* === ПОЛЕ ДЛЯ ПЕРЕВОДА ОСНОВНОГО ГЛАГОЛА (в шапке) === */
   const dictionaryTranslationFieldMap = {
     ru: 'russian',
     en: 'english',
@@ -82,345 +71,397 @@ const VerbListModal2 = ({ visible, onClose, onStartExercise, verbs, language }) 
     he: 'hebrew',
   };
 
-  const langKey = languageMap[language] || language || fallbackLang;
-  const dictionaryTranslationKey = dictionaryTranslationFieldMap[langKey] || 'english';
-  const title = titles[langKey] || titles[fallbackLang];
-  const buttonText = buttonTexts[langKey] || buttonTexts[fallbackLang];
-  const translationKey = translationFieldMap[langKey] || 'entext';
-  const mainVerb = verbs?.[0] || {};
-
-  const getImageForGender = (gender) => {
-    switch (gender) {
-      case 'man':
-        return require('./man1.png');
-      case 'woman':
-        return require('./woman1.png');
-      case 'men':
-        return require('./men1.png');
-      case 'women':
-        return require('./women1.png');
-      default:
-        return null;
-    }
+  /* === ПОЛЕ ДЛЯ ПЕРЕВОДА ФОРМ (левая колонка) === */
+  const translationFieldMap = {
+    ru: 'russiantext',
+    en: 'entext',
+    fr: 'frtext',
+    es: 'estext',
+    pt: 'pttext',
+    ar: 'artext',
+    am: 'amtext',
+    he: 'hebrewtext',
   };
 
-  // Вибро + клик при открытии
-  useEffect(() => {
-    if (visible) {
-      Vibration.vibrate(100);
-      const playSound = async () => {
-        try {
-          const { sound } = await Audio.Sound.createAsync(
-            require('./api/click.mp3'),
-            { shouldPlay: true }
-          );
-          sound.setOnPlaybackStatusUpdate((status) => {
-            if (status.didJustFinish) sound.unloadAsync();
-          });
-        } catch (e) {
-          console.log('Ошибка звука:', e);
-        }
-      };
-      playSound();
-    }
-  }, [visible]);
-
-  // Аппаратная «Назад» — закрыть модалку (Android)
-  useEffect(() => {
-    if (!visible) return;
-    const sub = BackHandler.addEventListener('hardwareBackPress', () => {
-      onClose?.();
-      return true;
-    });
-    return () => sub.remove();
-  }, [visible, onClose]);
-
-  const playMp3 = async (fileName) => {
-    if (!fileName) {
-      console.warn('⛔ Нет имени файла mp3');
-      return;
-    }
-    const key = fileName.replace('.mp3', '');
-    const soundFile = soundsConj[key];
-    if (!soundFile) {
-      console.warn(`⚠️ Файл для ключа "${key}" не найден в soundsConj`);
-      return;
-    }
-    try {
-      const { sound } = await Audio.Sound.createAsync(soundFile);
-      await sound.playAsync();
-      sound.setOnPlaybackStatusUpdate((status) => {
-        if (status.didJustFinish) {
-          sound.unloadAsync();
-        }
-      });
-    } catch (e) {
-      console.warn('❌ Ошибка при проигрывании файла:', e);
-    }
+  // 🔹 Подписи кнопок для всех языков
+  const buttonLabelsByLang = {
+    ru: {
+      start: 'Начать упражнение',
+      close: 'Закрыть',
+    },
+    en: {
+      start: 'Start exercise',
+      close: 'Close',
+    },
+    fr: {
+      start: "Commencer l'exercice",
+      close: 'Fermer',
+    },
+    es: {
+      start: 'Empezar el ejercicio',
+      close: 'Cerrar',
+    },
+    pt: {
+      start: 'Iniciar exercício',
+      close: 'Fechar',
+    },
+    ar: {
+      start: 'بدء التمرين',
+      close: 'إغلاق',
+    },
+    am: {
+      start: 'መልምድ ጀምር',
+      close: 'ዝጋ',
+    },
+    he: {
+      start: 'התחל תרגול',
+      close: 'סגור',
+    },
   };
 
-  // --- ВАЖНО: нормализация данных и фиксация порядка/ключа ---
-  const normalizedData = useMemo(() => {
-    if (!Array.isArray(verbs)) return [];
-    const withOrder = verbs.map((it, i) => ({
-      ...it,
-      _order: Number.isFinite(it._order)
-        ? it._order
-        : (Number.isFinite(it.order) ? it.order : i),
-      _key:
-        it.mp3 ||
-        it.audioFile ||
-        `${it.infinitive || 'v'}-${it.gender || 'x'}-${i}`,
-    }));
-    return withOrder.slice().sort((a, b) => a._order - b._order);
-  }, [verbs]);
+  const headerTitle = headerTitleByLang[langCode] || headerTitleByLang.ru;
+  const dictionaryTranslationKey =
+    dictionaryTranslationFieldMap[langCode] || 'russian';
+  const translationKey = translationFieldMap[langCode] || 'russiantext';
+  const buttonLabels = buttonLabelsByLang[langCode] || buttonLabelsByLang.ru;
+
+  const mainVerb = verbs[0];
+
+  const playConjAudio = useCallback(
+    async (mp3Key) => {
+      try {
+        if (!mp3Key) return;
+
+        const key = mp3Key.replace('.mp3', '');
+        const audioFile = soundsconj[key];
+        if (!audioFile) {
+          console.warn('⚠️ Audio not found for key:', key);
+          return;
+        }
+
+        if (sound) {
+          await sound.unloadAsync();
+        }
+
+        const { sound: newSound } = await Audio.Sound.createAsync(audioFile);
+        setSound(newSound);
+        await newSound.playAsync();
+      } catch (e) {
+        console.error('Error playing sound', e);
+      }
+    },
+    [sound]
+  );
+
+  if (!mainVerb) {
+    return null;
+  }
 
   return (
     <Modal
       visible={visible}
-      animationType="slide"
       transparent
-      statusBarTranslucent
+      animationType="fade"
       onRequestClose={onClose}
     >
-      <FadeInView style={styles.overlay}>
-        <View style={styles.container}>
-          {/* Шапка с инфой о глаголе */}
-          <View style={styles.verbInfoBlock}>
-            <Text style={styles.verbInfoTitle}>{title}</Text>
+      <View style={styles.backdrop}>
+        <View style={styles.modalCard}>
+          {/* HEADER */}
+          <View style={styles.headerBlock}>
+            <Text style={styles.headerTitle} maxFontSizeMultiplier={1.2}>
+              {headerTitle}
+            </Text>
 
-            <View style={styles.verbMainInfoRow}>
-              {/* Перевод слева */}
-              <View style={{ flex: 1, alignItems: 'flex-start', justifyContent: 'center' }}>
-                <Text style={styles.verbTranslation}>{mainVerb[dictionaryTranslationKey]}</Text>
+            <View style={styles.headerVerbRow}>
+              <View style={styles.headerLeft}>
+                <Text style={styles.headerMeaning} maxFontSizeMultiplier={1.2}>
+                  {mainVerb[dictionaryTranslationKey]}
+                </Text>
               </View>
-              {/* Иврит + транслит справа */}
-              <View style={{ flex: 1, alignItems: 'flex-end' }}>
-                <Text style={styles.verbHebrew}>{mainVerb.infinitive}</Text>
+              <View style={styles.headerRight}>
+                <Text style={styles.headerInf} maxFontSizeMultiplier={1.2}>
+                  {mainVerb.infinitive}
+                </Text>
                 {mainVerb.transliteration ? (
-                  <Text style={styles.verbTranslit}>{mainVerb.transliteration}</Text>
+                  <Text
+                    style={styles.headerTranslit}
+                    maxFontSizeMultiplier={1.2}
+                    numberOfLines={1}
+                  >
+                    {mainVerb.transliteration}
+                  </Text>
                 ) : null}
               </View>
             </View>
           </View>
 
-          <FlatList
-            data={normalizedData}
-            keyExtractor={(item) => item._key}
-            extraData={langKey}
-            renderItem={({ item, index }) => {
-              const genderIcon = getImageForGender(item.gender);
-              const translation = item[translationKey] || '—';
-              const pos = Number.isFinite(item._order) ? item._order : index;
-
-              let backgroundColor = '#F2F4F8';
-              if (pos < 12) backgroundColor = '#EAF2FF';
-              else if (pos < 24) backgroundColor = '#FDF3E7';
-              else backgroundColor = '#E7F7F0';
+          {/* LIST */}
+          <ScrollView
+            style={styles.list}
+            contentContainerStyle={styles.listContent}
+          >
+            {verbs.map((form, idx) => {
+              const translation =
+                form[translationKey] ||
+                form.russiantext ||
+                form.entext ||
+                '—';
 
               return (
-                <View style={[styles.row, { backgroundColor }]}>
-                  <View style={styles.verbLeft}>
-                    {genderIcon && <Image source={genderIcon} style={styles.genderIcon} />}
-                    <Text style={styles.translation} maxFontSizeMultiplier={1.2}>
+                <View key={`${form.hebrewtext}-${idx}`} style={styles.row}>
+                  {/* LEFT: ICON + TRANSLATION */}
+                  <View style={styles.leftCol}>
+                    {form.gender && (
+                      <Image
+                        source={getGenderIcon(form.gender)}
+                        style={styles.genderIcon}
+                      />
+                    )}
+                    <Text
+                      style={styles.leftText}
+                      maxFontSizeMultiplier={1.2}
+                      numberOfLines={2}
+                    >
                       {translation}
                     </Text>
                   </View>
-                  <View style={styles.verbRight}>
-                    <TouchableOpacity
-                      onPress={() => playMp3(item.mp3 || item.mp3Inf || item.mp3Conj || item.audioFile)}
-                      style={styles.speakerButton}
+
+                  {/* RIGHT: HEBREW + SPEAKER + TRANSLIT */}
+                  <View style={styles.rightCol}>
+                    <View style={styles.hebrewRow}>
+                      <Text
+                        style={styles.hebrewText}
+                        maxFontSizeMultiplier={1.2}
+                        numberOfLines={1}
+                      >
+                        {form.hebrewtext}
+                      </Text>
+                      <TouchableOpacity
+                        onPress={() =>
+                          playConjAudio(
+                            form.mp3 || form.mp3Inf || form.mp3Conj || form.audioFile
+                          )
+                        }
+                        style={styles.speakerButton}
+                      >
+                        <Image
+                          source={require('./speaker3.png')}
+                          style={styles.speakerIcon}
+                        />
+                      </TouchableOpacity>
+                    </View>
+
+                    {/* транслитерация – одна Text, естественный перенос, с паддингом справа */}
+                    <Text
+                      style={styles.verbTranslit}
+                      maxFontSizeMultiplier={1.2}
+                      numberOfLines={2}
                     >
-                      <Image source={require('./speaker6.png')} style={styles.speakerIcon} />
-                    </TouchableOpacity>
-                    <Text style={styles.hebrew} maxFontSizeMultiplier={1.2}>
-                      {item.hebrewtext || '—'}
-                    </Text>
-                    <Text style={styles.translit} maxFontSizeMultiplier={1.2}>
-                      {item.translit || '—'}
+                      {form.translit}
                     </Text>
                   </View>
                 </View>
               );
-            }}
-          />
+            })}
+          </ScrollView>
 
-          <TouchableOpacity
-            onPress={() => {
-              if (onStartExercise) onStartExercise();
-              else if (onClose) onClose();
-            }}
-            style={styles.button}
-          >
-            <Text style={styles.buttonText} maxFontSizeMultiplier={1.2}>
-              {buttonText}
-            </Text>
-          </TouchableOpacity>
+          {/* BUTTONS */}
+          <View style={styles.footer}>
+            <TouchableOpacity
+              style={styles.startButton}
+              onPress={onStartExercise}
+            >
+              <Text style={styles.startButtonText} maxFontSizeMultiplier={1.2}>
+                {buttonLabels.start}
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={styles.closeButton} onPress={onClose}>
+              <Text style={styles.closeButtonText} maxFontSizeMultiplier={1.2}>
+                {buttonLabels.close}
+              </Text>
+            </TouchableOpacity>
+          </View>
         </View>
-      </FadeInView>
+      </View>
     </Modal>
   );
 };
 
+const getGenderIcon = (gender) => {
+  switch (gender) {
+    case 'man':
+      return require('./man1.png');
+    case 'woman':
+      return require('./woman1.png');
+    case 'men':
+      return require('./men1.png');
+    case 'women':
+      return require('./women1.png');
+    default:
+      return null;
+  }
+};
+
 const styles = StyleSheet.create({
-  overlay: {
+  backdrop: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.6)',
+    backgroundColor: 'rgba(0,0,0,0.45)',
     justifyContent: 'center',
     alignItems: 'center',
-    paddingTop: 20,
   },
-  container: {
-    backgroundColor: '#fff',
-    width: '96%',
-    // было: height: '96%' — из-за этого "липло" к камере
-    maxHeight: '92%',
-    marginVertical: 10,
-    borderRadius: 10,
-    padding: 20,
+  modalCard: {
+    width: '94%',
+    maxHeight: '94%',
+    backgroundColor: '#F4F7FB',
+    borderRadius: 20,
+    padding: 12,
   },
 
-  /* Шапка */
-  verbInfoBlock: {
-    backgroundColor: '#D1E3F1',
-    borderRadius: 12,
-    padding: 14,
-    marginBottom: 18,
-    marginTop: 2,
-    shadowColor: '#6385a5',
-    shadowOpacity: 0.32,
-    shadowOffset: { width: 0, height: 6 },
-    shadowRadius: 12,
-    elevation: 9,
+  /* HEADER */
+  headerBlock: {
+    backgroundColor: '#d9e5f4',
+    borderRadius: 16,
+    padding: 10,
+    marginBottom: 10,
   },
-  verbInfoTitle: {
-    backgroundColor: '#F2F4F8',
-    color: '#2F4766',
-    fontWeight: 'bold',
+  headerTitle: {
     fontSize: 16,
+    fontWeight: '700',
     textAlign: 'center',
-    borderRadius: 8,
+    color: '#2F4766',
+    marginBottom: 8,
+  },
+  headerVerbRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#e9f9e9',
+    borderRadius: 12,
     paddingVertical: 8,
     paddingHorizontal: 10,
-    marginBottom: 10,
-    letterSpacing: 0.2,
-    elevation: 1,
   },
-  verbMainInfoRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    backgroundColor: '#E8FFF4',
-    borderRadius: 9,
-    paddingVertical: 5,
-    paddingHorizontal: 14,
-    marginBottom: 1,
-    elevation: 1,
-  },
-  verbTranslation: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#1A3455',
-    textAlign: 'left',
-  },
-  verbHebrew: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#275BA0',
-    textAlign: 'right',
-  },
-  verbTranslit: {
-    fontSize: 14,
-    color: '#E03E38',
-    fontStyle: 'italic',
-    fontWeight: '600',
-    textAlign: 'right',
-    marginTop: 2,
-  },
-
-  /* Список форм */
-  row: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    backgroundColor: '#F2F4F8',
-    borderRadius: 12,
-    paddingVertical: 3,
-    paddingHorizontal: 5,
-    marginBottom: 12,
-    elevation: 2,
-    minHeight: 50,
-  },
-  verbLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    flex: 1.1,
-  },
-  translation: {
-    fontSize: 14,
-    marginLeft: 8,
-    fontWeight: 'bold',
-    color: '#333',
-    flexWrap: 'wrap',
-    flexShrink: 1,
+  headerLeft: {
     flex: 1,
   },
-  verbRight: {
+  headerRight: {
     flex: 1,
     alignItems: 'flex-end',
-    justifyContent: 'center',
-    position: 'relative',
   },
-  hebrew: {
-    fontWeight: 'bold',
-    fontSize: 17,
-    color: '#2F4766',
-    marginRight: 32,
-    flexShrink: 0,
-    flexWrap: 'nowrap',
-    textAlign: 'right',
+  headerMeaning: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#00325c',
   },
-  translit: {
-    fontStyle: 'italic',
-    color: '#C03A2B',
-    fontSize: 13,
-    fontWeight: 'bold',
-    marginRight: 32,
-    flexShrink: 0,
-    flexWrap: 'nowrap',
+  headerInf: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: '#00325c',
+  },
+  headerTranslit: {
+    marginTop: 2,
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#E03E38',
     textAlign: 'right',
+    paddingRight: 4, // важный паддинг, чтобы не съедало буквы
+  },
+
+  /* LIST */
+  list: {
+    flexGrow: 0,
+  },
+  listContent: {
+    paddingVertical: 4,
+  },
+
+  row: {
+    flexDirection: 'row',
+    backgroundColor: '#E7F1FF',
+    borderRadius: 14,
+    paddingVertical: 8,
+    paddingHorizontal: 10,
+    marginBottom: 8,
+  },
+
+  leftCol: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingRight: 6,
+  },
+  genderIcon: {
+    width: 28,
+    height: 28,
+    marginRight: 6,
+  },
+  leftText: {
+    flex: 1,
+    fontSize: 15,
+    color: '#1b2436',
+  },
+
+  rightCol: {
+    flex: 1.1,
+    paddingLeft: 6,
+    paddingRight: 4, // общий паддинг справа
+  },
+  hebrewRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'flex-end',
+    marginBottom: 2,
+  },
+  hebrewText: {
+    fontSize: 16,
+    color: '#152039',
+    fontWeight: '700',
+    textAlign: 'right',
+    flexShrink: 1,
   },
   speakerButton: {
-    position: 'absolute',
-    right: -28,
-    top: '50%',
-    transform: [{ translateY: -11 }],
-    marginRight: 30,
+    marginLeft: 6,
   },
   speakerIcon: {
     width: 22,
     height: 22,
-    resizeMode: 'contain',
-  },
-  genderIcon: {
-    width: 36,
-    height: 36,
-    resizeMode: 'contain',
-    marginLeft: -3,
   },
 
-  /* Кнопка "Начать упражнение" */
-  button: {
-    backgroundColor: '#4A6491',
-    padding: 12,
-    marginTop: 20,
-    borderRadius: 8,
+  verbTranslit: {
+    fontSize: 13,
+    color: '#E03E38',
+    fontWeight: '600',
+    fontStyle: 'italic',
+    textAlign: 'right',
+    paddingTop: 1,
+    paddingRight: 4,
+    flexShrink: 1,
   },
-  buttonText: {
-    textAlign: 'center',
+
+  /* FOOTER */
+  footer: {
+    marginTop: 6,
+  },
+  startButton: {
+    backgroundColor: '#2F4766',
+    borderRadius: 14,
+    paddingVertical: 10,
+    marginBottom: 6,
+  },
+  startButtonText: {
     color: '#fff',
-    fontWeight: 'bold',
-    fontSize: 18,
+    fontSize: 16,
+    fontWeight: '700',
+    textAlign: 'center',
+  },
+  closeButton: {
+    borderRadius: 12,
+    paddingVertical: 8,
+  },
+  closeButtonText: {
+    color: '#2F4766',
+    fontSize: 14,
+    fontWeight: '600',
+    textAlign: 'center',
   },
 });
 

@@ -211,7 +211,7 @@ const STR = {
     playRedeem: 'رمز Google Play',
     restore: 'استعادة الوصول',
     choosePlan: 'اختر خطة',
-     headerTrialEmph: 'فترة تجريبية مجانية لمدة 5 أيام (للمشتركين الجدد)',
+    headerTrialEmph: 'فترة تجريبية مجانية لمدة 5 أيام (للمشتركين الجدد)',
     headerTrialTail:
       '. اختر خطة واضغط «بدء الفترة التجريبية». بعد الفترة التجريبية، يستمر الوصول الكامل تلقائيًا بسعر الخطة — ويمكنك الإلغاء في أي وقت عبر Google Play / App Store، أو اضغط «المتابعة مجانًا».',
     freePreview: 'المتابعة مجانًا',
@@ -433,18 +433,27 @@ export default function Paywall({ navigation }) {
         style,
       ]}
     >
-      <Text>
-        <Text style={[styles.btnText, kind === 'solid' ? styles.btnTextSolid : styles.btnTextOutline]}>
+      <Text maxFontSizeMultiplier={1.2}>
+        <Text
+          style={[styles.btnText, kind === 'solid' ? styles.btnTextSolid : styles.btnTextOutline]}
+          maxFontSizeMultiplier={1.2}
+        >
           {label}
         </Text>
       </Text>
       {!!subLabel && (
-        <Text style={[styles.btnSubText, kind === 'solid' ? styles.btnSubTextSolid : styles.btnSubTextOutline]}>
+        <Text
+          style={[styles.btnSubText, kind === 'solid' ? styles.btnSubTextSolid : styles.btnSubTextOutline]}
+          maxFontSizeMultiplier={1.2}
+        >
           {subLabel}
         </Text>
       )}
       {!!subLabel2 && (
-        <Text style={[styles.btnSubText2, kind === 'solid' ? styles.btnSubTextSolid : styles.btnSubTextOutline]}>
+        <Text
+          style={[styles.btnSubText2, kind === 'solid' ? styles.btnSubTextSolid : styles.btnSubTextOutline]}
+          maxFontSizeMultiplier={1.2}
+        >
           {subLabel2}
         </Text>
       )}
@@ -459,22 +468,30 @@ export default function Paywall({ navigation }) {
         style={[styles.planButtonBox, selected ? styles.planSelectedBox : styles.planIdleBox]}
         onPress={() => setPlan(which)}
         activeOpacity={0.8}
-        // важно: выбор плана не блокируем до available
       >
-        <Text style={[styles.planTitle, selected ? styles.planSelectedText : styles.planIdleText]}>
+        <Text
+          style={[styles.planTitle, selected ? styles.planSelectedText : styles.planIdleText]}
+          maxFontSizeMultiplier={1.2}
+        >
           {title}
         </Text>
 
         <View style={styles.priceRow}>
           {useStrike ? (
             <>
-              <Text style={[styles.planPriceOld]} numberOfLines={1} adjustsFontSizeToFit>
+              <Text
+                style={[styles.planPriceOld]}
+                numberOfLines={1}
+                adjustsFontSizeToFit
+                maxFontSizeMultiplier={1.2}
+              >
                 {baseAmt}
               </Text>
               <Text
                 style={[styles.planPriceNew, selected ? styles.planSelectedText : styles.planIdleText]}
                 numberOfLines={1}
                 adjustsFontSizeToFit
+                maxFontSizeMultiplier={1.2}
               >
                 {segAmt}
               </Text>
@@ -484,13 +501,17 @@ export default function Paywall({ navigation }) {
               style={[styles.planPriceBig, selected ? styles.planSelectedText : styles.planIdleText]}
               numberOfLines={1}
               adjustsFontSizeToFit
+              maxFontSizeMultiplier={1.2}
             >
               {segAmt || baseAmt || '…'}
             </Text>
           )}
         </View>
 
-        <Text style={[styles.planPeriod, selected ? styles.planSelectedText : styles.planIdleText]}>
+        <Text
+          style={[styles.planPeriod, selected ? styles.planSelectedText : styles.planIdleText]}
+          maxFontSizeMultiplier={1.2}
+        >
           {periodText}
         </Text>
       </TouchableOpacity>
@@ -505,8 +526,12 @@ export default function Paywall({ navigation }) {
       {/* Пост-модалка после покупки */}
       <Modal visible={!!showPost} transparent={false} animationType="fade" presentationStyle="fullScreen">
         <View style={styles.modalWrap}>
-          <Text style={styles.modalTitle}>{S.postTitle}</Text>
-          <Text style={styles.modalText}>{S.postBody}</Text>
+          <Text style={styles.modalTitle} maxFontSizeMultiplier={1.2}>
+            {S.postTitle}
+          </Text>
+          <Text style={styles.modalText} maxFontSizeMultiplier={1.2}>
+            {S.postBody}
+          </Text>
           <TouchableOpacity
             style={[styles.btnBox, styles.btnSolid, { marginTop: 16, minWidth: 200 }]}
             onPress={async () => {
@@ -522,7 +547,12 @@ export default function Paywall({ navigation }) {
             }}
             activeOpacity={0.85}
           >
-            <Text style={[styles.btnText, styles.btnTextSolid]}>{S.postContinue}</Text>
+            <Text
+              style={[styles.btnText, styles.btnTextSolid]}
+              maxFontSizeMultiplier={1.2}
+            >
+              {S.postContinue}
+            </Text>
           </TouchableOpacity>
         </View>
       </Modal>
@@ -531,17 +561,21 @@ export default function Paywall({ navigation }) {
         <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled" bounces>
           {/* Верхний блок */}
           <View style={styles.headerBox}>
-            <Text style={styles.headerTitle}>
-              <Text style={styles.headerEmph}>{STR[langKey]?.headerTrialEmph}</Text>
+            <Text style={styles.headerTitle} maxFontSizeMultiplier={1.2}>
+              <Text style={styles.headerEmph} maxFontSizeMultiplier={1.2}>
+                {STR[langKey]?.headerTrialEmph}
+              </Text>
               {!!STR[langKey]?.headerTrialTail && (
-                <Text> {STR[langKey]?.headerTrialTail}</Text>
+                <Text maxFontSizeMultiplier={1.2}> {STR[langKey]?.headerTrialTail}</Text>
               )}
             </Text>
           </View>
 
           {/* Промокод */}
           <View style={styles.spacer} />
-          <Text style={styles.label}>{STR[langKey]?.promoLabel}</Text>
+          <Text style={styles.label} maxFontSizeMultiplier={1.2}>
+            {STR[langKey]?.promoLabel}
+          </Text>
           <View style={styles.promoRow}>
             <View style={[styles.inputWrap, styles.promoInputNarrow, promoOK ? styles.inputWrapOK : null]}>
               <TextInput
@@ -554,7 +588,11 @@ export default function Paywall({ navigation }) {
                 underlineColorAndroid="transparent"
                 maxLength={32}
               />
-              {promoOK && <Text style={styles.checkMark}>✓</Text>}
+              {promoOK && (
+                <Text style={styles.checkMark} maxFontSizeMultiplier={1.2}>
+                  ✓
+                </Text>
+              )}
             </View>
             <View style={{ width: 8 }} />
             <UIButton
@@ -569,7 +607,10 @@ export default function Paywall({ navigation }) {
           {!!promoMsg && (
             <>
               <View style={styles.spacerXs} />
-              <Text style={[styles.helper, promoOK ? styles.helperOK : styles.helperErr]}>
+              <Text
+                style={[styles.helper, promoOK ? styles.helperOK : styles.helperErr]}
+                maxFontSizeMultiplier={1.2}
+              >
                 {promoMsg}
               </Text>
             </>
@@ -577,7 +618,9 @@ export default function Paywall({ navigation }) {
 
           {/* Выбор плана */}
           <View style={styles.spacer} />
-          <Text style={styles.choosePlan}>{STR[langKey]?.choosePlan}</Text>
+          <Text style={styles.choosePlan} maxFontSizeMultiplier={1.2}>
+            {STR[langKey]?.choosePlan}
+          </Text>
           <View style={styles.spacerSm} />
           <View style={styles.planRow}>
             {planBtn('monthly', STR[langKey]?.monthly, {
@@ -636,11 +679,15 @@ export default function Paywall({ navigation }) {
       <View style={styles.bottomArea}>
         {SHOW_PLAY_REDEEM && (
           <TouchableOpacity onPress={() => {}} activeOpacity={0.8}>
-            <Text style={styles.footerLink}>{STR[langKey]?.playRedeem}</Text>
+            <Text style={styles.footerLink} maxFontSizeMultiplier={1.2}>
+              {STR[langKey]?.playRedeem}
+            </Text>
           </TouchableOpacity>
         )}
         <TouchableOpacity onPress={restore} activeOpacity={0.8}>
-          <Text style={styles.footerLink}>{STR[langKey]?.restore}</Text>
+          <Text style={styles.footerLink} maxFontSizeMultiplier={1.2}>
+            {STR[langKey]?.restore}
+          </Text>
         </TouchableOpacity>
       </View>
     </View>

@@ -16,7 +16,7 @@ const AppInfoModal = ({ visible, onToggle, updatedAt, appSize }) => {
 
           {/* Версия и обновление */}
           <Text style={styles.modalText}>Версия: <Text style={styles.bold}>{Constants.expoConfig?.version || 'Неизвестно'}</Text></Text>
-          <Text style={styles.modalText}>Обновлено: <Text style={styles.bold}>{updatedAt || '26.11.2025'}</Text></Text>
+          <Text style={styles.modalText}>Обновлено: <Text style={styles.bold}>{updatedAt || '09.12.2025'}</Text></Text>
 
           {/* Основная информация
           <Text style={styles.sectionTitle}>Описание:</Text>
@@ -30,7 +30,7 @@ const AppInfoModal = ({ visible, onToggle, updatedAt, appSize }) => {
           <Text style={styles.modalText}>Поддержка: Android, iOS</Text>
           <Text style={styles.modalText}>Минимальная версия:</Text>
           <Text style={styles.modalText}>Android 8.0+, iOS 13.0+</Text>
-          <Text style={styles.modalText}>Размер: <Text style={styles.bold}>{appSize || '189 Mb'}</Text></Text>
+          <Text style={styles.modalText}>Размер: <Text style={styles.bold}>{appSize || '135 Mb'}</Text></Text>
 
           {/* Контакты */}
           <Text style={styles.sectionTitle}>Контакты:</Text>
@@ -52,7 +52,7 @@ const AppInfoModal = ({ visible, onToggle, updatedAt, appSize }) => {
   );
 };
 
-const styles = StyleSheet.create({
+const styles = StyleSheet.create({ 
   modalBackground: {
     flex: 1,
     justifyContent: "center",
