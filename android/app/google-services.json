@@ -1,21 +1,21 @@
 {
   "project_info": {
-    "project_number": "236417694537",
-    "project_id": "pealim2push",
-    "storage_bucket": "pealim2push.firebasestorage.app"
+    "project_number": "1098193108579",
+    "project_id": "verbify-rustore",
+    "storage_bucket": "verbify-rustore.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:236417694537:android:fb02ff206ffc93348cb898",
+        "mobilesdk_app_id": "1:1098193108579:android:21ad98537c106d923cc256",
         "android_client_info": {
-          "package_name": "com.rosenbergvictor72.pealim2"
+          "package_name": "com.rosenbergvictor72.verbify.ru"
         }
       },
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyA89eOt1lVl4WUWeQ8OLWCJ14FRPMC8QUQ"
+          "current_key": "AIzaSyBUtiUfv_IgxRJ7WfAMO394KwvA6hKMftY"
         }
       ],
       "services": {
