@@ -41,7 +41,6 @@
       "android": { "buildType": "app-bundle" },
       "env": {
         "STORE": "gp",
-        "GOOGLE_SERVICES_JSON": "@project:GOOGLE_SERVICES_JSON",
         "EAS_BUILD": "true",
         "EXPO_PUBLIC_DISABLE_IAP": "0",
         "EXPO_PUBLIC_IAP_VERIFY_URL": "https://iap-server.onrender.com/iap/google/subscription/verify"
