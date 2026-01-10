@@ -22,9 +22,16 @@ const VERIFY_URL =
   process.env.EXPO_PUBLIC_IAP_VERIFY_URL ||
   process.env.IAP_VERIFY_URL ||
   '';
+const ENTITLEMENTS_URL =
+  (Constants?.expoConfig?.extra?.IAP_ENTITLEMENTS_URL ||
+   process.env.EXPO_PUBLIC_IAP_ENTITLEMENTS_URL ||
+   process.env.IAP_ENTITLEMENTS_URL ||
+   (VERIFY_URL ? VERIFY_URL.replace(/\/iap\/google\/subscription\/verify\/?$/, '/entitlements') : '') ||
+   '');
 
 /** Таймаут запроса к верификатору (мс) */
 const IAP_VERIFY_TIMEOUT_MS = Number(process.env.EXPO_PUBLIC_IAP_VERIFY_TIMEOUT_MS || 4000);
+const CODE_ENTITLE_TIMEOUT_MS = 6000;
 
 /** Разрешать офлайн-энтайтлмент до истечения срока, если сервер недоступен */
 const ENTITLE_OFFLINE_WHILE_NOT_EXPIRED =
@@ -53,6 +60,8 @@ const PROMO_ACTIVE_KEY        = 'iap:promoActive';
 const LAST_PURCHASE_AT_KEY    = 'iap:lastPurchaseAt';
 const POST_SHOWN_AT_KEY       = 'iap:postShownAt';
 const POST_STATE_KEY          = 'iap:postState';        // 'none' | 'pending' | 'shown'
+const CODE_ACCESS_UNTIL_KEY   = 'iap:codeAccessUntil';      // ISO string
+const CODE_LAST_SYNC_AT_KEY  = 'iap:codeEntSyncAt';          // ms since epoch (string)
 
 const IAP_LAST_VERIFY_JSON    = 'iap:lastVerifyJson';
 const IAP_LAST_VERIFY_AT      = 'iap:lastVerifyAt';
@@ -60,6 +69,9 @@ const IAP_LAST_EXPIRES_AT     = 'iap:lastExpiresAt';
 const IAP_LAST_PRO            = 'iap:lastPro';
 /** ★ added: когда в последний раз pro было «хорошо подтверждено/получено» */
 const IAP_LAST_GOOD_PRO_AT    = 'iap:lastGoodProAt';
+
+/** ✅ NEW: стабильный userId на устройство */
+const DEVICE_USER_ID_KEY      = 'iap:deviceUserId';
 
 /* ===== DEV флаги ===== */
 const devSessionAllowed =
@@ -85,6 +97,8 @@ const TAG_MAP = {
   partner: { monthly: ['partner', 'monthly'], annual: ['partner', 'annual'] },
   test:    { monthly: ['test', 'monthly'],    annual: ['test', 'annual'] },
   tikva:   { monthly: ['tikva', 'monthly'],   annual: ['tikva', 'annual'] },
+  timur:   { monthly: ['timur', 'monthly'],   annual: ['timur', 'annual'] },
+  kala:   { monthly: ['kala', 'monthly'],   annual: ['kala', 'annual'] },
   default: { monthly: null,                   annual: null },
 };
 
@@ -93,6 +107,9 @@ const IapContext = createContext({
   ready: false,
   available: true,
   hasPro: false,
+
+  /** ✅ NEW */
+  userId: null,
 
   justPurchased: false,
   consumeJustPurchased: () => {},
@@ -254,9 +271,25 @@ async function getSubsSafe() {
     return [];
   }
 }
+
+/** ✅ CHANGED: стабильный userId на устройство */
 async function getUserId() {
-  // подставьте свой userId, если есть аккаунтинг
-  return 'test-user-1';
+  try {
+    const existing = await AsyncStorage.getItem(DEVICE_USER_ID_KEY);
+    if (existing) return existing;
+
+    // простой UUIDv4 без зависимостей
+    const uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+      const r = (Math.random() * 16) | 0;
+      const v = c === 'x' ? r : (r & 0x3) | 0x8;
+      return v.toString(16);
+    });
+
+    await AsyncStorage.setItem(DEVICE_USER_ID_KEY, uuid);
+    return uuid;
+  } catch {
+    return `device-${Date.now()}`;
+  }
 }
 
 /* ===================== Вспомогательные: офлайн-кеш ===================== */
@@ -305,6 +338,12 @@ export function IapProvider({ children, initialSegment = 'basic' }) {
   const [ready, setReady] = useState(false);
   const [available, setAvailable] = useState(true);
   const [hasPro, setHasPro] = useState(false);
+  const [codeAccessUntil, setCodeAccessUntil] = useState(null);
+  const codeAccessUntilRef = useRef(null);
+  const codeLoadedRef = useRef(false);
+
+  /** ✅ NEW */
+  const [userId, setUserId] = useState(null);
 
   const [justPurchased, setJustPurchased] = useState(false);
   const [shouldShowPost, setShouldShowPost] = useState(false);
@@ -325,6 +364,117 @@ export function IapProvider({ children, initialSegment = 'basic' }) {
   const processed = useRef(new Set());
   const purchasingRef = useRef(false);
 
+  /* ---- partner/school codes entitlement ---- */
+  const isIsoActiveNow = useCallback((iso) => {
+    if (!iso) return false;
+    const t = Date.parse(String(iso));
+    if (!Number.isFinite(t)) return false;
+    return t > Date.now();
+  }, []);
+
+  const setHasProRespectingCode = useCallback((next) => {
+    if (next) return setHasPro(true);
+    const codeActive = isIsoActiveNow(codeAccessUntilRef.current);
+    return setHasPro(codeActive ? true : false);
+  }, [isIsoActiveNow]);
+
+  const saveCodeAccessUntil = useCallback(async (untilOrNull) => {
+    const v = untilOrNull ? String(untilOrNull) : null;
+    codeAccessUntilRef.current = v;
+    setCodeAccessUntil(v);
+    try {
+      if (v) await AsyncStorage.setItem(CODE_ACCESS_UNTIL_KEY, v);
+      else await AsyncStorage.removeItem(CODE_ACCESS_UNTIL_KEY);
+    } catch {}
+  }, []);
+
+  const ensureCodeLoaded = useCallback(async () => {
+    if (codeLoadedRef.current) return;
+    try {
+      const until = await AsyncStorage.getItem(CODE_ACCESS_UNTIL_KEY);
+      codeAccessUntilRef.current = until || null;
+      setCodeAccessUntil(until || null);
+      if (until && isIsoActiveNow(until)) {
+        setHasPro(true);
+      }
+    } catch {} finally {
+      codeLoadedRef.current = true;
+    }
+  }, [isIsoActiveNow]);
+
+  const fetchCodeEntitlement = useCallback(async (uid) => {
+    if (!ENTITLEMENTS_URL) return null;
+    const userIdStr = String(uid || '').trim();
+    if (!userIdStr) return null;
+
+    const ctrl = new AbortController();
+    const to = setTimeout(() => ctrl.abort(), CODE_ENTITLE_TIMEOUT_MS);
+
+    try {
+      const url = `${ENTITLEMENTS_URL}?userId=${encodeURIComponent(userIdStr)}`;
+      const resp = await fetch(url, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+          ...(API_KEY_HEADER ? { 'x-api-key': API_KEY_HEADER } : {}),
+        },
+        signal: ctrl.signal,
+      });
+
+      const bodyText = await resp.text();
+      let json;
+      try {
+        json = JSON.parse(bodyText);
+      } catch {
+        json = null;
+      }
+
+      if (!resp.ok) return { ok: false, status: resp.status, json };
+      return json || { ok: true };
+    } catch (e) {
+      return { ok: false, error: e?.message || String(e) };
+    } finally {
+      clearTimeout(to);
+    }
+  }, []);
+
+  const syncCodeEntitlementFromServer = useCallback(
+    async (uid) => {
+      const userIdStr = String(uid || '').trim();
+      if (!userIdStr) return { ok: false, reason: 'no_userId' };
+
+      // анти-спам: не чаще раза в 15 секунд
+      try {
+        const last = Number((await AsyncStorage.getItem(CODE_LAST_SYNC_AT_KEY)) || 0);
+        if (Number.isFinite(last) && Date.now() - last < 15000) {
+          return { ok: true, skipped: true };
+        }
+        await AsyncStorage.setItem(CODE_LAST_SYNC_AT_KEY, String(Date.now()));
+      } catch {}
+
+      const ent = await fetchCodeEntitlement(userIdStr);
+      if (!ent?.ok) return { ok: false, ent };
+
+      const pro = !!ent?.pro;
+      const until = ent?.accessUntil || null;
+
+      if (pro && until) {
+        await saveCodeAccessUntil(until);
+        setHasPro(true);
+        return { ok: true, pro: true, accessUntil: until };
+      }
+
+      // если server говорит "не pro", сбрасываем локальный код только если он уже не активен
+      if (!isIsoActiveNow(codeAccessUntilRef.current)) {
+        await saveCodeAccessUntil(null);
+        setHasProRespectingCode(false);
+      }
+      return { ok: true, pro: false, accessUntil: null };
+    },
+    [fetchCodeEntitlement, isIsoActiveNow, saveCodeAccessUntil, setHasProRespectingCode]
+  );
+
   /* ---- стартовые сбросы ---- */
   useEffect(() => {
     (async () => {
@@ -337,6 +487,20 @@ export function IapProvider({ children, initialSegment = 'basic' }) {
       } catch {}
     })();
   }, []);
+
+  /** ✅ NEW: гарантируем userId сразу на запуске */
+  useEffect(() => {
+    (async () => {
+      const uid = await getUserId();
+      setUserId(uid);
+      console.log('[IAP] device userId =', uid);
+    })();
+  }, []);
+
+  // codes entitlement: load local cache ASAP
+  useEffect(() => {
+    ensureCodeLoaded();
+  }, [ensureCodeLoaded]);
 
   /* ---- verify: с таймаутом и кешированием ---- */
   const verifyOnServer = useCallback(async (purchaseToken, productId) => {
@@ -489,6 +653,23 @@ export function IapProvider({ children, initialSegment = 'basic' }) {
   /* ---- восстановление/проверка активной подписки ---- */
   const restoreActiveSubscription = useCallback(async () => {
     try {
+      await ensureCodeLoaded();
+
+      // 1) Если локально уже есть активный partner-code — сразу Pro, без IAP restore
+      if (isIsoActiveNow(codeAccessUntilRef.current)) {
+        setHasPro(true);
+        return true;
+      }
+
+      // 2) Если код активировали недавно — подтянем entitlement с сервера (до IAP)
+      const uidForCode = userId || (await getUserId());
+      if (uidForCode) {
+        const synced = await syncCodeEntitlementFromServer(uidForCode);
+        if (synced?.pro && isIsoActiveNow(codeAccessUntilRef.current)) {
+          return true;
+        }
+      }
+
       // 1) прямые доступные покупки
       const purchases = await RNIap.getAvailablePurchases();
       const sub = purchases?.find((p) => p.productId === SKU);
@@ -498,14 +679,14 @@ export function IapProvider({ children, initialSegment = 'basic' }) {
         const v = await verifyOnServer(sub.purchaseToken, sub.productId);
         if (v?.offline) {
           const ok = await tryOfflineEntitlement();
-          setHasPro(ok);
+          setHasProRespectingCode(ok);
           return ok;
         }
         if (v?.pro === true) {
           setHasPro(true);
           return true;
         } else if (v !== null) {
-          setHasPro(false);
+          setHasProRespectingCode(false);
           return false;
         }
       }
@@ -519,14 +700,14 @@ export function IapProvider({ children, initialSegment = 'basic' }) {
           const v = await verifyOnServer(histSub.purchaseToken, histSub.productId);
           if (v?.offline) {
             const ok = await tryOfflineEntitlement();
-            setHasPro(ok);
+            setHasProRespectingCode(ok);
             return ok;
           }
           if (v?.pro) {
             setHasPro(true);
             return true;
           } else if (v !== null) {
-            setHasPro(false);
+            setHasProRespectingCode(false);
             return false;
           }
         }
@@ -538,29 +719,29 @@ export function IapProvider({ children, initialSegment = 'basic' }) {
         const v = await verifyOnServer(saved, SKU);
         if (v?.offline) {
           const ok = await tryOfflineEntitlement();
-          setHasPro(ok);
+          setHasProRespectingCode(ok);
           return ok;
         }
         if (v?.pro) {
           setHasPro(true);
           return true;
         } else if (v !== null) {
-          setHasPro(false);
+          setHasProRespectingCode(false);
           return false;
         }
       }
 
       // 4) полностью офлайн без токена — пробуем кеш как последний шанс
       const offlineOk = await tryOfflineEntitlement();
-      setHasPro(offlineOk);
+      setHasProRespectingCode(offlineOk);
       return offlineOk;
     } catch (e) {
       console.log('[IAP] restoreActiveSubscription error', e);
       const offlineOk = await tryOfflineEntitlement();
-      setHasPro(offlineOk);
+      setHasProRespectingCode(offlineOk);
       return offlineOk;
     }
-  }, [verifyOnServer, tryOfflineEntitlement]);
+  }, [verifyOnServer, tryOfflineEntitlement, ensureCodeLoaded, isIsoActiveNow, syncCodeEntitlementFromServer, setHasProRespectingCode]);
 
   /* ---- init IAP + загрузка продукта + listeners ---- */
   useEffect(() => {
@@ -689,18 +870,18 @@ export function IapProvider({ children, initialSegment = 'basic' }) {
                 await AsyncStorage.setItem(IAP_LAST_PRO, 'true');
               } catch {}
               const ok = await tryOfflineEntitlement();
-              setHasPro(ok);
+              setHasProRespectingCode(ok);
               setJustPurchased(ok);
               setShouldShowPost(ok);
             } else if (!OPT_DEV_PRO) {
               const ok = !!verified?.pro;
-              setHasPro(ok);
+              setHasProRespectingCode(ok);
               setJustPurchased(ok);
               setShouldShowPost(ok);
             } else {
               if (!DEV_STICKY_PRO) {
                 const ok = !!verified?.pro;
-                setHasPro(ok);
+                setHasProRespectingCode(ok);
                 setJustPurchased(ok);
                 setShouldShowPost(ok);
               }
@@ -867,7 +1048,7 @@ export function IapProvider({ children, initialSegment = 'basic' }) {
     } catch (e) {
       console.error('[IAP] restore error:', e);
       const offlineOk = await tryOfflineEntitlement();
-      setHasPro(offlineOk);
+      setHasProRespectingCode(offlineOk);
       return offlineOk;
     }
   }, [restoreActiveSubscription, tryOfflineEntitlement]);
@@ -908,7 +1089,7 @@ export function IapProvider({ children, initialSegment = 'basic' }) {
   }, [devSessionAllowed]);
   const __devRevokePro = useCallback(async () => {
     if (!devSessionAllowed) return;
-    setHasPro(false);
+    setHasProRespectingCode(false);
   }, [devSessionAllowed]);
 
   /* ---- value ---- */
@@ -917,6 +1098,9 @@ export function IapProvider({ children, initialSegment = 'basic' }) {
       ready,
       available,
       hasPro,
+
+      /** ✅ NEW */
+      userId,
 
       justPurchased,
       consumeJustPurchased,
@@ -931,6 +1115,14 @@ export function IapProvider({ children, initialSegment = 'basic' }) {
       buyMonthly,
       buyAnnual,
       openRedeem,
+
+    // Partner/School codes
+    codeAccessUntil,
+    refreshCodeEntitlement: async () => {
+      const uid = userId || (await getUserId());
+      if (!uid) return { ok: false, reason: 'no_userId' };
+      return syncCodeEntitlementFromServer(uid);
+    },
       restore,
 
       probePostPurchase,
@@ -945,6 +1137,7 @@ export function IapProvider({ children, initialSegment = 'basic' }) {
       ready,
       available,
       hasPro,
+      userId,
       justPurchased,
       consumeJustPurchased,
       shouldShowPost,
@@ -961,6 +1154,11 @@ export function IapProvider({ children, initialSegment = 'basic' }) {
       __devRevokePro,
       displayPrices,
       debug,
+      codeAccessUntil,
+      syncCodeEntitlementFromServer,
+      ensureCodeLoaded,
+      setHasProRespectingCode,
+      isIsoActiveNow,
     ],
   );
 
@@ -993,6 +1191,9 @@ export function NoIapProvider({ children }) {
       available: false,
       ready: true,
       hasPro: mockPro,
+
+      /** ✅ NEW (mock) */
+      userId: null,
 
       justPurchased: false,
       consumeJustPurchased: () => {},

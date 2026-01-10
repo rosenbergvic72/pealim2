@@ -6,15 +6,16 @@ import FadeInView from './api/FadeInView';
 
 const translations = {
   ru: {
-    title: 'ОПИСАНИЕ ЗАДАНИЯ 5', 
+    title: 'ОПИСАНИЕ ЗАДАНИЯ 5',
     intro1: 'Это основное упражнение в приложении, разработанное для эффективной тренировки спряжения глаголов в иврите.',
     intro2: 'В каждом раунде случайным образом выбирается глагол на иврите, и вам необходимо найти правильную пару для одной из его форм спряжения. Поочередно будут показаны 6 пар из возможных 36 (или 24), содержащие глагольные формы на иврите и их соответствующие варианты на выбранном языке. Ваша задача — правильно сопоставить их, т.е сначала выбрать вариант в столбике слева, а затем соответствующий ему вариант на иврите в столбике справа.',
-    intro3: 'Это упражнение рекомендуется тем, кто уже изучает иврит и обладает хотя бы базовыми знаниями о спряжении глаголов. Даже при минимальном понимании темы регулярное выполнение задания поможет вам лучше запомнить формы спряжения, выявить закономерности и закрепить их на практике. Регулярная практика способствует глубокому пониманию системы спряжения глаголов, развитию интуитивного восприятия грамматических закономерностей и улучшению навыков восприятия иврита.', 
+    intro3: 'Это упражнение рекомендуется тем, кто уже изучает иврит и обладает хотя бы базовыми знаниями о спряжении глаголов. Даже при минимальном понимании темы регулярное выполнение задания поможет вам лучше запомнить формы спряжения, выявить закономерности и закрепить их на практике. Регулярная практика способствует глубокому пониманию системы спряжения глаголов, развитию интуитивного восприятия грамматических закономерностей и улучшению навыков восприятия иврита.',
     section: 'Кнопки',
     sound: 'Кнопки включения и отключения звука',
+    translit: 'Показ/скрытие транслитерации на кнопках вариантов ответа',
     stat: 'Просмотр статистики упражнения',
     info: 'Описание упражнения',
-    gender: 'Поиск по базе глаголов упражнения', 
+    gender: 'Поиск по базе глаголов упражнения',
     aiBot: 'ИИ чатбот',
     dontShow: 'Больше не показывать'
   },
@@ -25,13 +26,14 @@ const translations = {
     intro3: 'This exercise is recommended for those who already study Hebrew and have at least basic knowledge of verb conjugation. Even with minimal understanding, regular practice will help you remember the forms, recognize patterns, and reinforce them in practice. It promotes a deeper understanding of the conjugation system, develops intuitive grammar awareness, and improves your Hebrew comprehension.',
     section: 'Buttons',
     sound: 'Sound on/off buttons',
+    translit: 'Show/hide transliteration on the answer option buttons',
     stat: 'View exercise statistics',
     info: 'Exercise description',
     gender: 'Verb database search for this exercise',
     aiBot: 'AI chatbot',
     dontShow: 'Do not show again'
   },
-  
+
   fr: {
     title: 'DESCRIPTION DE L’EXERCICE 5',
     intro1: 'C’est l’exercice principal de l’application, conçu pour s’entraîner efficacement à la conjugaison des verbes en hébreu.',
@@ -39,13 +41,14 @@ const translations = {
     intro3: 'Cet exercice est recommandé aux personnes qui étudient déjà l’hébreu et ont au moins des bases en conjugaison. Même avec peu de connaissances, une pratique régulière permet de mieux mémoriser les formes, de reconnaître les schémas et de les renforcer. Elle favorise une compréhension plus profonde de la conjugaison, une intuition grammaticale et une meilleure compréhension de l’hébreu.',
     section: 'Boutons',
     sound: 'Boutons d’activation/désactivation du son',
+    translit: 'Afficher/masquer la translittération sur les boutons de réponse',
     stat: 'Voir les statistiques de l’exercice',
     info: 'Description de l’exercice',
     gender: 'Recherche dans la base de verbes de l’exercice',
     aiBot: 'Chatbot IA',
     dontShow: 'Ne plus afficher'
   },
-  
+
   es: {
     title: 'DESCRIPCIÓN DEL EJERCICIO 5',
     intro1: 'Este es el ejercicio principal de la aplicación, diseñado para entrenar eficazmente la conjugación de verbos en hebreo.',
@@ -53,13 +56,14 @@ const translations = {
     intro3: 'Este ejercicio se recomienda a quienes ya estudian hebreo y tienen al menos conocimientos básicos sobre conjugaciones. Incluso con una comprensión mínima, la práctica regular ayuda a memorizar las formas, identificar patrones y reforzarlos. Fomenta una comprensión profunda del sistema verbal, desarrolla la intuición gramatical y mejora la comprensión del hebreo.',
     section: 'Botones',
     sound: 'Botones de sonido',
+    translit: 'Mostrar/ocultar la transliteración en los botones de respuesta',
     stat: 'Ver estadísticas del ejercicio',
     info: 'Descripción del ejercicio',
     gender: 'Búsqueda en la base de datos de verbos del ejercicio',
     aiBot: 'Chatbot con IA',
     dontShow: 'No mostrar de nuevo'
   },
-  
+
   pt: {
     title: 'DESCRIÇÃO DO EXERCÍCIO 5',
     intro1: 'Este é o exercício principal do aplicativo, criado para treinar efetivamente a conjugação de verbos em hebraico.',
@@ -67,13 +71,14 @@ const translations = {
     intro3: 'Este exercício é recomendado para quem já estuda hebraico e tem ao menos conhecimentos básicos sobre conjugação. Mesmo com pouco conhecimento, a prática regular ajuda a memorizar as formas, identificar padrões e consolidá-los. Ela favorece uma compreensão profunda da conjugação verbal, desenvolve a intuição gramatical e melhora a compreensão do hebraico.',
     section: 'Botões',
     sound: 'Botões de som',
+    translit: 'Mostrar/ocultar a transliteração nos botões de resposta',
     stat: 'Ver estatísticas do exercício',
     info: 'Descrição do exercício',
     gender: 'Busca na base de dados de verbos',
     aiBot: 'Chatbot IA',
     dontShow: 'Não mostrar novamente'
   },
-  
+
   ar: {
     title: 'وَصف التمرين 5',
     intro1: 'هذا هو التمرين الرئيسي في التطبيق، وقد صُمم لتدريب فعال على تصريف الأفعال في اللغة العبرية.',
@@ -81,13 +86,14 @@ const translations = {
     intro3: 'يوصى بهذا التمرين لمن يدرسون اللغة العبرية ولديهم معرفة أساسية بتصريف الأفعال. حتى مع القليل من الفهم، فإن التمرين المنتظم سيساعدك على تذكر الصيغ، واكتشاف الأنماط، وتعزيزها. إنه يعزز الفهم العميق للتصريف، ويطور الإدراك الغريزي للقواعد، ويحسن فهم العبرية.',
     section: 'الأزرار',
     sound: 'أزرار تشغيل/إيقاف الصوت',
+    translit: 'إظهار/إخفاء النسخ الصوتي على أزرار الإجابات',
     stat: 'عرض إحصائيات التمرين',
     info: 'وصف التمرين',
     gender: 'البحث في قاعدة بيانات الأفعال',
     aiBot: 'روبوت الدردشة الذكي',
     dontShow: 'لا تظهر مرة أخرى'
   },
-  
+
   am: {
     title: 'ልዩ ምልክት ስለ ልምድ 5',
     intro1: 'ይህ በመተግበሪያው ውስጥ ዋናው ልምድ ነው፣ ለዕብራይስጥ ግስ ሰዋሰው ልምምድ በተሟላ መንገድ የተዘጋጀ።',
@@ -95,13 +101,14 @@ const translations = {
     intro3: 'ይህ ልምድ ከዚህ በፊት ንዑስ የእውቀት ያላቸውን የዕብራይስጥ ተማሪዎች ይመረጣል። በትንሽ እውቀት ቢሆንም፣ በደንብ ማድረግ ሰዋሰው ቅርጾችን ማስታወስ፣ ደጋግመኛ አቀማመጦችን መረዳት እና እነሱን ማጠናከር ይቻላል።',
     section: 'አዝራሮች',
     sound: 'የድምፅ መቀያየሪያ አዝራሮች',
+    translit: 'ትራንስሊተሬሽንን በመልስ አዝራሮች ላይ ማሳየት/መደበቅ',
     stat: 'የልምድ ስታቲስቲክስን ይመልከቱ',
     info: 'የልምድ መግለጫ',
     gender: 'በግስ መረጃ ቋት ውስጥ ፍለጋ',
     aiBot: 'አርቲፊሻል ኢንተሊጀንስ ቻትቦት',
     dontShow: 'እንዳይታይ ያድርጉት'
   },
-  
+
 };
 
 const windowHeight = Dimensions.get('window').height;
@@ -114,7 +121,7 @@ const languageMap = {
   'português': 'pt',
   'العربية': 'ar',
   'አማርኛ': 'am',
-};  
+};
 
 const TaskDescriptionModal6 = ({ visible, onToggle, language, dontShowAgain6, onToggleDontShowAgain }) => {
   const normalizedInput = (language || '').toLowerCase().trim();
@@ -132,6 +139,7 @@ const TaskDescriptionModal6 = ({ visible, onToggle, language, dontShowAgain6, on
               <Text style={styles.closeButton} maxFontSizeMultiplier={1.2}>✕</Text>
             </TouchableOpacity>
           </View>
+
           {/* Скроллируемый текст */}
           <ScrollView
             contentContainerStyle={styles.scrollContent}
@@ -144,26 +152,39 @@ const TaskDescriptionModal6 = ({ visible, onToggle, language, dontShowAgain6, on
               {'\n'}{t.intro2}
             </Text>
             <Text style={styles.modalText} maxFontSizeMultiplier={1.2}>{t.intro3}</Text>
+
             <Text style={styles.sectionTitle} maxFontSizeMultiplier={1.2}>{t.section}</Text>
+
             <View style={styles.screenshotWrapper}>
-              <Image source={require('./scr2.jpg')} style={styles.screenshot} />
+              <Image source={require('./scr4.jpg')} style={styles.screenshot} />
             </View>
+
             <View style={styles.iconRow}>
               <Image source={require('./SoundOn.png')} style={styles.icon} />
               <Text style={styles.iconText} maxFontSizeMultiplier={1.2}>{t.sound}</Text>
             </View>
+
+            {/* ✅ translit — между звуком и статистикой */}
+            <View style={styles.iconRow}>
+              <Image source={require('./translit1.png')} style={styles.icon} />
+              <Text style={styles.iconText} maxFontSizeMultiplier={1.2}>{t.translit}</Text>
+            </View>
+
             <View style={styles.iconRow}>
               <Image source={require('./stat.png')} style={styles.icon} />
               <Text style={styles.iconText} maxFontSizeMultiplier={1.2}>{t.stat}</Text>
             </View>
+
             <View style={styles.iconRow}>
               <Image source={require('./question.png')} style={styles.icon} />
               <Text style={styles.iconText} maxFontSizeMultiplier={1.2}>{t.info}</Text>
             </View>
+
             <View style={styles.iconRow}>
               <Image source={require('./search1.png')} style={styles.icon} />
               <Text style={styles.iconText} maxFontSizeMultiplier={1.2}>{t.gender}</Text>
             </View>
+
             <View style={{ width: '100%', alignItems: 'center' }}>
               <View style={styles.aiIconRow}>
                 <Image source={require('./AI2.png')} style={styles.aiIcon} />
@@ -171,6 +192,7 @@ const TaskDescriptionModal6 = ({ visible, onToggle, language, dontShowAgain6, on
               </View>
             </View>
           </ScrollView>
+
           {/* Фиксированный чекбокс вне скролла */}
           <TouchableOpacity style={styles.dontShowRow} onPress={onToggleDontShowAgain} activeOpacity={0.7}>
             <View style={[styles.checkbox, dontShowAgain6 && styles.checkboxChecked]}>
@@ -197,9 +219,6 @@ const styles = StyleSheet.create({
   modalView: {
     width: '92%',
     height: windowHeight * 0.88,
-    // maxHeight: Platform.OS === 'android'
-    //   ? windowHeight * 0.98
-    //   : windowHeight * 0.98,
     backgroundColor: '#FFFDEF',
     borderRadius: 10,
     padding: 20,
@@ -230,7 +249,7 @@ const styles = StyleSheet.create({
   },
   scrollWrapper: {
     width: '100%',
-    maxHeight: windowHeight * 0.88, // высота скролла меньше чем modalView
+    maxHeight: windowHeight * 0.88,
     marginBottom: 10,
   },
   scrollContent: {
@@ -304,47 +323,46 @@ const styles = StyleSheet.create({
     marginRight: 10,
   },
   dontShowRow: {
-  flexDirection: 'row',
-  alignItems: 'center',
-  marginTop: 6,
-  marginBottom: 8,
-  alignSelf: 'center',
-  height: 40,
-  backgroundColor: '#E0ECFF', // светло-синий фон
-  borderRadius: 10,
-  paddingHorizontal: 12,
-  shadowColor: '#4880b4',
-  shadowOffset: { width: 0, height: 2 },
-  shadowOpacity: 0.18,
-  shadowRadius: 4,
-  elevation: 4, // для Android
-},
-checkbox: {
-  width: 24,
-  height: 24,
-  borderWidth: 2,
-  borderColor: '#4A6491',
-  borderRadius: 6,
-  marginRight: 10,
-  justifyContent: 'center',
-  alignItems: 'center',
-  backgroundColor: '#fff',
-  elevation: 1,
-},
-checkboxChecked: {
-  backgroundColor: '#4A6491',
-},
-checkmark: {
-  color: 'white',
-  fontWeight: 'bold',
-  fontSize: 16,
-},
-dontShowText: {
-  fontSize: 15,
-  fontWeight: 'bold',
-  color: '#17457D', // тёмно-синий, вместо красного для аккуратности
-},
-
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 6,
+    marginBottom: 8,
+    alignSelf: 'center',
+    height: 40,
+    backgroundColor: '#E0ECFF',
+    borderRadius: 10,
+    paddingHorizontal: 12,
+    shadowColor: '#4880b4',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.18,
+    shadowRadius: 4,
+    elevation: 4,
+  },
+  checkbox: {
+    width: 24,
+    height: 24,
+    borderWidth: 2,
+    borderColor: '#4A6491',
+    borderRadius: 6,
+    marginRight: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+    elevation: 1,
+  },
+  checkboxChecked: {
+    backgroundColor: '#4A6491',
+  },
+  checkmark: {
+    color: 'white',
+    fontWeight: 'bold',
+    fontSize: 16,
+  },
+  dontShowText: {
+    fontSize: 15,
+    fontWeight: 'bold',
+    color: '#17457D',
+  },
 });
 
 export default TaskDescriptionModal6;

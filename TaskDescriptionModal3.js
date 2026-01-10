@@ -146,7 +146,7 @@ const TaskDescriptionModal6 = ({ visible, onToggle, language, dontShowAgain3, on
             <Text style={styles.modalText} maxFontSizeMultiplier={1.2}>{t.intro3}</Text>
             <Text style={styles.sectionTitle} maxFontSizeMultiplier={1.2}>{t.section}</Text>
             <View style={styles.screenshotWrapper}>
-              <Image source={require('./scr1.jpg')} style={styles.screenshot} />
+              <Image source={require('./scr33.jpg')} style={styles.screenshot} />
             </View>
             <View style={styles.iconRow}>
               <Image source={require('./SoundOn.png')} style={styles.icon} />

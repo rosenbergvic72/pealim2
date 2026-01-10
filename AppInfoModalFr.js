@@ -35,7 +35,7 @@ const AppInfoModal = ({ visible, onToggle , updatedAt, appSize }) => {
               {/* Contacts */}
               <Text style={styles.sectionTitle}>Contacts :</Text>
               <Text style={styles.linkText} onPress={() => Linking.openURL('mailto:verbify2025@gmail.com')}>
-                Support : verbify2025@gmail.com
+                verbify2025@gmail.com
               </Text>
               <Text style={styles.linkText} onPress={() => Linking.openURL('https://verbifyapp.netlify.app')}>
                 Politique de confidentialité

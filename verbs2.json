@@ -801,7 +801,7 @@
         ]
       },
       {
-        "verbRussian": "Встретиться",
+        "verbRussian": "Встречать",
         "verbEnglish": "to meet",
 "verbFrench": "rencontrer",
 "verbSpanish": "encontrarse",
@@ -1582,7 +1582,7 @@
       },
       
       {
-        "verbRussian": "Носить",
+        "verbRussian": "Носить (одежду)",
         "verbEnglish": "to wear",
 "verbFrench": "porter",
 "verbSpanish": "llevar",
@@ -1624,9 +1624,9 @@
 "verbArabic": "أن يترك",
 "verbAmharic": "መተው",
 
-        "audioFile": "lehishaer.mp3",
+        "audioFile": "lehashir.mp3",
         "verbHebrewOptions": [
-          { "text": "להשאר", "transliteration": "lehisha'er", "isCorrect": true },
+          { "text": "להשאיר", "transliteration": "lehash'ir", "isCorrect": true },
           { "text": "לשלם", "transliteration": "leshalem", "isCorrect": false },
           { "text": "להוסיף", "transliteration": "lehosif", "isCorrect": false },
           { "text": "לטייל", "transliteration": "letayel", "isCorrect": false }
@@ -2162,8 +2162,8 @@
         "verbRussian": "Спасать",
         "verbEnglish": "to rescue",
 "verbFrench": "secourir",
-"verbSpanish": "rescatar",
-"verbPortuguese": "resgatar",
+"verbSpanish": "salvar",
+"verbPortuguese": "salvar",
 "verbArabic": "أن ينقذ",
 "verbAmharic": "ማዳን",
 
@@ -4663,22 +4663,38 @@
           { "text": "לחזור", "transliteration": "lachzor", "isCorrect": false }
     ]
     },
-    {
-    "verbRussian": "Дарить",
-    "verbEnglish": "to give",
-"verbFrench": "offrir",
-"verbSpanish": "regalar",
-"verbPortuguese": "dar",
-"verbArabic": "أن يعطي",
-"verbAmharic": "መስጠት",
-    "audioFile": "lehatzig.mp3",
-    "verbHebrewOptions": [
-      { "text": "להציג", "transliteration": "lehatzig", "isCorrect": true },
-      { "text": "לומר", "transliteration": "lomar", "isCorrect": false },
-      { "text": "לזכור", "transliteration": "lizkor", "isCorrect": false },
-      { "text": "לחזור", "transliteration": "lachzor", "isCorrect": false }
-    ]
-    },
+{
+  "verbRussian": "Представлять",
+  "verbEnglish": "to present",
+  "verbFrench": "présenter",
+  "verbSpanish": "presentar",
+  "verbPortuguese": "apresentar",
+  "verbArabic": "أن يقدّم",
+  "verbAmharic": "ማቅረብ",
+  "audioFile": "lehatzig.mp3",
+  "verbHebrewOptions": [
+    { "text": "להציג", "transliteration": "lehatzig", "isCorrect": true },
+    { "text": "לומר", "transliteration": "lomar", "isCorrect": false },
+    { "text": "לזכור", "transliteration": "lizkor", "isCorrect": false },
+    { "text": "לחזור", "transliteration": "lachzor", "isCorrect": false }
+  ]
+},
+{
+  "verbRussian": "Дарить",
+  "verbEnglish": "to grant",
+  "verbFrench": "accorder",
+  "verbSpanish": "conceder",
+  "verbPortuguese": "conceder",
+  "verbArabic": "أن يمنح",
+  "verbAmharic": "መስጠት",
+  "audioFile": "lehaanik.mp3",
+  "verbHebrewOptions": [
+    { "text": "להעניק", "transliteration": "leha'aník", "isCorrect": true },
+    { "text": "להציג", "transliteration": "lehatzig", "isCorrect": false },
+    { "text": "לתת", "transliteration": "latet", "isCorrect": false },
+    { "text": "לומר", "transliteration": "lomar", "isCorrect": false }
+  ]
+},
     {
     "verbRussian": "Одалживать",
     "verbEnglish": "to lend",
@@ -5119,7 +5135,7 @@
     {
       "verbRussian": "Бить",
 
-"verbEnglish": "to beat",
+"verbEnglish": "to hit",
 "verbFrench": "frapper",
 "verbSpanish": "golpear",
 "verbPortuguese": "bater",

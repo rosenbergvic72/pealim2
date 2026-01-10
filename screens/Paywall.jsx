@@ -42,9 +42,50 @@ const CODE_SEGMENTS = {
   PROMO30:   'promo',
   TEST90:    'test',
   TIKVA30:   'tikva',
+  TIMUR2026: 'timur',
+  IVRITKALA2026: 'kala',
 };
 const resolveSegmentByCode = (code) =>
   CODE_SEGMENTS[String(code || '').trim().toUpperCase()] || null;
+
+/* ===== Коды доступа (партнёрские) =====
+   UI готов. Чтобы заработало “по-настоящему”, пропиши URL твоего сервера
+   и верни { ok: true } при успешной активации.
+*/
+const PARTNER_REDEEM_URL = 'https://iap-server.onrender.com/redeem/code'; // ✅ твой боевой URL
+
+function normalizeAccessCode(raw) {
+  return String(raw || '')
+    .trim()
+    .toUpperCase()
+    .replace(/[^\w-]/g, ''); // оставляем A-Z 0-9 _ и -
+}
+function looksLikeAccessCode(code) {
+  // мягкая валидация: 8..32 символа, латиница/цифры/_/-
+  if (!code) return false;
+  if (code.length < 8 || code.length > 32) return false;
+  return /^[A-Z0-9_-]+$/.test(code);
+}
+async function redeemPartnerCodeOnServer({ code, userId }) {
+  if (!PARTNER_REDEEM_URL) {
+    return { ok: false, message: 'Redeem server URL is not configured.' };
+  }
+  const res = await fetch(PARTNER_REDEEM_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    // ✅ сервер требует code + userId
+    body: JSON.stringify({ code, userId }),
+  });
+  let json = null;
+  try { json = await res.json(); } catch {}
+  if (!res.ok) {
+    return {
+      ok: false,
+      message: (json && (json.message || json.error)) || `HTTP ${res.status}`,
+    };
+  }
+  return { ok: !!json?.ok, message: json?.message || '' };
+}
 
 /* ===== Локализация (сокр.) ===== */
 const STR = {
@@ -60,6 +101,17 @@ const STR = {
     invalid: 'Code is invalid',
     playRedeem: 'Google Play code',
     restore: 'Restore access',
+    activateCode: 'Activate code',
+    redeemTitle: 'Activate access code',
+    redeemHint: 'Enter the access code you received from a school, course, or teacher.',
+    redeemPlaceholder: 'ACCESS-CODE',
+    redeemBtn: 'Activate',
+    redeemCancel: 'Cancel',
+    redeemWorking: 'Activating…',
+    redeemInvalid: 'Please enter a valid code.',
+    redeemSuccessTitle: 'Done 🎉',
+    redeemSuccessBody: 'Done! Pro access is active.',
+    redeemDataWarning: 'Important: do not delete the app or clear its data — access codes are tied to this device ID. If you remove the app data, you may lose Pro access.',
     choosePlan: 'Choose a plan',
     headerTrialEmph: '5-DAY FREE TRIAL (for new subscribers)',
     headerTrialTail:
@@ -85,6 +137,18 @@ const STR = {
     invalid: 'Промокод недействителен',
     playRedeem: 'Код Google Play',
     restore: 'Восстановить доступ',
+    activateCode: 'Активировать код',
+    redeemTitle: 'Активация кода доступа',
+    redeemHint: 'Введите код доступа, который вы получили от школы, курса или преподавателя.',
+    redeemPlaceholder: 'КОД-ДОСТУПА',
+    redeemBtn: 'Активировать',
+    redeemCancel: 'Отмена',
+    redeemWorking: 'Активируем…',
+    redeemInvalid: 'Введите корректный код.',
+    redeemSuccessTitle: 'Готово 🎉',
+    redeemSuccessBody: 'Код активирован. Доступ Pro включён на срок действия кода.',
+    redeemDataWarning:
+      'Важно: не удаляйте приложение и не очищайте его данные — коды доступа привязаны к этому устройству. При удалении данных вы можете потерять доступ к Pro.',
     choosePlan: 'Выбери план',
     headerTrialEmph: '5 ДНЕЙ БЕСПЛАТНОГО ДОСТУПА (для новых подписчиков)',
     headerTrialTail:
@@ -110,6 +174,18 @@ const STR = {
     invalid: 'Code invalide',
     playRedeem: 'Code Google Play',
     restore: "Restaurer l’accès",
+    activateCode: 'Activer un code',
+    redeemTitle: "Activation d’un code d’accès",
+    redeemHint: 'Saisissez le code d’accès que vous avez reçu d’une école, d’un cours ou d’un professeur.',
+    redeemPlaceholder: 'CODE-ACCÈS',
+    redeemBtn: 'Activer',
+    redeemCancel: 'Annuler',
+    redeemWorking: 'Activation…',
+    redeemInvalid: 'Veuillez entrer un code valide.',
+    redeemSuccessTitle: 'OK 🎉',
+    redeemSuccessBody: 'Code activé. L’accès Pro est activé pour la durée du code.',
+    redeemDataWarning:
+      "Important : ne supprimez pas l’application et n’effacez pas ses données — les codes d’accès sont liés à cet appareil. En cas de suppression des données, vous pouvez perdre l’accès Pro.",
     choosePlan: 'Choisissez une formule',
     headerTrialEmph: 'ESSAI GRATUIT DE 5 JOURS (pour les nouveaux abonnés)',
     headerTrialTail:
@@ -135,6 +211,18 @@ const STR = {
     invalid: 'Código no válido',
     playRedeem: 'Código de Google Play',
     restore: 'Restaurar acceso',
+    activateCode: 'Activar código',
+    redeemTitle: 'Activación de código',
+    redeemHint: 'Introduce el código de acceso que recibiste de una escuela, un curso o un profesor.',
+    redeemPlaceholder: 'CÓDIGO-DE-ACCESO',
+    redeemBtn: 'Activar',
+    redeemCancel: 'Cancelar',
+    redeemWorking: 'Activando…',
+    redeemInvalid: 'Introduce un código válido.',
+    redeemSuccessTitle: 'Listo 🎉',
+    redeemSuccessBody: 'Código activado. El acceso Pro está activo durante la vigencia del código.',
+    redeemDataWarning:
+      'Importante: no elimines la aplicación ni borres sus datos — los códigos de acceso están vinculados a este dispositivo. Si borras los datos, puedes perder el acceso Pro.',
     choosePlan: 'Elige un plan',
     headerTrialEmph: 'PRUEBA GRATUITA DE 5 DÍAS (para nuevos suscriptores)',
     headerTrialTail:
@@ -160,6 +248,18 @@ const STR = {
     invalid: 'Código inválido',
     playRedeem: 'Código do Google Play',
     restore: 'Restaurar acesso',
+    activateCode: 'Ativar código',
+    redeemTitle: 'Ativar código de acesso',
+    redeemHint: 'Digite o código de acesso que você recebeu de uma escola, curso ou professor.',
+    redeemPlaceholder: 'CÓDIGO-DE-ACESSO',
+    redeemBtn: 'Ativar',
+    redeemCancel: 'Cancelar',
+    redeemWorking: 'Ativando…',
+    redeemInvalid: 'Digite um código válido.',
+    redeemSuccessTitle: 'Pronto 🎉',
+    redeemSuccessBody: 'Código ativado. O acesso Pro está ativo durante a validade do código.',
+    redeemDataWarning:
+      'Importante: não apague o aplicativo nem limpe seus dados — os códigos de acesso estão vinculados a este dispositivo. Ao remover os dados, você pode perder o acesso Pro.',
     choosePlan: 'Escolha um plano',
     headerTrialEmph: '5 DIAS DE AVALIAÇÃO GRÁTIS (para novos assinantes)',
     headerTrialTail:
@@ -185,6 +285,18 @@ const STR = {
     invalid: 'ኮድ ልክ አይደለም',
     playRedeem: 'የGoogle Play ኮድ',
     restore: 'መዳረሻ መመለስ',
+    activateCode: 'ኮድ አንቃ',
+    redeemTitle: 'የመዳረሻ ኮድ አንቃ',
+    redeemHint: 'ከት/ቤት፣ ከኮርስ ወይም ከመምህር ያገኙትን የመዳረሻ ኮድ ያስገቡ።',
+    redeemPlaceholder: 'ACCESS-CODE',
+    redeemBtn: 'አንቃ',
+    redeemCancel: 'ሰርዝ',
+    redeemWorking: 'በመንቃት ላይ…',
+    redeemInvalid: 'ትክክለኛ ኮድ ያስገቡ።',
+    redeemSuccessTitle: 'ተከናውኗል 🎉',
+    redeemSuccessBody: 'ኮድ ተነቅቷል። የPro መዳረሻ ለኮዱ የሚሰራበት ጊዜ ተነቅቷል።',
+    redeemDataWarning:
+      'አስፈላጊ፡ መተግበሪያውን አትሰርዙ እና ውሂቡን አታጥፉ — የመዳረሻ ኮዶች ከዚህ መሣሪያ ጋር ተያይዘዋል። ውሂቡን ካጠፉ የPro መዳረሻን ሊያጡ ይችላሉ።',
     choosePlan: 'እቅድ ይምረጡ',
     headerTrialEmph: '5 ቀን ነጻ ሙከራ (ለአዲስ ተመዝጋቢዎች)',
     headerTrialTail:
@@ -210,6 +322,18 @@ const STR = {
     invalid: 'الرمز غير صالح',
     playRedeem: 'رمز Google Play',
     restore: 'استعادة الوصول',
+    activateCode: 'تفعيل الرمز',
+    redeemTitle: 'تفعيل رمز الوصول',
+    redeemHint: 'أدخل رمز الوصول الذي تلقيته من مدرسة أو دورة أو معلّم.',
+    redeemPlaceholder: 'ACCESS-CODE',
+    redeemBtn: 'تفعيل',
+    redeemCancel: 'إلغاء',
+    redeemWorking: 'جارٍ التفعيل…',
+    redeemInvalid: 'يرجى إدخال رمز صالح.',
+    redeemSuccessTitle: 'تم 🎉',
+    redeemSuccessBody: 'تم تفعيل الرمز. تم تفعيل وصول Pro طوال مدة صلاحية الرمز.',
+    redeemDataWarning:
+      'مهم: لا تقم بحذف التطبيق أو مسح بياناته — رموز الوصول مرتبطة بهذا الجهاز. عند حذف البيانات قد تفقد الوصول إلى Pro.',
     choosePlan: 'اختر خطة',
     headerTrialEmph: 'فترة تجريبية مجانية لمدة 5 أيام (للمشتركين الجدد)',
     headerTrialTail:
@@ -264,7 +388,11 @@ export default function Paywall({ navigation }) {
     hasPro, restore, displayPrices,
     shouldShowPost, markPostShown,
     applyPromoCode, probePostPurchase,
+    syncCodeEntitlementFromServer,
     __devGrantPro,
+    // ✅ если в твоём IapProvider уже есть userId — отлично.
+    // Если называется иначе — замени строку userIdForCodes ниже.
+    userId,
   } = useIap();
 
   const [langKey, setLangKey] = useState('english');
@@ -273,11 +401,28 @@ export default function Paywall({ navigation }) {
   const [promoMsg, setPromoMsg] = useState('');
   const [promoOK, setPromoOK] = useState(false);
 
+  // ✅ Модалка “Активировать код”
+  const [redeemModalVisible, setRedeemModalVisible] = useState(false);
+  const [redeemInput, setRedeemInput] = useState('');
+  const [redeemMsg, setRedeemMsg] = useState('');
+  const [redeemOK, setRedeemOK] = useState(false);
+  const [redeemLoading, setRedeemLoading] = useState(false);
+
   const isRTL = RTL_LANGS.has(langKey);
   const S = STR[langKey] || STR.english;
 
   const navigatedRef = useRef(false);
   const appStateRef = useRef(AppState.currentState);
+
+  // Если пользователь снова попал на Paywall (например, после повторной активации/навигации),
+  // разрешаем повторный auto-redirect в Pro.
+  useFocusEffect(
+    React.useCallback(() => {
+      if (!hasPro) navigatedRef.current = false;
+      return () => {};
+    }, [hasPro])
+  );
+
   const firstHasProAt = useRef(null);
 
   const [postChecked, setPostChecked] = useState(false);
@@ -388,6 +533,89 @@ export default function Paywall({ navigation }) {
     const saved = (await AsyncStorage.getItem('language')) || 'english';
     deepResetTo(navigation, menuRouteByLang(saved), {});
   };
+
+  // ✅ Реальная активация кода (UI готов, сервер подключён)
+const submitRedeemCode = async () => {
+  if (redeemLoading) return;
+
+  const normalized = normalizeAccessCode(redeemInput);
+  if (!looksLikeAccessCode(normalized)) {
+    setRedeemOK(false);
+    setRedeemMsg(S.redeemInvalid);
+    return;
+  }
+
+  // ✅ userId обязателен для /redeem/code
+  const userIdForCodes =
+    userId ||
+    (await AsyncStorage.getItem('iap:deviceUserId')) ||
+    null;
+
+  if (!userIdForCodes) {
+    setRedeemOK(false);
+    setRedeemMsg('userId is missing on device.');
+    return;
+  }
+
+  setRedeemLoading(true);
+  setRedeemMsg('');
+  setRedeemOK(false);
+
+  try {
+    const r = await redeemPartnerCodeOnServer({
+      code: normalized,
+      userId: String(userIdForCodes),
+    });
+
+    if (!r.ok) {
+      setRedeemOK(false);
+      setRedeemMsg(r.message || S.invalid);
+      return;
+    }
+
+setRedeemOK(true);
+setRedeemMsg(
+  S.redeemSuccessBody +
+  '\n\n⚠️ Important: do not delete the app or clear its data — access codes are tied to this device ID. If you remove the app data, you may lose Pro access.'
+);
+
+// ✅ Сразу уходим в Pro (не завязываемся на Restore)
+try {
+  const savedLang = (await AsyncStorage.getItem('language')) || 'english';
+  setRedeemModalVisible(false);
+  deepResetTo(navigation, menuRouteByLang(savedLang));
+} catch (_) {}
+
+
+
+    // ✅ Сразу синхронизируем entitlements по коду и уходим в Pro без "Restore"
+    try {
+      await syncCodeEntitlementFromServer(String(userIdForCodes));
+    } catch (e2) {
+      console.warn('[PAYWALL] syncCodeEntitlementFromServer failed:', e2?.message || e2);
+    }
+
+    // Закрываем модалку ввода кода
+    setRedeemModalVisible(false);
+
+    // Если уже стало Pro — Paywall сам сделает reset в меню
+    try { probePostPurchase?.(); } catch {}
+  } catch (e) {
+    setRedeemOK(false);
+    setRedeemMsg(e?.message || 'Failed');
+  } finally {
+    setRedeemLoading(false);
+  }
+};
+
+const openRedeemModal = () => {
+  setRedeemInput('');
+  setRedeemMsg('');
+  setRedeemOK(false);
+  setRedeemLoading(false);
+  setRedeemModalVisible(true);
+};
+
 
   // Цены
   const baseMonthlyAmt = displayPrices.baseMonthly;
@@ -623,7 +851,7 @@ export default function Paywall({ navigation }) {
           </Text>
           <View style={styles.spacerSm} />
           <View style={styles.planRow}>
-            {planBtn('monthly', STR[langKey]?.monthly, {
+           {planBtn('monthly', STR[langKey]?.monthly, {
               baseAmt: baseMonthlyAmt,
               segAmt: segMonthlyAmt,
               periodText: monthlyPeriodLabel,
@@ -684,12 +912,124 @@ export default function Paywall({ navigation }) {
             </Text>
           </TouchableOpacity>
         )}
+
+        <TouchableOpacity onPress={openRedeemModal} activeOpacity={0.8}>
+          <Text style={styles.footerLink} maxFontSizeMultiplier={1.2}>
+            {STR[langKey]?.activateCode}
+          </Text>
+        </TouchableOpacity>
+
         <TouchableOpacity onPress={restore} activeOpacity={0.8}>
           <Text style={styles.footerLink} maxFontSizeMultiplier={1.2}>
             {STR[langKey]?.restore}
           </Text>
         </TouchableOpacity>
       </View>
+
+      {/* ✅ Модалка “Активировать код” — боевой UI */}
+      <Modal
+        visible={redeemModalVisible}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => setRedeemModalVisible(false)}
+      >
+        <View style={styles.redeemOverlay}>
+          <View style={styles.redeemCard}>
+            <Text style={styles.redeemTitle} maxFontSizeMultiplier={1.2}>
+              {S.redeemTitle}
+            </Text>
+
+            <Text style={styles.redeemHint} maxFontSizeMultiplier={1.2}>
+              {S.redeemHint}
+            </Text>
+
+            <View style={[styles.redeemInputWrap, redeemOK ? styles.redeemInputWrapOK : null]}>
+              <TextInput
+                style={[styles.redeemInput, redeemOK ? styles.redeemInputOK : null]}
+                value={redeemInput}
+                onChangeText={(t) => {
+                  setRedeemInput(t);
+                  if (redeemMsg) setRedeemMsg('');
+                  if (redeemOK) setRedeemOK(false);
+                }}
+                placeholder={S.redeemPlaceholder}
+                autoCapitalize="characters"
+                autoCorrect={false}
+                editable={!redeemLoading}
+                maxLength={32}
+                returnKeyType="done"
+                onSubmitEditing={submitRedeemCode}
+              />
+              {redeemOK && (
+                <Text style={styles.redeemCheck} maxFontSizeMultiplier={1.2}>
+                  ✓
+                </Text>
+              )}
+            </View>
+
+            {!!redeemMsg && (
+              <Text
+                style={[
+                  styles.redeemMsg,
+                  redeemOK ? styles.redeemMsgOK : styles.redeemMsgErr,
+                ]}
+                maxFontSizeMultiplier={1.2}
+              >
+                {redeemMsg}
+              </Text>
+            )}
+            <Text style={styles.redeemWarn} maxFontSizeMultiplier={1.2}>
+              {S.redeemDataWarning}
+            </Text>
+
+
+            <View style={styles.redeemBtnsRow}>
+              <TouchableOpacity
+                style={[styles.redeemBtn, styles.redeemBtnOutline]}
+                onPress={() => setRedeemModalVisible(false)}
+                disabled={redeemLoading}
+                activeOpacity={0.85}
+              >
+                <Text style={[styles.redeemBtnText, styles.redeemBtnTextOutline]} maxFontSizeMultiplier={1.2}>
+                  {S.redeemCancel}
+                </Text>
+              </TouchableOpacity>
+
+              <View style={{ width: 10 }} />
+
+              <TouchableOpacity
+                style={[
+                  styles.redeemBtn,
+                  styles.redeemBtnSolid,
+                  (!looksLikeAccessCode(normalizeAccessCode(redeemInput)) || redeemLoading) && styles.btnDisabled,
+                ]}
+                onPress={submitRedeemCode}
+                disabled={!looksLikeAccessCode(normalizeAccessCode(redeemInput)) || redeemLoading}
+                activeOpacity={0.85}
+              >
+                <Text style={[styles.redeemBtnText, styles.redeemBtnTextSolid]} maxFontSizeMultiplier={1.2}>
+                  {redeemLoading ? S.redeemWorking : S.redeemBtn}
+                </Text>
+              </TouchableOpacity>
+            </View>
+
+            {redeemOK && (
+              <TouchableOpacity
+                style={[styles.redeemRestoreQuick]}
+                onPress={async () => {
+                  setRedeemModalVisible(false);
+                  await restore();
+                }}
+                activeOpacity={0.85}
+              >
+                <Text style={styles.redeemRestoreQuickText} maxFontSizeMultiplier={1.2}>
+                  {STR[langKey]?.restore}
+                </Text>
+              </TouchableOpacity>
+            )}
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
@@ -769,4 +1109,62 @@ const styles = StyleSheet.create({
   },
   modalTitle: { fontSize: 20, fontWeight: '900', marginBottom: 10, textAlign: 'center' },
   modalText: { fontSize: 12, opacity: 0.9, textAlign: 'center' },
+
+  // ✅ Redeem modal styles
+  redeemOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.45)',
+    paddingHorizontal: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  redeemCard: {
+    width: '100%',
+    maxWidth: 420,
+    borderRadius: 16,
+    backgroundColor: 'white',
+    padding: 16,
+    borderWidth: 1,
+    borderColor: '#E6EEF7',
+  },
+  redeemTitle: { fontSize: 18, fontWeight: '900', textAlign: 'center', color: BRAND, marginBottom: 6 },
+  redeemHint: { fontSize: 12, opacity: 0.85, textAlign: 'center', marginBottom: 12 },
+
+  redeemInputWrap: { position: 'relative' },
+  redeemInputWrapOK: {},
+  redeemInput: {
+    borderWidth: 2,
+    borderColor: '#9aa6b2',
+    borderRadius: 12,
+    paddingHorizontal: 12,
+    paddingVertical: 12,
+    fontWeight: '800',
+    backgroundColor: 'white',
+    letterSpacing: 0.5,
+  },
+  redeemInputOK: { borderColor: '#2e7d32', color: '#2e7d32', backgroundColor: '#e8f5e9' },
+  redeemCheck: { position: 'absolute', right: 10, top: 10, fontSize: 18, color: '#2e7d32', fontWeight: '900' },
+
+  redeemMsg: { marginTop: 10, fontSize: 12, textAlign: 'center' },
+  redeemWarn: { marginTop: 10, fontSize: 11, textAlign: 'center', opacity: 0.8 },
+  redeemMsgOK: { color: '#2e7d32' },
+  redeemMsgErr: { color: '#b00020' },
+
+  redeemBtnsRow: { flexDirection: 'row', marginTop: 12 },
+  redeemBtn: {
+    flex: 1,
+    paddingVertical: 12,
+    borderRadius: 12,
+    borderWidth: 2,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  redeemBtnOutline: { borderColor: BRAND, backgroundColor: 'transparent' },
+  redeemBtnSolid: { borderColor: BRAND, backgroundColor: BRAND_BG },
+  redeemBtnText: { fontWeight: '900', fontSize: 14 },
+  redeemBtnTextOutline: { color: BRAND },
+  redeemBtnTextSolid: { color: BRAND_TEXT },
+
+  redeemRestoreQuick: { marginTop: 12, alignItems: 'center' },
+  redeemRestoreQuickText: { color: BRAND, textDecorationLine: 'underline', fontSize: 14, fontWeight: '800' },
 });

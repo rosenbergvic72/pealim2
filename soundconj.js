@@ -4396,6 +4396,10 @@ animozeg: require('./assets/conj/other/animozeg.mp3'),
 animozeget: require('./assets/conj/other/animozeget.mp3'),
 animetargem: require('./assets/conj/other/animetargem.mp3'),
 animetargemet: require('./assets/conj/other/animetargemet.mp3'),
+animashir: require('./assets/conj/other/animashir.mp3'),
+aninmashira: require('./assets/conj/other/aninmashira.mp3'),
+animaanik: require('./assets/conj/other/animaanik.mp3'),
+animaanika: require('./assets/conj/other/animaanika.mp3'),
 
 
 

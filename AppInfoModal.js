@@ -32,14 +32,27 @@ const AppInfoModal = ({ visible, onToggle, updatedAt, appSize }) => {
           <Text style={styles.modalText}>Android 8.0+, iOS 13.0+</Text>
           <Text style={styles.modalText}>Размер: <Text style={styles.bold}>{appSize || '135 Mb'}</Text></Text>
 
-          {/* Контакты */}
-          <Text style={styles.sectionTitle}>Контакты:</Text>
-          <Text style={styles.linkText} onPress={() => Linking.openURL('mailto:verbify2025@gmail.com')}>
-            Поддержка: verbify2025@gmail.com
-          </Text>
-          <Text style={styles.linkText} onPress={() => Linking.openURL('https://verbifyapp.netlify.app')}>
-            Политика конфиденциальности
-          </Text>
+       {/* Контакты */}
+<Text style={styles.sectionTitle}>Контакты:</Text>
+
+{/* <Text style={styles.modalText}>
+  Вопросы, предложения, сотрудничество и сообщения об ошибках — пишите нам:
+</Text> */}
+
+<Text
+  style={styles.linkText}
+  onPress={() => Linking.openURL('mailto:verbify2025@gmail.com')}
+>
+  verbify2025@gmail.com
+</Text>
+
+<Text
+  style={styles.linkText}
+  onPress={() => Linking.openURL('https://verbifyapp.netlify.app')}
+>
+  Политика конфиденциальности
+</Text>
+
 
           {/* Кнопка закрытия */}
           <TouchableOpacity style={styles.closeButton} onPress={onToggle}>

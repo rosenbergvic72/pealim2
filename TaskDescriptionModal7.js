@@ -14,7 +14,8 @@ const translations = {
     sound: 'Кнопки включения и отключения звука',
     stat: 'Просмотр статистики упражнения',
     info: 'Описание упражнения',
-    aiBot: 'ИИ чатбот', 
+    aiBot: 'ИИ чатбот',
+    translit: 'Включение и отключение транслитерации',
     dontShow: 'Больше не показывать'
   },
   en: {
@@ -27,6 +28,7 @@ const translations = {
   stat: 'View exercise statistics',
   info: 'Exercise description',
   aiBot: 'AI chatbot',
+  translit: 'Enable or disable transliteration',
   dontShow: 'Do not show again'
 },
 
@@ -41,6 +43,7 @@ const translations = {
   stat: 'Voir les statistiques de l’exercice',
   info: 'Description de l’exercice',
   aiBot: 'Chatbot IA',
+  translit: 'Activer ou désactiver la translittération',
   dontShow: 'Ne plus afficher'
 },
 
@@ -55,6 +58,7 @@ const translations = {
   stat: 'Ver estadísticas del ejercicio',
   info: 'Descripción del ejercicio',
   aiBot: 'Chatbot con IA',
+  translit: 'Activar o desactivar la transliteración',
   dontShow: 'No mostrar de nuevo'
 },
 
@@ -69,6 +73,7 @@ const translations = {
   stat: 'Ver estatísticas do exercício',
   info: 'Descrição do exercício',
   aiBot: 'Chatbot IA',
+  translit: 'Ativar ou desativar a transliteração',
   dontShow: 'Não mostrar novamente'
 },
 
@@ -83,6 +88,7 @@ const translations = {
   stat: 'عرض إحصائيات التمرين',
   info: 'وصف التمرين',
   aiBot: 'روبوت الدردشة الذكي',
+  translit: 'تشغيل أو إيقاف النسخ الصوتي',
   dontShow: 'لا تظهر مرة أخرى'
 },
 
@@ -97,6 +103,7 @@ const translations = {
   stat: 'የልምድ ስታቲስቲክስን ይመልከቱ',
   info: 'የልምድ መግለጫ',
   aiBot: 'አርቲፊሻል ኢንተሊጀንስ ቻትቦት',
+  translit: 'ትራንስሊተሬሽንን ማብራት እና ማጥፋት',
   dontShow: 'እንዳይታይ ያድርጉት'
 },
 
@@ -145,12 +152,17 @@ const TaskDescriptionModal6 = ({ visible, onToggle, language, dontShowAgain7, on
             <Text style={styles.modalText} maxFontSizeMultiplier={1.2}>{t.intro3}</Text>
             <Text style={styles.sectionTitle} maxFontSizeMultiplier={1.2}>{t.section}</Text>
             <View style={styles.screenshotWrapper}>
-              <Image source={require('./scr3.jpg')} style={styles.screenshot} />
+              <Image source={require('./scr8.jpg')} style={styles.screenshot} />
             </View>
             <View style={styles.iconRow}>
               <Image source={require('./SoundOn.png')} style={styles.icon} />
               <Text style={styles.iconText} maxFontSizeMultiplier={1.2}>{t.sound}</Text>
             </View>
+              {/* ✅ translit — между звуком и статистикой */}
+                                    <View style={styles.iconRow}>
+                                      <Image source={require('./translit1.png')} style={styles.icon} />
+                                      <Text style={styles.iconText} maxFontSizeMultiplier={1.2}>{t.translit}</Text>
+                                    </View>
             <View style={styles.iconRow}>
               <Image source={require('./stat.png')} style={styles.icon} />
               <Text style={styles.iconText} maxFontSizeMultiplier={1.2}>{t.stat}</Text>

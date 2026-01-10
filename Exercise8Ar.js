@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, StyleSheet, Image, BackHandler } from 'react-native';
 import verbsData from './verbs6RU.json';
+import verbs1Data from './verbs1.json';
 import ProgressBar from './ProgressBar';
 import { Animated } from 'react-native';
 import { Audio } from 'expo-av';
@@ -20,6 +21,337 @@ import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-nat
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import VerbListModal2 from './VerbListModal2';
 import shuffleArray from './utils/shuffleArray';
+/* ===================== ONLY: Hebrew parts highlighting ===================== */
+
+// Remove niqqud + cantillation marks, keep only letters
+const stripHebrewMarks = (s) => String(s || '').replace(/[\u0591-\u05C7]/g, '');
+const normHeb = (s) => stripHebrewMarks(s).replace(/\s+/g, ' ').trim();
+
+const normalizeBinyan = (s) =>
+  stripHebrewMarks(String(s || ''))
+    .trim()
+    .toLowerCase()
+    // remove spaces + apostrophes + dashes (straight and curly)
+    .replace(/[\s'’\-–—]/g, '');
+
+const isNifalFromBinyan = (b) => {
+  const nb = normalizeBinyan(b);
+  // English transliterations
+  if (nb === 'nifal' || nb === 'nifaal') return true;
+  // Hebrew spellings
+  if (nb.includes('נפעל') || nb.includes('ניפעל') || nb.includes('נפאל')) return true;
+  return false;
+};
+
+const normKey = (s) => String(s || '').trim().toLowerCase().replace(/\s+/g, ' ');
+
+// Find first Hebrew letter in a word; if it is 'נ', paint it with prefixYellow
+const renderOptionalNifalNun = (word, enabled) => {
+  const w0 = String(word || '');
+  if (!enabled) return w0;
+
+  // If there are RTL/LTR marks or spaces, keep them as "leading"
+  const cleanedLeading = w0.replace(/^[\s\u200E\u200F\u202A-\u202E\u2066-\u2069]+/, '');
+  const leading = w0.slice(0, w0.length - cleanedLeading.length);
+  const w = cleanedLeading;
+
+  // find first real Hebrew letter in the remaining string
+  const m = w.match(/[א-ת]/);
+  if (!m || typeof m.index !== 'number') return w0;
+
+  const i = m.index;
+  const firstHeb = w[i];
+  if (firstHeb !== 'נ') return w0;
+
+  const before = w.slice(0, i);
+  const after = w.slice(i + 1);
+
+  return (
+    <>
+      {leading}
+      {!!before && <Text>{before}</Text>}
+      <Text style={styles.prefixYellow}>נ</Text>
+      {!!after && <Text>{after}</Text>}
+    </>
+  );
+};
+
+// Safe segment highlighter: prefix (yellow) + middle + suffix (green)
+const renderWithColorRules = (word, { prefix = '', suffix = '' } = {}) => {
+  const text = String(word || '');
+  if (!text) return '';
+
+  const safePrefix = Math.min(String(prefix || '').length, text.length);
+  const safeSuffix = Math.min(
+    String(suffix || '').length,
+    Math.max(0, text.length - safePrefix)
+  );
+
+  const realPrefix = safePrefix > 0 ? text.slice(0, safePrefix) : '';
+  const middle = text.slice(safePrefix, text.length - safeSuffix);
+  const realSuffix = safeSuffix > 0 ? text.slice(text.length - safeSuffix) : '';
+
+  return (
+    <>
+      {!!realPrefix && <Text style={styles.prefixYellow}>{realPrefix}</Text>}
+      {!!middle && <Text>{middle}</Text>}
+      {!!realSuffix && <Text style={styles.suffixGreen}>{realSuffix}</Text>}
+    </>
+  );
+};
+
+// ✅ Present: apply highlighting ONLY to the verb word (2nd word in 2-word phrases)
+// Rules: prefix מ (single letter) + suffixes (ות/ים/ה/ת)
+const renderPresentVerbWord = (verbWord) => {
+  const verb = String(verbWord || '');
+  if (!verb) return '';
+
+  const PRESENT_SUFFIXES_LOCAL = ['ות', 'ים', 'ה', 'ת'];
+
+  let prefix = '';
+  let rest = verb;
+
+  if (rest.startsWith('מ') || rest.startsWith('נ')) {
+    prefix = rest[0];
+    rest = rest.slice(1);
+  }
+
+  let suffix = '';
+  for (const suf of PRESENT_SUFFIXES_LOCAL) {
+    if (rest.endsWith(suf)) {
+      suffix = suf;
+      break;
+    }
+  }
+
+  const base = suffix ? rest.slice(0, rest.length - suffix.length) : rest;
+  const full = prefix + base + suffix;
+
+  return renderWithColorRules(full, { prefix, suffix });
+};
+
+// ✅ Past: if word starts with ה — highlight first ה; suffix highlighted too
+const renderPastWithHitpaelPrefixAndSuffix = (word, suffix) => {
+  const w = String(word || '');
+  // For hitpa'el (ה...) and nif'al (נ...) highlight first letter as prefix
+  const prefix = w.startsWith('ה') ? 'ה' : (w.startsWith('נ') ? 'נ' : '');
+  return renderWithColorRules(w, { prefix, suffix: suffix || '' });
+};
+
+// Main dispatcher by form index 1..36 (or 1..24 for להיות with virtual shift)
+const renderHebrewText = (
+  hebrewtext,
+  formIndex,
+  isBeVerb = false,
+  highlightEnabled = true,
+  isNifalForCurrentVerb = false
+) => {
+  const raw = String(hebrewtext || '');
+  if (!highlightEnabled) return raw;
+
+  const idx = Number(formIndex) || 0;
+  const virtualPos = isBeVerb ? idx + 12 : idx;
+
+  // apply "nifal nun" only for 1..24
+  const applyNifalNun = !!isNifalForCurrentVerb && virtualPos >= 1 && virtualPos <= 24;
+
+  const applyToVerbWord = (text, renderWordFn) => {
+    const parts = String(text || '').split(' ').filter(Boolean);
+    if (parts.length <= 1) return renderWordFn(parts[0] || '');
+    const verb = parts[parts.length - 1];
+    const before = parts.slice(0, -1).join(' ');
+    return (
+      <>
+        {before}
+        {' '}
+        {renderWordFn(verb)}
+      </>
+    );
+  };
+
+  // ✅ Apply NIF'AL nun highlighting to the VERB word itself:
+  // If the first Hebrew letter is נ, paint it, then pass the remaining string to renderFn.
+  const withOptionalNifalNunWord = (word, renderFn) => {
+    const w0 = String(word || '');
+    if (!w0) return renderFn ? renderFn('') : '';
+    if (!applyNifalNun) return renderFn ? renderFn(w0) : w0;
+
+    // strip leading spaces + bidi marks for detection (keep them for output)
+    const cleaned = w0.replace(/^[\s\u200E\u200F\u202A-\u202E\u2066-\u2069]+/, '');
+    const leading = w0.slice(0, w0.length - cleaned.length);
+
+    const mm = cleaned.match(/[א-ת]/);
+    if (!mm || typeof mm.index !== 'number') return renderFn ? renderFn(w0) : w0;
+
+    const i = mm.index;
+    const firstHeb = cleaned[i];
+    if (firstHeb !== 'נ') return renderFn ? renderFn(w0) : w0;
+
+    const before = cleaned.slice(0, i);
+    const rest = cleaned.slice(i + 1);
+
+    return (
+      <>
+        {leading}
+        {!!before && <Text>{before}</Text>}
+        <Text style={styles.prefixYellow}>נ</Text>
+        {renderFn ? renderFn(rest) : rest}
+      </>
+    );
+  };
+
+  // Helper: for NIF'AL present forms that start with נ — paint first נ,
+  // then apply suffix highlighting to the rest (without trying to infer prefix rules).
+  const renderPresentNifalWord = (verbWord) => {
+    const v = String(verbWord || '');
+    if (!v) return '';
+    if (!applyNifalNun) return renderPresentVerbWord(v);
+
+    // only if the FIRST Hebrew letter is נ
+    const vNorm = v.replace(/^[\s\u200E\u200F\u202A-\u202E\u2066-\u2069]+/, '');
+    const firstHeb = (vNorm.match(/[א-ת]/) || [])[0];
+    if (firstHeb !== 'נ') return renderPresentVerbWord(v);
+
+    // find position of that first Hebrew letter
+    const m = vNorm.match(/[א-ת]/);
+    const i = m && typeof m.index === 'number' ? m.index : 0;
+
+    const leading = v.slice(0, v.length - vNorm.length);
+    const before = vNorm.slice(0, i);
+    const afterNun = vNorm.slice(i + 1);
+
+    const PRESENT_SUFFIXES_LOCAL = ['ות', 'ים', 'ה', 'ת'];
+    let suffix = '';
+    for (const suf of PRESENT_SUFFIXES_LOCAL) {
+      if (afterNun.endsWith(suf)) {
+        suffix = suf;
+        break;
+      }
+    }
+    const base = suffix ? afterNun.slice(0, afterNun.length - suffix.length) : afterNun;
+
+    return (
+      <>
+        {leading}
+        {!!before && <Text>{before}</Text>}
+        <Text style={styles.prefixYellow}>נ</Text>
+        {!!base && <Text>{base}</Text>}
+        {!!suffix && <Text style={styles.suffixGreen}>{suffix}</Text>}
+      </>
+    );
+  };
+
+  // 1–12: present — highlight ONLY the 2nd word (the verb)
+  if (!isBeVerb && virtualPos >= 1 && virtualPos <= 12) {
+    const parts = raw.split(' ').filter(Boolean);
+    if (parts.length < 2) return renderPresentNifalWord(parts[0] || '');
+
+    const first = parts[0];
+    const verb = parts[1];
+    const tail = parts.slice(2).join(' ');
+
+    return (
+      <>
+        {first}
+        {' '}
+        {renderPresentNifalWord(verb)}
+        {tail ? ` ${tail}` : ''}
+      </>
+    );
+  }
+
+  // 13–24: past — suffixes + optional leading ה
+  if (virtualPos === 13 || virtualPos === 14)
+    return applyToVerbWord(raw, (w) =>
+      withOptionalNifalNunWord(w, (rest) => renderPastWithHitpaelPrefixAndSuffix(rest, 'תי'))
+    );
+  if (virtualPos === 15 || virtualPos === 16)
+    return applyToVerbWord(raw, (w) =>
+      withOptionalNifalNunWord(w, (rest) => renderPastWithHitpaelPrefixAndSuffix(rest, 'ת'))
+    );
+  if (virtualPos === 17)
+    return applyToVerbWord(raw, (w) =>
+      withOptionalNifalNunWord(w, (rest) => renderPastWithHitpaelPrefixAndSuffix(rest, ''))
+    );
+  if (virtualPos === 18)
+    return applyToVerbWord(raw, (w) =>
+      withOptionalNifalNunWord(w, (rest) => renderPastWithHitpaelPrefixAndSuffix(rest, 'ה'))
+    );
+  if (virtualPos === 19 || virtualPos === 20)
+    return applyToVerbWord(raw, (w) =>
+      withOptionalNifalNunWord(w, (rest) => renderPastWithHitpaelPrefixAndSuffix(rest, 'נו'))
+    );
+  if (virtualPos === 21)
+    return applyToVerbWord(raw, (w) =>
+      withOptionalNifalNunWord(w, (rest) => renderPastWithHitpaelPrefixAndSuffix(rest, 'תם'))
+    );
+  if (virtualPos === 22)
+    return applyToVerbWord(raw, (w) =>
+      withOptionalNifalNunWord(w, (rest) => renderPastWithHitpaelPrefixAndSuffix(rest, 'תן'))
+    );
+  if (virtualPos === 23 || virtualPos === 24)
+    return applyToVerbWord(raw, (w) =>
+      withOptionalNifalNunWord(w, (rest) => renderPastWithHitpaelPrefixAndSuffix(rest, 'ו'))
+    );
+
+  // 25–36: future/imperative/etc
+  if (virtualPos === 25) return renderWithColorRules(raw, { prefix: 'א' });
+  if (virtualPos === 26) return renderWithColorRules(raw, { prefix: 'א' });
+  if (virtualPos === 27) return renderWithColorRules(raw, { prefix: 'ת' });
+  if (virtualPos === 28) return renderWithColorRules(raw, { prefix: 'ת', suffix: 'י' });
+  if (virtualPos === 29) return renderWithColorRules(raw, { prefix: 'י' });
+  if (virtualPos === 30) return renderWithColorRules(raw, { prefix: 'ת' });
+  if (virtualPos === 31 || virtualPos === 32) return renderWithColorRules(raw, { prefix: 'נ' });
+  if (virtualPos === 33 || virtualPos === 34) return renderWithColorRules(raw, { prefix: 'ת', suffix: 'ו' });
+  if (virtualPos === 35 || virtualPos === 36) return renderWithColorRules(raw, { prefix: 'י', suffix: 'ו' });
+
+  return raw;
+};
+
+// Typewriter that keeps the original typing effect, but renders highlighted hebrew
+const TypewriterHebrewHighlightedRTL = ({
+  text,
+  typingSpeed = 50,
+  style,
+  formIndex,
+  isBeVerb,
+  highlightEnabled = true,
+  isNifalForCurrentVerb = false,
+}) => {
+  const [displayedText, setDisplayedText] = useState('');
+  const intervalRef = useRef(null);
+
+  useEffect(() => {
+    const full = String(text || '');
+    let i = 0;
+
+    setDisplayedText('');
+    if (intervalRef.current) clearInterval(intervalRef.current);
+
+    intervalRef.current = setInterval(() => {
+      i += 1;
+      setDisplayedText(full.slice(0, i));
+      if (i >= full.length) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
+      }
+    }, Math.max(10, Number(typingSpeed) || 50));
+
+    return () => {
+      if (intervalRef.current) clearInterval(intervalRef.current);
+      intervalRef.current = null;
+    };
+  }, [text, typingSpeed]);
+
+  return (
+    <Text style={style}>
+      {renderHebrewText(displayedText, formIndex, isBeVerb, highlightEnabled, isNifalForCurrentVerb)}
+    </Text>
+  );
+};
+
+/* =============================================================== */
+
 
 const Exercise8Ar = () => {
   const [verbs, setVerbs] = useState([]);
@@ -30,6 +362,21 @@ const Exercise8Ar = () => {
   const [incorrectCount, setIncorrectCount] = useState(0);
   const [exitConfirmationVisible, setExitConfirmationVisible] = useState(false);
   const [soundEnabled, setSoundEnabled] = useState(true);
+
+// translit button: 3 states
+// 0: translit ON + highlight ON (translit1.png)
+// 1: translit OFF + highlight ON (translit2.png)
+// 2: translit OFF + highlight OFF (translit3.png)
+const TRANSLIT_ROW_H = 36;
+const [translitMode, setTranslitMode] = useState(0);
+const showTranslit = translitMode === 0;
+const highlightEnabled = translitMode !== 2;
+
+const handleTranslitToggle = () => {
+  setTranslitMode((m) => (m + 1) % 3);
+};
+
+
   // const [isDescriptionModalVisible, setIsDescriptionModalVisible] = useState(false);
   const [statistics, setStatistics] = useState(null);
   const [isStatModalVisible, setIsStatModalVisible] = useState(false);
@@ -156,6 +503,58 @@ useEffect(() => {
 
   const [mainVerb, setMainVerb] = useState(null);
   
+  
+const getBinyanFromV1 = useCallback((currentV6) => {
+  try {
+    const inf = String(currentV6?.infinitive || currentV6?.hebrewVerb || currentV6?.hebrewverb || '').trim();
+    const heb = String(currentV6?.hebrewVerb || currentV6?.hebrewverb || currentV6?.infinitive || '').trim();
+    const key = normHeb(inf || heb);
+
+    if (!key) return '';
+
+    const candidates = (verbs1Data || []).filter((x) => {
+      const xKey = normHeb(String(x?.hebrewVerb || x?.infinitive || '').trim());
+      return xKey && xKey === key;
+    });
+
+    if (!candidates.length) return String(currentV6?.binyan || '');
+
+    // 1) try exact meaning match (Arabic option at correct index)
+    const meaningAr = normKey(
+      currentV6?.arabic ||
+        currentV6?.artext ||
+        currentV6?.arText ||
+        currentV6?.ar ||
+        ''
+    );
+
+    for (const c of candidates) {
+      const idx = Number(c?.correctTranslationIndex);
+      const opt = normKey(
+        (Array.isArray(c?.translationOptionsAr) ? c.translationOptionsAr[idx] : '') ||
+          (Array.isArray(c?.translationOptionsAR) ? c.translationOptionsAR[idx] : '') ||
+          (Array.isArray(c?.translationOptionsArabic) ? c.translationOptionsArabic[idx] : '') ||
+          (Array.isArray(c?.translationOptions) ? c.translationOptions[idx] : '')
+      );
+
+      if (opt && meaningAr && opt === meaningAr) return String(c?.binyan || '');
+    }
+
+    // 2) meaning mismatch fallback: if any candidate is NIF'AL — return it
+    const nifalCandidate = candidates.find((c) => isNifalFromBinyan(c?.binyan));
+    if (nifalCandidate?.binyan) return String(nifalCandidate.binyan || '');
+
+    // 3) otherwise — first candidate
+    return String(candidates[0]?.binyan || currentV6?.binyan || '');
+  } catch (e) {
+    return String(currentV6?.binyan || '');
+  }
+}, []);
+
+const isNifalForCurrentVerb = isNifalFromBinyan(
+  getBinyanFromV1(mainVerb || verbs?.[currentIndex])
+);
+
   const [verbListForModal, setVerbListForModal] = useState([]);
   const [isVerbListVisible, setIsVerbListVisible] = useState(true); // модалка в начале
   
@@ -263,7 +662,10 @@ useEffect(() => {
   const initializeExercise = (selectedVerb) => {
     let selectedVerbs;
     if (selectedVerb) {
-      selectedVerbs = shuffleArray(verbsData.filter(verb => verb.infinitive === selectedVerb.infinitive));
+      const base = verbsData
+        .filter(verb => verb.infinitive === selectedVerb.infinitive)
+        .map((v, i) => ({ ...v, hebrewFormIndex: i + 1 })); // ✅ индекс ДО shuffle
+      selectedVerbs = shuffleArray(base);
     } else {
       if (verbsData && verbsData.length > 0) {
         const groupedByInfinitive = verbsData.reduce((acc, verb) => {
@@ -277,7 +679,10 @@ useEffect(() => {
   
         const infinitives = Object.keys(groupedByInfinitive);
         const randomInfinitive = infinitives[Math.floor(Math.random() * infinitives.length)];
-        selectedVerbs = shuffleArray(groupedByInfinitive[randomInfinitive]);
+        const base = (groupedByInfinitive[randomInfinitive] || [])
+        .map((v, i) => ({ ...v, hebrewFormIndex: i + 1 })); // ✅ индекс ДО shuffle
+
+      selectedVerbs = shuffleArray(base);
       }
     }
   
@@ -906,6 +1311,19 @@ const [currentVerb, setCurrentVerb] = useState({
               style={[styles.buttonImage, { opacity: fadeAnim }]}
             />
           </TouchableOpacity>
+
+<TouchableOpacity onPress={handleTranslitToggle}>
+  <Animated.Image
+    source={
+      translitMode === 0
+        ? require('./translit1.png')
+        : translitMode === 1
+        ? require('./translit2.png')
+        : require('./translit3.png')
+    }
+    style={[styles.buttonImage, { opacity: fadeAnim }]}
+  />
+</TouchableOpacity>
           {/* <TouchableOpacity onPress={handleButton3Press}>
             <Animated.Image source={require('./stat.png')} style={[styles.buttonImage, { opacity: fadeAnim }]} />
             <StatModal8Ar visible={isStatModalVisible} onToggle={() => setIsStatModalVisible(false)} statistics={statistics} />
@@ -978,9 +1396,26 @@ const [currentVerb, setCurrentVerb] = useState({
                 onAnimationFinish={() => setIsAnimationVisible(false)}
               />
             )}
-            <TypewriterTextRTL text={verbs[currentIndex].hebrewtext} typingSpeed={50} style={styles.hebrewText}maxFontSizeMultiplier={1.2} />
-            <TypewriterTextLTR text={verbs[currentIndex].translit} typingSpeed={40} style={styles.translitText}maxFontSizeMultiplier={1.2} />
-            <TouchableOpacity onPress={playCurrentAudio} style={styles.audioButton}>
+            <TypewriterHebrewHighlightedRTL
+              text={verbs[currentIndex].hebrewtext}
+              typingSpeed={50}
+              style={[styles.hebrewText, !showTranslit && { transform: [{ translateY: 14 }], textAlign: 'center', alignSelf: 'center' }]}
+              formIndex={verbs[currentIndex].hebrewFormIndex}
+              highlightEnabled={highlightEnabled}
+              isNifalForCurrentVerb={isNifalForCurrentVerb}
+              isBeVerb={String(mainVerb?.infinitive || '') === 'להיות'}
+              maxFontSizeMultiplier={1.2}
+            />
+
+            <View style={styles.translitRow}>
+              <Text
+                style={[styles.translitText, !showTranslit && styles.hiddenRow]}
+                maxFontSizeMultiplier={1.2}
+              >
+                {verbs[currentIndex].translit || ''}
+              </Text>
+            </View>
+<TouchableOpacity onPress={playCurrentAudio} style={styles.audioButton}>
               <Image source={require('./speaker3.png')} style={styles.audioIcon} />
             </TouchableOpacity>
           </View>
@@ -1265,27 +1700,40 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginVertical: 10,
   },
-  hebrewCard: {
-    backgroundColor: '#FFFDEF',
-    borderRadius: 10,
-    padding: 20,
-    width: '100%',
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
+ hebrewCard: {
+  backgroundColor: '#FFFDEF',
+  borderRadius: 10,
+  padding: 20,
+  width: '100%',
+  alignItems: 'center',
+  shadowColor: '#000',
+  shadowOffset: {
+    width: 0,
+    height: 2,
   },
-  hebrewText: {
+  shadowOpacity: 0.25,
+  shadowRadius: 3.84,
+  elevation: 5,
+},
+
+ hebrewText: {
     fontSize: 36,
     fontWeight: 'bold',
     color: '#152039',
     textAlign: 'center',
   },
+
+  translitRow: {
+    minHeight: 28,
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: '100%',
+  },
+
+  hiddenRow: {
+    opacity: 0,
+  },
+
   translitText: {
     fontSize: 20,
     color: '#FF5757',
@@ -1430,6 +1878,15 @@ const styles = StyleSheet.create({
     width: 32,
     height: 32,
   },
+  // подсветка частей слова (иврит)
+  prefixYellow: {
+    color: '#00a2ffff',
+    fontWeight: 'bold',
+  },
+  suffixGreen: {
+    color: '#ff3ab3ff',
+    fontWeight: 'bold',
+  },
 });
 
-export default Exercise8Ar;
+export default Exercise8Ar; 

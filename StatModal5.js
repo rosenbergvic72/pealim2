@@ -87,7 +87,7 @@ const StatModal5 = ({ visible, onToggle }) => {
               </Text>
             </View>
 
-            <Text style={styles.modalText}maxFontSizeMultiplier={1.2}>СТАТИСТИКА УПРАЖНЕНИЯ 5</Text>
+            <Text style={styles.modalText}maxFontSizeMultiplier={1.2}>СТАТИСТИКА УПРАЖНЕНИЯ 4</Text>
             {stats ? (
               <View style={styles.statsContainer}>
                 <View style={styles.row}>

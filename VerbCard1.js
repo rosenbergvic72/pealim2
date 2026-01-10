@@ -6,7 +6,16 @@ import sounds from './Soundss';
 import TypewriterTextRTL from './TypewriterTextRTL';
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 
-const VerbCard1 = ({ verbData, onAnswer, soundEnabled }) => {
+const VerbCard1 = ({
+  verbData,
+  soundEnabled,
+
+  isExcluded = false,
+  isPinned = false,
+  onExcludePress,
+  onPinTogglePress,
+  onOpenManageModal,
+}) => {
   const soundRef = useRef(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const animationRef = useRef(null);
@@ -21,7 +30,7 @@ const VerbCard1 = ({ verbData, onAnswer, soundEnabled }) => {
 
   const playAudio = async (audioFileName) => {
     try {
-      const fileNameKey = audioFileName.replace('.mp3', '');
+      const fileNameKey = String(audioFileName || '').replace('.mp3', '');
       const audioFile = sounds[fileNameKey];
 
       if (!audioFile) {
@@ -39,9 +48,7 @@ const VerbCard1 = ({ verbData, onAnswer, soundEnabled }) => {
       setIsPlaying(true);
       await sound.playAsync();
 
-      setTimeout(() => {
-        setIsPlaying(false);
-      }, 1000);
+      setTimeout(() => setIsPlaying(false), 1000);
     } catch (error) {
       console.error('Error loading sound', error);
     }
@@ -51,6 +58,7 @@ const VerbCard1 = ({ verbData, onAnswer, soundEnabled }) => {
     if (verbData && verbData.audioFile && soundEnabled) {
       playAudio(verbData.audioFile);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [verbData, soundEnabled]);
 
   const opacity1 = useRef(new Animated.Value(0)).current;
@@ -71,25 +79,20 @@ const VerbCard1 = ({ verbData, onAnswer, soundEnabled }) => {
     setTimeout(() => Animated.timing(opacity3, { toValue: 1, duration: 500, useNativeDriver: true }).start(), 200);
     setTimeout(() => {
       Animated.timing(opacity4, { toValue: 1, duration: 500, useNativeDriver: true }).start();
-      setTimeout(() => {
-        setShadowEnabled(true);
-      }, 500);
+      setTimeout(() => setShadowEnabled(true), 500);
     }, 300);
-  }, [verbData]);
+  }, [verbData, opacity1, opacity2, opacity3, opacity4]);
 
-  // Следим за isPlaying, чтобы запускать/останавливать Lottie (как в EN-версии)
   useEffect(() => {
-    if (isPlaying) {
-      animationRef.current?.play?.();
-    } else {
-      animationRef.current?.reset?.();
-    }
+    if (isPlaying) animationRef.current?.play?.();
+    else animationRef.current?.reset?.();
   }, [isPlaying]);
+
+  if (!verbData) return null;
 
   return (
     <Animated.View style={[styles.cardContainer, shadowEnabled && styles.cardShadow]}>
-      <View style={styles.hebrewVerbContainer}>
-        {/* 🔹 Здесь теперь Lottie, а не картинка-спикер */}
+      <View style={styles.hebrewVerbContainer} pointerEvents="box-none">
         {isPlaying && (
           <LottieView
             ref={animationRef}
@@ -97,6 +100,7 @@ const VerbCard1 = ({ verbData, onAnswer, soundEnabled }) => {
             autoPlay
             loop={false}
             style={styles.lottieAnimation}
+            pointerEvents="none"
           />
         )}
 
@@ -119,14 +123,57 @@ const VerbCard1 = ({ verbData, onAnswer, soundEnabled }) => {
           {`Биньян: ${verbData.binyan}`}
         </Animated.Text>
 
-        {/* Спикер — только внизу справа, как и было */}
-        <TouchableOpacity onPress={() => playAudio(verbData.audioFile)} style={styles.audioButton}>
+        {/* ✅ КНОПКИ столбиком */}
+        <View style={styles.sideButtonsColumn} pointerEvents="box-none">
+          <TouchableOpacity
+            onPress={onExcludePress}
+            style={styles.smallIconBtn}
+            activeOpacity={0.75}
+            hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
+          >
+            <Image
+              source={isExcluded ? require('./glaz2.png') : require('./glaz1.png')}
+              style={styles.smallIcon}
+            />
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            onPress={onPinTogglePress}
+            style={styles.smallIconBtn}
+            activeOpacity={0.75}
+            hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
+          >
+            <Image
+              source={isPinned ? require('./gant2.png') : require('./gant1.png')}
+              style={styles.smallIcon}
+            />
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            onPress={onOpenManageModal}
+            style={styles.smallIconBtn}
+            activeOpacity={0.75}
+            hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
+          >
+            <Image source={require('./spisok.png')} style={styles.smallIcon} />
+          </TouchableOpacity>
+        </View>
+
+        {/* Спикер */}
+        <TouchableOpacity
+          onPress={() => playAudio(verbData.audioFile)}
+          style={styles.audioButton}
+          activeOpacity={0.75}
+          hitSlop={{ top: 14, bottom: 14, left: 14, right: 14 }}
+        >
           <Image source={require('./speaker3.png')} style={styles.audioIcon} />
         </TouchableOpacity>
       </View>
     </Animated.View>
   );
 };
+
+export default VerbCard1;
 
 const styles = StyleSheet.create({
   cardContainer: {
@@ -138,10 +185,7 @@ const styles = StyleSheet.create({
   },
   cardShadow: {
     shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: hp('0.25%'),
-    },
+    shadowOffset: { width: 0, height: hp('0.25%') },
     shadowOpacity: 0.25,
     shadowRadius: wp('2%'),
     elevation: 5,
@@ -149,7 +193,11 @@ const styles = StyleSheet.create({
   hebrewVerbContainer: {
     alignItems: 'center',
     position: 'relative',
+    paddingTop: 6,
+    minHeight: 170, // немного больше, чтобы крупные кнопки не давили контент
+    zIndex: 1,
   },
+
   lottieAnimation: {
     position: 'absolute',
     top: 0,
@@ -158,13 +206,14 @@ const styles = StyleSheet.create({
     height: 32,
   },
   hebrewVerb: {
-    fontSize: 30,
+    fontSize: 32,
     fontWeight: 'bold',
     color: '#333652',
     borderRadius: wp('5%'),
     paddingLeft: wp('2.5%'),
     paddingRight: wp('2.5%'),
     textAlign: 'center',
+    marginTop: 6,
   },
   translit: {
     fontSize: 18,
@@ -192,17 +241,47 @@ const styles = StyleSheet.create({
     paddingRight: wp('2.5%'),
     marginBottom: hp('2%'),
   },
+
+  // 🔊 спикер
   audioButton: {
-    marginTop: hp('2%'),
     position: 'absolute',
-    right: wp('1.25%'),
-    bottom: wp('1.25%'),
+    right: wp('1.7%'),
+    bottom: wp('0.9%'),
+    zIndex: 50,
+    elevation: 50,
   },
   audioIcon: {
-    width: wp('8%'),
-    height: wp('8%'),
+    width: wp('6.5%'),   // ✅ чуть больше
+    height: wp('6.5%'),
     borderRadius: wp('2.5%'),
   },
-});
 
-export default VerbCard1;
+  // ✅ колонка кнопок над спикером
+  sideButtonsColumn: {
+    position: 'absolute',
+    right: wp('1.25%'),
+    bottom: wp('1.25%') + wp('9.5%') + 5, // ✅ учитываем увеличенный спикер
+    alignItems: 'center',
+    gap: 8, // ✅ больше расстояние
+
+    zIndex: 60,
+    elevation: 60,
+  },
+
+  // ✅ убрали фон полностью и увеличили “зону нажатия”
+  smallIconBtn: {
+    width: wp('8.5%'),
+    height: wp('8.5%'),
+    // borderRadius: wp('3%'),
+    backgroundColor: 'transparent', // ✅ фон убран
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+
+  // ✅ иконки крупнее
+  smallIcon: {
+    width: '100%',
+    height: '100%',
+    resizeMode: 'contain',
+  },
+});

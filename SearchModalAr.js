@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useMemo, useState, useCallback } from 'react';
 import {
   Modal,
   View,
@@ -9,47 +9,184 @@ import {
   ScrollView,
   Keyboard,
 } from 'react-native';
-import verbsData from './verbs6RU.json';
+
+import verbsData6 from './verbs6RU.json';
+import verbsData1 from './verbs1.json';
 
 const SearchModalAr = ({ visible, onToggle, onSelectVerb }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState([]);
+  const [didSearch, setDidSearch] = useState(false);
+
+  /* =========================
+     Helpers
+  ========================= */
+
+  const normalizeHebrew = useCallback((s) => {
+    if (!s) return '';
+    return String(s)
+      .trim()
+      .replace(/\s+/g, '')
+      .replace(/־/g, '')
+      .toLowerCase();
+  }, []);
+
+  const normalizeBinyan = useCallback((b) => {
+    const s = (b || '—').trim();
+    return s.length ? s : '—';
+  }, []);
+
+  // ✅ ЯВНО: арабский инфинитив (короткий перевод) из verbs6RU
+  const getArabicInf = useCallback((row) => {
+    // добавь сюда реальные ключи, если у тебя отличаются
+    const val =
+      row?.arabic ??
+      row?.ar ??
+      row?.verbArabic ??
+      row?.arabicInfinitive ??
+      row?.arabicShort ??
+      row?.arShort ??
+      '';
+    return String(val || '').trim();
+  }, []);
+
+  // ✅ ЯВНО: арабская фраза/пример из verbs6RU
+  const getArabicText = useCallback((row) => {
+    const val =
+      row?.artext ??
+      row?.arText ??
+      row?.arabictext ??
+      row?.arabicText ??
+      '';
+    return String(val || '').trim();
+  }, []);
+
+  /* =========================
+     Build binyan index from verbs1.json
+  ========================= */
+
+  const binyanByInfinitiveHebrew = useMemo(() => {
+    const map = new Map();
+    for (const v of verbsData1 || []) {
+      const key = normalizeHebrew(v?.hebrewVerb);
+      if (!key) continue;
+      if (!map.has(key)) map.set(key, normalizeBinyan(v?.binyan));
+    }
+    return map;
+  }, [normalizeHebrew, normalizeBinyan]);
+
+  /* =========================
+     Unique verbs list from verbs6RU
+  ========================= */
+
+  const allVerbsList = useMemo(() => {
+    const groups = new Map();
+
+    for (const row of verbsData6 || []) {
+      const hebInf = row?.infinitive;
+      const key = normalizeHebrew(hebInf);
+      if (!key) continue;
+
+      if (!groups.has(key)) {
+        groups.set(key, {
+          infinitiveHebrew: hebInf,
+          arabicInfinitive: getArabicInf(row) || '—',
+          sampleRow: row,
+        });
+      }
+    }
+
+    const list = Array.from(groups.values()).map((item) => ({
+      ...item,
+      binyan:
+        binyanByInfinitiveHebrew.get(normalizeHebrew(item.infinitiveHebrew)) ||
+        '—',
+    }));
+
+    list.sort((a, b) => {
+      const bin = String(a.binyan).localeCompare(String(b.binyan), 'en');
+      if (bin !== 0) return bin;
+      return String(a.infinitiveHebrew).localeCompare(String(b.infinitiveHebrew), 'he');
+    });
+
+    return list;
+  }, [normalizeHebrew, getArabicInf, binyanByInfinitiveHebrew]);
+
+  /* =========================
+     Binyan background styles
+  ========================= */
+
+  const getBinyanRowStyle = useCallback(
+    (binyan) => {
+      const b = normalizeBinyan(binyan).toUpperCase();
+
+      if (b.includes("PA'AL") || b.includes('PAAL')) return styles.rowPaal;
+      if (b.includes("PI'EL") || b.includes('PIEL')) return styles.rowPiel;
+      if (b.includes("HIF'IL") || b.includes('HIFIL')) return styles.rowHifil;
+      if (b.includes("HITPA'EL") || b.includes('HITPAEL')) return styles.rowHitpael;
+      if (b.includes("NIF'AL") || b.includes('NIFAL')) return styles.rowNifal;
+      if (b.includes("HUF'AL") || b.includes('HUFAL')) return styles.rowHufal;
+      if (b.includes("PU'AL") || b.includes('PUAL')) return styles.rowPual;
+
+      return styles.rowDefault;
+    },
+    [normalizeBinyan]
+  );
+
+  /* =========================
+     Lifecycle
+  ========================= */
 
   useEffect(() => {
     if (visible) {
-      setSearchQuery('');      // очищаем строку поиска при открытии
-      setSearchResults([]);    // очищаем результаты
+      setSearchQuery('');
+      setSearchResults([]);
+      setDidSearch(false);
     }
   }, [visible]);
 
-  const handleSearch = () => {
+  /* =========================
+     Search (ONLY arabic keys + hebrew/translit)
+  ========================= */
+
+  const handleSearch = useCallback(() => {
     const trimmed = searchQuery.trim();
+    setDidSearch(true);
+
     if (trimmed.length < 3) {
       setSearchResults([]);
       return;
     }
 
-    const lowerCaseQuery = trimmed.toLowerCase();
-    const results = verbsData.filter((verb) =>
-      verb.infinitive.toLowerCase().includes(lowerCaseQuery) ||
-      verb.arabic.toLowerCase().includes(lowerCaseQuery) ||
-      verb.artext.toLowerCase().includes(lowerCaseQuery) ||
-      verb.translit.toLowerCase().includes(lowerCaseQuery) ||
-      verb.transliteration.toLowerCase().includes(lowerCaseQuery) ||
-      verb.hebrewtext.toLowerCase().includes(lowerCaseQuery)
-    );
+    const q = trimmed.toLowerCase();
+
+    const results = (verbsData6 || []).filter((v) => {
+      const hebInf = (v?.infinitive || '').toLowerCase();
+      const arInf = getArabicInf(v).toLowerCase();
+      const arTxt = getArabicText(v).toLowerCase();
+      const tr1 = (v?.translit || '').toLowerCase();
+      const tr2 = (v?.transliteration || '').toLowerCase();
+      const hebTxt = (v?.hebrewtext || '').toLowerCase();
+
+      return (
+        hebInf.includes(q) ||
+        arInf.includes(q) ||
+        arTxt.includes(q) ||
+        tr1.includes(q) ||
+        tr2.includes(q) ||
+        hebTxt.includes(q)
+      );
+    });
+
     setSearchResults(results);
-  };
+  }, [searchQuery, getArabicInf, getArabicText]);
 
   const handleInputChange = (text) => {
     setSearchQuery(text);
     if (text === '') {
       setSearchResults([]);
+      setDidSearch(false);
     }
-  };
-
-  const handleResultPress = (result) => {
-    onSelectVerb(result); // вызывает handleSelectVerb
   };
 
   const handleSearchPress = () => {
@@ -58,29 +195,33 @@ const SearchModalAr = ({ visible, onToggle, onSelectVerb }) => {
   };
 
   const handleBlur = () => {
-    if (searchQuery.trim().length >= 3) {
-      handleSearch();
-    }
+    if (searchQuery.trim().length >= 3) handleSearch();
   };
 
   const isSearchEnabled = searchQuery.trim().length >= 3;
 
+  /* =========================
+     Select actions
+  ========================= */
+
+  const handleSearchResultPress = (row) => onSelectVerb(row);
+  const handleTableVerbPress = (item) => onSelectVerb(item.sampleRow);
+
+  /* =========================
+     UI
+  ========================= */
+
   return (
-    <Modal
-      animationType="slide"
-      transparent={true}
-      visible={visible}
-      onRequestClose={onToggle}
-    >
+    <Modal animationType="slide" transparent visible={visible} onRequestClose={onToggle}>
       <View style={styles.centeredView}>
         <View style={styles.modalView}>
           <Text style={styles.modalText} maxFontSizeMultiplier={1.2}>
-            البحث حسب التمرين
+            البحث في الأفعال
           </Text>
 
           <TextInput
             style={styles.input}
-            placeholder="أدخل كلمة للبحث"
+            placeholder="أدخل كلمة للبحث (3 أحرف على الأقل)"
             onChangeText={handleInputChange}
             value={searchQuery}
             onBlur={handleBlur}
@@ -93,77 +234,111 @@ const SearchModalAr = ({ visible, onToggle, onSelectVerb }) => {
             disabled={!isSearchEnabled}
           >
             <Text style={styles.buttonText} maxFontSizeMultiplier={1.2}>
-              يبحث
+              بحث
             </Text>
           </TouchableOpacity>
 
           <ScrollView
             style={styles.resultsScroll}
             contentContainerStyle={styles.resultsContent}
+            keyboardShouldPersistTaps="handled"
           >
-            {searchResults.length > 0 && (
-              <Text style={styles.hintText} maxFontSizeMultiplier={1.2}>
-                انقر للتصريف
-              </Text>
+            {/* Search results (only after search) */}
+            {didSearch && (
+              <>
+                <Text style={styles.sectionTitle} maxFontSizeMultiplier={1.2}>
+                  نتائج البحث
+                </Text>
+
+                {searchResults.length === 0 ? (
+                  <Text style={styles.emptyText} maxFontSizeMultiplier={1.2}>
+                    لم يتم العثور على شيء.
+                  </Text>
+                ) : (
+                  <>
+                    <Text style={styles.hintText} maxFontSizeMultiplier={1.2}>
+                      انقر لفتح التصريف
+                    </Text>
+
+                    {searchResults.map((r, i) => (
+                      <TouchableOpacity
+                        key={i}
+                        style={styles.resultContainer}
+                        onPress={() => handleSearchResultPress(r)}
+                        activeOpacity={0.85}
+                      >
+                        <Text style={[styles.resultTextBase, styles.infinitiveText]} maxFontSizeMultiplier={1.2}>
+                          {r.infinitive}
+                        </Text>
+
+                        <Text style={[styles.resultTextBase, styles.arabicShortText]} maxFontSizeMultiplier={1.2}>
+                          {getArabicInf(r) || '—'}
+                        </Text>
+
+                        <Text style={[styles.resultTextBase, styles.translitMainText]} maxFontSizeMultiplier={1.2}>
+                          {r.transliteration}
+                        </Text>
+
+                        <Text style={[styles.resultTextBase, styles.resultTextHebrew]} maxFontSizeMultiplier={1.2}>
+                          {r.hebrewtext}
+                        </Text>
+
+                        <Text style={[styles.resultTextBase, styles.arabicPhraseText]} maxFontSizeMultiplier={1.2}>
+                          {getArabicText(r) || '—'}
+                        </Text>
+
+                        <Text style={[styles.resultTextBase, styles.translitAltText]} maxFontSizeMultiplier={1.2}>
+                          {r.translit}
+                        </Text>
+                      </TouchableOpacity>
+                    ))}
+                  </>
+                )}
+
+                <View style={styles.divider} />
+              </>
             )}
 
-            {searchResults.map((result, index) => (
+            {/* Verbs list (table style) */}
+            <Text style={styles.sectionTitle} maxFontSizeMultiplier={1.2}>
+              اختر فعلًا للتدريب
+            </Text>
+
+            {/* <View style={styles.tableHeader}>
+              <Text style={[styles.tableCell, styles.colHebHeader]} maxFontSizeMultiplier={1.2}>
+                المصدر (بالعبرية)
+              </Text>
+              <Text style={[styles.tableCell, styles.colBinyanHeader]} maxFontSizeMultiplier={1.2}>
+                البِنْيان
+              </Text>
+              <Text style={[styles.tableCell, styles.colArHeader]} maxFontSizeMultiplier={1.2}>
+                العربية
+              </Text>
+            </View> */}
+
+            {allVerbsList.map((item, idx) => (
               <TouchableOpacity
-                key={index}
-                style={styles.resultContainer}
-                onPress={() => handleResultPress(result)}
+                key={`${item.infinitiveHebrew}_${idx}`}
+                style={[styles.tableRow, getBinyanRowStyle(item.binyan)]}
+                onPress={() => handleTableVerbPress(item)}
+                activeOpacity={0.85}
               >
-                {/* верхний блок — инфинитив + арабский перевод + основная транслит */}
-                <Text
-                  style={[styles.resultTextBase, styles.infinitiveText]}
-                  maxFontSizeMultiplier={1.2}
-                >
-                  {result.infinitive}
+                <Text style={[styles.tableCell, styles.colHeb]} maxFontSizeMultiplier={1.2}>
+                  {item.infinitiveHebrew}
                 </Text>
 
-                <Text
-                  style={[styles.resultTextBase, styles.arabicShortText]}
-                  maxFontSizeMultiplier={1.2}
-                >
-                  {result.arabic}
+                <Text style={[styles.tableCell, styles.colBinyan]} maxFontSizeMultiplier={1.2}>
+                  {item.binyan}
                 </Text>
 
-                <Text
-                  style={[styles.resultTextBase, styles.translitMainText]}
-                  maxFontSizeMultiplier={1.2}
-                >
-                  {result.transliteration}
-                </Text>
-
-                {/* нижний блок — 3 строки, выровнены вправо и с другими цветами */}
-                <Text
-                  style={[styles.resultTextBase, styles.resultTextHebrew]}
-                  maxFontSizeMultiplier={1.2}
-                >
-                  {result.hebrewtext}
-                </Text>
-
-                <Text
-                  style={[styles.resultTextBase, styles.arabicPhraseText]}
-                  maxFontSizeMultiplier={1.2}
-                >
-                  {result.artext}
-                </Text>
-
-                <Text
-                  style={[styles.resultTextBase, styles.translitAltText]}
-                  maxFontSizeMultiplier={1.2}
-                >
-                  {result.translit}
+                <Text style={[styles.tableCell, styles.colAr]} maxFontSizeMultiplier={1.2}>
+                  {item.arabicInfinitive}
                 </Text>
               </TouchableOpacity>
             ))}
           </ScrollView>
 
-          <TouchableOpacity
-            style={styles.closeButton}
-            onPress={onToggle}
-          >
+          <TouchableOpacity style={styles.closeButton} onPress={onToggle}>
             <Text style={styles.closeButtonText} maxFontSizeMultiplier={1.2}>
               إغلاق
             </Text>
@@ -173,6 +348,12 @@ const SearchModalAr = ({ visible, onToggle, onSelectVerb }) => {
     </Modal>
   );
 };
+
+/* =========================
+   Styles
+========================= */
+
+const TABLE_FONT = 12;
 
 const styles = StyleSheet.create({
   centeredView: {
@@ -202,6 +383,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: '#2B3270',
   },
+
   input: {
     width: '100%',
     height: 40,
@@ -210,10 +392,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     paddingVertical: 0,
     borderRadius: 10,
-    marginBottom: 12,
+    marginBottom: 10,
     backgroundColor: '#FFFFFF',
     textAlignVertical: 'center',
   },
+
   button: {
     backgroundColor: '#1C3F60',
     borderRadius: 10,
@@ -222,23 +405,27 @@ const styles = StyleSheet.create({
     width: '100%',
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 12,
+    marginBottom: 10,
   },
-  buttonDisabled: {
-    backgroundColor: '#9CA9B5',
-  },
-  buttonText: {
-    color: 'white',
-    fontSize: 16,
+  buttonDisabled: { backgroundColor: '#9CA9B5' },
+  buttonText: { color: 'white', fontSize: 16, fontWeight: 'bold' },
+
+  resultsScroll: { width: '100%', flexGrow: 0 },
+  resultsContent: { paddingBottom: 8 },
+
+  sectionTitle: {
+    fontSize: 14,
     fontWeight: 'bold',
+    color: '#2B3270',
+    textAlign: 'center',
+    marginBottom: 8,
   },
 
-  resultsScroll: {
+  divider: {
+    height: 1,
+    backgroundColor: '#C3D1E0',
+    marginVertical: 10,
     width: '100%',
-    flexGrow: 0,
-  },
-  resultsContent: {
-    paddingBottom: 8,
   },
 
   hintText: {
@@ -246,6 +433,11 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#2B3270',
     textAlign: 'center',
+    marginBottom: 6,
+  },
+  emptyText: {
+    textAlign: 'center',
+    color: '#6B7280',
     marginBottom: 6,
   },
 
@@ -260,15 +452,12 @@ const styles = StyleSheet.create({
     backgroundColor: '#E4ECF5',
     marginBottom: 6,
   },
-
-  // базовый стиль для всех строк
   resultTextBase: {
     fontSize: 14,
     color: '#333',
     marginBottom: 1,
   },
 
-  // верхние 3 строки
   infinitiveText: {
     fontSize: 16,
     fontWeight: 'bold',
@@ -277,13 +466,13 @@ const styles = StyleSheet.create({
   arabicShortText: {
     fontWeight: '600',
     color: '#1C3F60',
+    textAlign: 'right',
   },
   translitMainText: {
     fontStyle: 'italic',
     color: '#FF5733',
   },
 
-  // нижние 3 строки — вправо и другие цвета
   resultTextHebrew: {
     fontSize: 16,
     fontWeight: 'bold',
@@ -302,6 +491,81 @@ const styles = StyleSheet.create({
     color: '#B23A48',
     textAlign: 'right',
   },
+
+  tableHeader: {
+    width: '100%',
+    flexDirection: 'row',
+    backgroundColor: '#DDE6F0',
+    borderRadius: 10,
+    paddingVertical: 8,
+    paddingHorizontal: 10,
+    borderWidth: 1,
+    borderColor: '#C3D1E0',
+    marginBottom: 6,
+  },
+
+  tableRow: {
+    width: '100%',
+    flexDirection: 'row',
+    borderRadius: 10,
+    paddingVertical: 8,
+    paddingHorizontal: 10,
+    borderWidth: 1,
+    borderColor: '#C3D1E0',
+    marginBottom: 6,
+    alignItems: 'center',
+  },
+
+  tableCell: {
+    fontSize: TABLE_FONT,
+    color: '#1C3F60',
+  },
+
+  colHebHeader: {
+    flex: 1.1,
+    fontWeight: 'bold',
+    textAlign: 'right',
+    writingDirection: 'rtl',
+  },
+  colBinyanHeader: {
+    flex: 0.8,
+    fontWeight: 'bold',
+    textAlign: 'center',
+  },
+  colArHeader: {
+    flex: 1.1,
+    fontWeight: 'bold',
+    textAlign: 'right',
+  },
+
+  colHeb: {
+    flex: 1.1,
+    fontWeight: 'bold',
+    textAlign: 'right',
+    writingDirection: 'rtl',
+    color: '#1D3557',
+  },
+  colBinyan: {
+    flex: 0.8,
+    textAlign: 'center',
+    color: '#0B7285',
+    fontWeight: '800',
+  },
+  colAr: {
+    flex: 1.1,
+    textAlign: 'right',
+    color: '#1C3F60',
+    fontWeight: '700',
+  },
+
+  rowDefault: { backgroundColor: '#E4ECF5' },
+  rowPaal: { backgroundColor: '#E9F7EF' },
+  rowPiel: { backgroundColor: '#FEF5E7' },
+  rowHifil: { backgroundColor: '#EAF2F8' },
+  rowHitpael: { backgroundColor: '#F5EEF8' },
+  rowNifal: { backgroundColor: '#FDEDEC' },
+  rowHufal: { backgroundColor: '#F4F6F7' },
+  rowPual: { backgroundColor: '#FFF9E6' },
 
   closeButton: {
     backgroundColor: '#1C3F60',

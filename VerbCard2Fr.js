@@ -1,13 +1,65 @@
-// VerbCard2.js
+// VerbCard2Fr.js
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, StyleSheet, TouchableOpacity, Image } from 'react-native';
+import { widthPercentageToDP as wp } from 'react-native-responsive-screen';
 import TypewriterTextLTR from './TypewriterTextLTR';
 
-const VerbCard2Fr = ({ verbData }) => {
+const VerbCard2Fr = ({
+  verbData,
+
+  // ✅ как в EN / RU
+  isExcluded = false,
+  isPinned = false,
+  onExcludePress,
+  onPinTogglePress,
+  onOpenManageModal,
+}) => {
+  if (!verbData) return null;
+
   return (
     <View style={styles.cardContainer}>
-      {/* <Text style={styles.verbText}>{verbData.verbRussian}</Text> */}
-      <TypewriterTextLTR text={verbData.verbFrench} typingSpeed={40} style={styles.verbRussian}maxFontSizeMultiplier={1.2}/>
+      <TypewriterTextLTR
+        text={verbData.verbFrench}
+        typingSpeed={40}
+        style={styles.verbFrench}
+        maxFontSizeMultiplier={1.2}
+      />
+
+      {/* ✅ кнопки справа столбиком */}
+      <View style={styles.sideButtonsColumn} pointerEvents="box-none">
+        <TouchableOpacity
+          onPress={onExcludePress}
+          style={styles.smallIconBtn}
+          activeOpacity={0.75}
+          hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
+        >
+          <Image
+            source={isExcluded ? require('./glaz2.png') : require('./glaz1.png')}
+            style={styles.smallIcon}
+          />
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          onPress={onPinTogglePress}
+          style={styles.smallIconBtn}
+          activeOpacity={0.75}
+          hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
+        >
+          <Image
+            source={isPinned ? require('./gant2.png') : require('./gant1.png')}
+            style={styles.smallIcon}
+          />
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          onPress={onOpenManageModal}
+          style={styles.smallIconBtn}
+          activeOpacity={0.75}
+          hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
+        >
+          <Image source={require('./spisok.png')} style={styles.smallIcon} />
+        </TouchableOpacity>
+      </View>
     </View>
   );
 };
@@ -16,28 +68,49 @@ const styles = StyleSheet.create({
   cardContainer: {
     width: '100%',
     alignItems: 'center',
+    justifyContent: 'center', // ✅ важно, чтобы текст был по центру вертикально
     padding: 5,
-    height: 70,
+    height: 130, // ✅ как в EN/RU
     borderRadius: 10,
     marginBottom: 20,
     backgroundColor: '#D1E3F1',
     marginTop: -20,
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 2
-    },
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
-    elevation: 5
-    // borderColor: 'gray',
-    // borderWidth: 1,
+    elevation: 5,
+
+    position: 'relative',
+    zIndex: 1,
   },
-  verbRussian: {
-    fontSize: 24,
+  verbFrench: {
+    fontSize: 26,
     fontWeight: 'bold',
     color: '#152039',
     textAlign: 'center',
+  },
+
+  sideButtonsColumn: {
+    position: 'absolute',
+    right: wp('1.5%'),
+    top: 6,
+    alignItems: 'center',
+    gap: 7,
+    zIndex: 60,
+    elevation: 60,
+  },
+  smallIconBtn: {
+    width: wp('8.5%'),
+    height: wp('8.5%'),
+    backgroundColor: 'transparent',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  smallIcon: {
+    width: '100%',
+    height: '100%',
+    resizeMode: 'contain',
   },
 });
 

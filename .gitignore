@@ -66,4 +66,7 @@ service-account*.json
 
 # Сервер внутри проекта (если держишь его тут)
 iap-server/
-"@ | Set-Content .gitignore -Encoding UTF8
+
+# allow iap server entrypoint
+!iap-server/
+!iap-server/server.js

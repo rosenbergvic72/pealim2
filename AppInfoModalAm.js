@@ -35,7 +35,7 @@ const AppInfoModal = ({ visible, onToggle , updatedAt, appSize }) => {
               {/* እውቂያዎች */}
               <Text style={styles.sectionTitle}>እውቂያዎች:</Text>
               <Text style={styles.linkText} onPress={() => Linking.openURL('mailto:verbify2025@gmail.com')}>
-                ድጋፍ: verbify2025@gmail.com
+                verbify2025@gmail.com
               </Text>
               <Text style={styles.linkText} onPress={() => Linking.openURL('https://verbifyapp.netlify.app')}>
                 የግላዊነት መመሪያ

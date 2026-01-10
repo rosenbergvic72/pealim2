@@ -1,4 +1,4 @@
-package com.rosenbergvictor72.verbify.ru
+package com.rosenbergvictor72.pealim2
 import expo.modules.splashscreen.SplashScreenManager
 
 import android.os.Build

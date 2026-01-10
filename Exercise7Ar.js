@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, StyleSheet, Image, BackHandler } from 'react-native';
 import verbsData from './verbs6RU.json';
+import verbs1Data from './verbs1.json';
 import ProgressBar from './ProgressBar';
 import { Animated } from 'react-native';
 import { Audio } from 'expo-av';
@@ -18,6 +19,363 @@ import LottieView from 'lottie-react-native';
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
+/* ===================== HEBREW HIGHLIGHTING (Exercise7) ===================== */
+
+
+// суффиксы настоящего (длинные — раньше)
+const PRESENT_SUFFIXES = ['ות', 'ים', 'ה', 'ת'];
+
+const norm = (s) => String(s || '').trim();
+
+const normKey = (s) =>
+  String(s || '')
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, ' ');
+
+// В verbs6RU у некоторых инфинитивов есть разные значения (например לקרוא).
+// Чтобы не мешать разные "смыслы", группируем по infinitive + russian(значение инфинитива).
+const getSenseKeyFromV6 = (v) => normKey(v?.russian || v?.english || v?.french || v?.spanish || v?.portu || '');
+
+const makeV6GroupKey = (v) => `${normKey(v?.infinitive)}__${getSenseKeyFromV6(v)}`;
+
+// build once, сохраняем порядок как в JSON
+const V6_GROUPS = (() => {
+  const map = new Map();
+  verbsData.forEach((v, i) => {
+    const key = makeV6GroupKey(v);
+    if (!map.has(key)) map.set(key, []);
+    map.get(key).push({ v, i });
+  });
+
+  for (const [k, arr] of map) {
+    arr.sort((a, b) => a.i - b.i);
+    map.set(k, arr.map((x) => x.v));
+  }
+  return map;
+})();
+
+const getIdxInOwnForms = (currentV6) => {
+  if (!currentV6) return { idx: 0, count: 0 };
+
+  const key = makeV6GroupKey(currentV6);
+  const forms = V6_GROUPS.get(key) || [];
+
+  const idxByMp3 = forms.findIndex((x) => String(x?.mp3 || '') === String(currentV6?.mp3 || ''));
+  if (idxByMp3 !== -1) return { idx: idxByMp3, count: forms.length };
+
+  const idxByText = forms.findIndex(
+    (x) =>
+      norm(x?.hebrewtext) === norm(currentV6?.hebrewtext) &&
+      norm(x?.gender) === norm(currentV6?.gender) &&
+      (!currentV6?.russiantext || norm(x?.russiantext) === norm(currentV6?.russiantext))
+  );
+
+  return { idx: idxByText === -1 ? 0 : idxByText, count: forms.length };
+};
+
+const getBinyanFromV1 = (currentV6) => {
+  try {
+    const inf = normKey(currentV6?.infinitive);
+    const meaningRu = normKey(currentV6?.russian);
+
+    if (!inf) return '';
+    const candidates = (Array.isArray(verbs1Data) ? verbs1Data : []).filter((x) => normKey(x?.hebrewVerb) === inf);
+
+    for (const c of candidates) {
+      const correctIdx = Number(c?.correctTranslationIndex);
+      const correctRu = normKey(c?.translationOptions?.[correctIdx]);
+      if (correctRu && meaningRu && correctRu === meaningRu) {
+        return String(c?.binyan || '');
+      }
+    }
+
+    // fallback: если по какой-то причине смысл не совпал — берём первый биньян по инфинитиву
+    return candidates[0]?.binyan ? String(candidates[0].binyan) : '';
+  } catch (e) {
+    return '';
+  }
+};
+
+const isNifalFromBinyan = (binyan) => {
+  const b = String(binyan || '').toUpperCase().replace(/[^A-Z]/g, '');
+  return b.includes('NIFAL');
+};
+
+const yellow = (txt, key) => (
+  <Text key={key} style={styles.prefixYellow}>
+    {txt}
+  </Text>
+);
+
+const green = (txt, key) => (
+  <Text key={key} style={styles.suffixGreen}>
+    {txt}
+  </Text>
+);
+
+// отделяем пунктуацию в конце, чтобы подсветка не пропадала на "ות,"
+const splitTrailingNonHebrew = (str) => {
+  const s = String(str || '');
+  const m = s.match(/^(.*?)([^א-ת]+)$/);
+  if (!m) return { core: s, tail: '' };
+  return { core: m[1], tail: m[2] };
+};
+
+const renderWithColorRules = (word, { prefix = '', suffix = '' }) => {
+  const w0 = String(word || '');
+  if (!w0) return '';
+
+  const { core: w, tail } = splitTrailingNonHebrew(w0);
+
+  let middle = w;
+  let prefixPart = '';
+  let suffixPart = '';
+
+  if (prefix && middle.startsWith(prefix)) {
+    prefixPart = prefix;
+    middle = middle.slice(prefix.length);
+  }
+
+  if (suffix && middle.endsWith(suffix)) {
+    suffixPart = suffix;
+    middle = middle.slice(0, middle.length - suffix.length);
+  }
+
+  return (
+    <>
+      {prefixPart ? yellow(prefixPart, 'p') : null}
+      {middle}
+      {suffixPart ? green(suffixPart, 's') : null}
+      {tail}
+    </>
+  );
+};
+
+const renderPresentVerbWord = (verbWord) => {
+  const verb0 = String(verbWord || '');
+  if (!verb0) return '';
+
+  const { core: verb, tail } = splitTrailingNonHebrew(verb0);
+
+  let prefixNode = null;
+  let restWord = verb;
+
+  if (restWord.startsWith('מ')) {
+    prefixNode = yellow('מ', 'm');
+    restWord = restWord.slice(1);
+  }
+
+  let matchedSuffix = '';
+  for (const suf of PRESENT_SUFFIXES) {
+    if (restWord.endsWith(suf)) {
+      matchedSuffix = suf;
+      break;
+    }
+  }
+
+  if (!matchedSuffix) {
+    return (
+      <>
+        {prefixNode}
+        {restWord}
+        {tail}
+      </>
+    );
+  }
+
+  const base = restWord.slice(0, restWord.length - matchedSuffix.length);
+  return (
+    <>
+      {prefixNode}
+      {base}
+      {green(matchedSuffix, 'suf')}
+      {tail}
+    </>
+  );
+};
+
+const renderHebrewText = (hebrewtext, idx, { isNifal = false, mainVerb, showHighlight = true } = {}) => {
+  const pos = Number(idx || 0) + 1; // 1..36
+  const raw = String(hebrewtext || '');
+  if (!showHighlight) return raw;
+
+  const isBeVerb = String(mainVerb?.infinitive || '') === 'להיות';
+  const virtualPos = isBeVerb ? pos + 12 : pos;
+
+  // ✅ применять правило нифаля только для 1..24
+  const applyNifalNun = isNifal && virtualPos >= 1 && virtualPos <= 24;
+
+  // ✅ "добавка" для нифаля: подсветить первую נ, НЕ ломая остальную подсветку
+  const withOptionalNifalNun = (word, renderFn) => {
+    const w = String(word || '');
+    if (!w) return '';
+
+    const { core, tail } = splitTrailingNonHebrew(w);
+
+    if (applyNifalNun && core.startsWith('נ')) {
+      const rest = core.slice(1);
+      const renderedRest = renderFn ? renderFn(rest) : rest;
+      return (
+        <>
+          {yellow('נ', 'nifal-nun')}
+          {renderedRest}
+          {tail}
+        </>
+      );
+    }
+
+    const rendered = renderFn ? renderFn(core) : core;
+    return (
+      <>
+        {rendered}
+        {tail}
+      </>
+    );
+  };
+
+  const applyToVerbWord = (text, renderWordFn) => {
+    const parts = String(text || '').split(' ').filter(Boolean);
+    if (parts.length <= 1) return renderWordFn(parts[0] || '');
+    const verb = parts[parts.length - 1];
+    const before = parts.slice(0, -1).join(' ');
+    return (
+      <>
+        {before}
+        {' '}
+        {renderWordFn(verb)}
+      </>
+    );
+  };
+
+  const renderPastWithHitpaelPrefixAndSuffix = (word, suffix) => {
+    const w = String(word || '');
+    const { core, tail } = splitTrailingNonHebrew(w);
+    const prefix = core.startsWith('ה') ? 'ה' : '';
+    return (
+      <>
+        {renderWithColorRules(core, { prefix, suffix: suffix || '' })}
+        {tail}
+      </>
+    );
+  };
+
+  // ====== 1..12 (настоящее): "אני + глагол" ======
+  if (!isBeVerb && virtualPos >= 1 && virtualPos <= 12) {
+    const parts = raw.split(' ');
+    if (parts.length < 2) {
+      return withOptionalNifalNun(parts[0] || '', (x) => renderPresentVerbWord(x));
+    }
+    const first = parts[0];
+    const verb = parts[1];
+    const tail = parts.slice(2).join(' ');
+    return (
+      <>
+        {first}
+        {' '}
+        {withOptionalNifalNun(verb, (x) => renderPresentVerbWord(x))}
+        {tail ? ` ${tail}` : ''}
+      </>
+    );
+  }
+
+  // ====== 13..24 (прошедшее): глагол обычно последний ======
+  if (virtualPos === 13 || virtualPos === 14)
+    return applyToVerbWord(raw, (w) =>
+      withOptionalNifalNun(w, (rest) => renderPastWithHitpaelPrefixAndSuffix(rest, 'תי'))
+    );
+
+  if (virtualPos === 15 || virtualPos === 16)
+    return applyToVerbWord(raw, (w) =>
+      withOptionalNifalNun(w, (rest) => renderPastWithHitpaelPrefixAndSuffix(rest, 'ת'))
+    );
+
+  if (virtualPos === 17 || virtualPos === 18)
+    return applyToVerbWord(raw, (w) =>
+      withOptionalNifalNun(w, (rest) => renderPastWithHitpaelPrefixAndSuffix(rest, 'ה'))
+    );
+
+  if (virtualPos === 19 || virtualPos === 20)
+    return applyToVerbWord(raw, (w) =>
+      withOptionalNifalNun(w, (rest) => renderPastWithHitpaelPrefixAndSuffix(rest, 'נו'))
+    );
+
+  if (virtualPos === 21)
+    return applyToVerbWord(raw, (w) =>
+      withOptionalNifalNun(w, (rest) => renderPastWithHitpaelPrefixAndSuffix(rest, 'תם'))
+    );
+
+  if (virtualPos === 22)
+    return applyToVerbWord(raw, (w) =>
+      withOptionalNifalNun(w, (rest) => renderPastWithHitpaelPrefixAndSuffix(rest, 'תן'))
+    );
+
+  if (virtualPos === 23 || virtualPos === 24)
+    return applyToVerbWord(raw, (w) =>
+      withOptionalNifalNun(w, (rest) => renderPastWithHitpaelPrefixAndSuffix(rest, 'ו'))
+    );
+
+  // ====== 25..36 (будущее) ======
+  if (virtualPos === 25) return renderWithColorRules(raw, { prefix: 'א' });
+  if (virtualPos === 26) return renderWithColorRules(raw, { prefix: 'א' });
+  if (virtualPos === 27) return renderWithColorRules(raw, { prefix: 'ת' });
+  if (virtualPos === 28) return renderWithColorRules(raw, { prefix: 'ת', suffix: 'י' });
+  if (virtualPos === 29) return renderWithColorRules(raw, { prefix: 'י' });
+  if (virtualPos === 30) return renderWithColorRules(raw, { prefix: 'ת' });
+  if (virtualPos === 31 || virtualPos === 32) return renderWithColorRules(raw, { prefix: 'נ' });
+  if (virtualPos === 33 || virtualPos === 34) return renderWithColorRules(raw, { prefix: 'ת', suffix: 'ו' });
+  if (virtualPos === 35 || virtualPos === 36) return renderWithColorRules(raw, { prefix: 'י', suffix: 'ו' });
+
+  return raw;
+};
+
+const TypewriterHebrewHighlightedRTL = ({
+  text,
+  idx = 0,
+  isNifal = false,
+  mainVerb,
+  showHighlight = true,
+  runKey,
+  typingSpeed = 50,
+  style,
+  maxFontSizeMultiplier = 1.2,
+}) => {
+  const [displayedText, setDisplayedText] = useState('');
+  const timerRef = useRef(null);
+
+  useEffect(() => {
+    const fullText = String(text || '');
+    setDisplayedText('');
+
+    if (timerRef.current) clearInterval(timerRef.current);
+    if (!fullText) return;
+
+    let i = 0;
+    timerRef.current = setInterval(() => {
+      i += 1;
+      setDisplayedText(fullText.slice(0, i));
+      if (i >= fullText.length) {
+        clearInterval(timerRef.current);
+        timerRef.current = null;
+      }
+    }, Math.max(10, Number(typingSpeed) || 50));
+
+    return () => {
+      if (timerRef.current) clearInterval(timerRef.current);
+      timerRef.current = null;
+    };
+  }, [runKey]);
+
+  return (
+    <Text style={style} maxFontSizeMultiplier={maxFontSizeMultiplier}>
+      {renderHebrewText(displayedText, idx, { isNifal, mainVerb, showHighlight })}
+    </Text>
+  );
+};
+
+
+
+
 const Exercise7Ar = () => {
   const [verbs, setVerbs] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -27,6 +385,15 @@ const Exercise7Ar = () => {
   const [incorrectCount, setIncorrectCount] = useState(0);
   const [exitConfirmationVisible, setExitConfirmationVisible] = useState(false);
   const [soundEnabled, setSoundEnabled] = useState(true);
+  // translit toggle: 0=translit+highlight, 1=no translit+highlight, 2=no translit+no highlight
+  const [translitMode, setTranslitMode] = useState(0);
+  const showTranslit = translitMode === 0;
+  const showHighlight = translitMode !== 2;
+
+  const handleTranslitToggle = () => {
+    setTranslitMode((m) => (m + 1) % 3);
+  };
+
   // const [isDescriptionModalVisible, setIsDescriptionModalVisible] = useState(false);
   const [statistics, setStatistics] = useState(null);
   const [isStatModalVisible, setIsStatModalVisible] = useState(false);
@@ -183,49 +550,58 @@ const [isDescriptionModalVisible, setDescriptionModalVisible] = useState(false);
   //   }
   // }, [currentIndex, verbs]);
 
-  useEffect(() => {
+ useEffect(() => {
   if (verbs.length > 0) {
     const currentVerb = verbs[currentIndex];
 
-    // 1. Определяем, какие гендеры нам подходят
+    // 1) Определяем "совместимые" гендеры (man<->men, woman<->women)
     const getAllowedGenders = (gender) => {
-      if (gender === 'man' || gender === 'men') {
-        return ['man', 'men'];
-      }
-      if (gender === 'woman' || gender === 'women') {
-        return ['woman', 'women'];
-      }
-      // на всякий случай — если вдруг что-то другое или пусто
+      if (gender === 'man' || gender === 'men') return ['man', 'men'];
+      if (gender === 'woman' || gender === 'women') return ['woman', 'women'];
       return gender ? [gender] : [];
     };
 
     const allowedGenders = getAllowedGenders(currentVerb.gender);
 
-    // 2. Фильтруем возможные "неверные" ответы:
-    //    - не совпадают по russiantext с текущим
-    //    - попадают в нужную группу полов (если она есть)
-    const incorrectPool = verbs.filter((verb) => {
-      if (verb.artext === currentVerb.artext) return false;
-
-      if (allowedGenders.length > 0) {
-        return allowedGenders.includes(verb.gender);
+    // Уникальность по artext+gender
+    const makeKey = (v) => `${String(v?.artext || '').trim()}__${String(v?.gender || '').trim()}`;
+    const uniqByKey = (arr) => {
+      const seen = new Set();
+      const out = [];
+      for (const v of arr) {
+        const k = makeKey(v);
+        if (!seen.has(k)) {
+          seen.add(k);
+          out.push(v);
+        }
       }
+      return out;
+    };
 
-      // если по какой-то причине allowedGenders пустой — не фильтруем по полу
-      return true;
-    });
+    // 2) Пул неверных ответов из всей базы
+    const basePoolAll = uniqByKey(
+      verbsData.filter((v) => v.artext !== currentVerb.artext)
+    );
 
-    const incorrectAnswers = shuffleArray(
-      incorrectPool.map((verb) => ({
-        artext: verb.artext,
-        gender: verb.gender,
-      }))
-    ).slice(0, 5);
+    // 3) Сначала по gender
+    const poolGender = allowedGenders.length
+      ? basePoolAll.filter((v) => allowedGenders.includes(v.gender))
+      : basePoolAll;
 
-    // 3. Правильный ответ + неправильные, потом перемешиваем
+    let picked = shuffleArray(poolGender).slice(0, 5);
+
+    // 4) Если не хватило — добираем из общего пула
+    if (picked.length < 5) {
+      const pickedKeys = new Set(picked.map(makeKey));
+      const filler = basePoolAll.filter((v) => !pickedKeys.has(makeKey(v)));
+      const need = 5 - picked.length;
+      picked = picked.concat(shuffleArray(filler).slice(0, need));
+    }
+
+    // 5) 6 вариантов
     const answers = shuffleArray([
-      {artext: currentVerb.artext, gender: currentVerb.gender },
-      ...incorrectAnswers,
+      { artext: currentVerb.artext, gender: currentVerb.gender },
+      ...picked.map((v) => ({ artext: v.artext, gender: v.gender })),
     ]);
 
     setDisplayPairs(
@@ -242,6 +618,7 @@ const [isDescriptionModalVisible, setDescriptionModalVisible] = useState(false);
     setCurrentAudioFile(currentVerb.mp3);
   }
 }, [currentIndex, verbs]);
+
 
 
   useEffect(() => {
@@ -662,6 +1039,18 @@ const [isDescriptionModalVisible, setDescriptionModalVisible] = useState(false);
               style={[styles.buttonImage, { opacity: fadeAnim }]}
             />
           </TouchableOpacity>
+          <TouchableOpacity onPress={handleTranslitToggle}>
+            <Animated.Image
+              source={
+                translitMode === 0
+                  ? require('./translit1.png')
+                  : translitMode === 1
+                  ? require('./translit2.png')
+                  : require('./translit3.png')
+              }
+              style={[styles.buttonImage, { opacity: fadeAnim }]}
+            />
+          </TouchableOpacity>
           <TouchableOpacity onPress={handleButton3Press}>
             <Animated.Image source={require('./stat.png')} style={[styles.buttonImage, { opacity: fadeAnim }]} />
             <StatModal7Ar visible={isStatModalVisible} onToggle={() => setIsStatModalVisible(false)} statistics={statistics} />
@@ -735,8 +1124,68 @@ const [isDescriptionModalVisible, setDescriptionModalVisible] = useState(false);
   />
 )}
 
-            <TypewriterTextRTL text={verbs[currentIndex].hebrewtext}  typingSpeed={50} style={styles.hebrewText} maxFontSizeMultiplier={1.2}/>
-            <TypewriterTextLTR text={verbs[currentIndex].translit}  typingSpeed={40} style={styles.translitText} maxFontSizeMultiplier={1.2} />
+            {(() => {
+                const cv = verbs[currentIndex];
+                const { idx } = getIdxInOwnForms(cv);
+                const binyan = getBinyanFromV1(cv);
+                const nifal = isNifalFromBinyan(binyan);
+                const runKey = `${cv?.mp3 || ''}_${currentIndex}`;
+                const TRANSLIT_ROW_H = 30;
+
+                return (
+                  <View
+                    style={{
+                      width: '100%',
+                      minHeight: 110,
+                      position: 'relative',
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                      paddingHorizontal: 12,
+                      // резерв под строку транслита, чтобы высота НЕ прыгала
+                      paddingBottom: TRANSLIT_ROW_H,
+                    }}
+                  >
+                    {/* Hebrew (центрируем, а при скрытом translit немного опускаем вниз) */}
+                    <View
+                      style={{
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        transform: [{ translateY: showTranslit ? 0 : TRANSLIT_ROW_H / 2 }],
+                      }}
+                    >
+                      <TypewriterHebrewHighlightedRTL
+                        text={cv.hebrewtext}
+                        idx={idx}
+                        isNifal={nifal}
+                        mainVerb={cv}
+                        showHighlight={showHighlight}
+                        runKey={runKey}
+                        typingSpeed={50}
+                        style={styles.hebrewText}
+                        maxFontSizeMultiplier={1.2}
+                      />
+                    </View>
+
+                    {/* Transliteration row: скрываем opacity, но место всегда есть */}
+                    <View
+                      style={{
+                        position: 'absolute',
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        height: TRANSLIT_ROW_H,
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        opacity: showTranslit ? 1 : 0,
+                      }}
+                    >
+                      <Text style={styles.translitText} maxFontSizeMultiplier={1.2}>
+                        {cv.translit}
+                      </Text>
+                    </View>
+                  </View>
+                );
+              })()}
             <TouchableOpacity onPress={playCurrentAudio} style={styles.audioButton}>
               <Image source={require('./speaker3.png')} style={styles.audioIcon} />
             </TouchableOpacity>
@@ -1027,9 +1476,10 @@ const styles = StyleSheet.create({
   },
   translitText: {
     fontSize: 20,
+    lineHeight: 30, 
     color: '#FF5757',
     fontWeight: 'bold',
-    marginTop: 5,
+    marginTop: 1,
     textAlign: 'center',
   },
   row: {
@@ -1169,6 +1619,15 @@ const styles = StyleSheet.create({
     width: 32,
     height: 32,
   },
+     // подсветка частей глагола
+  prefixYellow: {
+    color: '#00a2ffff',
+    fontWeight: 'bold',
+  },
+  suffixGreen: {
+    color: '#ff3ab3ff',
+    fontWeight: 'bold',
+  },  
 });
 
 export default Exercise7Ar;

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, StyleSheet, Image, BackHandler } from 'react-native';
 import verbsData from './verbs6RU.json';
 import ProgressBar from './ProgressBar';
@@ -12,16 +12,15 @@ import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import TaskDescriptionModal6 from './TaskDescriptionModal6';
 import StatModal6Ar from './StatModal6Ar';
 import { updateStatistics, getStatistics } from './stat';
-import LottieView from 'lottie-react-native';
+// ❌ LottieView убрали полностью
 import SearchModalAr from './SearchModalAr';
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import { Dimensions } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-// import { widthPercentageToDP as wp } from 'react-native-responsive-screen';
 import VerbListModal2 from './VerbListModal2';
 import shuffleArray from './utils/shuffleArray';
+import verbs1Data from './verbs1.json';
 
-// import { PixelRatio } from 'react-native';
 
 const Exercise6Ar = () => {
   const [pairs, setPairs] = useState([]);
@@ -41,7 +40,7 @@ const Exercise6Ar = () => {
   const navigation = useNavigation();
   const [exerciseCompleted, setExerciseCompleted] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
-  
+
   const [exitConfirmationVisible, setExitConfirmationVisible] = useState(false);
   const [isDescriptionModalVisible, setDescriptionModalVisible] = useState(false);
   const toggleDescriptionModal = () => {
@@ -50,10 +49,24 @@ const Exercise6Ar = () => {
 
   const [soundEnabled, setSoundEnabled] = useState(true);
   const [incorrectAnswers, setIncorrectAnswers] = useState(0);
-  
+
+  // ✅ 3-state translit:
+// 0 — translit1: highlight ON + translit ON
+// 1 — translit2: highlight ON + translit OFF
+// 2 — translit3: highlight OFF + translit OFF
+const [translitMode, setTranslitMode] = useState(0);
+
+const handleTranslitToggle = () => {
+  setTranslitMode(prev => (prev === 0 ? 1 : prev === 1 ? 2 : 0));
+};
+
+const showTranslit = translitMode === 0;
+const highlightEnabled = translitMode !== 2;
+
+
   const [shuffledVerbs, setShuffledVerbs] = useState([]);
   const correctPercent = totalExercises > 0 ? (correctCount / totalExercises) * 100 : 0;
-  
+
   const totalAnswers = correctCount + incorrectCount;
   const incrementProgress = totalExercises > 0 ? 100 / totalExercises : 0;
   const [currentVerb, setCurrentVerb] = useState({
@@ -61,11 +74,6 @@ const Exercise6Ar = () => {
     arabic: '',
     transliteration: ''
   });
-
-  const animationRef = useRef(null);
-  const [isPlaying, setIsPlaying] = useState(false);
-
-  // const fontScale = PixelRatio.getFontScale(); // Получаем текущий масштаб шрифта
 
   const getGrade = (percentage) => {
     if (percentage === 100) {
@@ -91,19 +99,17 @@ const Exercise6Ar = () => {
     } else {
       return 'هناك حاجة إلى عمل جاد! من المهم ألا تستسلم وتستمر في التعلم.';
     }
-};
-  
+  };
 
-const navigateToMenu = () => {
-  console.log('Navigating to MenuEn, current state:', navigation.getState());
-  navigation.reset({
-    index: 0,
-    routes: [{ name: 'MenuAr' }],
-  });
-};
+  const navigateToMenu = () => {
+    console.log('Navigating to MenuEn, current state:', navigation.getState());
+    navigation.reset({
+      index: 0,
+      routes: [{ name: 'MenuAr' }],
+    });
+  };
 
   const progressPercent = totalAnswers > 0 ? (correctCount / totalAnswers) * 100 : 0;
-
   const grade = getGrade(progressPercent);
 
   const handleSoundToggle = () => {
@@ -115,112 +121,100 @@ const navigateToMenu = () => {
     }
   };
 
-
   const [language, setLanguage] = useState('ar'); // по умолчанию
 
- const [mainVerb, setMainVerb] = useState(null);
-    
-    const [verbListForModal, setVerbListForModal] = useState([]);
-    const [isVerbListVisible, setIsVerbListVisible] = useState(true); // модалка в начале
-    
-    const initializeVerbList = (lang, mainVerb, setVerbListForModal) => {
-      const langMap = {
-        ru: 'russian',
-        en: 'english',
-        fr: 'french',
-        es: 'spanish',
-        pt: 'portu',
-        ar: 'arabic',
-        am: 'amharic',
-      };
-      const langKey = langMap[lang] || 'arabic';
-    
-      if (!mainVerb) {
-        console.warn('⚠️ mainVerb is undefined');
-        return;
-      }
-    
-      console.log('🎯 Используем mainVerb:', mainVerb.infinitive, mainVerb[langKey]);
-    
-      const allForms = verbsData.filter((v) => {
+  const [mainVerb, setMainVerb] = useState(null);
+
+  const [verbListForModal, setVerbListForModal] = useState([]);
+  const [isVerbListVisible, setIsVerbListVisible] = useState(true); // модалка в начале
+
+  const initializeVerbList = (lang, mainVerb, setVerbListForModal) => {
+    const langMap = {
+      ru: 'russian',
+      en: 'english',
+      fr: 'french',
+      es: 'spanish',
+      pt: 'portu',
+      ar: 'arabic',
+      am: 'amharic',
+    };
+    const langKey = langMap[lang] || 'arabic';
+
+    if (!mainVerb) {
+      console.warn('⚠️ mainVerb is undefined');
+      return;
+    }
+
+    console.log('🎯 Используем mainVerb:', mainVerb.infinitive, mainVerb[langKey]);
+
+    const allForms = verbsData.filter((v) => {
       const sameInf = v.infinitive === mainVerb.infinitive;
       const sameTranslation = v[langKey]?.toLowerCase().trim() === mainVerb[langKey]?.toLowerCase().trim();
       return sameInf && (sameTranslation || !mainVerb[langKey]);
     });
-    
-    
-      console.log('📦 Найдено форм:', allForms.length);
-      setVerbListForModal(allForms);
+
+    console.log('📦 Найдено форм:', allForms.length);
+    setVerbListForModal(allForms);
+  };
+
+  const [showDescriptionOnce, setShowDescriptionOnce] = useState(true);
+
+  useEffect(() => {
+    const initialize = async () => {
+      const lang = await AsyncStorage.getItem('language');
+      const hidden = await AsyncStorage.getItem('exercise6_description_hidden');
+      setLanguage(lang || 'ar');
+      setDontShowAgain6(hidden === 'true');
+      setLanguageLoaded(true);
+
+      // Показываем модалку только если showDescriptionOnce и нет скрывающего флага
+      if (hidden !== 'true' && showDescriptionOnce) {
+        setTimeout(() => {
+          setDescriptionModalVisible(true);
+          setShowDescriptionOnce(false); // После показа сбрасываем флаг
+        }, 300);
+      }
     };
-    
-    
-    
-    const [showDescriptionOnce, setShowDescriptionOnce] = useState(true);
-    
-    useEffect(() => {
-      const initialize = async () => {
-        const lang = await AsyncStorage.getItem('language');
-        const hidden = await AsyncStorage.getItem('exercise6_description_hidden');
-        setLanguage(lang || 'ar');
-        setDontShowAgain6(hidden === 'true');
-        setLanguageLoaded(true);
-    
-        // Показываем модалку только если showDescriptionOnce и нет скрывающего флага
-        if (hidden !== 'true' && showDescriptionOnce) {
-          setTimeout(() => {
-            setDescriptionModalVisible(true);
-            setShowDescriptionOnce(false); // После показа сбрасываем флаг
-          }, 300);
-        }
-      };
-      initialize();
-    }, []); // Только при самом первом монтировании
+    initialize();
+  }, []); // Только при самом первом монтировании
 
-
-  
   const [dontShowAgain6, setDontShowAgain6] = useState(false);
-
-
-
   const [languageLoaded, setLanguageLoaded] = useState(false);
 
   useEffect(() => {
-  const checkFlagAndLang = async () => {
-    const hidden = await AsyncStorage.getItem('exercise6_description_hidden');
-    const lang = await AsyncStorage.getItem('language');
+    const checkFlagAndLang = async () => {
+      const hidden = await AsyncStorage.getItem('exercise6_description_hidden');
+      const lang = await AsyncStorage.getItem('language');
 
-    console.log('🌍 Language:', lang);
-    console.log('🧪 Hide flag:', hidden);
+      console.log('🌍 Language:', lang);
+      console.log('🧪 Hide flag:', hidden);
 
-    if (lang) {
-      setLanguage(lang);
+      if (lang) {
+        setLanguage(lang);
+
+        setDontShowAgain6(hidden === 'true');
+        setLanguageLoaded(true);
+
+        if (hidden !== 'true') {
+          setTimeout(() => {
+            console.log('📢 Показываем модалку после загрузки языка');
+            setDescriptionModalVisible(true);
+          }, 100); // чуть больше времени
+        }
+      }
 
       setDontShowAgain6(hidden === 'true');
-    setLanguageLoaded(true);
+    };
 
-      if (hidden !== 'true') {
-        setTimeout(() => {
-          console.log('📢 Показываем модалку после загрузки языка');
-          setDescriptionModalVisible(true);
-        }, 100); // чуть больше времени
-      }
-    }
+    checkFlagAndLang();
+  }, []);
 
-    setDontShowAgain6(hidden === 'true');
+  const handleToggleDontShowAgain6 = async () => {
+    const newValue = !dontShowAgain6;
+    setDontShowAgain6(newValue);
+    await AsyncStorage.setItem('exercise6_description_hidden', newValue ? 'true' : '');
+    console.log('📌 Клик по чекбоксу. Было:', dontShowAgain6, 'Станет:', !dontShowAgain6);
   };
-
-  checkFlagAndLang();
-}, []);
-
-
-
-
-const handleToggleDontShowAgain6 = async () => {
-  const newValue = !dontShowAgain6;
-  setDontShowAgain6(newValue);
-  await AsyncStorage.setItem('exercise6_description_hidden', newValue ? 'true' : '');
-  console.log('📌 Клик по чекбоксу. Было:', dontShowAgain6, 'Станет:', !dontShowAgain6);
-};
 
   const fadeAnim = useRef(new Animated.Value(0)).current;
 
@@ -261,7 +255,7 @@ const handleToggleDontShowAgain6 = async () => {
     } else {
       setIncorrectCount(prev => prev + 1);
     };
-  
+
     setCurrentIndex(prevIndex => {
       const newIndex = prevIndex + 1;
       handleProgressUpdate();
@@ -312,37 +306,48 @@ const handleToggleDontShowAgain6 = async () => {
     return newArray;
   };
 
-useEffect(() => {
-  if (verbsData && verbsData.length > 0) {
-    const uniqueVerbs = [...new Set(verbsData.map(item => item.infinitive))];
-    const selectedVerb = uniqueVerbs[Math.floor(Math.random() * uniqueVerbs.length)];
-    const allForms = verbsData.filter(verb => verb.infinitive === selectedVerb);
+  useEffect(() => {
+    if (verbsData && verbsData.length > 0) {
+      const uniqueVerbs = [...new Set(verbsData.map(item => item.infinitive))];
+      const selectedVerb = uniqueVerbs[Math.floor(Math.random() * uniqueVerbs.length)];
+      const allForms = verbsData.filter(verb => verb.infinitive === selectedVerb);
 
-    setMainVerb(allForms[0]);
-    setVerbListForModal(allForms); // Модалка — логичный порядок
+      // ✅ formIndex (1..36) — нужен для подсветки частей глагола
+      const allFormsWithIndex = allForms.map((v, i) => ({ ...v, formIndex: i + 1 }));
 
-    // Для упражнения — если хочешь перемешать, то только тут:
-    const shuffledForms = shuffleArray([...allForms]);
-    setPairs(shuffledForms);
-    setRemainingPairs(allForms.length);
-    setTotalExercises(allForms.length);
+      setMainVerb(allFormsWithIndex[0]);
+      setVerbListForModal(allFormsWithIndex); // Модалка — логичный порядок
 
-    setIsVerbListVisible(true);
-    setPendingVerb(null);
-  }
-}, [verbsData]);
+      // Для упражнения — если хочешь перемешать, то только тут:
+      const shuffledForms = shuffleArray([...allFormsWithIndex]);
+      setPairs(shuffledForms);
+      setRemainingPairs(allForms.length);
+      setTotalExercises(allForms.length);
+
+      setIsVerbListVisible(true);
+      setPendingVerb(null);
+    }
+  }, [verbsData]);
 
   useEffect(() => {
     const start = page * 6;
     const end = start + 6;
     const currentPairs = pairs.slice(start, end);
-    const hebrewTexts = shuffleArray(currentPairs.map(pair => ({ text: pair.hebrewtext, translit: pair.translit })));
+    const hebrewTexts = shuffleArray(
+      currentPairs.map(pair => ({
+        text: pair.hebrewtext,
+        translit: pair.translit,
+        formIndex: pair.formIndex,
+      }))
+    );
+
     const mixedPairs = currentPairs.map((pair, index) => ({
       ...pair,
       artext: pair.artext,
       hebrewtext: hebrewTexts[index].text,
       translit: hebrewTexts[index].translit,
-      correct: pair.hebrewtext
+      formIndex: hebrewTexts[index].formIndex,
+      correct: pair.hebrewtext,
     }));
     setDisplayPairs(mixedPairs);
     setHebrewActive(false);
@@ -387,26 +392,21 @@ useEffect(() => {
     setSelectedHebrew(index);
     const selectedPair = displayPairs[index];
     const isCorrect = selectedRussian !== null && selectedPair.hebrewtext === displayPairs[selectedRussian].correct;
-    
-    if (isCorrect) {
-        handleAnswer(isCorrect);
-        setCorrectAnswers(prev => new Set(prev).add(selectedRussian));
-        setResolvedPairsCount(prev => prev + 1);
-        setRemainingPairs(prev => prev - 1);
-        setCorrectCount(prev => prev + 1);
-        playCorrectAnswerSound(displayPairs[selectedRussian].mp3);
-        changeBackgroundColor(isCorrect);
 
-        setIsPlaying(true);
-        animationRef.current?.play();
-        setTimeout(() => {
-          setIsPlaying(false);
-          animationRef.current?.reset();
-        }, 1500);
+    if (isCorrect) {
+      handleAnswer(isCorrect);
+      setCorrectAnswers(prev => new Set(prev).add(selectedRussian));
+      setResolvedPairsCount(prev => prev + 1);
+      setRemainingPairs(prev => prev - 1);
+      setCorrectCount(prev => prev + 1);
+      playCorrectAnswerSound(displayPairs[selectedRussian].mp3);
+      changeBackgroundColor(isCorrect);
+
+      // ❌ Lottie логика убрана
     } else {
-        setIncorrectCount(prev => prev + 1);
-        playFailureSound();
-        changeBackgroundColor(isCorrect);
+      setIncorrectCount(prev => prev + 1);
+      playFailureSound();
+      changeBackgroundColor(isCorrect);
     }
   };
 
@@ -500,12 +500,12 @@ useEffect(() => {
       const audioFile = sounds[fileNameKey];
 
       if (!audioFile) {
-          console.error(`Audio file ${audioFileName} not found.`);
-          return;
+        console.error(`Audio file ${audioFileName} not found.`);
+        return;
       }
 
       if (sound && typeof sound.unloadAsync === 'function') {
-          await sound.unloadAsync();
+        await sound.unloadAsync();
       }
 
       const { sound: newSound } = await Audio.Sound.createAsync(audioFile);
@@ -531,13 +531,13 @@ useEffect(() => {
   const handleButton3Press = async () => {
     const exerciseId = "exercise6Ar";
     try {
-        const stats = await getStatistics(exerciseId);
-        setStatistics(stats);
-        setIsStatModalVisible(true);
+      const stats = await getStatistics(exerciseId);
+      setStatistics(stats);
+      setIsStatModalVisible(true);
     } catch (error) {
-        console.error("Failed to fetch statistics:", error);
-        setStatistics(null);  
-        setIsStatModalVisible(false);
+      console.error("Failed to fetch statistics:", error);
+      setStatistics(null);
+      setIsStatModalVisible(false);
     }
   };
 
@@ -559,68 +559,67 @@ useEffect(() => {
     return true;
   };
 
-// 1) Пока открыт список форм — «Назад» уходит в меню/назад, ничего не блокируем
-useFocusEffect(
-  useCallback(() => {
-    if (!isVerbListVisible) return; // активируем только при открытой модалке
+  // 1) Пока открыт список форм — «Назад» уходит в меню/назад, ничего не блокируем
+  useFocusEffect(
+    useCallback(() => {
+      if (!isVerbListVisible) return; // активируем только при открытой модалке
 
-    const onBackPress = () => {
-      if (navigation.canGoBack()) navigation.goBack();
-      else navigation.navigate('MenuAr');
-      return true;
-    };
+      const onBackPress = () => {
+        if (navigation.canGoBack()) navigation.goBack();
+        else navigation.navigate('MenuAr');
+        return true;
+      };
 
-    const bh = BackHandler.addEventListener('hardwareBackPress', onBackPress);
+      const bh = BackHandler.addEventListener('hardwareBackPress', onBackPress);
 
-    // Ничего не вешаем на beforeRemove, чтобы не мешать выходу
-    return () => {
-      bh.remove();
-    };
-  }, [isVerbListVisible, navigation])
-);
+      // Ничего не вешаем на beforeRemove, чтобы не мешать выходу
+      return () => {
+        bh.remove();
+      };
+    }, [isVerbListVisible, navigation])
+  );
 
-// 2) Когда модалка закрыта (идёт упражнение) — блокируем «Назад» и показываем модалку подтверждения
-useFocusEffect(
-  useCallback(() => {
-    if (isVerbListVisible) return; // активируем только во время упражнения
+  // 2) Когда модалка закрыта (идёт упражнение) — блокируем «Назад» и показываем модалку подтверждения
+  useFocusEffect(
+    useCallback(() => {
+      if (isVerbListVisible) return; // активируем только во время упражнения
 
-    const onBackPress = () => {
-      if (exitConfirmationVisible) return false;
-      setExitConfirmationVisible(true);
-      return true; // блокируем pop
-    };
+      const onBackPress = () => {
+        if (exitConfirmationVisible) return false;
+        setExitConfirmationVisible(true);
+        return true; // блокируем pop
+      };
 
-    const bh = BackHandler.addEventListener('hardwareBackPress', onBackPress);
-    const unsubscribe = navigation.addListener('beforeRemove', (e) => {
-      if (exitConfirmationVisible) return;
-      e.preventDefault();
-      setExitConfirmationVisible(true);
+      const bh = BackHandler.addEventListener('hardwareBackPress', onBackPress);
+      const unsubscribe = navigation.addListener('beforeRemove', (e) => {
+        if (exitConfirmationVisible) return;
+        e.preventDefault();
+        setExitConfirmationVisible(true);
+      });
+
+      return () => {
+        bh.remove();
+        unsubscribe();
+      };
+    }, [isVerbListVisible, exitConfirmationVisible, navigation])
+  );
+
+  useEffect(() => {
+    navigation.setOptions({
+      headerLeft: () => null, // Убирает кнопку "Назад" в заголовке
     });
+  }, [navigation]);
 
-    return () => {
-      bh.remove();
-      unsubscribe();
-    };
-  }, [isVerbListVisible, exitConfirmationVisible, navigation])
-);
+  const handleConfirmExit = () => {
+    navigation.reset({
+      index: 0,
+      routes: [{ name: 'MenuAr' }],
+    });
+  };
 
-    
-      useEffect(() => {
-          navigation.setOptions({
-            headerLeft: () => null, // Убирает кнопку "Назад" в заголовке
-          });
-        }, [navigation]);
-  
-        const handleConfirmExit = () => {
-          navigation.reset({
-            index: 0,
-            routes: [{ name: 'MenuAr' }],
-          });
-        };
-  
-    const handleCancelExit = () => {
-      setExitConfirmationVisible(false);
-    };
+  const handleCancelExit = () => {
+    setExitConfirmationVisible(false);
+  };
 
   const handleExerciseCompletion = async () => {
     const exerciseId = 'exercise6Ar';
@@ -630,33 +629,39 @@ useFocusEffect(
   };
 
   const resetExercise = () => {
-  setCorrectCount(0);
-  setIncorrectCount(0);
-  setProgress(0);
-  setExerciseCompleted(false);
-  setCurrentIndex(0);
-  setResolvedPairsCount(0);
-  setCorrectAnswers(new Set());
+    setCorrectCount(0);
+    setIncorrectCount(0);
+    setProgress(0);
+    setExerciseCompleted(false);
+    setCurrentIndex(0);
+    setResolvedPairsCount(0);
+    setCorrectAnswers(new Set());
 
-  // Выбрать новый глагол
-  const shuffledData = shuffleArray(verbsData);
-  const uniqueVerbs = [...new Set(shuffledData.map(item => item.infinitive))];
-  const selectedVerb = uniqueVerbs[Math.floor(Math.random() * uniqueVerbs.length)];
-  const verbConjugations = shuffledData.filter(verb => verb.infinitive === selectedVerb);
+    // Выбрать новый глагол
+    const shuffledData = shuffleArray(verbsData);
+    const uniqueVerbs = [...new Set(shuffledData.map(item => item.infinitive))];
+    const selectedVerb = uniqueVerbs[Math.floor(Math.random() * uniqueVerbs.length)];
+    const baseForms = shuffledData
+      .filter(verb => verb.infinitive === selectedVerb)
+      .map((v, i) => ({ ...v, formIndex: i + 1 }));
 
-  setCurrentVerb(verbConjugations[0]);
-  setMainVerb(verbConjugations[0]);
-  setPairs(verbConjugations);
-  setTotalExercises(verbConjugations.length);
-  setRemainingPairs(verbConjugations.length);
-  setPendingVerb(null);
-  setVerbListForModal(verbConjugations);
+    // модалка — в логичном порядке (без shuffle)
+    setCurrentVerb(baseForms[0]);
+    setMainVerb(baseForms[0]);
+    setVerbListForModal(baseForms);
 
-  // Открыть модалку только когда verbListForModal не пуст
-  setTimeout(() => {
-    setIsVerbListVisible(true);
-  }, 10);
-};
+    // упражнение — можно перемешать
+    const shuffledForms = shuffleArray([...baseForms]);
+    setPairs(shuffledForms);
+    setTotalExercises(baseForms.length);
+    setRemainingPairs(baseForms.length);
+    setPendingVerb(null);
+
+    // Открыть модалку только когда verbListForModal не пуст
+    setTimeout(() => {
+      setIsVerbListVisible(true);
+    }, 10);
+  };
 
   const [isSearchModalVisible, setSearchModalVisible] = useState(false);
 
@@ -666,243 +671,516 @@ useFocusEffect(
 
   const [pendingVerb, setPendingVerb] = useState(null);
 
-const handleSelectVerb = (verb) => {
-  setPendingVerb(verb); // временно сохраняем выбранный глагол
-  const allForms = verbsData.filter(item => item.infinitive === verb.infinitive);
-  setVerbListForModal(allForms); // показываем формы этого глагола в модалке
-  setIsVerbListVisible(true);    // открываем модалку
-  setSearchModalVisible(false);
-};
+  const handleSelectVerb = (verb) => {
+    setPendingVerb(verb); // временно сохраняем выбранный глагол
+    const allForms = verbsData.filter(item => item.infinitive === verb.infinitive);
+    setVerbListForModal(allForms); // показываем формы этого глагола в модалке
+    setIsVerbListVisible(true);    // открываем модалку
+    setSearchModalVisible(false);
+  };
 
-const handleStartExercise = () => {
-  // Используем pendingVerb, если он есть, иначе mainVerb
-  const chosenVerb = pendingVerb || mainVerb;
-  if (!chosenVerb) return;
-  const verbConjugations = shuffleArray(verbsData.filter(item => item.infinitive === chosenVerb.infinitive));
-  if (verbConjugations.length > 0) {
-    setCurrentVerb(verbConjugations[0]);
-    setMainVerb(verbConjugations[0]);
-    setPairs(verbConjugations);
-    setRemainingPairs(verbConjugations.length);
-    setTotalExercises(verbConjugations.length);
-    setCurrentIndex(0);
-    setCorrectCount(0);
-    setIncorrectCount(0);
-    setProgress(0);
-    setCorrectAnswers(new Set());
-    setResolvedPairsCount(0);
-    setPage(0);
-    setExerciseCompleted(false);
-    setIsVerbListVisible(false); // закрываем модалку
-    setPendingVerb(null); // сбрасываем временный глагол
+  const handleStartExercise = () => {
+    // Используем pendingVerb, если он есть, иначе mainVerb
+    const chosenVerb = pendingVerb || mainVerb;
+    if (!chosenVerb) return;
+    const baseForms = verbsData
+      .filter(item => item.infinitive === chosenVerb.infinitive)
+      .map((v, i) => ({ ...v, formIndex: i + 1 }));
+
+    const shuffledForms = shuffleArray([...baseForms]);
+
+    if (shuffledForms.length > 0) {
+      setCurrentVerb(baseForms[0]);
+      setMainVerb(baseForms[0]);
+      setPairs(shuffledForms);
+      setRemainingPairs(baseForms.length);
+      setTotalExercises(baseForms.length);
+      setCurrentIndex(0);
+      setCorrectCount(0);
+      setIncorrectCount(0);
+      setProgress(0);
+      setCorrectAnswers(new Set());
+      setResolvedPairsCount(0);
+      setPage(0);
+      setExerciseCompleted(false);
+      setIsVerbListVisible(false); // закрываем модалку
+      setPendingVerb(null); // сбрасываем временный глагол
+    }
+  };
+
+  const { width: screenWidth, height: screenHeight } = Dimensions.get('screen');
+  console.log('Physical Screen Width:', screenWidth); // Ширина экрана в физических пикселях
+
+
+
+const normalize = (s) => String(s || '').trim().toLowerCase();
+const normalizeBinyan = (s) => normalize(s).replace(/[\s’']/g, ''); // NIF'AL -> nifal
+
+const isNifalForCurrentVerb = useMemo(() => {
+  if (!mainVerb?.infinitive) return false;
+
+  const inf = String(mainVerb.infinitive || '').trim();
+  const tr = normalize(mainVerb.transliteration);
+  const af = normalize(mainVerb.audioFile);
+
+  let found = Array.isArray(verbs1Data)
+    ? verbs1Data.find(v => String(v?.hebrewVerb || '').trim() === inf)
+    : null;
+
+  if (!found && tr) found = verbs1Data.find(v => normalize(v?.transliteration) === tr);
+  if (!found && af) found = verbs1Data.find(v => normalize(v?.audioFile) === af);
+
+  const b = normalizeBinyan(found?.binyan);
+  return b === 'nifal';
+}, [mainVerb?.infinitive, mainVerb?.transliteration, mainVerb?.audioFile]);
+
+
+
+  /* ===================== ПОДСВЕТКА (как в английском) ===================== */
+
+  const PRESENT_SUFFIXES = ['ות', 'ים', 'ה', 'ת'];
+
+  const yellow = (txt, key) => (
+    <Text key={key} style={styles.prefixYellow}>
+      {txt}
+    </Text>
+  );
+
+  const green = (txt, key) => (
+    <Text key={key} style={styles.suffixGreen}>
+      {txt}
+    </Text>
+  );
+
+  const renderWithColorRules = (word, { prefix = '', suffix = '' }) => {
+    const w = String(word || '');
+    if (!w) return '';
+
+    let middle = w;
+    let prefixPart = '';
+    let suffixPart = '';
+
+    if (prefix && middle.startsWith(prefix)) {
+      prefixPart = prefix;
+      middle = middle.slice(prefix.length);
+    }
+
+    if (suffix && middle.endsWith(suffix)) {
+      suffixPart = suffix;
+      middle = middle.slice(0, middle.length - suffix.length);
+    }
+
+    return (
+      <>
+        {prefixPart ? yellow(prefixPart, 'p') : null}
+        {middle}
+        {suffixPart ? green(suffixPart, 's') : null}
+      </>
+    );
+  };
+
+  const renderPresentVerbWord = (verbWord) => {
+    const verb = String(verbWord || '');
+    if (!verb) return '';
+
+    let prefixNode = null;
+    let restWord = verb;
+
+    if (restWord.startsWith('מ')) {
+      prefixNode = yellow('מ', 'm');
+      restWord = restWord.slice(1);
+    }
+
+    let matchedSuffix = '';
+    for (const suf of PRESENT_SUFFIXES) {
+      if (restWord.endsWith(suf)) {
+        matchedSuffix = suf;
+        break;
+      }
+    }
+
+    if (!matchedSuffix) {
+      return (
+        <>
+          {prefixNode}
+          {restWord}
+        </>
+      );
+    }
+
+    const base = restWord.slice(0, restWord.length - matchedSuffix.length);
+    return (
+      <>
+        {prefixNode}
+        {base}
+        {green(matchedSuffix, 'suf')}
+      </>
+    );
+  };
+
+  const renderPastWithHitpaelPrefixAndSuffix = (word, suffix) => {
+    const w = String(word || '');
+
+    // ✅ прошедшее: если слово начинается на ה — красим первую ה
+    // (и для hitpael "הת..." тоже сработает, потому что начинается на ה)
+    const prefix = w.startsWith('ה') ? 'ה' : '';
+
+    return renderWithColorRules(w, {
+      prefix,
+      suffix: suffix || '',
+    });
+  };
+
+  // ✅ ВАЖНО: сюда передаём НЕ index кнопки, а formIndex (1..36)
+  const renderHebrewText = (hebrewtext, formIndex) => {
+  const raw = String(hebrewtext || '');   // ✅ сначала объявляем
+  if (!highlightEnabled) return raw;      // ✅ в translit3 показываем без подсветки
+
+  const pos = Number(formIndex || 0);
+  if (!pos) return raw;
+
+  const isBeVerb = String(mainVerb?.infinitive || '') === 'להיות';
+  const virtualPos = isBeVerb ? pos + 12 : pos;
+
+    const applyNifalNun = isNifalForCurrentVerb && virtualPos >= 1 && virtualPos <= 24;
+
+const withOptionalNifalNun = (word, renderFn) => {
+  const w = String(word || '');
+  if (!w) return '';
+
+  // если nifal и слово начинается с נ — подсвечиваем первую букву
+  if (applyNifalNun && w.startsWith('נ')) {
+    const rest = w.slice(1);
+    return (
+      <>
+        {yellow('נ', 'nifal-nun')}
+        {renderFn ? renderFn(rest) : rest}
+      </>
+    );
   }
+
+  return renderFn ? renderFn(w) : w;
 };
 
-  // const screenWidth = wp('100%');
-// console.log('Screen Width:', screenWidth);
-// console.log('Condition met:', screenWidth < 720);
 
-const { width: screenWidth, height: screenHeight } = Dimensions.get('screen');
-console.log('Physical Screen Width:', screenWidth); // Ширина экрана в физических пикселях
+    const applyToVerbWord = (text, renderWordFn) => {
+      const parts = String(text || '').split(' ').filter(Boolean);
+      if (parts.length <= 1) return renderWordFn(parts[0] || '');
+      const verb = parts[parts.length - 1];
+      const before = parts.slice(0, -1).join(' ');
+      return (
+        <>
+          {before}
+          {' '}
+          {renderWordFn(verb)}
+        </>
+      );
+    };
+
+  // 1–12 настоящее (если не "быть")  ✅ + NIFAL נ
+if (!isBeVerb && virtualPos >= 1 && virtualPos <= 12) {
+  const parts = raw.split(' ');
+
+  // если строка вдруг без пробела — это само слово-глагол
+  if (parts.length < 2) {
+    return withOptionalNifalNun(parts[0] || '', (rest) => renderPresentVerbWord(rest));
+  }
+
+  const first = parts[0];
+  const verb = parts[1];
+  const tail = parts.slice(2).join(' ');
+
+  return (
+    <>
+      {first}
+      {' '}
+      {withOptionalNifalNun(verb, (rest) => renderPresentVerbWord(rest))}
+      {tail ? ` ${tail}` : ''}
+    </>
+  );
+}
+
+
+    // 13–24 прошедшее: суффиксы + хитпаэль "ה" в начале
+  // 13–24 прошедшее (подсветка первой ה если есть) + ✅ NIFAL נ + ✅ позиция 17
+if (virtualPos === 13 || virtualPos === 14)
+  return applyToVerbWord(raw, (w) =>
+    withOptionalNifalNun(w, (rest) => renderPastWithHitpaelPrefixAndSuffix(rest, 'תי'))
+  );
+
+if (virtualPos === 15 || virtualPos === 16)
+  return applyToVerbWord(raw, (w) =>
+    withOptionalNifalNun(w, (rest) => renderPastWithHitpaelPrefixAndSuffix(rest, 'ת'))
+  );
+
+// ✅ 17: past 3ms — без суффикса (иначе нун не подсветится)
+if (virtualPos === 17)
+  return applyToVerbWord(raw, (w) =>
+    withOptionalNifalNun(w, (rest) => renderPastWithHitpaelPrefixAndSuffix(rest, ''))
+  );
+
+if (virtualPos === 18)
+  return applyToVerbWord(raw, (w) =>
+    withOptionalNifalNun(w, (rest) => renderPastWithHitpaelPrefixAndSuffix(rest, 'ה'))
+  );
+
+if (virtualPos === 19 || virtualPos === 20)
+  return applyToVerbWord(raw, (w) =>
+    withOptionalNifalNun(w, (rest) => renderPastWithHitpaelPrefixAndSuffix(rest, 'נו'))
+  );
+
+if (virtualPos === 21)
+  return applyToVerbWord(raw, (w) =>
+    withOptionalNifalNun(w, (rest) => renderPastWithHitpaelPrefixAndSuffix(rest, 'תם'))
+  );
+
+if (virtualPos === 22)
+  return applyToVerbWord(raw, (w) =>
+    withOptionalNifalNun(w, (rest) => renderPastWithHitpaelPrefixAndSuffix(rest, 'תן'))
+  );
+
+if (virtualPos === 23 || virtualPos === 24)
+  return applyToVerbWord(raw, (w) =>
+    withOptionalNifalNun(w, (rest) => renderPastWithHitpaelPrefixAndSuffix(rest, 'ו'))
+  );
+
+
+    // 25–36: префиксы/суффиксы — ✅ только на слове-глаголе (последнем слове)
+    if (virtualPos === 25 || virtualPos === 26)
+      return applyToVerbWord(raw, (w) => renderWithColorRules(w, { prefix: 'א' }));
+
+    if (virtualPos === 27)
+      return applyToVerbWord(raw, (w) => renderWithColorRules(w, { prefix: 'ת' }));
+
+    if (virtualPos === 28)
+      return applyToVerbWord(raw, (w) => renderWithColorRules(w, { prefix: 'ת', suffix: 'י' }));
+
+    if (virtualPos === 29)
+      return applyToVerbWord(raw, (w) => renderWithColorRules(w, { prefix: 'י' }));
+
+    if (virtualPos === 30)
+      return applyToVerbWord(raw, (w) => renderWithColorRules(w, { prefix: 'ת' }));
+
+    if (virtualPos === 31 || virtualPos === 32)
+      return applyToVerbWord(raw, (w) => renderWithColorRules(w, { prefix: 'נ' }));
+
+    if (virtualPos === 33 || virtualPos === 34)
+      return applyToVerbWord(raw, (w) => renderWithColorRules(w, { prefix: 'ת', suffix: 'ו' }));
+
+    if (virtualPos === 35 || virtualPos === 36)
+      return applyToVerbWord(raw, (w) => renderWithColorRules(w, { prefix: 'י', suffix: 'ו' }));
+
+    return raw;
+  };
 
 
   return (
-  <>
-    {isVerbListVisible && (
-      <VerbListModal2
-  visible={isVerbListVisible}
-  language={language}
-  verbs={verbListForModal}
-  onStartExercise={handleStartExercise}
-  onClose={() => {
-    setIsVerbListVisible(false);
-    if (navigation.canGoBack()) navigation.goBack();
-    else navigation.navigate('Menu');
-  }}
-/>
-
-
-      
-    )}
-
-    {!isVerbListVisible && (
-    <ScrollView contentContainerStyle={styles.scrollViewContent}>
-      <View style={styles.container}>
-      
-      <View style={styles.topBar}>
-        <Animated.Image
-          source={require('./VERBIFY.png')}
-          style={[styles.logoImage, { opacity: fadeAnim }]}
+    <>
+      {isVerbListVisible && (
+        <VerbListModal2
+          visible={isVerbListVisible}
+          language={language}
+          verbs={verbListForModal}
+          onStartExercise={handleStartExercise}
+          onClose={() => {
+            setIsVerbListVisible(false);
+            if (navigation.canGoBack()) navigation.goBack();
+            else navigation.navigate('Menu');
+          }}
         />
-        <View style={styles.buttonContainer}>
-          {isPlaying && (
-            <LottieView
-              ref={animationRef}
-              source={require('./assets/Animation - 1718430107767.json')}
-              autoPlay={true}
-              loop={true}
-              style={styles.lottieAnimation}
-            />
-          )}
-          <TouchableOpacity onPress={handleSoundToggle}>
-            <Animated.Image
-              source={soundEnabled ? require('./SoundOn.png') : require('./SoundOff.png')}
-              style={[styles.buttonImage, { opacity: fadeAnim }]}
-            />
-          </TouchableOpacity>
+      )}
 
-          {/* <TouchableOpacity onPress={handleButton3Press}>
-            <Animated.Image
-              source={require('./stat.png')}
-              style={[styles.buttonImage, { opacity: fadeAnim }]}
-            />
-            <StatModal6Ar
-              visible={isStatModalVisible}
-              onToggle={() => setIsStatModalVisible(false)}
-              statistics={statistics}
-            />
-          </TouchableOpacity> */}
+      {!isVerbListVisible && (
+        <ScrollView contentContainerStyle={styles.scrollViewContent}>
+          <View style={styles.container}>
 
-          <TouchableOpacity onPress={handleButton3Press}>
+            <View style={styles.topBar}>
+              <Animated.Image
+                source={require('./VERBIFY.png')}
+                style={[styles.logoImage, { opacity: fadeAnim }]}
+              />
+              <View style={styles.buttonContainer}>
+                <TouchableOpacity onPress={handleSoundToggle}>
+                  <Animated.Image
+                    source={soundEnabled ? require('./SoundOn.png') : require('./SoundOff.png')}
+                    style={[styles.buttonImage, { opacity: fadeAnim }]}
+                  />
+                </TouchableOpacity>
+
+                {/* ✅ translit кнопка между sound и stat (ON=translit1, OFF=translit2) */}
+                <TouchableOpacity onPress={handleTranslitToggle}>
   <Animated.Image
-    source={require('./stat.png')}
+    source={
+      translitMode === 0
+        ? require('./translit1.png')
+        : translitMode === 1
+        ? require('./translit2.png')
+        : require('./translit3.png')
+    }
     style={[styles.buttonImage, { opacity: fadeAnim }]}
   />
 </TouchableOpacity>
 
 
-          <TouchableOpacity onPress={toggleDescriptionModal}>
-            <Animated.Image
-              source={require('./question.png')}
-              style={[styles.buttonImage, { opacity: fadeAnim }]}
+                <TouchableOpacity onPress={handleButton3Press}>
+                  <Animated.Image
+                    source={require('./stat.png')}
+                    style={[styles.buttonImage, { opacity: fadeAnim }]}
+                  />
+                </TouchableOpacity>
+
+                <TouchableOpacity onPress={toggleDescriptionModal}>
+                  <Animated.Image
+                    source={require('./question.png')}
+                    style={[styles.buttonImage, { opacity: fadeAnim }]}
+                  />
+                  <TaskDescriptionModal6
+                    visible={isDescriptionModalVisible}
+                    onToggle={toggleDescriptionModal}
+                    language={language}
+                    dontShowAgain6={dontShowAgain6}
+                    onToggleDontShowAgain={handleToggleDontShowAgain6}
+                  />
+                </TouchableOpacity>
+
+                <TouchableOpacity onPress={handleSearchButtonPress}>
+                  <Animated.Image
+                    source={require('./search1.png')}
+                    style={[styles.buttonImage, { opacity: fadeAnim }]}
+                  />
+                  <SearchModalAr
+                    visible={isSearchModalVisible}
+                    onToggle={() => setSearchModalVisible(false)}
+                    onSelectVerb={handleSelectVerb} // Передаем обработчик
+                  />
+                </TouchableOpacity>
+              </View>
+            </View>
+
+            <Animated.View style={[styles.progressContainer, { opacity: fadeAnim }]}>
+              <View style={styles.textContainer}>
+                <Text style={styles.prtext} maxFontSizeMultiplier={1.2}>صحيح: {correctCount / 2}</Text>
+                <Text style={styles.prtext} maxFontSizeMultiplier={1.2}>خطأ: {incorrectCount}</Text>
+              </View>
+              <View style={styles.remainingTasksContainer}>
+                <Text style={styles.remainingTasksText} maxFontSizeMultiplier={1.2}>
+                  {remainingPairs}
+                </Text>
+              </View>
+              <Animated.View style={[styles.percentContainer, { backgroundColor, borderRadius: 10 }]}>
+                <Text style={styles.percentText} maxFontSizeMultiplier={1.2}>
+                  {progressPercent.toFixed(2)}%
+                </Text>
+              </Animated.View>
+            </Animated.View>
+
+            <Animated.View style={[styles.ProgressBarcontainer, { opacity: fadeAnim }]}>
+              <ProgressBar progress={progress / 2} totalExercises={100} />
+            </Animated.View>
+
+            <Animated.Text style={[styles.title, { opacity: fadeAnim }]} maxFontSizeMultiplier={1.2}>
+              تصريف الفعل
+            </Animated.Text>
+
+            {currentVerb && (
+              <Animated.View style={[styles.verbContainer, { opacity: fadeAnim }]}>
+                <Text style={styles.verbText} maxFontSizeMultiplier={1.2}> {currentVerb.infinitive}</Text>
+                <Text style={styles.verbTextTr} maxFontSizeMultiplier={1.2}> {currentVerb.transliteration}</Text>
+                <Text style={styles.verbTextRu} maxFontSizeMultiplier={1.2}> {currentVerb.arabic}</Text>
+                <TouchableOpacity onPress={() => playAudio(currentVerb.audioFile)} style={styles.audioButton}>
+                  <Image source={require('./speaker3.png')} style={styles.audioIcon} />
+                </TouchableOpacity>
+              </Animated.View>
+            )}
+
+            <Animated.View style={{ transform: [{ translateY: blockAnimation }] }}>
+              {displayPairs.map((pair, index) => (
+                <View key={index} style={styles.row}>
+                  <TouchableOpacity
+                    style={getButtonStyle(index, 'arabic')}
+                    onPress={() => handleSelectRussian(index)}
+                    disabled={correctAnswers.has(index)}
+                  >
+                    <Text style={[
+                      styles.text,
+                      styles.russianText,
+                      correctAnswers.has(index) ? styles.deactivatedButtonText : {}
+                    ]} maxFontSizeMultiplier={1.2}>
+                      {pair.artext}
+                    </Text>
+                    {pair.gender && (
+                      <Image
+                        source={getImageForGender(pair.gender)}
+                        style={styles.iconStyle}
+                      />
+                    )}
+                  </TouchableOpacity>
+
+                  <TouchableOpacity
+                    style={getButtonStyle(index, 'hebrew')}
+                    onPress={() => handleSelectHebrew(index)}
+                    disabled={!hebrewActive || correctAnswers.has(selectedRussian)}
+                  >
+                    <Text
+                      style={[
+                        styles.text,
+                        styles.hebrewText,
+                        !showTranslit && styles.hebrewCenterWhenNoTranslit,
+                      ]}
+                      maxFontSizeMultiplier={1.2}
+                    >
+                      {renderHebrewText(pair.hebrewtext, pair.formIndex)}
+                    </Text>
+
+                    {/* ✅ Всегда в layout: высота кнопки не меняется */}
+                    <Text
+  style={[styles.translitText, !showTranslit && styles.translitHidden]}
+  maxFontSizeMultiplier={1.2}
+>
+  {pair.translit}
+</Text>
+
+                  </TouchableOpacity>
+                </View>
+              ))}
+            </Animated.View>
+
+            {exerciseCompleted && (
+              <CompletionMessageAr
+                handleOK={handleExerciseCompletion}
+                navigateToMenu={() => navigation.navigate('MenuAr')}
+                correctAnswers={correctCount}
+                incorrectAnswers={incorrectCount}
+                correctAnswersPercentage={progressPercent.toFixed(2)}
+                grade={grade}
+                restartTask={resetExercise}
+              />
+            )}
+            <ExitConfirmationModal
+              visible={exitConfirmationVisible}
+              onCancel={handleCancelExit}
+              onConfirm={handleConfirmExit}
             />
-            <TaskDescriptionModal6
-              visible={isDescriptionModalVisible}
-  onToggle={toggleDescriptionModal}
-  language={language}
-  dontShowAgain6={dontShowAgain6}
-  onToggleDontShowAgain={handleToggleDontShowAgain6}
-            />
-          </TouchableOpacity>
-
-          <TouchableOpacity onPress={handleSearchButtonPress}>
-            <Animated.Image
-              source={require('./search1.png')}
-              style={[styles.buttonImage, { opacity: fadeAnim }]}
-            />
-            <SearchModalAr
-              visible={isSearchModalVisible}
-              onToggle={() => setSearchModalVisible(false)}
-              onSelectVerb={handleSelectVerb} // Передаем обработчик
-            />
-          </TouchableOpacity>
-        </View>
-      </View>
-
-      <Animated.View style={[styles.progressContainer, { opacity: fadeAnim }]}>
-        <View style={styles.textContainer}>
-          <Text style={styles.prtext}maxFontSizeMultiplier={1.2}>صحيح: {correctCount / 2}</Text>
-          <Text style={styles.prtext}maxFontSizeMultiplier={1.2}>خطأ: {incorrectCount}</Text>
-        </View>
-        <View style={styles.remainingTasksContainer}>
-          <Text style={styles.remainingTasksText}maxFontSizeMultiplier={1.2}>
-            {remainingPairs}
-          </Text>
-        </View>
-        <Animated.View style={[styles.percentContainer, { backgroundColor, borderRadius: 10 }]}>
-          <Text style={styles.percentText}maxFontSizeMultiplier={1.2}>
-            {progressPercent.toFixed(2)}%
-          </Text>
-        </Animated.View>
-      </Animated.View>
-
-      <Animated.View style={[styles.ProgressBarcontainer, { opacity: fadeAnim }]}>
-        <ProgressBar progress={progress / 2} totalExercises={100} />
-      </Animated.View>
-
-      <Animated.Text style={[styles.title, { opacity: fadeAnim }]}maxFontSizeMultiplier={1.2}>تصريف الفعل</Animated.Text>
-
-      {currentVerb && (
-        <Animated.View style={[styles.verbContainer, { opacity: fadeAnim }]}>
-          <Text style={styles.verbText}maxFontSizeMultiplier={1.2}> {currentVerb.infinitive}</Text>
-          <Text style={styles.verbTextTr}maxFontSizeMultiplier={1.2}> {currentVerb.transliteration}</Text>
-          <Text style={styles.verbTextRu}maxFontSizeMultiplier={1.2}> {currentVerb.arabic}</Text>
-          <TouchableOpacity onPress={() => playAudio(currentVerb.audioFile)} style={styles.audioButton}>
-            <Image source={require('./speaker3.png')} style={styles.audioIcon} />
-          </TouchableOpacity>
-        </Animated.View>
-      )}
-
-      <Animated.View style={{ transform: [{ translateY: blockAnimation }] }}>
-        {displayPairs.map((pair, index) => (
-          <View key={index} style={styles.row}>
-            <TouchableOpacity
-              style={getButtonStyle(index, 'arabic')}
-              onPress={() => handleSelectRussian(index)}
-              disabled={correctAnswers.has(index)}
-            >
-              <Text style={[
-                styles.text, 
-                styles.russianText,
-                correctAnswers.has(index) ? styles.deactivatedButtonText : {}
-              ]}maxFontSizeMultiplier={1.2}>
-                {pair.artext}
-              </Text>
-              {pair.gender && (
-                <Image
-                  source={getImageForGender(pair.gender)}
-                  style={styles.iconStyle}
-                />
-              )}
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={getButtonStyle(index, 'hebrew')}
-              onPress={() => handleSelectHebrew(index)}
-              disabled={!hebrewActive || correctAnswers.has(selectedRussian)}
-            >
-              <Text style={[styles.text, styles.hebrewText]}maxFontSizeMultiplier={1.2}>{pair.hebrewtext}</Text>
-              <Text style={styles.translitText}maxFontSizeMultiplier={1.2}>{pair.translit}</Text>
-            </TouchableOpacity>
           </View>
-        ))}
-      </Animated.View>
-
-      {exerciseCompleted && (
-        <CompletionMessageAr
-          handleOK={handleExerciseCompletion}
-          navigateToMenu={() => navigation.navigate('MenuAr')}
-          correctAnswers={correctCount}
-          incorrectAnswers={incorrectCount}
-          correctAnswersPercentage={progressPercent.toFixed(2)}
-          grade={grade}
-          restartTask={resetExercise}
-        />
+        </ScrollView>
       )}
-      <ExitConfirmationModal
-        visible={exitConfirmationVisible}
-        onCancel={handleCancelExit}
-        onConfirm={handleConfirmExit}
+
+      {/* Модалки должны быть вне ScrollView/TouchableOpacity */}
+      <StatModal6Ar
+        visible={isStatModalVisible}
+        onToggle={() => setIsStatModalVisible(false)}
+        statistics={statistics}
       />
-      </View>
-    </ScrollView>
- )}
 
-    {/* Модалки должны быть вне ScrollView/TouchableOpacity */}
-    <StatModal6Ar
-      visible={isStatModalVisible}
-      onToggle={() => setIsStatModalVisible(false)}
-      statistics={statistics}
-    />
-
-    <TaskDescriptionModal6
-      visible={isDescriptionModalVisible}
-      onToggle={toggleDescriptionModal}
-      language={language}
-      dontShowAgain6={dontShowAgain6}
-      onToggleDontShowAgain={handleToggleDontShowAgain6}
-    />
-  </>
-);
+      <TaskDescriptionModal6
+        visible={isDescriptionModalVisible}
+        onToggle={toggleDescriptionModal}
+        language={language}
+        dontShowAgain6={dontShowAgain6}
+        onToggleDontShowAgain={handleToggleDontShowAgain6}
+      />
+    </>
+  );
 };
 
 const styles = StyleSheet.create({
@@ -910,7 +1188,7 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    
+
   },
 
   container: {
@@ -921,7 +1199,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#AFC1D0',
     height: '100%',
     width: '100%',
-    
 
   },
 
@@ -961,7 +1238,7 @@ const styles = StyleSheet.create({
     marginLeft: 10,
     marginTop: -5,
   },
-  
+
   progressContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
@@ -991,7 +1268,7 @@ const styles = StyleSheet.create({
     color: 'white',
     textAlign: 'left',
     marginLeft: 15,
-     lineHeight: 20,
+    lineHeight: 20,
     fontWeight: 'bold',
     includeFontPadding: false,
     textAlignVertical: 'center',
@@ -1086,7 +1363,6 @@ const styles = StyleSheet.create({
     width: "100%",
   },
   button: {
-    // flex: 1.05,
     width: '48.5%',
     marginHorizontal: 5,
     padding: 5,
@@ -1128,6 +1404,12 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     color: '#152039',
   },
+
+  // ✅ когда скрыли транслит — визуально центрируем иврит
+  hebrewCenterWhenNoTranslit: {
+    transform: [{ translateY: 12 }],
+  },
+
   translitText: {
     fontSize: 15,
     textAlign: 'center',
@@ -1135,6 +1417,12 @@ const styles = StyleSheet.create({
     color: '#FF5757',
     fontWeight: 'bold',
   },
+
+  // ✅ остаётся в layout, но невидимая — высота кнопки не меняется
+  translitHidden: {
+    opacity: 0,
+  },
+
   iconStyle: {
     width: 45,
     height: 45,
@@ -1190,6 +1478,17 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontWeight: 'bold',
   },
+
+  prefixYellow: {
+    color: '#00a2ff',
+  },
+
+  suffixGreen: {
+    color: '#ff3ab3',
+  },
+  
+  translitHidden: { opacity: 0 },
+
 });
 
 export default Exercise6Ar;

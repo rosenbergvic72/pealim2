@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useMemo, useState, useCallback } from 'react';
 import {
   Modal,
   View,
@@ -9,47 +9,164 @@ import {
   ScrollView,
   Keyboard,
 } from 'react-native';
-import verbsData from './verbs6RU.json';
+
+import verbsData6 from './verbs6RU.json';
+import verbsData1 from './verbs1.json';
 
 const SearchModalPt = ({ visible, onToggle, onSelectVerb }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState([]);
+  const [didSearch, setDidSearch] = useState(false);
+
+  /* =========================
+     Helpers
+  ========================= */
+
+  const normalizeHebrew = useCallback((s) => {
+    if (!s) return '';
+    return String(s)
+      .trim()
+      .replace(/\s+/g, '')
+      .replace(/־/g, '')
+      .toLowerCase();
+  }, []);
+
+  // ВАЖНО: в твоей базе ключ португальского = "portu"
+  const pickPortugueseInf = useCallback((row) => {
+    return (
+      row?.portu ||
+      row?.verbPortuguese ||
+      row?.portuguese ||
+      row?.pt ||
+      row?.ptTextShort ||
+      row?.pttext || // fallback
+      '—'
+    );
+  }, []);
+
+  const normalizeBinyan = useCallback((b) => {
+    const s = (b || '—').trim();
+    return s.length ? s : '—';
+  }, []);
+
+  /* =========================
+     Build binyan index from verbs1.json
+  ========================= */
+
+  const binyanByInfinitiveHebrew = useMemo(() => {
+    const map = new Map();
+    for (const v of verbsData1 || []) {
+      const key = normalizeHebrew(v?.hebrewVerb);
+      if (!key) continue;
+      if (!map.has(key)) map.set(key, normalizeBinyan(v?.binyan));
+    }
+    return map;
+  }, [normalizeHebrew, normalizeBinyan]);
+
+  /* =========================
+     Unique verbs list from verbs6RU
+     Sort by binyan → infinitive
+  ========================= */
+
+  const allVerbsList = useMemo(() => {
+    const groups = new Map();
+
+    for (const row of verbsData6 || []) {
+      const hebInf = row?.infinitive;
+      const key = normalizeHebrew(hebInf);
+      if (!key) continue;
+
+      if (!groups.has(key)) {
+        groups.set(key, {
+          infinitiveHebrew: hebInf,
+          portugueseInfinitive: pickPortugueseInf(row),
+          sampleRow: row,
+        });
+      }
+    }
+
+    const list = Array.from(groups.values()).map((item) => ({
+      ...item,
+      binyan:
+        binyanByInfinitiveHebrew.get(normalizeHebrew(item.infinitiveHebrew)) ||
+        '—',
+    }));
+
+    list.sort((a, b) => {
+      const bin = String(a.binyan).localeCompare(String(b.binyan), 'en');
+      if (bin !== 0) return bin;
+      return String(a.infinitiveHebrew).localeCompare(String(b.infinitiveHebrew), 'he');
+    });
+
+    return list;
+  }, [normalizeHebrew, pickPortugueseInf, binyanByInfinitiveHebrew]);
+
+  /* =========================
+     Binyan background styles
+  ========================= */
+
+  const getBinyanRowStyle = useCallback(
+    (binyan) => {
+      const b = normalizeBinyan(binyan).toUpperCase();
+
+      if (b.includes("PA'AL") || b.includes('PAAL')) return styles.rowPaal;
+      if (b.includes("PI'EL") || b.includes('PIEL')) return styles.rowPiel;
+      if (b.includes("HIF'IL") || b.includes('HIFIL')) return styles.rowHifil;
+      if (b.includes("HITPA'EL") || b.includes('HITPAEL')) return styles.rowHitpael;
+      if (b.includes("NIF'AL") || b.includes('NIFAL')) return styles.rowNifal;
+      if (b.includes("HUF'AL") || b.includes('HUFAL')) return styles.rowHufal;
+      if (b.includes("PU'AL") || b.includes('PUAL')) return styles.rowPual;
+
+      return styles.rowDefault;
+    },
+    [normalizeBinyan]
+  );
+
+  /* =========================
+     Lifecycle
+  ========================= */
 
   useEffect(() => {
     if (visible) {
-      setSearchQuery('');      // очищаем строку поиска при открытии
-      setSearchResults([]);    // очищаем результаты
+      setSearchQuery('');
+      setSearchResults([]);
+      setDidSearch(false);
     }
   }, [visible]);
 
-  const handleSearch = () => {
+  /* =========================
+     Search
+  ========================= */
+
+  const handleSearch = useCallback(() => {
     const trimmed = searchQuery.trim();
+    setDidSearch(true);
+
     if (trimmed.length < 3) {
       setSearchResults([]);
       return;
     }
 
-    const lowerCaseQuery = trimmed.toLowerCase();
-    const results = verbsData.filter((verb) =>
-      verb.infinitive.toLowerCase().includes(lowerCaseQuery) ||
-      verb.portu.toLowerCase().includes(lowerCaseQuery) ||
-      verb.pttext.toLowerCase().includes(lowerCaseQuery) ||
-      verb.translit.toLowerCase().includes(lowerCaseQuery) ||
-      verb.transliteration.toLowerCase().includes(lowerCaseQuery) ||
-      verb.hebrewtext.toLowerCase().includes(lowerCaseQuery)
+    const q = trimmed.toLowerCase();
+
+    const results = verbsData6.filter((v) =>
+      (v.infinitive || '').toLowerCase().includes(q) ||
+      (v.portu || '').toLowerCase().includes(q) ||
+      (v.pttext || '').toLowerCase().includes(q) ||
+      (v.translit || '').toLowerCase().includes(q) ||
+      (v.transliteration || '').toLowerCase().includes(q) ||
+      (v.hebrewtext || '').toLowerCase().includes(q)
     );
+
     setSearchResults(results);
-  };
+  }, [searchQuery]);
 
   const handleInputChange = (text) => {
     setSearchQuery(text);
     if (text === '') {
       setSearchResults([]);
+      setDidSearch(false);
     }
-  };
-
-  const handleResultPress = (result) => {
-    onSelectVerb(result); // вызывает handleSelectVerb
   };
 
   const handleSearchPress = () => {
@@ -58,29 +175,33 @@ const SearchModalPt = ({ visible, onToggle, onSelectVerb }) => {
   };
 
   const handleBlur = () => {
-    if (searchQuery.trim().length >= 3) {
-      handleSearch();
-    }
+    if (searchQuery.trim().length >= 3) handleSearch();
   };
 
   const isSearchEnabled = searchQuery.trim().length >= 3;
 
+  /* =========================
+     Select actions
+  ========================= */
+
+  const handleSearchResultPress = (row) => onSelectVerb(row);
+  const handleTableVerbPress = (item) => onSelectVerb(item.sampleRow);
+
+  /* =========================
+     UI
+  ========================= */
+
   return (
-    <Modal
-      animationType="slide"
-      transparent={true}
-      visible={visible}
-      onRequestClose={onToggle}
-    >
+    <Modal animationType="slide" transparent visible={visible} onRequestClose={onToggle}>
       <View style={styles.centeredView}>
         <View style={styles.modalView}>
           <Text style={styles.modalText} maxFontSizeMultiplier={1.2}>
-            Pesquisar por exercício
+            Verbos do exercício
           </Text>
 
           <TextInput
             style={styles.input}
-            placeholder="Digite uma palavra para pesquisar"
+            // placeholder="Digite uma palavra para pesquisar (mín. 3 caracteres)"
             onChangeText={handleInputChange}
             value={searchQuery}
             onBlur={handleBlur}
@@ -93,77 +214,111 @@ const SearchModalPt = ({ visible, onToggle, onSelectVerb }) => {
             disabled={!isSearchEnabled}
           >
             <Text style={styles.buttonText} maxFontSizeMultiplier={1.2}>
-              Pesquisa
+              Pesquisar
             </Text>
           </TouchableOpacity>
 
           <ScrollView
             style={styles.resultsScroll}
             contentContainerStyle={styles.resultsContent}
+            keyboardShouldPersistTaps="handled"
           >
-            {searchResults.length > 0 && (
-              <Text style={styles.hintText} maxFontSizeMultiplier={1.2}>
-                Clique para conjugar
-              </Text>
+            {/* Search results (only after search) */}
+            {didSearch && (
+              <>
+                <Text style={styles.sectionTitle} maxFontSizeMultiplier={1.2}>
+                  Resultados da pesquisa
+                </Text>
+
+                {searchResults.length === 0 ? (
+                  <Text style={styles.emptyText} maxFontSizeMultiplier={1.2}>
+                    Nada encontrado.
+                  </Text>
+                ) : (
+                  <>
+                    <Text style={styles.hintText} maxFontSizeMultiplier={1.2}>
+                      Toque em um resultado para abrir a conjugação
+                    </Text>
+
+                    {searchResults.map((r, i) => (
+                      <TouchableOpacity
+                        key={i}
+                        style={styles.resultContainer}
+                        onPress={() => handleSearchResultPress(r)}
+                        activeOpacity={0.85}
+                      >
+                        <Text style={[styles.resultTextBase, styles.infinitiveText]} maxFontSizeMultiplier={1.2}>
+                          {r.infinitive}
+                        </Text>
+
+                        <Text style={[styles.resultTextBase, styles.portugueseShortText]} maxFontSizeMultiplier={1.2}>
+                          {r.portu}
+                        </Text>
+
+                        <Text style={[styles.resultTextBase, styles.translitMainText]} maxFontSizeMultiplier={1.2}>
+                          {r.transliteration}
+                        </Text>
+
+                        <Text style={[styles.resultTextBase, styles.resultTextHebrew]} maxFontSizeMultiplier={1.2}>
+                          {r.hebrewtext}
+                        </Text>
+
+                        <Text style={[styles.resultTextBase, styles.portuguesePhraseText]} maxFontSizeMultiplier={1.2}>
+                          {r.pttext}
+                        </Text>
+
+                        <Text style={[styles.resultTextBase, styles.translitAltText]} maxFontSizeMultiplier={1.2}>
+                          {r.translit}
+                        </Text>
+                      </TouchableOpacity>
+                    ))}
+                  </>
+                )}
+
+                <View style={styles.divider} />
+              </>
             )}
 
-            {searchResults.map((result, index) => (
+            {/* Verbs list (table style) */}
+            <Text style={styles.sectionTitle} maxFontSizeMultiplier={1.2}>
+              Escolha um verbo para praticar
+            </Text>
+
+            {/* <View style={styles.tableHeader}>
+              <Text style={[styles.tableCell, styles.colHebHeader]} maxFontSizeMultiplier={1.2}>
+                Infinitivo (hebraico)
+              </Text>
+              <Text style={[styles.tableCell, styles.colBinyanHeader]} maxFontSizeMultiplier={1.2}>
+                Binyan
+              </Text>
+              <Text style={[styles.tableCell, styles.colPtHeader]} maxFontSizeMultiplier={1.2}>
+                Português
+              </Text>
+            </View> */}
+
+            {allVerbsList.map((item, idx) => (
               <TouchableOpacity
-                key={index}
-                style={styles.resultContainer}
-                onPress={() => handleResultPress(result)}
+                key={`${item.infinitiveHebrew}_${idx}`}
+                style={[styles.tableRow, getBinyanRowStyle(item.binyan)]}
+                onPress={() => handleTableVerbPress(item)}
+                activeOpacity={0.85}
               >
-                {/* верхний блок — инфинитив + португальский перевод + основная транслит */}
-                <Text
-                  style={[styles.resultTextBase, styles.infinitiveText]}
-                  maxFontSizeMultiplier={1.2}
-                >
-                  {result.infinitive}
+                <Text style={[styles.tableCell, styles.colHeb]} maxFontSizeMultiplier={1.2}>
+                  {item.infinitiveHebrew}
                 </Text>
 
-                <Text
-                  style={[styles.resultTextBase, styles.portugueseShortText]}
-                  maxFontSizeMultiplier={1.2}
-                >
-                  {result.portu}
+                <Text style={[styles.tableCell, styles.colBinyan]} maxFontSizeMultiplier={1.2}>
+                  {item.binyan}
                 </Text>
 
-                <Text
-                  style={[styles.resultTextBase, styles.translitMainText]}
-                  maxFontSizeMultiplier={1.2}
-                >
-                  {result.transliteration}
-                </Text>
-
-                {/* нижний блок — 3 строки, вправо и другие цвета */}
-                <Text
-                  style={[styles.resultTextBase, styles.resultTextHebrew]}
-                  maxFontSizeMultiplier={1.2}
-                >
-                  {result.hebrewtext}
-                </Text>
-
-                <Text
-                  style={[styles.resultTextBase, styles.portuguesePhraseText]}
-                  maxFontSizeMultiplier={1.2}
-                >
-                  {result.pttext}
-                </Text>
-
-                <Text
-                  style={[styles.resultTextBase, styles.translitAltText]}
-                  maxFontSizeMultiplier={1.2}
-                >
-                  {result.translit}
+                <Text style={[styles.tableCell, styles.colPt]} maxFontSizeMultiplier={1.2}>
+                  {item.portugueseInfinitive}
                 </Text>
               </TouchableOpacity>
             ))}
           </ScrollView>
 
-          <TouchableOpacity
-            style={styles.closeButton}
-            onPress={onToggle}
-          >
+          <TouchableOpacity style={styles.closeButton} onPress={onToggle}>
             <Text style={styles.closeButtonText} maxFontSizeMultiplier={1.2}>
               Fechar
             </Text>
@@ -173,6 +328,12 @@ const SearchModalPt = ({ visible, onToggle, onSelectVerb }) => {
     </Modal>
   );
 };
+
+/* =========================
+   Styles
+========================= */
+
+const TABLE_FONT = 12;
 
 const styles = StyleSheet.create({
   centeredView: {
@@ -202,6 +363,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: '#2B3270',
   },
+
   input: {
     width: '100%',
     height: 40,
@@ -210,10 +372,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     paddingVertical: 0,
     borderRadius: 10,
-    marginBottom: 12,
+    marginBottom: 10,
     backgroundColor: '#FFFFFF',
     textAlignVertical: 'center',
   },
+
   button: {
     backgroundColor: '#1C3F60',
     borderRadius: 10,
@@ -222,30 +385,40 @@ const styles = StyleSheet.create({
     width: '100%',
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 12,
+    marginBottom: 10,
   },
-  buttonDisabled: {
-    backgroundColor: '#9CA9B5',
-  },
-  buttonText: {
-    color: 'white',
-    fontSize: 16,
+  buttonDisabled: { backgroundColor: '#9CA9B5' },
+  buttonText: { color: 'white', fontSize: 16, fontWeight: 'bold' },
+
+  resultsScroll: { width: '100%', flexGrow: 0 },
+  resultsContent: { paddingBottom: 8 },
+
+  sectionTitle: {
+    fontSize: 14,
     fontWeight: 'bold',
+    color: '#2B3270',
+    textAlign: 'center',
+    marginBottom: 8,
   },
 
-  resultsScroll: {
+  divider: {
+    height: 1,
+    backgroundColor: '#C3D1E0',
+    marginVertical: 10,
     width: '100%',
-    flexGrow: 0,
-  },
-  resultsContent: {
-    paddingBottom: 8,
   },
 
+  /* ====== Search results ====== */
   hintText: {
     fontSize: 14,
     fontWeight: 'bold',
     color: '#2B3270',
     textAlign: 'center',
+    marginBottom: 6,
+  },
+  emptyText: {
+    textAlign: 'center',
+    color: '#6B7280',
     marginBottom: 6,
   },
 
@@ -260,15 +433,12 @@ const styles = StyleSheet.create({
     backgroundColor: '#E4ECF5',
     marginBottom: 6,
   },
-
-  // базовый стиль для всех строк
   resultTextBase: {
     fontSize: 14,
     color: '#333',
     marginBottom: 1,
   },
 
-  // верхние 3 строки
   infinitiveText: {
     fontSize: 16,
     fontWeight: 'bold',
@@ -283,7 +453,6 @@ const styles = StyleSheet.create({
     color: '#FF5733',
   },
 
-  // нижние 3 строки — вправо и другие цвета
   resultTextHebrew: {
     fontSize: 16,
     fontWeight: 'bold',
@@ -301,6 +470,83 @@ const styles = StyleSheet.create({
     color: '#B23A48',
     textAlign: 'right',
   },
+
+  /* ====== Table header + rows ====== */
+  tableHeader: {
+    width: '100%',
+    flexDirection: 'row',
+    backgroundColor: '#DDE6F0',
+    borderRadius: 10,
+    paddingVertical: 8,
+    paddingHorizontal: 10,
+    borderWidth: 1,
+    borderColor: '#C3D1E0',
+    marginBottom: 6,
+  },
+
+  tableRow: {
+    width: '100%',
+    flexDirection: 'row',
+    borderRadius: 10,
+    paddingVertical: 8,
+    paddingHorizontal: 10,
+    borderWidth: 1,
+    borderColor: '#C3D1E0',
+    marginBottom: 6,
+    alignItems: 'center',
+  },
+
+  tableCell: {
+    fontSize: TABLE_FONT,
+    color: '#1C3F60',
+  },
+
+  colHebHeader: {
+    flex: 1.1,
+    fontWeight: 'bold',
+    textAlign: 'right',
+    writingDirection: 'rtl',
+  },
+  colBinyanHeader: {
+    flex: 0.8,
+    fontWeight: 'bold',
+    textAlign: 'center',
+  },
+  colPtHeader: {
+    flex: 1.1,
+    fontWeight: 'bold',
+    textAlign: 'left',
+  },
+
+  colHeb: {
+    flex: 1.1,
+    fontWeight: 'bold',
+    textAlign: 'right',
+    writingDirection: 'rtl',
+    color: '#1D3557',
+  },
+  colBinyan: {
+    flex: 0.8,
+    textAlign: 'center',
+    color: '#0B7285',
+    fontWeight: '800',
+  },
+  colPt: {
+    flex: 1.1,
+    textAlign: 'left',
+    color: '#1C3F60',
+    fontWeight: '700',
+  },
+
+  /* ====== Backgrounds per binyan ====== */
+  rowDefault: { backgroundColor: '#E4ECF5' },
+  rowPaal: { backgroundColor: '#E9F7EF' },
+  rowPiel: { backgroundColor: '#FEF5E7' },
+  rowHifil: { backgroundColor: '#EAF2F8' },
+  rowHitpael: { backgroundColor: '#F5EEF8' },
+  rowNifal: { backgroundColor: '#FDEDEC' },
+  rowHufal: { backgroundColor: '#F4F6F7' },
+  rowPual: { backgroundColor: '#FFF9E6' },
 
   closeButton: {
     backgroundColor: '#1C3F60',

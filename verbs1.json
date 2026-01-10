@@ -400,7 +400,7 @@
           "Звать"
       ],
       "translationOptionsEn": ["to tell", "to be silent", "to kick", "to call"],
-"translationOptionsFr": ["raconter", "se taire", "donner un coup de pied", "appeler"],
+"translationOptionsFr": ["raconter", "se taire", "porter", "appeler"],
 "translationOptionsEs": ["contar", "callar", "patear", "llamar"],
 "translationOptionsPt": ["contar", "calar", "chutar", "chamar"],
 "translationOptionsAr": ["أن تخبر", "أن تصمت", "أن تركل", "أن تنادي"],
@@ -796,7 +796,7 @@
       "transliteration": "lifgosh",
       "audioFile": "lifgosh.mp3",
       "translationOptions": [
-          "Встретиться",
+          "Встречать",
           "Забыть",
           "Дарить",
           "Брать"
@@ -1785,7 +1785,7 @@
       "transliteration": "lilbosh",
       "audioFile": "lilbosh.mp3",
       "translationOptions": [
-          "Носить",
+          "Носить (одежду)",
           "Желать",
           "Плавать",
           "Сидеть"
@@ -1821,11 +1821,11 @@
       "correctTranslationIndex": 0
   },
   {
-      "hebrewVerb": "להשאר",
+      "hebrewVerb": "להשאיר",
       "root": " ש-א-ר",
-      "binyan": "NIF'AL",
-      "transliteration": "lehisha'er",
-      "audioFile": "lehishaer.mp3",
+      "binyan": "HIF'IL",
+      "transliteration": "lehash'ir",
+      "audioFile": "lehashir.mp3",
       "translationOptions": [
           "Оставлять",
           "Падать",
@@ -2506,8 +2506,8 @@
       ],
       "translationOptionsEn": ["to rescue", "to hope", "to wait", "to try"],
 "translationOptionsFr": ["secourir", "espérer", "attendre", "essayer"],
-"translationOptionsEs": ["rescatar", "esperar", "esperar", "intentar"],
-"translationOptionsPt": ["resgatar", "esperar", "aguardar", "tentar"],
+"translationOptionsEs": ["salvar", "esperar", "esperar", "intentar"],
+"translationOptionsPt": ["salvar", "esperar", "aguardar", "tentar"],
 "translationOptionsAr": ["أن ينقذ", "أن يأمل", "أن ينتظر", "أن يحاول"],
 "translationOptionsAm": ["ማዳን", "መዝገብ", "መድረስ", "መጠጣት"],
 
@@ -5585,27 +5585,48 @@
 ,
                         "correctTranslationIndex": 0
                     },
-                    {
-                        "hebrewVerb": "להציג",
-                        "root": "י-צ-ג",
-                        "binyan": "HIF'IL",
-                        "transliteration": "lehatzig",
-                        "audioFile": "lehatzig.mp3",
-                        "translationOptions": [
-                           "Дарить",
-                           "Желать",
-                           "Пить",
-                           "Копать" 
-                        ],
-                        "translationOptionsEn": ["to present", "to wish", "to drink", "to dig"],
-"translationOptionsFr": ["offrir", "souhaiter", "boire", "creuser"],
-"translationOptionsEs": ["regalar", "desear", "beber", "cavar"],
-"translationOptionsPt": ["presentear", "desejar", "beber", "cavar"],
-"translationOptionsAr": ["أهدى", "أن تستمع", "أن تفهم", "أن تنام"],
-"translationOptionsAm": ["መስጠት", "መኛት", "መጠጣት", "መቆፈር"]
-,
-                        "correctTranslationIndex": 0
-                    },
+         {
+  "hebrewVerb": "להציג",
+  "root": "י-צ-ג",
+  "binyan": "HIF'IL",
+  "transliteration": "lehatzig",
+  "audioFile": "lehatzig.mp3",
+  "translationOptions": [
+    "Представлять",
+    "Желать",
+    "Пить",
+    "Копать"
+  ],
+  "translationOptionsEn": ["to present", "to wish", "to drink", "to dig"],
+  "translationOptionsFr": ["présenter", "souhaiter", "boire", "creuser"],
+  "translationOptionsEs": ["presentar", "desear", "beber", "cavar"],
+  "translationOptionsPt": ["apresentar", "desejar", "beber", "cavar"],
+  "translationOptionsAr": ["أن يقدّم", "أن يتمنى", "أن يشرب", "أن يحفر"],
+  "translationOptionsAm": ["ማቅረብ", "መኛት", "መጠጣት", "መቆፈር"],
+  "correctTranslationIndex": 0
+},
+{
+  "hebrewVerb": "להעניק",
+  "root": "נ-ע-ק",
+  "binyan": "HIF'IL",
+  "transliteration": "leha'aník",
+  "audioFile": "lehaanik.mp3",
+  "translationOptions": [
+    "Дарить",
+    "Представлять",
+    "Пить",
+    "Копать"
+  ],
+  "translationOptionsEn": ["to grant", "to present", "to drink", "to dig"],
+  "translationOptionsFr": ["accorder", "présenter", "boire", "creuser"],
+  "translationOptionsEs": ["conceder", "presentar", "beber", "cavar"],
+  "translationOptionsPt": ["conceder", "apresentar", "beber", "cavar"],
+  "translationOptionsAr": ["أن يمنح", "أن يقدّم", "أن يشرب", "أن يحفر"],
+  "translationOptionsAm": ["መስጠት", "ማቅረብ", "መጠጣት", "መቆፈር"],
+  "correctTranslationIndex": 0
+},
+
+
                     {
                         "hebrewVerb": "להלוות",
                         "root": "ל-ו-ה",
@@ -6104,7 +6125,7 @@
                             "Звать"
                         ],
                         "translationOptionsEn": ["to throw", "to be silent", "to kick", "to call"],
-                  "translationOptionsFr": ["jeter", "se taire", "donner un coup de pied", "appeler"],
+                  "translationOptionsFr": ["jeter", "se taire", "donner", "appeler"],
                   "translationOptionsEs": ["lanzar", "callar", "patear", "llamar"],
                   "translationOptionsPt": ["jogar", "calar", "chutar", "chamar"],
                   "translationOptionsAr": ["أن يرمي", "أن تصمت", "أن تركل", "أن تنادي"],

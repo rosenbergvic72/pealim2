@@ -34,7 +34,7 @@ const shuffleArray = (array) => {
     const j = Math.floor(Math.random() * (i + 1));
     [shuffledArray[i], shuffledArray[j]] = [shuffledArray[j], shuffledArray[i]];
   }
-  return shuffledArray.slice(0, 15); // Возвращаем только первые 30 элементов
+  return shuffledArray.slice(0, 18); // Возвращаем только первые 30 элементов
 };
 
 const getGrade = (percentage) => {
@@ -1108,7 +1108,7 @@ const styles = StyleSheet.create({
   },
   
   verbDetailsTranslit: {
-    fontSize: 15,
+    fontSize: 14,
     fontWeight: 'bold',
     color: '#CE6857',
     backgroundColor: '#FFFDEF',
@@ -1121,7 +1121,7 @@ const styles = StyleSheet.create({
   },
   
   verbDetailsRussian: {
-    fontSize: 17,
+    fontSize: 15,
     color: '#333652',
     fontWeight: 'bold',
     backgroundColor: '#FFFDEF',

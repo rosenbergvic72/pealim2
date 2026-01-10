@@ -304,7 +304,9 @@ lizrok: require('./assets/lizrok.mp3'),
 lehachzik: require('./assets/lehachzik.mp3'),
 limzog: require('./assets/limzog.mp3'),
 letargem: require('./assets/letargem.mp3'),
-lehakot: require('./assets/lehakot.mp3')
+lehakot: require('./assets/lehakot.mp3'),
+lehaanik: require('./assets/lehaanik.mp3'),
+lehashir: require('./assets/lehashir.mp3')
 
 
     // Добавьте все остальные аудиофайлы здесь, следуя тому же формату

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ScrollView, View, Text, TouchableOpacity, StyleSheet, Image, BackHandler } from 'react-native';
 import VerbCard2 from './VerbCard2Fr';
 import verbsData from './verbs2.json';
@@ -19,6 +19,7 @@ import animation from './assets/Animation - 1723020554284.json';
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import VerbListModal from './VerbListModal'; // модалка списка глаголов
+import ExcludedVerbsModal2 from './ExcludedVerbsModal2';
 
 const shuffleArray = (array) => {
   const shuffledArray = array.slice();
@@ -53,6 +54,105 @@ const getGrade = (percentage) => {
   } else {
     return 'Un travail sérieux est nécessaire ! Il est important de ne pas abandonner et de continuer à apprendre.';
   }
+};
+
+
+const normalize = (v) => String(v || '').trim().toLowerCase();
+const normAudio = (v) => normalize(String(v || '').replace(/\.mp3$/i, ''));
+
+/* ===================== pinned / excluded (as in RU/EN) ===================== */
+const EXCLUDED_KEY = 'exercise2_excluded_verbs';
+const PINNED_KEY = 'exercise2_pinned_verbs';
+
+const getHebrewIdEx2 = (verb) => {
+  const correctOption = (verb?.verbHebrewOptions || []).find((opt) => opt?.isCorrect);
+  return String(correctOption?.text || '').trim();
+};
+
+const getTranslitEx2 = (verb) => {
+  const correctOption = (verb?.verbHebrewOptions || []).find((opt) => opt?.isCorrect);
+  return String(correctOption?.transliteration || '').trim();
+};
+
+// shuffle without slicing (we already have shuffleArray that slices to 18)
+const shuffleAll = (array) => {
+  const shuffledArray = array.slice();
+  for (let i = shuffledArray.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffledArray[i], shuffledArray[j]] = [shuffledArray[j], shuffledArray[i]];
+  }
+  return shuffledArray;
+};
+
+// Build a deck: dynamic pinned limit + fallback if user pinned almost everything
+const buildDeck = (allVerbs, excludedIds = [], pinnedIds = [], deckSize = 18) => {
+  const excludedSet = new Set((excludedIds || []).map((x) => String(x || '').trim()).filter(Boolean));
+  const pinnedSet = new Set((pinnedIds || []).map((x) => String(x || '').trim()).filter(Boolean));
+
+  const idOf = (v) => getHebrewIdEx2(v);
+
+  // 1) pool without excluded
+  const pool = (allVerbs || []).filter((v) => {
+    const id = idOf(v);
+    return id && !excludedSet.has(id);
+  });
+
+  // 2) pinned / rest
+  const pinnedPool = pool.filter((v) => pinnedSet.has(idOf(v)));
+  const restPool = pool.filter((v) => !pinnedSet.has(idOf(v)));
+
+  // 3) dynamic pinned cap
+  const pinnedCount = pinnedPool.length;
+  let pinnedSoftCap = 6; // base for deck 18
+  
+    if (pinnedCount >= 54) pinnedSoftCap = 9;
+  else if (pinnedCount >= 36) pinnedSoftCap = 8;
+  else if (pinnedCount >= 18)  pinnedSoftCap = 7;
+
+  pinnedSoftCap = Math.min(pinnedSoftCap, deckSize);
+
+  // 4) fallback: if rest too small, allow more pinned
+  let pinnedCap = pinnedSoftCap;
+  if (restPool.length < deckSize - pinnedCap) {
+    pinnedCap = Math.min(deckSize, deckSize - restPool.length);
+  }
+  pinnedCap = Math.min(pinnedCap, pinnedPool.length);
+
+  // 5) choose
+  const pinnedChosen = shuffleAll(pinnedPool).slice(0, pinnedCap);
+  const needFromRest = Math.max(0, deckSize - pinnedChosen.length);
+  const restChosen = shuffleAll(restPool).slice(0, needFromRest);
+
+  // 6) final shuffle
+  return shuffleAll([...pinnedChosen, ...restChosen]);
+};
+
+const findVerbMatchForExercise2 = (currentVerb) => {
+  if (!currentVerb) return null;
+
+  const baseAudio = normAudio(currentVerb.audioFile);
+  const ruCurrent = normalize(currentVerb.verbRussian);
+
+  let candidates = (verbs1RU || []).filter(
+    (v) => normAudio(v.audioFile) === baseAudio
+  );
+
+  if (candidates.length > 1 && ruCurrent) {
+    const byRu = candidates.filter(
+      (v) => normalize(v.russian) === ruCurrent
+    );
+    if (byRu.length) {
+      candidates = byRu;
+    }
+  }
+
+  if (!candidates.length && ruCurrent) {
+    candidates = (verbs1RU || []).filter(
+      (v) => normalize(v.russian) === ruCurrent
+    );
+  }
+
+  return candidates[0] || null;
 };
 
 const VerbDetailsContainer2 = ({ verbDetails, handleSpeakerPress, currentIndex, animateRight, isAnswered, canShowSpeaker }) => {
@@ -192,9 +292,32 @@ const Exercise2Fr = () => {
   const [verbListForModal, setVerbListForModal] = useState([]);
   const modalCloseReasonRef = useRef(null);
 
+  /* ===================== pinned / excluded ===================== */
+  const [excludedVerbs, setExcludedVerbs] = useState([]);
+  const [pinnedVerbs, setPinnedVerbs] = useState([]);
+  const [isExcludedVerbsModalVisible, setExcludedVerbsModalVisible] = useState(false);
+
+  const toggleExcludedVerbsModal = () => setExcludedVerbsModalVisible((v) => !v);
+
+  const manageVerbsData = useMemo(() => {
+    // raw verbs2.json + computed fields (enough for ExcludedVerbsModal2)
+    return (verbsData || []).map((v) => ({
+      ...v,
+      hebrewVerb: getHebrewIdEx2(v),
+      translation: v?.verbFrench || v?.verbRussian || '',
+      transliteration: getTranslitEx2(v),
+      audioFile: v?.audioFile || '',
+    }));
+  }, []);
+
+
+  // ✅ translit toggle
+  const [showTranslit, setShowTranslit] = useState(true);
+  const handleTranslitToggle = () => setShowTranslit(prev => !prev);
+
   const initializeVerbList = (lang, setShuffledVerbs, setVerbListForModal) => {
     // 1) Берём 18 глаголов для упражнения
-    const selected = shuffleArray([...verbsData]); // 18 штук
+    const selected = buildDeck(verbsData, excludedVerbs, pinnedVerbs, 18); // 18 штук (с учётом excluded/pinned)
     setShuffledVerbs(selected);
 
     // 2) Для модалки — отсортируем по русскому
@@ -245,6 +368,43 @@ const Exercise2Fr = () => {
     setVerbListForModal(verbList);
   };
 
+  const loadExcludedAndPinned = async () => {
+    try {
+      const ex = await AsyncStorage.getItem(EXCLUDED_KEY);
+      const pn = await AsyncStorage.getItem(PINNED_KEY);
+      const exArr = ex ? JSON.parse(ex) : [];
+      const pnArr = pn ? JSON.parse(pn) : [];
+      setExcludedVerbs(Array.isArray(exArr) ? exArr : []);
+      setPinnedVerbs(Array.isArray(pnArr) ? pnArr : []);
+    } catch (e) {
+      setExcludedVerbs([]);
+      setPinnedVerbs([]);
+    }
+  };
+
+  const handleToggleExcludedVerb = async (hebrewId) => {
+    const id = String(hebrewId || '').trim();
+    if (!id) return;
+
+    setExcludedVerbs((prev) => {
+      const next = prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id];
+      AsyncStorage.setItem(EXCLUDED_KEY, JSON.stringify(next)).catch(() => {});
+      return next;
+    });
+  };
+
+  const handleTogglePinnedVerb = async (hebrewId) => {
+    const id = String(hebrewId || '').trim();
+    if (!id) return;
+
+    setPinnedVerbs((prev) => {
+      const next = prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id];
+      AsyncStorage.setItem(PINNED_KEY, JSON.stringify(next)).catch(() => {});
+      return next;
+    });
+  };
+
+
   useEffect(() => {
     const initialize = async () => {
       const lang = await AsyncStorage.getItem('language');
@@ -252,6 +412,7 @@ const Exercise2Fr = () => {
 
       if (lang) {
         setLanguage(lang);
+        await loadExcludedAndPinned();
         initializeVerbList(lang, setShuffledVerbs, setVerbListForModal); // ✅ передаём функции обновления стейта
 
         if (hidden !== 'true') {
@@ -510,20 +671,53 @@ const Exercise2Fr = () => {
 
   const updateVerbDetails2 = (currentVerb, showHebrewText = false) => {
     if (!currentVerb) return;
-
-    const matchedVerbs = verbs1RU.filter((verb) => verb.russian === currentVerb.verbRussian);
-    if (matchedVerbs.length > 0) {
-      const selectedVerb = isGenderMan ? matchedVerbs[0] : matchedVerbs[1];
+  
+    // ✅ 1) Находим "базовую" запись по audioFile (инфинитив)
+    const baseMatch = findVerbMatchForExercise2(currentVerb);
+  
+    if (!baseMatch) {
       setVerbDetails({
-        hebrewtext: showHebrewText ? selectedVerb.hebrewtext : '',
-        translit: showHebrewText ? selectedVerb.translit : '',
-        frtext: selectedVerb.frtext,
-        mp3: selectedVerb.mp3,
+        hebrewtext: '',
+        translit: '',
+        frtext: 'Verbe introuvable',
+        mp3: '',
       });
-    } else {
-      setVerbDetails({ hebrewtext: '', translit: '', frtext: 'Verbe introuvable', mp3: '' });
+      return;
     }
+  
+    // ✅ 2) Теперь выбираем правильный gender ВНУТРИ найденного инфинитива
+    const baseAudio = normAudio(baseMatch.audioFile);
+    const sameInfinitive = (verbs1RU || []).filter(v => normAudio(v.audioFile) === baseAudio);
+  
+    const genderWanted = isGenderMan ? 'man' : 'woman';
+    const selectedVerb =
+      sameInfinitive.find(v => v.gender === genderWanted) ||
+      baseMatch; // fallback, если вдруг gender не найден
+  
+    setVerbDetails({
+      hebrewtext: showHebrewText ? selectedVerb.hebrewtext : '',
+      translit: showHebrewText ? selectedVerb.translit : '',
+      frtext: selectedVerb.frtext,
+      mp3: selectedVerb.mp3,
+    });
   };
+
+  // const updateVerbDetails2 = (currentVerb, showHebrewText = false) => {
+  //   if (!currentVerb) return;
+
+  //   const matchedVerbs = verbs1RU.filter((verb) => verb.russian === currentVerb.verbRussian);
+  //   if (matchedVerbs.length > 0) {
+  //     const selectedVerb = isGenderMan ? matchedVerbs[0] : matchedVerbs[1];
+  //     setVerbDetails({
+  //       hebrewtext: showHebrewText ? selectedVerb.hebrewtext : '',
+  //       translit: showHebrewText ? selectedVerb.translit : '',
+  //       frtext: selectedVerb.frtext,
+  //       mp3: selectedVerb.mp3,
+  //     });
+  //   } else {
+  //     setVerbDetails({ hebrewtext: '', translit: '', frtext: 'Verbe introuvable', mp3: '' });
+  //   }
+  // };
 
   useEffect(() => {
     if (shuffledVerbs.length > 0) {
@@ -915,6 +1109,16 @@ const Exercise2Fr = () => {
 
   return (
     <>
+      <ExcludedVerbsModal2
+        visible={isExcludedVerbsModalVisible}
+        onClose={toggleExcludedVerbsModal}
+        excludedIds={excludedVerbs}
+        pinnedIds={pinnedVerbs}
+        verbsData={manageVerbsData}
+        lang={'fr'}
+        onRestoreVerb={handleToggleExcludedVerb}
+        onTogglePinnedVerb={handleTogglePinnedVerb}
+      />
       {isVerbListVisible && (
         <VerbListModal
           visible={isVerbListVisible}
@@ -953,6 +1157,14 @@ const Exercise2Fr = () => {
                 <TouchableOpacity onPress={handleSoundToggle}>
                   <Animated.Image
                     source={soundEnabled ? require('./SoundOn.png') : require('./SoundOff.png')}
+                    style={[styles.buttonImage, { opacity: fadeAnim }]}
+                  />
+                </TouchableOpacity>
+
+                {/* ✅ translit button (between sound and stat) */}
+                <TouchableOpacity onPress={handleTranslitToggle}>
+                  <Animated.Image
+                    source={showTranslit ? require('./translit1.png') : require('./translit2.png')}
                     style={[styles.buttonImage, { opacity: fadeAnim }]}
                   />
                 </TouchableOpacity>
@@ -1019,12 +1231,23 @@ const Exercise2Fr = () => {
               <ProgressBar progress={progress} totalExercises={shuffledVerbs.length} />
             </Animated.View>
 
+            {!exerciseCompleted && (
+              <>
             <Animated.Text style={[styles.title, { opacity: fadeAnim }]} maxFontSizeMultiplier={1.2}>
               SÉLECTIONNEZ LA TRADUCTION
             </Animated.Text>
 
             {currentIndex < shuffledVerbs.length && (
-              <VerbCard2 verbData={shuffledVerbs[currentIndex]} options={optionsOrder} onAnswer={handleAnswer} />
+              <VerbCard2
+                verbData={shuffledVerbs[currentIndex]}
+                options={optionsOrder}
+                onAnswer={handleAnswer}
+                isExcluded={excludedVerbs.includes(getHebrewIdEx2(shuffledVerbs[currentIndex]))}
+                isPinned={pinnedVerbs.includes(getHebrewIdEx2(shuffledVerbs[currentIndex]))}
+                onExcludePress={() => handleToggleExcludedVerb(getHebrewIdEx2(shuffledVerbs[currentIndex]))}
+                onPinTogglePress={() => handleTogglePinnedVerb(getHebrewIdEx2(shuffledVerbs[currentIndex]))}
+                onOpenManageModal={() => setExcludedVerbsModalVisible(true)}
+              />
             )}
 
             <VerbDetailsContainer2
@@ -1060,7 +1283,13 @@ const Exercise2Fr = () => {
                 >
                   <View style={styles.optionContent}>
                     <Text style={styles.optionText} maxFontSizeMultiplier={1.2}>{option.text}</Text>
-                    <Text style={styles.transliterationText} maxFontSizeMultiplier={1.2}>{option.transliteration}</Text>
+
+                    {/* ✅ translit show/hide */}
+                    {showTranslit && (
+                      <Text style={styles.transliterationText} maxFontSizeMultiplier={1.2}>
+                        {option.transliteration}
+                      </Text>
+                    )}
 
                     {/* Анимация при нажатии на спикер */}
                     {option.isCorrect && isPlayingLottieOnSpeaker && (
@@ -1099,6 +1328,8 @@ const Exercise2Fr = () => {
             >
               <Text style={styles.nextButtonText} maxFontSizeMultiplier={1.2}>VERBE SUIVANT</Text>
             </TouchableOpacity>
+              </>
+            )}
 
             {exerciseCompleted && (
               <CompletionMessageFr
@@ -1116,12 +1347,14 @@ const Exercise2Fr = () => {
               />
             )}
 
-            <ExitConfirmationModal
+            {!exerciseCompleted && (
+              <ExitConfirmationModal
               visible={exitConfirmationVisible}
               onCancel={handleCancelExit}
               onConfirm={handleConfirmExit}
             />
-          </View>
+            )}
+</View>
         </ScrollView>
       )}
 
@@ -1144,7 +1377,7 @@ const Exercise2Fr = () => {
 };
 
 const styles = StyleSheet.create({
-  scrollViewContent: {
+ scrollViewContent: {
     flexGrow: 1,
     justifyContent: 'center',
     alignItems: 'center',
@@ -1198,12 +1431,12 @@ const styles = StyleSheet.create({
   },
   optionButton: {
     width: '49%',
-    height: 110,
+    height: 90,
     padding: 15,
     backgroundColor: '#FFFDEF',
     marginBottom: 10,
     borderRadius: 10,
-    shadowColor: "#000",
+    shadowColor: '#000',
     shadowOffset: {
       width: 0,
       height: 2,
@@ -1219,13 +1452,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   optionText: {
-    fontSize: 22,
+    fontSize: 21,
     textAlign: 'center',
     color: '#152039',
     fontWeight: 'bold',
   },
   transliterationText: {
-    fontSize: 17,
+    fontSize: 16,
     textAlign: 'center',
     color: '#CE6857',
     fontWeight: 'bold',
@@ -1237,7 +1470,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     textAlign: 'center',
     marginBottom: 30,
-    shadowColor: "#000",
+    shadowColor: '#000',
     shadowOffset: {
       width: 0,
       height: 2,
@@ -1268,8 +1501,8 @@ const styles = StyleSheet.create({
   },
 
   ProgressBarcontainer: {
-    width: "100%",
-    marginBottom: 10
+    width: '100%',
+    marginBottom: 10,
   },
 
   progressContainer: {
@@ -1333,8 +1566,8 @@ const styles = StyleSheet.create({
 
   speakerIconContainer: {
     position: 'absolute',
-    bottom: -8, // позиция в нижнем углу
-    right: -8, // позиция в правом углу
+    bottom: -8,
+    right: -8,
   },
 
   speakerIcon1: {
@@ -1361,7 +1594,7 @@ const styles = StyleSheet.create({
     position: 'relative',
     borderRadius: 10,
     overflow: 'hidden',
-    shadowColor: "#000",
+    shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
@@ -1406,13 +1639,13 @@ const styles = StyleSheet.create({
     marginVertical: 5,
   },
   verbDetailsHebrew: {
-    fontSize: 20,
+    fontSize: 18,
     color: '#FFFDEF',
     fontWeight: 'bold',
     marginBottom: -3,
   },
   verbDetailsTranslit: {
-    fontSize: 15,
+    fontSize: 13,
     fontWeight: 'bold',
     color: '#CE6857',
     backgroundColor: '#FFFDEF',
@@ -1424,7 +1657,7 @@ const styles = StyleSheet.create({
     marginBottom: 5,
   },
   verbDetailsRussian: {
-    fontSize: 16,
+    fontSize: 14,
     color: '#333652',
     fontWeight: 'bold',
     backgroundColor: '#FFFDEF',
