@@ -1,3 +1,38 @@
-* text=auto
-# gradlew (sh-??????) ?????? ???? ? LF
+# =========================
+# Force LF in repository
+# =========================
+* text=auto eol=lf
+
+# =========================
+# Explicit text files
+# =========================
+*.js   text
+*.jsx  text
+*.ts   text
+*.tsx  text
+*.json text
+*.xml  text
+*.yml  text
+*.yaml text
+*.gradle text
+*.kt   text
+*.java text
+*.sh   text
+
+# =========================
+# Android / iOS scripts
+# =========================
 android/gradlew text eol=lf
+
+# =========================
+# Binary files (do NOT touch)
+# =========================
+*.png  binary
+*.jpg  binary
+*.jpeg binary
+*.mp3  binary
+*.mp4  binary
+*.gif  binary
+*.ttf  binary
+*.otf  binary
+*.pdf  binary
