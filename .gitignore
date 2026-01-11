@@ -70,3 +70,11 @@ iap-server/
 # allow iap server entrypoint
 !iap-server/
 !iap-server/server.js
+
+# Montserrat — по умолчанию игнорируем всё
+assets/fonts/Montserrat-*.ttf
+
+# Но разрешаем реально используемые
+!assets/fonts/Montserrat-Regular.ttf
+!assets/fonts/Montserrat-Bold.ttf
+
