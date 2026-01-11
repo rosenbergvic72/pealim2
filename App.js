@@ -17,7 +17,11 @@ import {
   Alert,
   Linking,
 } from 'react-native';
-import { NavigationContainer, DefaultTheme } from '@react-navigation/native';
+import {
+  NavigationContainer,
+  DefaultTheme,
+  createNavigationContainerRef,
+} from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Font from 'expo-font';
@@ -140,6 +144,9 @@ const CHAT_HISTORY_KEY = 'chatHistory';
 const SESSION_KEY = 'chatSessionId';
 const Stack = createStackNavigator();
 
+// ✅ ref навигации (для получения текущего route без хуков)
+const navigationRef = createNavigationContainerRef();
+
 // Тема: белый фон
 const AppTheme = {
   ...DefaultTheme,
@@ -157,7 +164,6 @@ Notifications.setNotificationHandler({
 
 /* =========================
    ВАЖНО: СТАБИЛЬНЫЕ ОБЁРТКИ
-   (создаём ОДИН РАЗ вне рендера)
    ========================= */
 
 // Меню (ulpan)
@@ -257,15 +263,18 @@ function CompactHeader({ navigation, options, back }) {
           color: '#fff',
           fontFamily: rtl ? 'ar-bold' : 'mt-bold',
           fontSize: 20,
-          lineHeight: rtl ? 26 : 22, // арабскому даём выше lineHeight
+          lineHeight: rtl ? 26 : 22,
           textAlign: rtl ? 'right' : 'left',
           writingDirection: rtl ? 'rtl' : 'ltr',
-          transform: [{ translateY: titleShiftY }], // опускаем текст
+          transform: [{ translateY: titleShiftY }],
         }}
       >
         {options.headerTitle ?? options.title ?? ''}
       </Text>
     );
+
+  const forceBack = options.headerForceBack === true;
+  const backTarget = options.headerBackTarget;
 
   return (
     <View
@@ -278,9 +287,15 @@ function CompactHeader({ navigation, options, back }) {
         paddingHorizontal: 8,
       }}
     >
-      {back ? (
+      {(back || forceBack) ? (
         <TouchableOpacity
-          onPress={navigation.goBack}
+          onPress={() => {
+            if (back) {
+              navigation.goBack();
+            } else if (backTarget) {
+              navigation.reset({ index: 0, routes: [{ name: backTarget }] });
+            }
+          }}
           style={{
             padding: 8,
             marginRight: rtl ? 0 : 4,
@@ -318,7 +333,7 @@ function CompactHeader({ navigation, options, back }) {
 export default function App() {
   const extra = Constants.expoConfig?.extra || {};
   const isExpoGo = Constants.appOwnership === 'expo';
-  const USE_IAP = !isExpoGo && extra.store === 'gp' && !extra.disableIap; // не включаем IAP в Expo Go
+  const USE_IAP = !isExpoGo && extra.store === 'gp' && !extra.disableIap;
   const RootProvider = USE_IAP ? IapProvider : NoIapProvider;
 
   return (
@@ -344,6 +359,30 @@ function AppInner() {
   const [chatVisible, setChatVisible] = useState(false);
   const [modalKey, setModalKey] = useState(0);
   const [fontsReady, setFontsReady] = useState(false);
+
+  // ✅ текущее имя роута (для цвета футера)
+  const [currentRouteName, setCurrentRouteName] = useState('LanguageSelectionPage');
+
+  const isMenuRoute =
+    currentRouteName === 'Menu' ||
+    currentRouteName === 'MenuEn' ||
+    currentRouteName === 'MenuFr' ||
+    currentRouteName === 'MenuEs' ||
+    currentRouteName === 'MenuPt' ||
+    currentRouteName === 'MenuAr' ||
+    currentRouteName === 'MenuAm';
+
+  // ✅ Цвет нижнего safe-area:
+  // - меню: f0f0f0
+  // - остальные: AFC1D0
+  const bottomBg = isMenuRoute ? '#F0F0F0' : '#AFC1D0';
+
+  const syncRouteName = () => {
+    try {
+      const name = navigationRef.getCurrentRoute?.()?.name;
+      if (name) setCurrentRouteName(name);
+    } catch (_) {}
+  };
 
   // Android канал уведомлений
   useEffect(() => {
@@ -378,7 +417,6 @@ function AppInner() {
           ...Ionicons.font,
           'mt-bold': require('./assets/fonts/Montserrat-VariableFont_wght.ttf'),
           'mt-light': require('./assets/fonts/Montserrat-Italic-VariableFont_wght.ttf'),
-          // арабская гарнитура
           'ar-regular': require('./assets/fonts/Tajawal-Regular.ttf'),
           'ar-bold': require('./assets/fonts/Tajawal-Bold.ttf'),
         });
@@ -439,7 +477,6 @@ function AppInner() {
         let enabled = stored === 'true';
 
         if (stored == null) {
-          // Первый запуск: пробуем получить токен (системный диалог)
           let token = await AsyncStorage.getItem('expoPushToken');
           if (!token) token = await getExpoPushTokenAsync();
           enabled = !!token;
@@ -466,9 +503,7 @@ function AppInner() {
             }
           }
 
-          const altAlready = await AsyncStorage.getItem(
-            'notificationAltScheduled'
-          );
+          const altAlready = await AsyncStorage.getItem('notificationAltScheduled');
           if (!altAlready) {
             const resAlt = await setAltServerSchedule(10, 45, [5]);
             if (resAlt.ok)
@@ -490,7 +525,6 @@ function AppInner() {
     const currentlyEnabled =
       (await AsyncStorage.getItem('notificationsEnabled')) === 'true';
 
-    // ВЫКЛЮЧИТЬ
     if (currentlyEnabled) {
       setNotificationsEnabled(false);
       await AsyncStorage.setItem('notificationsEnabled', 'false');
@@ -502,11 +536,8 @@ function AppInner() {
       return;
     }
 
-    // ВКЛЮЧИТЬ
     let perm = await Notifications.getPermissionsAsync();
-    if (!perm.granted) {
-      perm = await Notifications.requestPermissionsAsync();
-    }
+    if (!perm.granted) perm = await Notifications.requestPermissionsAsync();
 
     if (!perm.granted) {
       if (Platform.OS === 'ios') {
@@ -592,7 +623,7 @@ function AppInner() {
             fontFamily: rtl ? 'ar-bold' : 'mt-bold',
             textAlign: rtl ? 'right' : 'left',
             writingDirection: rtl ? 'rtl' : 'ltr',
-            ...(rtl ? { marginTop: 6 } : null), // опускаем арабский заголовок
+            ...(rtl ? { marginTop: 6 } : null),
           }}
         >
           {title}
@@ -600,7 +631,6 @@ function AppInner() {
       ),
     };
 
-    // ВАЖНО: добавляем headerRight только если нужен тумблер
     if (withToggle) {
       opts.headerRight = () =>
         !notificationsReady ? null : (
@@ -624,7 +654,6 @@ function AppInner() {
               }}
               activeOpacity={0.8}
             >
-              {/* В RTL: сначала текст, затем иконка */}
               <Text
                 maxFontSizeMultiplier={1.1}
                 style={{
@@ -643,9 +672,7 @@ function AppInner() {
               </Text>
 
               <Ionicons
-                name={
-                  notificationsEnabled ? 'notifications' : 'notifications-off'
-                }
+                name={notificationsEnabled ? 'notifications' : 'notifications-off'}
                 size={16}
                 color="white"
               />
@@ -659,8 +686,8 @@ function AppInner() {
 
   // Отдельный helper для всех арабских упражнений
   const arExerciseHeader = (title) => ({
-    ...createHeaderTitle(title, false, '', true), // сначала заголовок (без headerRight)
-    ...exerciseHeaderOptions,                     // потом AI-кнопка, чтобы не затиралась
+    ...createHeaderTitle(title, false, '', true),
+    ...exerciseHeaderOptions,
     headerRtl: true,
     headerTitleAlign: 'right',
   });
@@ -669,18 +696,26 @@ function AppInner() {
 
   return (
     <>
-      {/* Статус-бар без прозрачности */}
       <StatusBar
         backgroundColor="#6C8EBB"
         barStyle="light-content"
         translucent={false}
       />
 
-      <NavigationContainer theme={AppTheme}>
-        {/* Safe-area по низу */}
-        <SafeAreaView style={{ flex: 1, backgroundColor: '#FFFFFF' }} edges={['bottom']}>
+      <NavigationContainer
+        ref={navigationRef}
+        theme={AppTheme}
+        onReady={() => {
+          syncRouteName();
+        }}
+        onStateChange={() => {
+          syncRouteName();
+        }}
+      >
+        {/* ✅ Safe-area по низу: цвет зависит от текущего route */}
+        <SafeAreaView style={{ flex: 1, backgroundColor: bottomBg }} edges={['bottom']}>
           <Stack.Navigator
-            initialRouteName="LanguageSelect"
+            initialRouteName="LanguageSelectionPage"
             detachInactiveScreens={false}
             screenOptions={{
               unmountOnBlur: false,
@@ -690,88 +725,224 @@ function AppInner() {
               headerTitleAlign: 'left',
               headerShadowVisible: false,
               headerBackTitleVisible: false,
+              cardStyle: { backgroundColor: '#AFC1D0' },
             }}
           >
-            {/* Paywall не стартовый */}
-            <Stack.Screen name="Paywall" component={Paywall} options={createHeaderTitle('Paywall')} />
+            {/* <Stack.Screen name="Paywall" component={Paywall} options={createHeaderTitle('Paywall')} /> */}
+            <Stack.Screen
+  name="Paywall"
+  component={Paywall}
+  options={{
+    ...createHeaderTitle('Paywall', true, 'Уведомления'),
+    headerForceBack: true,
+    headerBackTarget: 'Welcome',
+    cardStyle: { backgroundColor: '#F0F0F0' },
+  }}
+/>
 
-            <Stack.Screen name="LanguageSelect" component={LanguageSelectionPage} options={createHeaderTitle('Select Language')} />
-            <Stack.Screen name="Welcome"   component={WelcomePage}   options={createHeaderTitle('Добро пожаловать!')} />
-            <Stack.Screen name="WelcomeEn" component={WelcomePageEn} options={createHeaderTitle('Welcome!')} />
-            <Stack.Screen name="WelcomeFr" component={WelcomePageFr} options={createHeaderTitle('Bienvenue!')} />
-            <Stack.Screen name="WelcomeEs" component={WelcomePageEs} options={createHeaderTitle('¡Bienvenidos!')} />
-            <Stack.Screen name="WelcomePt" component={WelcomePagePt} options={createHeaderTitle('Bem-vindos!')} />
-            <Stack.Screen name="WelcomeAr" component={WelcomePageAr} options={createHeaderTitle('أهلًا وسهلًا', false, '', true)} />
-            <Stack.Screen name="WelcomeAm" component={WelcomePageAm} options={createHeaderTitle('ሰላም መጡ!')} />
 
-            <Stack.Screen name="Menu"   component={MenuPageUlpan}   options={createHeaderTitle('Меню',  true, 'Уведомления')} />
-            <Stack.Screen name="MenuEn" component={MenuPageEnUlpan} options={createHeaderTitle('Menu',  true, 'Notifications')} />
-            <Stack.Screen name="MenuFr" component={MenuPageFrUlpan} options={createHeaderTitle('Menu',  true, 'Notifications')} />
-            <Stack.Screen name="MenuEs" component={MenuPageEsUlpan} options={createHeaderTitle('Menú',  true, 'Notificaciones')} />
-            <Stack.Screen name="MenuPt" component={MenuPagePtUlpan} options={createHeaderTitle('Menu',  true, 'Notificações')} />
-            <Stack.Screen name="MenuAr" component={MenuPageArUlpan} options={createHeaderTitle('القائمة', true, 'الإشعارات', true)} />
-            <Stack.Screen name="MenuAm" component={MenuPageAmUlpan} options={createHeaderTitle('ምናሌ',  true, 'ማሳወቂያዎች')} />
+            <Stack.Screen
+              name="LanguageSelectionPage"
+              component={LanguageSelectionPage}
+              options={createHeaderTitle('Select Language')}
+            />
+
+            <Stack.Screen
+              name="Welcome"
+              component={WelcomePage}
+              options={{
+                ...createHeaderTitle('Добро пожаловать!'),
+                headerForceBack: true,
+                headerBackTarget: 'LanguageSelectionPage',
+              }}
+            />
+            <Stack.Screen
+              name="WelcomeEn"
+              component={WelcomePageEn}
+              options={{
+                ...createHeaderTitle('Welcome!'),
+                headerForceBack: true,
+                headerBackTarget: 'LanguageSelectionPage',
+              }}
+            />
+            <Stack.Screen
+              name="WelcomeFr"
+              component={WelcomePageFr}
+              options={{
+                ...createHeaderTitle('Bienvenue!'),
+                headerForceBack: true,
+                headerBackTarget: 'LanguageSelectionPage',
+              }}
+            />
+            <Stack.Screen
+              name="WelcomeEs"
+              component={WelcomePageEs}
+              options={{
+                ...createHeaderTitle('¡Bienvenidos!'),
+                headerForceBack: true,
+                headerBackTarget: 'LanguageSelectionPage',
+              }}
+            />
+            <Stack.Screen
+              name="WelcomePt"
+              component={WelcomePagePt}
+              options={{
+                ...createHeaderTitle('Bem-vindos!'),
+                headerForceBack: true,
+                headerBackTarget: 'LanguageSelectionPage',
+              }}
+            />
+            <Stack.Screen
+              name="WelcomeAr"
+              component={WelcomePageAr}
+              options={{
+                ...createHeaderTitle('أهلًا وسهلًا', false, '', true),
+                headerForceBack: true,
+                headerBackTarget: 'LanguageSelectionPage',
+              }}
+            />
+            <Stack.Screen
+              name="WelcomeAm"
+              component={WelcomePageAm}
+              options={{
+                ...createHeaderTitle('ሰላም መጡ!'),
+                headerForceBack: true,
+                headerBackTarget: 'LanguageSelectionPage',
+              }}
+            />
+
+            {/* меню */}
+            <Stack.Screen
+              name="Menu"
+              component={MenuPageUlpan}
+              options={{
+                ...createHeaderTitle('Меню', true, 'Уведомления'),
+                headerForceBack: true,
+                headerBackTarget: 'Welcome',
+                cardStyle: { backgroundColor: '#F0F0F0' },
+              }}
+            />
+            <Stack.Screen
+              name="MenuEn"
+              component={MenuPageEnUlpan}
+              options={{
+                ...createHeaderTitle('Menu', true, 'Notifications'),
+                headerForceBack: true,
+                headerBackTarget: 'WelcomeEn',
+                cardStyle: { backgroundColor: '#F0F0F0' },
+              }}
+            />
+            <Stack.Screen
+              name="MenuFr"
+              component={MenuPageFrUlpan}
+              options={{
+                ...createHeaderTitle('Menu', true, 'Notifications'),
+                headerForceBack: true,
+                headerBackTarget: 'WelcomeFr',
+                cardStyle: { backgroundColor: '#F0F0F0' },
+              }}
+            />
+            <Stack.Screen
+              name="MenuEs"
+              component={MenuPageEsUlpan}
+              options={{
+                ...createHeaderTitle('Menú', true, 'Notificaciones'),
+                headerForceBack: true,
+                headerBackTarget: 'WelcomeEs',
+                cardStyle: { backgroundColor: '#F0F0F0' },
+              }}
+            />
+            <Stack.Screen
+              name="MenuPt"
+              component={MenuPagePtUlpan}
+              options={{
+                ...createHeaderTitle('Menu', true, 'Notificações'),
+                headerForceBack: true,
+                headerBackTarget: 'WelcomePt',
+                cardStyle: { backgroundColor: '#F0F0F0' },
+              }}
+            />
+            <Stack.Screen
+              name="MenuAr"
+              component={MenuPageArUlpan}
+              options={{
+                ...createHeaderTitle('القائمة', true, 'الإشعارات', true),
+                headerForceBack: true,
+                headerBackTarget: 'WelcomeAr',
+                cardStyle: { backgroundColor: '#F0F0F0' },
+              }}
+            />
+            <Stack.Screen
+              name="MenuAm"
+              component={MenuPageAmUlpan}
+              options={{
+                ...createHeaderTitle('ምናሌ', true, 'ማሳወቂያዎች'),
+                headerForceBack: true,
+                headerBackTarget: 'WelcomeAm',
+                cardStyle: { backgroundColor: '#F0F0F0' },
+              }}
+            />
 
             {/* упражнения */}
-            <Stack.Screen name="Exercise1"   component={Exercise1G}   options={{ ...createHeaderTitle('Упражнение 1'), ...exerciseHeaderOptions }} />
-            <Stack.Screen name="Exercise1En" component={Exercise1EnG} options={{ ...createHeaderTitle('Exercise 1'),  ...exerciseHeaderOptions }} />
-            <Stack.Screen name="Exercise1Fr" component={Exercise1FrG} options={{ ...createHeaderTitle('Exercice 1'),  ...exerciseHeaderOptions }} />
+            <Stack.Screen name="Exercise1" component={Exercise1G} options={{ ...createHeaderTitle('Упражнение 1'), ...exerciseHeaderOptions }} />
+            <Stack.Screen name="Exercise1En" component={Exercise1EnG} options={{ ...createHeaderTitle('Exercise 1'), ...exerciseHeaderOptions }} />
+            <Stack.Screen name="Exercise1Fr" component={Exercise1FrG} options={{ ...createHeaderTitle('Exercice 1'), ...exerciseHeaderOptions }} />
             <Stack.Screen name="Exercise1Es" component={Exercise1EsG} options={{ ...createHeaderTitle('Ejercicio 1'), ...exerciseHeaderOptions }} />
             <Stack.Screen name="Exercise1Pt" component={Exercise1PtG} options={{ ...createHeaderTitle('Exercício 1'), ...exerciseHeaderOptions }} />
             <Stack.Screen name="Exercise1Ar" component={Exercise1ArG} options={arExerciseHeader('التمرين 1')} />
             <Stack.Screen name="Exercise1Am" component={Exercise1AmG} options={{ ...createHeaderTitle('ልምምድ አንድ'), ...exerciseHeaderOptions }} />
 
-            <Stack.Screen name="Exercise2"   component={Exercise2G}   options={{ ...createHeaderTitle('Упражнение 2'), ...exerciseHeaderOptions }} />
-            <Stack.Screen name="Exercise2En" component={Exercise2EnG} options={{ ...createHeaderTitle('Exercise 2'),  ...exerciseHeaderOptions }} />
-            <Stack.Screen name="Exercise2Fr" component={Exercise2FrG} options={{ ...createHeaderTitle('Exercice 2'),  ...exerciseHeaderOptions }} />
+            <Stack.Screen name="Exercise2" component={Exercise2G} options={{ ...createHeaderTitle('Упражнение 2'), ...exerciseHeaderOptions }} />
+            <Stack.Screen name="Exercise2En" component={Exercise2EnG} options={{ ...createHeaderTitle('Exercise 2'), ...exerciseHeaderOptions }} />
+            <Stack.Screen name="Exercise2Fr" component={Exercise2FrG} options={{ ...createHeaderTitle('Exercice 2'), ...exerciseHeaderOptions }} />
             <Stack.Screen name="Exercise2Es" component={Exercise2EsG} options={{ ...createHeaderTitle('Ejercicio 2'), ...exerciseHeaderOptions }} />
             <Stack.Screen name="Exercise2Pt" component={Exercise2PtG} options={{ ...createHeaderTitle('Exercício 2'), ...exerciseHeaderOptions }} />
             <Stack.Screen name="Exercise2Ar" component={Exercise2ArG} options={arExerciseHeader('التمرين 2')} />
             <Stack.Screen name="Exercise2Am" component={Exercise2AmG} options={{ ...createHeaderTitle('ልምምድ ሁለት'), ...exerciseHeaderOptions }} />
 
-            <Stack.Screen name="Exercise3"   component={Exercise3G}   options={{ ...createHeaderTitle('Упражнение 3'), ...exerciseHeaderOptions }} />
-            <Stack.Screen name="Exercise3En" component={Exercise3EnG} options={{ ...createHeaderTitle('Exercise 3'),  ...exerciseHeaderOptions }} />
-            <Stack.Screen name="Exercise3Fr" component={Exercise3FrG} options={{ ...createHeaderTitle('Exercice 3'),  ...exerciseHeaderOptions }} />
+            <Stack.Screen name="Exercise3" component={Exercise3G} options={{ ...createHeaderTitle('Упражнение 3'), ...exerciseHeaderOptions }} />
+            <Stack.Screen name="Exercise3En" component={Exercise3EnG} options={{ ...createHeaderTitle('Exercise 3'), ...exerciseHeaderOptions }} />
+            <Stack.Screen name="Exercise3Fr" component={Exercise3FrG} options={{ ...createHeaderTitle('Exercice 3'), ...exerciseHeaderOptions }} />
             <Stack.Screen name="Exercise3Es" component={Exercise3EsG} options={{ ...createHeaderTitle('Ejercicio 3'), ...exerciseHeaderOptions }} />
             <Stack.Screen name="Exercise3Pt" component={Exercise3PtG} options={{ ...createHeaderTitle('Exercício 3'), ...exerciseHeaderOptions }} />
             <Stack.Screen name="Exercise3Ar" component={Exercise3ArG} options={arExerciseHeader('التمرين 3')} />
             <Stack.Screen name="Exercise3Am" component={Exercise3AmG} options={{ ...createHeaderTitle('ልምምድ ሶስት'), ...exerciseHeaderOptions }} />
 
-            <Stack.Screen name="Exercise4"   component={Exercise4G}   options={{ ...createHeaderTitle('Упражнение 7'), ...exerciseHeaderOptions }} />
-            <Stack.Screen name="Exercise4En" component={Exercise4EnG} options={{ ...createHeaderTitle('Exercise 7'),  ...exerciseHeaderOptions }} />
-            <Stack.Screen name="Exercise4Fr" component={Exercise4FrG} options={{ ...createHeaderTitle('Exercice 7'),  ...exerciseHeaderOptions }} />
+            <Stack.Screen name="Exercise4" component={Exercise4G} options={{ ...createHeaderTitle('Упражнение 7'), ...exerciseHeaderOptions }} />
+            <Stack.Screen name="Exercise4En" component={Exercise4EnG} options={{ ...createHeaderTitle('Exercise 7'), ...exerciseHeaderOptions }} />
+            <Stack.Screen name="Exercise4Fr" component={Exercise4FrG} options={{ ...createHeaderTitle('Exercice 7'), ...exerciseHeaderOptions }} />
             <Stack.Screen name="Exercise4Es" component={Exercise4EsG} options={{ ...createHeaderTitle('Ejercicio 7'), ...exerciseHeaderOptions }} />
             <Stack.Screen name="Exercise4Pt" component={Exercise4PtG} options={{ ...createHeaderTitle('Exercício 7'), ...exerciseHeaderOptions }} />
             <Stack.Screen name="Exercise4Ar" component={Exercise4ArG} options={arExerciseHeader('التمرين 7')} />
             <Stack.Screen name="Exercise4Am" component={Exercise4AmG} options={{ ...createHeaderTitle('ልምምድ ሰባት'), ...exerciseHeaderOptions }} />
 
-            <Stack.Screen name="Exercise5"   component={Exercise5G}   options={{ ...createHeaderTitle('Упражнение 4'), ...exerciseHeaderOptions }} />
-            <Stack.Screen name="Exercise5En" component={Exercise5EnG} options={{ ...createHeaderTitle('Exercise 4'),  ...exerciseHeaderOptions }} />
-            <Stack.Screen name="Exercise5Fr" component={Exercise5FrG} options={{ ...createHeaderTitle('Exercice 4'),  ...exerciseHeaderOptions }} />
+            <Stack.Screen name="Exercise5" component={Exercise5G} options={{ ...createHeaderTitle('Упражнение 4'), ...exerciseHeaderOptions }} />
+            <Stack.Screen name="Exercise5En" component={Exercise5EnG} options={{ ...createHeaderTitle('Exercise 4'), ...exerciseHeaderOptions }} />
+            <Stack.Screen name="Exercise5Fr" component={Exercise5FrG} options={{ ...createHeaderTitle('Exercice 4'), ...exerciseHeaderOptions }} />
             <Stack.Screen name="Exercise5Es" component={Exercise5EsG} options={{ ...createHeaderTitle('Ejercicio 4'), ...exerciseHeaderOptions }} />
             <Stack.Screen name="Exercise5Pt" component={Exercise5PtG} options={{ ...createHeaderTitle('Exercício 4'), ...exerciseHeaderOptions }} />
             <Stack.Screen name="Exercise5Ar" component={Exercise5ArG} options={arExerciseHeader('التمرين 4')} />
             <Stack.Screen name="Exercise5Am" component={Exercise5AmG} options={{ ...createHeaderTitle('ልምምድ አራት'), ...exerciseHeaderOptions }} />
 
-            <Stack.Screen name="Exercise6"   component={Exercise6G}   options={{ ...createHeaderTitle('Упражнение 5'), ...exerciseHeaderOptions }} />
-            <Stack.Screen name="Exercise6En" component={Exercise6EnG} options={{ ...createHeaderTitle('Exercise 5'),  ...exerciseHeaderOptions }} />
-            <Stack.Screen name="Exercise6Fr" component={Exercise6FrG} options={{ ...createHeaderTitle('Exercice 5'),  ...exerciseHeaderOptions }} />
+            <Stack.Screen name="Exercise6" component={Exercise6G} options={{ ...createHeaderTitle('Упражнение 5'), ...exerciseHeaderOptions }} />
+            <Stack.Screen name="Exercise6En" component={Exercise6EnG} options={{ ...createHeaderTitle('Exercise 5'), ...exerciseHeaderOptions }} />
+            <Stack.Screen name="Exercise6Fr" component={Exercise6FrG} options={{ ...createHeaderTitle('Exercice 5'), ...exerciseHeaderOptions }} />
             <Stack.Screen name="Exercise6Es" component={Exercise6EsG} options={{ ...createHeaderTitle('Ejercicio 5'), ...exerciseHeaderOptions }} />
             <Stack.Screen name="Exercise6Pt" component={Exercise6PtG} options={{ ...createHeaderTitle('Exercício 5'), ...exerciseHeaderOptions }} />
             <Stack.Screen name="Exercise6Ar" component={Exercise6ArG} options={arExerciseHeader('التمرين 5')} />
             <Stack.Screen name="Exercise6Am" component={Exercise6AmG} options={{ ...createHeaderTitle('ልምምድ አምስት'), ...exerciseHeaderOptions }} />
 
-            <Stack.Screen name="Exercise7"   component={Exercise7G}   options={{ ...createHeaderTitle('Упражнение 8'), ...exerciseHeaderOptions }} />
-            <Stack.Screen name="Exercise7En" component={Exercise7EnG} options={{ ...createHeaderTitle('Exercise 8'),  ...exerciseHeaderOptions }} />
-            <Stack.Screen name="Exercise7Fr" component={Exercise7FrG} options={{ ...createHeaderTitle('Exercice 8'),  ...exerciseHeaderOptions }} />
+            <Stack.Screen name="Exercise7" component={Exercise7G} options={{ ...createHeaderTitle('Упражнение 8'), ...exerciseHeaderOptions }} />
+            <Stack.Screen name="Exercise7En" component={Exercise7EnG} options={{ ...createHeaderTitle('Exercise 8'), ...exerciseHeaderOptions }} />
+            <Stack.Screen name="Exercise7Fr" component={Exercise7FrG} options={{ ...createHeaderTitle('Exercice 8'), ...exerciseHeaderOptions }} />
             <Stack.Screen name="Exercise7Es" component={Exercise7EsG} options={{ ...createHeaderTitle('Ejercicio 8'), ...exerciseHeaderOptions }} />
             <Stack.Screen name="Exercise7Pt" component={Exercise7PtG} options={{ ...createHeaderTitle('Exercício 8'), ...exerciseHeaderOptions }} />
             <Stack.Screen name="Exercise7Ar" component={Exercise7ArG} options={arExerciseHeader('التمرين 8')} />
             <Stack.Screen name="Exercise7Am" component={Exercise7AmG} options={{ ...createHeaderTitle('ልምምድ ስድስት'), ...exerciseHeaderOptions }} />
 
-            <Stack.Screen name="Exercise8"   component={Exercise8G}   options={{ ...createHeaderTitle('Упражнение 6'), ...exerciseHeaderOptions }} />
-            <Stack.Screen name="Exercise8En" component={Exercise8EnG} options={{ ...createHeaderTitle('Exercise 6'),  ...exerciseHeaderOptions }} />
-            <Stack.Screen name="Exercise8Fr" component={Exercise8FrG} options={{ ...createHeaderTitle('Exercice 6'),  ...exerciseHeaderOptions }} />
+            <Stack.Screen name="Exercise8" component={Exercise8G} options={{ ...createHeaderTitle('Упражнение 6'), ...exerciseHeaderOptions }} />
+            <Stack.Screen name="Exercise8En" component={Exercise8EnG} options={{ ...createHeaderTitle('Exercise 6'), ...exerciseHeaderOptions }} />
+            <Stack.Screen name="Exercise8Fr" component={Exercise8FrG} options={{ ...createHeaderTitle('Exercice 6'), ...exerciseHeaderOptions }} />
             <Stack.Screen name="Exercise8Es" component={Exercise8EsG} options={{ ...createHeaderTitle('Ejercicio 6'), ...exerciseHeaderOptions }} />
             <Stack.Screen name="Exercise8Pt" component={Exercise8PtG} options={{ ...createHeaderTitle('Exercício 6'), ...exerciseHeaderOptions }} />
             <Stack.Screen name="Exercise8Ar" component={Exercise8ArG} options={arExerciseHeader('التمرين 6')} />

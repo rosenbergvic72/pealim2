@@ -1,5 +1,15 @@
 import React, { useEffect } from 'react';
-import { Modal, View, Text, StyleSheet, TouchableOpacity, FlatList, Vibration, Image } from 'react-native';
+import {
+  Modal,
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  FlatList,
+  Vibration,
+  Image,
+  Platform,
+} from 'react-native';
 import FadeInView from './api/FadeInView';
 import { Audio } from 'expo-av';
 import sounds from './Soundss';       // инфинитивы
@@ -25,6 +35,17 @@ const buttonTexts = {
   ar: 'ابدأ التمرين',
   am: 'ልምምዱን ጀምር',
   he: 'התחל תרגול',
+};
+
+const closeTexts = {
+  ru: 'Закрыть',
+  en: 'Close',
+  fr: 'Fermer',
+  es: 'Cerrar',
+  pt: 'Fechar',
+  ar: 'إغلاق',
+  am: 'ዝጋ',
+  he: 'סגור',
 };
 
 const isRTL = (lang) => ['ar', 'am', 'he'].includes(lang);
@@ -55,19 +76,15 @@ async function ensureAudioMode() {
 }
 
 async function playForItem(item) {
-  // 1) сначала пробуем инфинитив
   const keyInf = norm(item?.mp3Inf);
   const keyConj = norm(item?.mp3Conj);
 
-  const file =
-    (keyInf && sounds?.[keyInf]) ||
-    (keyConj && soundsconj?.[keyConj]);
-
+  const file = (keyInf && sounds?.[keyInf]) || (keyConj && soundsconj?.[keyConj]);
   if (!file) return;
 
   await ensureAudioMode();
 
-  const cacheKey = keyInf || keyConj; // для кэша берём тот ключ, что реально проигрываем
+  const cacheKey = keyInf || keyConj;
   try {
     if (!cachedListSounds[cacheKey]) {
       const s = new Audio.Sound();
@@ -78,20 +95,24 @@ async function playForItem(item) {
     await sound.replayAsync();
     sound.setOnPlaybackStatusUpdate(async (st) => {
       if (st.didJustFinish) {
-        try { await sound.unloadAsync(); } catch {}
+        try {
+          await sound.unloadAsync();
+        } catch {}
         delete cachedListSounds[cacheKey];
       }
     });
   } catch {
-    // молча — чтобы не засорять лог
+    // молча
   }
 }
 
 const VerbListModal = ({ visible, onStartExercise, onClose, verbs = [], language }) => {
   const fallbackLang = 'en';
   const langKey = languageMap[language] || language || fallbackLang;
+
   const title = titles[langKey] || titles[fallbackLang];
   const buttonText = buttonTexts[langKey] || buttonTexts[fallbackLang];
+  const closeText = closeTexts[langKey] || closeTexts[fallbackLang];
 
   useEffect(() => {
     if (!visible) return;
@@ -99,7 +120,10 @@ const VerbListModal = ({ visible, onStartExercise, onClose, verbs = [], language
     (async () => {
       try {
         await ensureAudioMode();
-        const { sound } = await Audio.Sound.createAsync(require('./api/click.mp3'), { shouldPlay: true });
+        const { sound } = await Audio.Sound.createAsync(
+          require('./api/click.mp3'),
+          { shouldPlay: true }
+        );
         sound.setOnPlaybackStatusUpdate((status) => {
           if (status.didJustFinish) sound.unloadAsync();
         });
@@ -110,32 +134,58 @@ const VerbListModal = ({ visible, onStartExercise, onClose, verbs = [], language
   return (
     <Modal visible={visible} animationType="slide" transparent onRequestClose={onClose}>
       <FadeInView style={styles.overlay}>
-        <View style={styles.container}>
-          <Text style={[styles.title, isRTL(langKey) && { textAlign: 'right' }]} maxFontSizeMultiplier={1.2}>
+        {/* ✅ Меняем высоту ТОЛЬКО на iOS. Android остаётся 92% как было */}
+        <View style={[styles.container, Platform.OS === 'ios' ? styles.containerIOS : null]}>
+          <Text
+            style={[styles.title, isRTL(langKey) && { textAlign: 'right' }]}
+            maxFontSizeMultiplier={1.2}
+          >
             {title}
           </Text>
 
           <FlatList
             data={verbs}
-            keyExtractor={(item, idx) => `${norm(item?.mp3Inf) || norm(item?.mp3Conj)}_${item?.hebrewtext || ''}_${idx}`}
+            keyExtractor={(item, idx) =>
+              `${norm(item?.mp3Inf) || norm(item?.mp3Conj)}_${item?.hebrewtext || ''}_${idx}`
+            }
             renderItem={({ item }) => (
               <View style={styles.bubble}>
                 <View style={styles.verbLeft}>
-                  <Text style={styles.entext} maxFontSizeMultiplier={1.2}>{item?.entext}</Text>
+                  <Text style={styles.entext} maxFontSizeMultiplier={1.2}>
+                    {item?.entext}
+                  </Text>
                 </View>
+
                 <View style={styles.verbRight}>
                   <TouchableOpacity onPress={() => playForItem(item)} style={styles.speakerButton}>
                     <Image source={require('./speaker6.png')} style={styles.speakerIcon} />
                   </TouchableOpacity>
-                  <Text style={styles.hebrew} maxFontSizeMultiplier={1.2}>{item?.hebrewtext}</Text>
-                  <Text style={styles.translit} maxFontSizeMultiplier={1.2}>{item?.translit}</Text>
+
+                  <Text style={styles.hebrew} maxFontSizeMultiplier={1.2}>
+                    {item?.hebrewtext}
+                  </Text>
+                  <Text style={styles.translit} maxFontSizeMultiplier={1.2}>
+                    {item?.translit}
+                  </Text>
                 </View>
               </View>
             )}
           />
 
           <TouchableOpacity onPress={onStartExercise} style={styles.button}>
-            <Text style={styles.buttonText} maxFontSizeMultiplier={1.2}>{buttonText}</Text>
+            <Text style={styles.buttonText} maxFontSizeMultiplier={1.2}>
+              {buttonText}
+            </Text>
+          </TouchableOpacity>
+
+          {/* ✅ Кнопка "Закрыть" снизу как надпись */}
+          <TouchableOpacity onPress={onClose} style={styles.closeLink} activeOpacity={0.8}>
+            <Text
+              style={[styles.closeText, isRTL(langKey) && { textAlign: 'right' }]}
+              maxFontSizeMultiplier={1.2}
+            >
+              {closeText}
+            </Text>
           </TouchableOpacity>
         </View>
       </FadeInView>
@@ -144,26 +194,92 @@ const VerbListModal = ({ visible, onStartExercise, onClose, verbs = [], language
 };
 
 const styles = StyleSheet.create({
-  overlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.6)', justifyContent: 'center', alignItems: 'center' },
-  container: { backgroundColor: '#fff', width: '96%', height: '92%', borderRadius: 10, padding: 20 },
-  title: {
-    fontWeight: 'bold', fontSize: 18, marginBottom: 15, textAlign: 'center',
-    backgroundColor: '#C3D2EB', borderRadius: 8, color: '#003366', padding: 12,
+  overlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.6)',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
-  button: { backgroundColor: '#4A6491', padding: 12, marginTop: 20, borderRadius: 8 },
-  buttonText: { textAlign: 'center', color: '#fff', fontWeight: 'bold', fontSize: 18 },
+
+  // ✅ Android — как было (92%)
+  container: {
+    backgroundColor: '#fff',
+    width: '96%',
+    height: '92%',
+    borderRadius: 10,
+    padding: 20,
+  },
+
+  // ✅ iOS — только уменьшаем высоту (Android не трогаем)
+  containerIOS: {
+    height: '84%',
+  },
+
+  title: {
+    fontWeight: 'bold',
+    fontSize: 16,
+    marginBottom: 12,
+    textAlign: 'center',
+    backgroundColor: '#C3D2EB',
+    borderRadius: 8,
+    color: '#003366',
+    padding: 12,
+  },
+
+  button: {
+    backgroundColor: '#4A6491',
+    padding: 12,
+    marginTop: 20,
+    borderRadius: 8,
+  },
+  buttonText: {
+    textAlign: 'center',
+    color: '#fff',
+    fontWeight: 'bold',
+    fontSize: 18,
+  },
+
+  // ✅ "Закрыть" как ссылка снизу
+  closeLink: {
+    marginTop: 6,
+    paddingVertical: 0,
+    alignSelf: 'center',
+  },
+  closeText: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#4A6491',
+    // textDecorationLine: 'underline',
+  },
+
   bubble: {
-    flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
-    backgroundColor: '#F2F4F8', borderRadius: 12, paddingVertical: 4, paddingHorizontal: 15,
-    marginBottom: 10, elevation: 2, shadowColor: '#000', shadowOpacity: 0.4, shadowOffset: { width: 0, height: 1 }, shadowRadius: 2,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    backgroundColor: '#F2F4F8',
+    borderRadius: 12,
+    paddingVertical: 4,
+    paddingHorizontal: 15,
+    marginBottom: 10,
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOpacity: 0.4,
+    shadowOffset: { width: 0, height: 1 },
+    shadowRadius: 2,
   },
   verbLeft: { flex: 1, alignItems: 'flex-start' },
   verbRight: { flex: 1, alignItems: 'flex-end', justifyContent: 'center', position: 'relative' },
-  hebrew: { fontWeight: 'bold', fontSize: 20, color: '#2F4766', marginRight: 30 },
+  hebrew: { fontWeight: 'bold', fontSize: 18, color: '#2F4766', marginRight: 30 },
   translit: { fontStyle: 'italic', color: '#C03A2B', fontSize: 14, fontWeight: 'bold', marginRight: 30 },
   entext: { color: '#333', fontSize: 15, textAlign: 'left', fontWeight: 'bold' },
-  // кнопка — как было
-  speakerButton: { position: 'absolute', right: -28, top: '50%', transform: [{ translateY: -11 }], marginRight: 24 },
+
+  speakerButton: {
+    position: 'absolute',
+    right: -28,
+    top: '50%',
+    transform: [{ translateY: -11 }],
+    marginRight: 24,
+  },
   speakerIcon: { width: 22, height: 22, resizeMode: 'contain' },
 });
 

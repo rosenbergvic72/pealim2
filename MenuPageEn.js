@@ -72,9 +72,9 @@ export default function MenuPage({ route }) {
   const [isStatModalVisible, setIsStatModalVisible] = useState(false);
   const [isDescriptionModalVisible, setIsDescriptionModalVisible] = useState(false);
 
-  useEffect(() => {
-    navigation.setOptions({ headerLeft: () => null });
-  }, [navigation]);
+  // useEffect(() => {
+  //   navigation.setOptions({ headerLeft: () => null });
+  // }, [navigation]);
 
   useFocusEffect(
     useCallback(() => {

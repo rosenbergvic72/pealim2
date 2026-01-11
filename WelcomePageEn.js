@@ -48,7 +48,7 @@ export default function WelcomePage({ navigation, route }) {
       fetchName();
 
       const onBackPress = () => {
-        navigation.replace('LanguageSelect'); // Возвращаемся на экран выбора языка
+        navigation.replace('LanguageSelectionPage'); // Возвращаемся на экран выбора языка
         return true; // Перехватываем стандартное поведение
       };
 

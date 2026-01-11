@@ -8,6 +8,7 @@ import {
   TouchableOpacity,
   ScrollView,
   Image,
+  Platform, // ✅ добавили
 } from 'react-native';
 import { Audio } from 'expo-av';
 import soundsconj from './soundconj';
@@ -325,7 +326,6 @@ const VerbListModal2 = ({
     if (!isBeVerb && virtualPos >= 1 && virtualPos <= 12) {
       const parts = raw.split(' ');
       if (parts.length < 2) {
-        // одно слово — тоже аккуратно
         return withOptionalNifalNun(parts[0] || '', (x) => renderPresentVerbWord(x));
       }
       const first = parts[0];
@@ -606,9 +606,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+
+  // ✅ ЕДИНСТВЕННАЯ ПРАВКА: maxHeight меньше на iOS (Android не трогаем)
   modalCard: {
     width: '94%',
-    maxHeight: '94%',
+    maxHeight: Platform.OS === 'ios' ? '86%' : '94%',
     backgroundColor: '#F4F7FB',
     borderRadius: 20,
     padding: 12,
