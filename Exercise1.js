@@ -755,9 +755,21 @@ const handleAnswer = (selectedOptionIndex) => {
 };
 
 
-  const resetExercise = async () => {
-    await initializeExercise(language);
-  };
+ const resetExercise = async () => {
+  // 1) сначала возвращаем показ модалки
+  modalCloseReasonRef.current = null;
+  setIsVerbListVisible(true);
+
+  // 2) сбрасываем важные флаги UI, чтобы не было зависаний/старых кнопок
+  setExerciseCompleted(false);
+  setShowNextButton(false);
+  setOptionsOrder([]);
+  setVerbDetails({ hebrewtext: '', translit: '', russiantext: '' });
+
+  // 3) пересобираем данные (список глаголов тоже пересчитается)
+  await initializeExercise(language);
+};
+
 
   const handleCancelExit = () => setExitConfirmationVisible(false);
 
@@ -875,7 +887,12 @@ const handleAnswer = (selectedOptionIndex) => {
       )}
 
       {!isVerbListVisible && (
-        <ScrollView contentContainerStyle={styles.scrollViewContent}>
+        <ScrollView
+  contentContainerStyle={styles.scrollViewContent}
+  keyboardShouldPersistTaps="always"
+  keyboardDismissMode="on-drag"
+>
+
           <View style={styles.container}>
             <View style={styles.topBar}>
               <Animated.Image source={require('./VERBIFY.png')} style={[styles.logoImage, { opacity: fadeAnim }]} />
@@ -1002,35 +1019,48 @@ const handleAnswer = (selectedOptionIndex) => {
         </ScrollView>
       )}
 
-      <ExcludedVerbsModal1
-        visible={isExcludedModalVisible}
-        onClose={() => setIsExcludedModalVisible(false)}
-        excludedIds={excludedIds}
-        pinnedIds={pinnedIds}
-        verbsData={verbsData}
-        onRestoreVerb={async (id) => {
-          const next = (excludedRef.current || []).filter(x => x !== id);
-          await saveExcluded(next);
-        }}
-        onTogglePinnedVerb={handleTogglePinnedVerb}
-        lang={'ru'} // 'ru'|'en'|'fr'|'es'|'pt'|'ar'|'am'
-      />
+  {isExcludedModalVisible && (
+  <ExcludedVerbsModal1
+    visible={true}
+    onClose={() => setIsExcludedModalVisible(false)}
+    excludedIds={excludedIds}
+    pinnedIds={pinnedIds}
+    verbsData={verbsData}
+    onRestoreVerb={async (id) => {
+      const next = (excludedRef.current || []).filter((x) => x !== id);
+      await saveExcluded(next);
+    }}
+    onTogglePinnedVerb={handleTogglePinnedVerb}
+    lang={'ru'}
+  />
+)}
 
-      <StatModal1 visible={isStatModalVisible} onToggle={() => setIsStatModalVisible(false)} statistics={statistics} />
+{isStatModalVisible && (
+  <StatModal1
+    visible={true}
+    onToggle={() => setIsStatModalVisible(false)}
+    statistics={statistics}
+  />
+)}
 
-      <TaskDescriptionModal6
-        visible={isDescriptionModalVisible}
-        onToggle={toggleDescriptionModal}
-        language={language}
-        dontShowAgain1={dontShowAgain1}
-        onToggleDontShowAgain={handleToggleDontShowAgain1}
-      />
+{isDescriptionModalVisible && (
+  <TaskDescriptionModal6
+    visible={true}
+    onToggle={toggleDescriptionModal}
+    language={language}
+    dontShowAgain1={dontShowAgain1}
+    onToggleDontShowAgain={handleToggleDontShowAgain1}
+  />
+)}
 
-      <ExitConfirmationModal
-        visible={exitConfirmationVisible}
-        onCancel={handleCancelExit}
-        onConfirm={handleConfirmExit}
-      />
+{exitConfirmationVisible && (
+  <ExitConfirmationModal
+    visible={true}
+    onCancel={handleCancelExit}
+    onConfirm={handleConfirmExit}
+  />
+)}
+
     </>
   );
 };

@@ -256,13 +256,27 @@ function CompactHeader({ navigation, options, back, route }) {
   };
 
   const isExerciseScreen = /^Exercise\d+/.test(route?.name || '');
-  const shouldShowBack = !!back || isExerciseScreen;
+
+  // ✅ учитываем твой флаг
+  const forceBack = options.headerForceBack === true;
+  const backTarget = options.headerBackTarget;
+
+  // ✅ теперь кнопка будет даже когда `back` не пришёл
+  const shouldShowBack = forceBack || !!back || isExerciseScreen;
 
   const onBackPress = () => {
+    // ✅ если задан явный экран-цель — идём туда
+    if (backTarget) {
+      navigation.navigate(backTarget);
+      return;
+    }
+
+    // обычный back
     if (navigation.canGoBack && navigation.canGoBack()) {
       navigation.goBack();
       return;
     }
+
     // если "назад" некуда — уходим в меню языка
     navigation.navigate(resolveMenuRoute(route?.name || ''));
   };
@@ -294,56 +308,54 @@ function CompactHeader({ navigation, options, back, route }) {
       </Text>
     );
 
-  const forceBack = options.headerForceBack === true;
-  const backTarget = options.headerBackTarget;
-
   return (
-  <View
-    style={{
-      height: 38 + top,
-      paddingTop: top,
-      backgroundColor: '#6C8EBB',
-      flexDirection: rtl ? 'row-reverse' : 'row',
-      alignItems: 'center',
-      paddingHorizontal: 8,
-    }}
-  >
-    {shouldShowBack ? (
-      <TouchableOpacity
-        onPress={onBackPress}
-        style={{
-          padding: 8,
-          marginRight: rtl ? 0 : 4,
-          marginLeft: rtl ? 4 : 0,
-        }}
-      >
-        <Ionicons
-          name={rtl ? 'chevron-forward' : 'chevron-back'}
-          size={20}
-          color="#fff"
-        />
-      </TouchableOpacity>
-    ) : (
-      <View style={{ width: 28 }} />
-    )}
-
     <View
       style={{
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: rtl ? 'flex-end' : 'flex-start',
+        height: 38 + top,
+        paddingTop: top,
+        backgroundColor: '#6C8EBB',
+        flexDirection: rtl ? 'row-reverse' : 'row',
+        alignItems: 'center',
+        paddingHorizontal: 8,
       }}
     >
-      {titleNode}
-    </View>
+      {shouldShowBack ? (
+        <TouchableOpacity
+          onPress={onBackPress}
+          style={{
+            padding: 8,
+            marginRight: rtl ? 0 : 4,
+            marginLeft: rtl ? 4 : 0,
+          }}
+          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+        >
+          <Ionicons
+            name={rtl ? 'chevron-forward' : 'chevron-back'}
+            size={20}
+            color="#fff"
+          />
+        </TouchableOpacity>
+      ) : (
+        <View style={{ width: 28 }} />
+      )}
 
-    <View style={{ marginLeft: rtl ? 0 : 8, marginRight: rtl ? 8 : 0 }}>
-      {Right}
+      <View
+        style={{
+          flex: 1,
+          justifyContent: 'center',
+          alignItems: rtl ? 'flex-end' : 'flex-start',
+        }}
+      >
+        {titleNode}
+      </View>
+
+      <View style={{ marginLeft: rtl ? 0 : 8, marginRight: rtl ? 8 : 0 }}>
+        {Right}
+      </View>
     </View>
-  </View>
-);
-    
+  );
 }
+
 
 
 /* ===== ВНЕШНИЙ компонент — провайдеры (IAP + SafeArea) ===== */
@@ -431,12 +443,13 @@ function AppInner() {
     (async () => {
       try {
         await Font.loadAsync({
-          ...Ionicons.font,
-          'mt-bold': require('./assets/fonts/Montserrat-VariableFont_wght.ttf'),
-          'mt-light': require('./assets/fonts/Montserrat-Italic-VariableFont_wght.ttf'),
-          'ar-regular': require('./assets/fonts/Tajawal-Regular.ttf'),
-          'ar-bold': require('./assets/fonts/Tajawal-Bold.ttf'),
-        });
+  ...Ionicons.font,
+  'mt-regular': require('./assets/fonts/Montserrat-Regular.ttf'),
+  'mt-bold': require('./assets/fonts/Montserrat-Bold.ttf'),
+  'ar-regular': require('./assets/fonts/Tajawal-Regular.ttf'),
+  'ar-bold': require('./assets/fonts/Tajawal-Bold.ttf'),
+});
+
         setFontsReady(true);
       } catch (e) {
         console.log('Font load error:', e);
@@ -633,15 +646,16 @@ function AppInner() {
         <Text
           maxFontSizeMultiplier={1.1}
           style={{
-            color: 'white',
-            fontWeight: '700',
-            fontSize: TITLE_FS,
-            lineHeight: rtl ? TITLE_FS + 6 : TITLE_FS + 2,
-            fontFamily: rtl ? 'ar-bold' : 'mt-bold',
-            textAlign: rtl ? 'right' : 'left',
-            writingDirection: rtl ? 'rtl' : 'ltr',
-            ...(rtl ? { marginTop: 6 } : null),
-          }}
+  color: 'white',
+  fontSize: TITLE_FS,
+  lineHeight: rtl ? TITLE_FS + 6 : TITLE_FS + 2,
+  fontFamily: rtl ? 'ar-bold' : 'mt-bold',
+  // fontWeight: '700', // ❌ убрать
+  textAlign: rtl ? 'right' : 'left',
+  writingDirection: rtl ? 'rtl' : 'ltr',
+  ...(rtl ? { marginTop: 6 } : null),
+}}
+
         >
           {title}
         </Text>
