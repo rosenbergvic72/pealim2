@@ -241,16 +241,37 @@ const Exercise8ArG = gate(Exercise8Ar);
 const Exercise8AmG = gate(Exercise8Am);
 
 /* ===== Кастомный компактный Header (44dp) ===== */
-function CompactHeader({ navigation, options, back }) {
-  const { top } = useSafeAreaInsets(); // inset сверху
+function CompactHeader({ navigation, options, back, route }) {
+  const { top } = useSafeAreaInsets();
   const rtl = options.headerRtl === true;
+
+  const resolveMenuRoute = (routeName) => {
+    if (routeName.endsWith('En')) return 'MenuEn';
+    if (routeName.endsWith('Fr')) return 'MenuFr';
+    if (routeName.endsWith('Es')) return 'MenuEs';
+    if (routeName.endsWith('Pt')) return 'MenuPt';
+    if (routeName.endsWith('Ar')) return 'MenuAr';
+    if (routeName.endsWith('Am')) return 'MenuAm';
+    return 'Menu';
+  };
+
+  const isExerciseScreen = /^Exercise\d+/.test(route?.name || '');
+  const shouldShowBack = !!back || isExerciseScreen;
+
+  const onBackPress = () => {
+    if (navigation.canGoBack && navigation.canGoBack()) {
+      navigation.goBack();
+      return;
+    }
+    // если "назад" некуда — уходим в меню языка
+    navigation.navigate(resolveMenuRoute(route?.name || ''));
+  };
 
   const Right =
     typeof options.headerRight === 'function'
       ? options.headerRight({ tintColor: '#fff' })
       : options.headerRight || null;
 
-  // лёгкий сдвиг вниз для арабского (особенно Android)
   const titleShiftY = Platform.OS === 'android' ? (rtl ? 2 : 0) : (rtl ? 1 : 0);
 
   const titleNode =
@@ -277,57 +298,53 @@ function CompactHeader({ navigation, options, back }) {
   const backTarget = options.headerBackTarget;
 
   return (
-    <View
-      style={{
-        height: 38 + top,
-        paddingTop: top,
-        backgroundColor: '#6C8EBB',
-        flexDirection: rtl ? 'row-reverse' : 'row',
-        alignItems: 'center',
-        paddingHorizontal: 8,
-      }}
-    >
-      {(back || forceBack) ? (
-        <TouchableOpacity
-          onPress={() => {
-            if (back) {
-              navigation.goBack();
-            } else if (backTarget) {
-              navigation.reset({ index: 0, routes: [{ name: backTarget }] });
-            }
-          }}
-          style={{
-            padding: 8,
-            marginRight: rtl ? 0 : 4,
-            marginLeft: rtl ? 4 : 0,
-          }}
-        >
-          <Ionicons
-            name={rtl ? 'chevron-forward' : 'chevron-back'}
-            size={20}
-            color="#fff"
-          />
-        </TouchableOpacity>
-      ) : (
-        <View style={{ width: 28 }} />
-      )}
-
-      <View
+  <View
+    style={{
+      height: 38 + top,
+      paddingTop: top,
+      backgroundColor: '#6C8EBB',
+      flexDirection: rtl ? 'row-reverse' : 'row',
+      alignItems: 'center',
+      paddingHorizontal: 8,
+    }}
+  >
+    {shouldShowBack ? (
+      <TouchableOpacity
+        onPress={onBackPress}
         style={{
-          flex: 1,
-          justifyContent: 'center',
-          alignItems: rtl ? 'flex-end' : 'flex-start',
+          padding: 8,
+          marginRight: rtl ? 0 : 4,
+          marginLeft: rtl ? 4 : 0,
         }}
       >
-        {titleNode}
-      </View>
+        <Ionicons
+          name={rtl ? 'chevron-forward' : 'chevron-back'}
+          size={20}
+          color="#fff"
+        />
+      </TouchableOpacity>
+    ) : (
+      <View style={{ width: 28 }} />
+    )}
 
-      <View style={{ marginLeft: rtl ? 0 : 8, marginRight: rtl ? 8 : 0 }}>
-        {Right}
-      </View>
+    <View
+      style={{
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: rtl ? 'flex-end' : 'flex-start',
+      }}
+    >
+      {titleNode}
     </View>
-  );
+
+    <View style={{ marginLeft: rtl ? 0 : 8, marginRight: rtl ? 8 : 0 }}>
+      {Right}
+    </View>
+  </View>
+);
+    
 }
+
 
 /* ===== ВНЕШНИЙ компонент — провайдеры (IAP + SafeArea) ===== */
 export default function App() {
