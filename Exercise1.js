@@ -276,6 +276,9 @@ const Exercise1 = ({ navigation }) => {
   const [dontShowAgain1, setDontShowAgain1] = useState(false);
   const [language, setLanguage] = useState('en');
 
+  const [shouldOpenDescriptionAfterStart, setShouldOpenDescriptionAfterStart] = useState(false);
+
+
   useEffect(() => {
     const checkFlagAndLang = async () => {
       const hidden = await AsyncStorage.getItem('exercise1_description_hidden');
@@ -285,9 +288,12 @@ const Exercise1 = ({ navigation }) => {
         setLanguage(lang);
         setDontShowAgain1(hidden === 'true');
 
-        if (hidden !== 'true') {
-          setTimeout(() => setDescriptionModalVisible(true), 100);
-        }
+       if (hidden !== 'true') {
+  // если сейчас открыт список глаголов — НЕ открываем модалку описания сразу
+  // откроем её после старта упражнения
+  setShouldOpenDescriptionAfterStart(true);
+}
+
       } else {
         setDontShowAgain1(hidden === 'true');
       }
@@ -1049,7 +1055,7 @@ const handleAnswer = (selectedOptionIndex) => {
   />
 )}
 
-{isDescriptionModalVisible && (
+{isDescriptionModalVisible && !isVerbListVisible && (
   <TaskDescriptionModal6
     visible={true}
     onToggle={toggleDescriptionModal}
