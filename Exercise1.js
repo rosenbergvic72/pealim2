@@ -106,8 +106,15 @@ const VerbDetailsContainer = ({ verbDetails, showRussianText, handleSpeakerPress
 
   return (
     <View style={styles.verbDetailsContainer}>
-      <Animated.View style={[styles.verbDetailsHalf, styles.verbDetailsLeft, { width: leftWidth }]} />
-      <Animated.View style={[styles.verbDetailsHalf, styles.verbDetailsRight, { width: rightWidth }]} />
+      <Animated.View
+  pointerEvents="none"
+  style={[styles.verbDetailsHalf, styles.verbDetailsLeft, { width: leftWidth }]}
+/>
+<Animated.View
+  pointerEvents="none"
+  style={[styles.verbDetailsHalf, styles.verbDetailsRight, { width: rightWidth }]}
+/>
+
 
       <View style={styles.verbDetailsContent}>
         <View style={styles.verbDetailsLeftContent}>
@@ -125,16 +132,15 @@ const VerbDetailsContainer = ({ verbDetails, showRussianText, handleSpeakerPress
               {verbDetails.russiantext}
             </Text>
           ) : (
-            <LottieView
-              ref={animationRef}
-              source={animation}
-              autoPlay
-              loop
-              onAnimationFinish={() => {
-                animationRef.current?.reset?.();
-              }}
-              style={styles.lottieAnimation}
-            />
+         <LottieView
+  pointerEvents="none"   // ⬅️ КЛЮЧ
+  ref={animationRef}
+  source={animation}
+  autoPlay
+  loop
+  style={styles.lottieAnimation}
+/>
+
           )}
         </View>
 
@@ -1336,13 +1342,16 @@ optionText: {
     paddingLeft: wp('2.5%'),
     paddingRight: wp('2.5%'),
   },
-  lottieAnimation: {
-    position: 'absolute',
-    width: wp('90%'),
-    height: hp('18%'),
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
+ lottieAnimation: {
+  position: 'absolute',
+  top: 0,
+  bottom: 0,
+  left: 0,
+  right: 0,
+  justifyContent: 'center',
+  alignItems: 'center',
+},
+
   speakerButton: {
     position: 'absolute',
     bottom: hp('-0.25%'),

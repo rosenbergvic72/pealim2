@@ -802,10 +802,19 @@ const handleAnswer = (selectedOptionIndex) => {
   }
 };
 
-  const resetExercise = async () => {
-    await initializeExercise(language);
-  };
+const resetExercise = async () => {
+  // ✅ возвращаем модалку со списком глаголов
+  modalCloseReasonRef.current = null;
+  setIsVerbListVisible(true);
 
+  // по желанию: подчистить UI
+  setOptionsOrder([]);
+  setVerbDetails({ hebrewtext: '', translit: '', russiantext: '' });
+  setShowNextButton(false);
+
+  await initializeExercise(language);
+};
+Ы
   const handleCancelExit = () => setExitConfirmationVisible(false);
 
   const handleConfirmExit = () => {
