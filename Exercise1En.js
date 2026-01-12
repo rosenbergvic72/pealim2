@@ -314,36 +314,54 @@ const Exercise1En = ({ navigation }) => {
   const fadeAnim = useRef(new Animated.Value(0)).current;
 
   const [autoPlaySounds, setAutoPlaySounds] = useState(true);
-  const [isVerbListVisible, setIsVerbListVisible] = useState(true); // состояние для управления видимостью модалки
+  const [isVerbListVisible, setIsVerbListVisible] = useState(true)// ✅ стартуем без списка
+const shouldOpenVerbListAfterDescriptionRef = useRef(false);
+
   const [verbListForModal, setVerbListForModal] = useState([]); // список для модалки
 
   const modalCloseReasonRef = useRef(null);
   const skipExitConfirmRef = useRef(false);
 
-  const toggleDescriptionModal = () => setDescriptionModalVisible((prev) => !prev);
+  const toggleDescriptionModal = () => {
+  setDescriptionModalVisible((prev) => {
+    const next = !prev;
+
+    // ✅ если мы ЗАКРЫЛИ описание на первом запуске — показываем список
+    if (prev === true && next === false && shouldOpenVerbListAfterDescriptionRef.current) {
+      shouldOpenVerbListAfterDescriptionRef.current = false;
+      setIsVerbListVisible(true);
+    }
+
+    return next;
+  });
+};
+
 
   const [isDescriptionModalVisible, setDescriptionModalVisible] = useState(false);
   const [dontShowAgain1, setDontShowAgain1] = useState(false);
   const [language, setLanguage] = useState('en');
 
-  useEffect(() => {
-    const checkFlagAndLang = async () => {
-      const hidden = await AsyncStorage.getItem('exercise1_description_hidden');
-      const lang = await AsyncStorage.getItem('language');
+useEffect(() => {
+  const checkFlagAndLang = async () => {
+    const hidden = await AsyncStorage.getItem('exercise1_description_hidden');
+    const lang = await AsyncStorage.getItem('language');
 
-      if (lang) {
-        setLanguage(lang);
-        setDontShowAgain1(hidden === 'true');
+    if (lang) setLanguage(lang);
+    setDontShowAgain1(hidden === 'true');
 
-        if (hidden !== 'true') {
-          setTimeout(() => setDescriptionModalVisible(true), 100);
-        }
-      } else {
-        setDontShowAgain1(hidden === 'true');
-      }
-    };
-    checkFlagAndLang();
-  }, []);
+    // ✅ VerbList уже открыт под низом (isVerbListVisible=true)
+    // ✅ Description открываем сверху только если флаг не стоит
+    if (hidden !== 'true') {
+      setDescriptionModalVisible(true);
+    } else {
+      setDescriptionModalVisible(false);
+    }
+  };
+
+  checkFlagAndLang();
+}, []);
+
+
 
   const handleToggleDontShowAgain1 = async () => {
     const newValue = !dontShowAgain1;
@@ -802,18 +820,20 @@ const handleAnswer = (selectedOptionIndex) => {
   }
 };
 
-const resetExercise = async () => {
-  // ✅ возвращаем модалку со списком глаголов
+ const resetExercise = async () => {
+  // ✅ возвращаем стартовый сценарий как при первом запуске
   modalCloseReasonRef.current = null;
+
+  // ✅ открываем verb list (под ним будет упражнение)
   setIsVerbListVisible(true);
 
-  // по желанию: подчистить UI
-  setOptionsOrder([]);
-  setVerbDetails({ hebrewtext: '', translit: '', russiantext: '' });
-  setShowNextButton(false);
+  // ✅ description сверху только если не запрещено
+  setDescriptionModalVisible(!dontShowAgain1);
 
+  // ✅ заново собираем колоду + verbListForModal
   await initializeExercise(language);
 };
+
 
   const handleCancelExit = () => setExitConfirmationVisible(false);
 
@@ -862,23 +882,23 @@ const resetExercise = async () => {
 
   return (
     <>
-      {isVerbListVisible && (
-        <VerbListModal
-          visible={isVerbListVisible}
-          language={language}
-          verbs={verbListForModal}
-          onStartExercise={() => {
-            modalCloseReasonRef.current = 'start';
-            setIsVerbListVisible(false);
-          }}
-          onClose={() => {
-            modalCloseReasonRef.current = 'menu';
-            setIsVerbListVisible(false);
-            if (navigation.canGoBack()) navigation.goBack();
-            else navigation.navigate('MenuEn');
-          }}
-        />
-      )}
+    {isVerbListVisible && (
+  <VerbListModal
+    visible={isVerbListVisible}
+    language={language}
+    verbs={verbListForModal}
+    onStartExercise={() => {
+      modalCloseReasonRef.current = 'start';
+      setIsVerbListVisible(false); // ✅ только здесь начинается упражнение
+    }}
+    onClose={() => {
+      modalCloseReasonRef.current = 'menu';
+      setIsVerbListVisible(false);
+      if (navigation.canGoBack()) navigation.goBack();
+      else navigation.navigate('MenuEn');
+    }}
+  />
+)}
 
       {!isVerbListVisible && (
         <ScrollView contentContainerStyle={styles.scrollViewContent}>
@@ -1038,13 +1058,13 @@ const resetExercise = async () => {
 
       <StatModal1En visible={isStatModalVisible} onToggle={() => setIsStatModalVisible(false)} statistics={statistics} />
 
-      <TaskDescriptionModal6
-        visible={isDescriptionModalVisible}
-        onToggle={toggleDescriptionModal}
-        language={language}
-        dontShowAgain1={dontShowAgain1}
-        onToggleDontShowAgain={handleToggleDontShowAgain1}
-      />
+   <TaskDescriptionModal6
+  visible={isDescriptionModalVisible}
+  onToggle={toggleDescriptionModal}
+  language={language}
+  dontShowAgain1={dontShowAgain1}
+  onToggleDontShowAgain={handleToggleDontShowAgain1}
+/>
 
       <ExitConfirmationModal visible={exitConfirmationVisible} onCancel={handleCancelExit} onConfirm={handleConfirmExit} />
     </>

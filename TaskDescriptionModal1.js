@@ -1,5 +1,16 @@
 import React from 'react';
-import { Modal, View, Text, TouchableOpacity, StyleSheet, Dimensions, Image, ScrollView } from 'react-native';
+import {
+  Modal,
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  Dimensions,
+  Image,
+  ScrollView,
+  Pressable,
+  Platform,
+} from 'react-native';
 import FadeInView from './api/FadeInView';
 
 const translations = {
@@ -18,11 +29,10 @@ const translations = {
     gender: 'Выбор голоса озвучивания',
     aiBot: 'ИИ чатбот',
 
-    // ✅ NEW
     cardSection: 'Кнопки карточки глагола',
     eye: 'Исключить глагол: он больше не будет попадаться в новых заданиях (можно вернуть позже).',
     pin: 'Закрепить глагол: он будет встречаться чаще в заданиях (частая ротация).',
-   list: 'Открыть список исключённых глаголов: вернуть глагол в задания.',
+    list: 'Открыть список исключённых глаголов: вернуть глагол в задания.',
 
     dontShow: 'Больше не показывать',
   },
@@ -42,7 +52,6 @@ const translations = {
     gender: 'Voice gender selection',
     aiBot: 'AI Chatbot',
 
-    // ✅ NEW
     cardSection: 'Verb card buttons',
     eye: 'Exclude this verb: it will no longer appear in new tasks (you can restore it later).',
     pin: 'Pin this verb: it will appear more often in tasks (frequent rotation).',
@@ -66,7 +75,6 @@ const translations = {
     gender: 'Choix du genre de voix',
     aiBot: 'Chatbot IA',
 
-    // ✅ NEW
     cardSection: 'Boutons de la carte du verbe',
     eye: "Exclure ce verbe : il n’apparaîtra plus dans les nouveaux exercices (restauration possible).",
     pin: 'Épingler ce verbe : il apparaîtra plus souvent (rotation fréquente).',
@@ -90,7 +98,6 @@ const translations = {
     gender: 'Selección de voz (masc/fem)',
     aiBot: 'Chatbot IA',
 
-    // ✅ NEW
     cardSection: 'Botones de la tarjeta del verbo',
     eye: 'Excluir este verbo: ya no aparecerá en nuevas tareas (puedes restaurarlo después).',
     pin: 'Fijar este verbo: aparecerá con más frecuencia en las tareas (rotación frecuente).',
@@ -114,7 +121,6 @@ const translations = {
     gender: 'Selecionar voz (masculino/feminino)',
     aiBot: 'Chatbot IA',
 
-    // ✅ NEW
     cardSection: 'Botões do cartão do verbo',
     eye: 'Excluir este verbo: ele não aparecerá mais em novas tarefas (pode ser restaurado depois).',
     pin: 'Fixar este verbo: ele aparecerá com mais frequência (rotação frequente).',
@@ -138,7 +144,6 @@ const translations = {
     gender: 'اختيار صوت المتحدث',
     aiBot: 'روبوت الدردشة الذكي',
 
-    // ✅ NEW
     cardSection: 'أزرار بطاقة الفعل',
     eye: 'استبعاد هذا الفعل: لن يظهر مجددًا في التمارين الجديدة (يمكن إعادته لاحقًا).',
     pin: 'تثبيت هذا الفعل: سيظهر بشكل أكثر تكرارًا في التمارين (تكرار أعلى).',
@@ -149,7 +154,7 @@ const translations = {
 
   am: {
     title: 'ልዩ የልምምድ መግለጫ 1',
-    intro1: 'በዚህ ልምምድ ውስጥ በተለመዱት የሃብሪ ግሶች 300 በቀላሉ መታወቂያ እና መድገሚያ ይደረጋል።',
+    intro1: 'በዚህ ልዩ ልምምድ ውስጥ በተለመዱት የሃብሪ ግሶች 300 በቀላሉ መታወቂያ እና መድገሚያ ይደረጋል።',
     intro2:
       'የግስ ማንኛውም ቅድመ-ቅዱስ ቃል በኃብሪኛ ይታያልና ይተረጉማል፤ አራት መረጃዎች ይሰጣሉ። የትኛውን እንደት እንደሚሆን መምረጥ ነው ያለብዎት።',
     intro3:
@@ -162,7 +167,6 @@ const translations = {
     gender: 'የድምፅ አምራጭ',
     aiBot: 'የብሔራዊ አይ ቻትቦት',
 
-    // ✅ NEW
     cardSection: 'የግስ ካርድ ቁልፎች',
     eye: 'ይህን ግስ አስወግድ፦ ከአዲስ ጥያቄዎች ውስጥ አይታይም (በኋላ መመለስ ይቻላል)።',
     pin: 'ይህን ግስ አጠናክር፦ በጥያቄዎች ውስጥ ብዙ ጊዜ እንዲታይ ያደርጋል (ተደጋጋሚ ሮቴሽን)።',
@@ -185,151 +189,170 @@ const languageMap = {
 };
 
 const TaskDescriptionModal6 = ({ visible, onToggle, language, dontShowAgain1, onToggleDontShowAgain }) => {
+  // ✅ КРИТИЧНО для iOS: если не показываем — вообще не монтируем модалку
+  if (!visible) return null;
+
   const normalizedInput = (language || '').toLowerCase().trim();
   const langCode = languageMap[normalizedInput] || 'en';
   const t = translations[langCode] || translations.en;
 
   return (
-    <Modal animationType="slide" transparent visible={visible} onRequestClose={onToggle}>
-      <View style={styles.centeredView}>
-        <FadeInView style={styles.modalView}>
-          {/* Header */}
-          <View style={styles.header}>
-            <Image source={require('./VERBIFY.png')} style={styles.logo} />
-            <TouchableOpacity onPress={onToggle}>
-              <Text style={styles.closeButton} maxFontSizeMultiplier={1.2}>
-                ✕
-              </Text>
-            </TouchableOpacity>
-          </View>
-
-          {/* Scroll */}
-          <ScrollView
-            contentContainerStyle={styles.scrollContent}
-            style={styles.scrollWrapper}
-            showsVerticalScrollIndicator={false}
-          >
-            <Text style={styles.modalTitle} maxFontSizeMultiplier={1.2}>
-              {t.title}
-            </Text>
-
-            <Text style={styles.modalText} maxFontSizeMultiplier={1.2}>
-              {t.intro1}
-            </Text>
-
-            <Text style={[styles.modalText, styles.highlightText]} maxFontSizeMultiplier={1.2}>
-              {'\n'}
-              {t.intro2}
-            </Text>
-
-            <Text style={styles.modalText} maxFontSizeMultiplier={1.2}>
-              {t.intro3}
-            </Text>
-
-            {/* Top buttons */}
-            <Text style={styles.sectionTitle} maxFontSizeMultiplier={1.2}>
-              {t.section}
-            </Text>
-
-            <View style={styles.screenshotWrapper}>
-              <Image source={require('./scr11.jpg')} style={styles.screenshot} />
+ <Modal
+    animationType="slide"
+    transparent
+    visible={true}
+    presentationStyle="overFullScreen"
+    statusBarTranslucent
+    onRequestClose={onToggle}
+  >
+      {/* Фон: можно закрывать тапом по затемнению */}
+      <Pressable style={styles.centeredView} onPress={onToggle}>
+        {/* Контент: тапы внутри не закрывают */}
+        <Pressable onPress={(e) => e.stopPropagation()} style={styles.contentWrap}>
+          <FadeInView style={styles.modalView}>
+            {/* Header */}
+            <View style={styles.header}>
+              <Image source={require('./VERBIFY.png')} style={styles.logo} />
+              <TouchableOpacity onPress={onToggle} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
+                <Text style={styles.closeButton} maxFontSizeMultiplier={1.2}>
+                  ✕
+                </Text>
+              </TouchableOpacity>
             </View>
 
-            <View style={styles.iconRow}>
-              <Image source={require('./SoundOn.png')} style={styles.icon} />
-              <Text style={styles.iconText} maxFontSizeMultiplier={1.2}>
-                {t.sound}
+            {/* Scroll */}
+            <ScrollView
+              contentContainerStyle={styles.scrollContent}
+              style={styles.scrollWrapper}
+              showsVerticalScrollIndicator={false}
+            >
+              <Text style={styles.modalTitle} maxFontSizeMultiplier={1.2}>
+                {t.title}
               </Text>
-            </View>
 
-            <View style={styles.iconRow}>
-              <Image source={require('./stat.png')} style={styles.icon} />
-              <Text style={styles.iconText} maxFontSizeMultiplier={1.2}>
-                {t.stat}
+              <Text style={styles.modalText} maxFontSizeMultiplier={1.2}>
+                {t.intro1}
               </Text>
-            </View>
 
-            <View style={styles.iconRow}>
-              <Image source={require('./question.png')} style={styles.icon} />
-              <Text style={styles.iconText} maxFontSizeMultiplier={1.2}>
-                {t.info}
+              <Text style={[styles.modalText, styles.highlightText]} maxFontSizeMultiplier={1.2}>
+                {'\n'}
+                {t.intro2}
               </Text>
-            </View>
 
-            <View style={styles.iconRow}>
-              <Image source={require('./GenderMan.png')} style={styles.icon} />
-              <Text style={styles.iconText} maxFontSizeMultiplier={1.2}>
-                {t.gender}
+              <Text style={styles.modalText} maxFontSizeMultiplier={1.2}>
+                {t.intro3}
               </Text>
-            </View>
 
-            <View style={{ width: '100%', alignItems: 'center' }}>
-              <View style={styles.aiIconRow}>
-                <Image source={require('./AI2.png')} style={styles.aiIcon} />
-                <Text style={[styles.iconText, { flex: 0 }]} maxFontSizeMultiplier={1.2}>
-                  {t.aiBot}
+              {/* Top buttons */}
+              <Text style={styles.sectionTitle} maxFontSizeMultiplier={1.2}>
+                {t.section}
+              </Text>
+
+              <View style={styles.screenshotWrapper}>
+                <Image source={require('./scr11.jpg')} style={styles.screenshot} />
+              </View>
+
+              <View style={styles.iconRow}>
+                <Image source={require('./SoundOn.png')} style={styles.icon} />
+                <Text style={styles.iconText} maxFontSizeMultiplier={1.2}>
+                  {t.sound}
                 </Text>
               </View>
-            </View>
 
-            {/* ✅ NEW: Verb card buttons */}
-            <Text style={styles.sectionTitle} maxFontSizeMultiplier={1.2}>
-              {t.cardSection}
-            </Text>
+              <View style={styles.iconRow}>
+                <Image source={require('./stat.png')} style={styles.icon} />
+                <Text style={styles.iconText} maxFontSizeMultiplier={1.2}>
+                  {t.stat}
+                </Text>
+              </View>
 
-            <View style={styles.screenshotWrapper}>
-              <Image source={require('./scr21.jpg')} style={styles.screenshot} />
-            </View>
+              <View style={styles.iconRow}>
+                <Image source={require('./question.png')} style={styles.icon} />
+                <Text style={styles.iconText} maxFontSizeMultiplier={1.2}>
+                  {t.info}
+                </Text>
+              </View>
 
-            <View style={styles.iconRow}>
-              <Image source={require('./glaz2.png')} style={styles.icon} />
-              <Text style={styles.iconText} maxFontSizeMultiplier={1.2}>
-                {t.eye}
+              <View style={styles.iconRow}>
+                <Image source={require('./GenderMan.png')} style={styles.icon} />
+                <Text style={styles.iconText} maxFontSizeMultiplier={1.2}>
+                  {t.gender}
+                </Text>
+              </View>
+
+              <View style={{ width: '100%', alignItems: 'center' }}>
+                <View style={styles.aiIconRow}>
+                  <Image source={require('./AI2.png')} style={styles.aiIcon} />
+                  <Text style={[styles.iconText, { flex: 0 }]} maxFontSizeMultiplier={1.2}>
+                    {t.aiBot}
+                  </Text>
+                </View>
+              </View>
+
+              {/* Verb card buttons */}
+              <Text style={styles.sectionTitle} maxFontSizeMultiplier={1.2}>
+                {t.cardSection}
               </Text>
-            </View>
 
-            <View style={styles.iconRow}>
-              <Image source={require('./gant2.png')} style={styles.icon} />
-              <Text style={styles.iconText} maxFontSizeMultiplier={1.2}>
-                {t.pin}
+              <View style={styles.screenshotWrapper}>
+                <Image source={require('./scr21.jpg')} style={styles.screenshot} />
+              </View>
+
+              <View style={styles.iconRow}>
+                <Image source={require('./glaz2.png')} style={styles.icon} />
+                <Text style={styles.iconText} maxFontSizeMultiplier={1.2}>
+                  {t.eye}
+                </Text>
+              </View>
+
+              <View style={styles.iconRow}>
+                <Image source={require('./gant2.png')} style={styles.icon} />
+                <Text style={styles.iconText} maxFontSizeMultiplier={1.2}>
+                  {t.pin}
+                </Text>
+              </View>
+
+              <View style={styles.iconRow}>
+                <Image source={require('./spisok.png')} style={styles.icon} />
+                <Text style={styles.iconText} maxFontSizeMultiplier={1.2}>
+                  {t.list}
+                </Text>
+              </View>
+            </ScrollView>
+
+            {/* Checkbox */}
+            <TouchableOpacity style={styles.dontShowRow} onPress={onToggleDontShowAgain} activeOpacity={0.7}>
+              <View style={[styles.checkbox, dontShowAgain1 && styles.checkboxChecked]}>
+                {dontShowAgain1 && <Text style={styles.checkmark}>✓</Text>}
+              </View>
+              <Text style={styles.dontShowText} maxFontSizeMultiplier={1.2}>
+                {t.dontShow}
               </Text>
-            </View>
-
-            <View style={styles.iconRow}>
-              <Image source={require('./spisok.png')} style={styles.icon} />
-              <Text style={styles.iconText} maxFontSizeMultiplier={1.2}>
-                {t.list}
-              </Text>
-            </View>
-          </ScrollView>
-
-          {/* Checkbox */}
-          <TouchableOpacity style={styles.dontShowRow} onPress={onToggleDontShowAgain} activeOpacity={0.7}>
-            <View style={[styles.checkbox, dontShowAgain1 && styles.checkboxChecked]}>
-              {dontShowAgain1 && <Text style={styles.checkmark}>✓</Text>}
-            </View>
-            <Text style={styles.dontShowText} maxFontSizeMultiplier={1.2}>
-              {t.dontShow}
-            </Text>
-          </TouchableOpacity>
-        </FadeInView>
-      </View>
+            </TouchableOpacity>
+          </FadeInView>
+        </Pressable>
+      </Pressable>
     </Modal>
   );
 };
 
 const styles = StyleSheet.create({
-  centeredView: {
+ centeredView: {
     flex: 1,
     backgroundColor: 'rgba(0,0,0,0.5)',
     justifyContent: 'center',
     alignItems: 'center',
     paddingHorizontal: 5,
   },
+  contentWrap: {
+  width: '100%',
+  alignItems: 'center',
+},
+
   modalView: {
     width: '92%',
     height: windowHeight * 0.88,
-    backgroundColor: 'rgba(230, 230, 230, 1)',
+    backgroundColor: '#FFFDEF',
     borderRadius: 10,
     padding: 20,
     alignItems: 'center',

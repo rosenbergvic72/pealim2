@@ -85,14 +85,17 @@ async function playForItem(item) {
   await ensureAudioMode();
 
   const cacheKey = keyInf || keyConj;
+
   try {
     if (!cachedListSounds[cacheKey]) {
       const s = new Audio.Sound();
       await s.loadAsync(file);
       cachedListSounds[cacheKey] = s;
     }
+
     const sound = cachedListSounds[cacheKey];
     await sound.replayAsync();
+
     sound.setOnPlaybackStatusUpdate(async (st) => {
       if (st.didJustFinish) {
         try {
@@ -107,39 +110,44 @@ async function playForItem(item) {
 }
 
 const VerbListModal = ({ visible, onStartExercise, onClose, verbs = [], language }) => {
+  // ✅ КРИТИЧНО: на iOS убирает “призрачный” прозрачный слой
+  if (!visible) return null;
+
   const fallbackLang = 'en';
-  const langKey = languageMap[language] || language || fallbackLang;
+
+  const normalizedInput = String(language || '').toLowerCase().trim();
+  const langKey = languageMap[normalizedInput] || normalizedInput || fallbackLang;
 
   const title = titles[langKey] || titles[fallbackLang];
   const buttonText = buttonTexts[langKey] || buttonTexts[fallbackLang];
   const closeText = closeTexts[langKey] || closeTexts[fallbackLang];
 
   useEffect(() => {
-    if (!visible) return;
     Vibration.vibrate(100);
     (async () => {
       try {
         await ensureAudioMode();
-        const { sound } = await Audio.Sound.createAsync(
-          require('./api/click.mp3'),
-          { shouldPlay: true }
-        );
+        const { sound } = await Audio.Sound.createAsync(require('./api/click.mp3'), { shouldPlay: true });
         sound.setOnPlaybackStatusUpdate((status) => {
           if (status.didJustFinish) sound.unloadAsync();
         });
       } catch {}
     })();
-  }, [visible]);
+  }, []);
 
   return (
-    <Modal visible={visible} animationType="slide" transparent onRequestClose={onClose}>
+    <Modal
+      visible
+      animationType="slide"
+      transparent
+      // ✅ КРИТИЧНО для iOS-оверлеев
+      presentationStyle="overFullScreen"
+      onRequestClose={onClose}
+    >
       <FadeInView style={styles.overlay}>
         {/* ✅ Меняем высоту ТОЛЬКО на iOS. Android остаётся 92% как было */}
         <View style={[styles.container, Platform.OS === 'ios' ? styles.containerIOS : null]}>
-          <Text
-            style={[styles.title, isRTL(langKey) && { textAlign: 'right' }]}
-            maxFontSizeMultiplier={1.2}
-          >
+          <Text style={[styles.title, isRTL(langKey) && { textAlign: 'right' }]} maxFontSizeMultiplier={1.2}>
             {title}
           </Text>
 
@@ -180,10 +188,7 @@ const VerbListModal = ({ visible, onStartExercise, onClose, verbs = [], language
 
           {/* ✅ Кнопка "Закрыть" снизу как надпись */}
           <TouchableOpacity onPress={onClose} style={styles.closeLink} activeOpacity={0.8}>
-            <Text
-              style={[styles.closeText, isRTL(langKey) && { textAlign: 'right' }]}
-              maxFontSizeMultiplier={1.2}
-            >
+            <Text style={[styles.closeText, isRTL(langKey) && { textAlign: 'right' }]} maxFontSizeMultiplier={1.2}>
               {closeText}
             </Text>
           </TouchableOpacity>
@@ -239,7 +244,6 @@ const styles = StyleSheet.create({
     fontSize: 18,
   },
 
-  // ✅ "Закрыть" как ссылка снизу
   closeLink: {
     marginTop: 6,
     paddingVertical: 0,
@@ -249,7 +253,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
     color: '#4A6491',
-    // textDecorationLine: 'underline',
   },
 
   bubble: {
