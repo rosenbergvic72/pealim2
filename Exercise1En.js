@@ -814,7 +814,7 @@ const resetExercise = async () => {
 
   await initializeExercise(language);
 };
-Ы
+
   const handleCancelExit = () => setExitConfirmationVisible(false);
 
   const handleConfirmExit = () => {

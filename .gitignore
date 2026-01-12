@@ -78,3 +78,9 @@ assets/fonts/Montserrat-*.ttf
 !assets/fonts/Montserrat-Regular.ttf
 !assets/fonts/Montserrat-Bold.ttf
 
+# local backup copies
+* copy.js
+* copy*.js
+* copy*.jsx
+* copy *.jsx
+* copy *.js

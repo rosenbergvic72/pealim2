@@ -106,15 +106,8 @@ const VerbDetailsContainer = ({ verbDetails, showRussianText, handleSpeakerPress
 
   return (
     <View style={styles.verbDetailsContainer}>
-      <Animated.View
-  pointerEvents="none"
-  style={[styles.verbDetailsHalf, styles.verbDetailsLeft, { width: leftWidth }]}
-/>
-<Animated.View
-  pointerEvents="none"
-  style={[styles.verbDetailsHalf, styles.verbDetailsRight, { width: rightWidth }]}
-/>
-
+      <Animated.View style={[styles.verbDetailsHalf, styles.verbDetailsLeft, { width: leftWidth }]} />
+      <Animated.View style={[styles.verbDetailsHalf, styles.verbDetailsRight, { width: rightWidth }]} />
 
       <View style={styles.verbDetailsContent}>
         <View style={styles.verbDetailsLeftContent}>
@@ -132,15 +125,16 @@ const VerbDetailsContainer = ({ verbDetails, showRussianText, handleSpeakerPress
               {verbDetails.russiantext}
             </Text>
           ) : (
-         <LottieView
-  pointerEvents="none"   // ⬅️ КЛЮЧ
-  ref={animationRef}
-  source={animation}
-  autoPlay
-  loop
-  style={styles.lottieAnimation}
-/>
-
+            <LottieView
+              ref={animationRef}
+              source={animation}
+              autoPlay
+              loop
+              onAnimationFinish={() => {
+                animationRef.current?.reset?.();
+              }}
+              style={styles.lottieAnimation}
+            />
           )}
         </View>
 
@@ -288,7 +282,7 @@ const Exercise1 = ({ navigation }) => {
         setLanguage(lang);
         setDontShowAgain1(hidden === 'true');
 
-       if (hidden !== 'true') {
+        if (hidden !== 'true') {
   // если сейчас открыт список глаголов — НЕ открываем модалку описания сразу
   // откроем её после старта упражнения
   setShouldOpenDescriptionAfterStart(true);
@@ -663,57 +657,38 @@ return {
     }
   };
 
-  const stripMp3 = (s = '') => String(s).replace(/\.mp3$/i, '').trim();
-  
   const updateVerbDetails = (currentVerb, isGenderMan, showRussianText = false) => {
     if (!currentVerb) return;
-  
-    // 1) Базовый фильтр: только нужный инфинитив
-    let matchedVerbs = verbs1RU.filter((v) => v.infinitive === currentVerb.hebrewVerb);
-  
-    // 2) ✅ УСИЛЕНИЕ: если есть audioFile у задания — фильтруем и по нему
-    // Это гарантирует, что "להקשיב" не сможет дать "אני מאזין"
-    const targetInfMp3 = stripMp3(currentVerb.audioFile || '');
-    if (targetInfMp3) {
-      const byAudio = matchedVerbs.filter((v) => stripMp3(v.audioFile || '') === targetInfMp3);
-      if (byAudio.length > 0) matchedVerbs = byAudio;
-    }
-  
-    // 3) Фильтр по смыслу (RU вариант правильного ответа)
+
     const ruOptions = currentVerb.translationOptions || [];
     const correctIndex = currentVerb.correctTranslationIndex ?? 0;
     const ruCorrect = ruOptions[correctIndex] || '';
-  
+
+    let matchedVerbs = verbs1RU.filter((verb) => verb.infinitive === currentVerb.hebrewVerb);
+
     if (ruCorrect) {
       const normTarget = normalize(ruCorrect);
-      const byMeaning = matchedVerbs.filter((v) => normalize(v.russian) === normTarget);
-      if (byMeaning.length > 0) matchedVerbs = byMeaning;
+      const filteredByMeaning = matchedVerbs.filter((verb) => normalize(verb.russian) === normTarget);
+      if (filteredByMeaning.length > 0) matchedVerbs = filteredByMeaning;
     }
-  
+
     if (matchedVerbs.length === 0) {
       setVerbDetails({ hebrewtext: 'Глагол не найден', translit: '', russiantext: '', mp3: '' });
       return;
     }
-  
-    // 4) Выбор гендера
+
     const selectedVerb =
-      matchedVerbs.find((v) => v.gender === (isGenderMan ? 'man' : 'woman')) || matchedVerbs[0];
-  
-    // 5) Текст перевода (EN правильный вариант)
-    const enCorrect =
-      (currentVerb.translationOptionsEn || [])[currentVerb.correctTranslationIndex ?? 0] || '';
-  
+      matchedVerbs.find((verb) => verb.gender === (isGenderMan ? 'man' : 'woman')) || matchedVerbs[0];
+
     setVerbDetails({
       hebrewtext: selectedVerb.hebrewtext,
       translit: selectedVerb.translit,
-      russiantext: showRussianText ? (selectedVerb.russiantext || '') : '',
+      russiantext: showRussianText ? selectedVerb.russiantext : '',
       mp3: selectedVerb.mp3,
     });
-  
+
     if (!showRussianText) playAudio(selectedVerb.mp3);
   };
-
-  
 
   const [isGenderMan, setIsGenderMan] = useState(true);
 
@@ -767,18 +742,18 @@ const handleAnswer = (selectedOptionIndex) => {
 };
 
 
- const resetExercise = async () => {
-  // 1) сначала возвращаем показ модалки
-  modalCloseReasonRef.current = null;
-  setIsVerbListVisible(true);
-
-  // 2) сбрасываем важные флаги UI, чтобы не было зависаний/старых кнопок
+const resetExercise = async () => {
+  // сбрасываем всё, чтобы начать "как с нуля"
   setExerciseCompleted(false);
   setShowNextButton(false);
   setOptionsOrder([]);
-  setVerbDetails({ hebrewtext: '', translit: '', russiantext: '' });
+  setVerbDetails({ hebrewtext: '', translit: '', russiantext: '', mp3: '' });
 
-  // 3) пересобираем данные (список глаголов тоже пересчитается)
+  // важно: снова показываем список
+  modalCloseReasonRef.current = null;
+  setIsVerbListVisible(true);
+
+  // чтобы список был не пустой — обновим данные/лист
   await initializeExercise(language);
 };
 
@@ -885,10 +860,17 @@ const handleAnswer = (selectedOptionIndex) => {
           visible={isVerbListVisible}
           language={language}
           verbs={verbListForModal}
-          onStartExercise={() => {
-            modalCloseReasonRef.current = 'start';
-            setIsVerbListVisible(false);
-          }}
+        onStartExercise={() => {
+  modalCloseReasonRef.current = 'start';
+  setIsVerbListVisible(false);
+
+  // ✅ открываем описание только ПОСЛЕ закрытия списка
+  if (!dontShowAgain1 && shouldOpenDescriptionAfterStart) {
+    setTimeout(() => setDescriptionModalVisible(true), 250);
+    setShouldOpenDescriptionAfterStart(false);
+  }
+}}
+
           onClose={() => {
             modalCloseReasonRef.current = 'menu';
             setIsVerbListVisible(false);
@@ -899,12 +881,7 @@ const handleAnswer = (selectedOptionIndex) => {
       )}
 
       {!isVerbListVisible && (
-        <ScrollView
-  contentContainerStyle={styles.scrollViewContent}
-  keyboardShouldPersistTaps="always"
-  keyboardDismissMode="on-drag"
->
-
+        <ScrollView contentContainerStyle={styles.scrollViewContent}>
           <View style={styles.container}>
             <View style={styles.topBar}>
               <Animated.Image source={require('./VERBIFY.png')} style={[styles.logoImage, { opacity: fadeAnim }]} />
@@ -1031,48 +1008,35 @@ const handleAnswer = (selectedOptionIndex) => {
         </ScrollView>
       )}
 
-  {isExcludedModalVisible && (
-  <ExcludedVerbsModal1
-    visible={true}
-    onClose={() => setIsExcludedModalVisible(false)}
-    excludedIds={excludedIds}
-    pinnedIds={pinnedIds}
-    verbsData={verbsData}
-    onRestoreVerb={async (id) => {
-      const next = (excludedRef.current || []).filter((x) => x !== id);
-      await saveExcluded(next);
-    }}
-    onTogglePinnedVerb={handleTogglePinnedVerb}
-    lang={'ru'}
-  />
-)}
+      <ExcludedVerbsModal1
+        visible={isExcludedModalVisible}
+        onClose={() => setIsExcludedModalVisible(false)}
+        excludedIds={excludedIds}
+        pinnedIds={pinnedIds}
+        verbsData={verbsData}
+        onRestoreVerb={async (id) => {
+          const next = (excludedRef.current || []).filter(x => x !== id);
+          await saveExcluded(next);
+        }}
+        onTogglePinnedVerb={handleTogglePinnedVerb}
+        lang={'ru'} // 'ru'|'en'|'fr'|'es'|'pt'|'ar'|'am'
+      />
 
-{isStatModalVisible && (
-  <StatModal1
-    visible={true}
-    onToggle={() => setIsStatModalVisible(false)}
-    statistics={statistics}
-  />
-)}
+      <StatModal1 visible={isStatModalVisible} onToggle={() => setIsStatModalVisible(false)} statistics={statistics} />
 
-{isDescriptionModalVisible && !isVerbListVisible && (
-  <TaskDescriptionModal6
-    visible={true}
-    onToggle={toggleDescriptionModal}
-    language={language}
-    dontShowAgain1={dontShowAgain1}
-    onToggleDontShowAgain={handleToggleDontShowAgain1}
-  />
-)}
+      <TaskDescriptionModal6
+        visible={isDescriptionModalVisible}
+        onToggle={toggleDescriptionModal}
+        language={language}
+        dontShowAgain1={dontShowAgain1}
+        onToggleDontShowAgain={handleToggleDontShowAgain1}
+      />
 
-{exitConfirmationVisible && (
-  <ExitConfirmationModal
-    visible={true}
-    onCancel={handleCancelExit}
-    onConfirm={handleConfirmExit}
-  />
-)}
-
+      <ExitConfirmationModal
+        visible={exitConfirmationVisible}
+        onCancel={handleCancelExit}
+        onConfirm={handleConfirmExit}
+      />
     </>
   );
 };
@@ -1146,7 +1110,7 @@ optionButton: {
   elevation: 5,
 },
 optionText: {
-  fontSize: 15 ,
+  fontSize: 16,
   textAlign: 'center',
   color: '#152039',
   fontWeight: 'bold',
@@ -1331,33 +1295,30 @@ optionText: {
     fontWeight: 'bold',
     color: '#CE6857',
     backgroundColor: '#FFFDEF',
-    borderRadius: wp('2%'),
+    borderRadius: wp('2.5%'),
     padding: 1,
     paddingLeft: 5,
     paddingRight: 5,
-    marginTop: hp('0.7%'),
+    marginTop: hp('0.5%'),
     marginBottom: hp('0.5%'),
   },
   verbDetailsRussian: {
-    fontSize: 14,
+    fontSize: 15,
     color: '#333652',
     fontWeight: 'bold',
     backgroundColor: '#FFFDEF',
-    borderRadius: wp('2.2%'),
+    borderRadius: wp('2.5%'),
     padding: wp('0.5%'),
     paddingLeft: wp('2.5%'),
     paddingRight: wp('2.5%'),
   },
- lottieAnimation: {
-  position: 'absolute',
-  top: 0,
-  bottom: 0,
-  left: 0,
-  right: 0,
-  justifyContent: 'center',
-  alignItems: 'center',
-},
-
+  lottieAnimation: {
+    position: 'absolute',
+    width: wp('90%'),
+    height: hp('18%'),
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   speakerButton: {
     position: 'absolute',
     bottom: hp('-0.25%'),

@@ -534,7 +534,7 @@ export default function Paywall({ navigation }) {
     deepResetTo(navigation, menuRouteByLang(saved), {});
   };
 
-  // ✅ Реальная активация кода (UI готов, сервер подключён)
+// ✅ Реальная активация кода (UI готов, сервер подключён)
 const submitRedeemCode = async () => {
   if (redeemLoading) return;
 
@@ -573,33 +573,43 @@ const submitRedeemCode = async () => {
       return;
     }
 
-setRedeemOK(true);
-setRedeemMsg(
-  S.redeemSuccessBody +
-  '\n\n⚠️ Important: do not delete the app or clear its data — access codes are tied to this device ID. If you remove the app data, you may lose Pro access.'
-);
+    // ✅ Успех
+    setRedeemOK(true);
+    setRedeemMsg(
+      S.redeemSuccessBody +
+        (S.redeemDataWarning ? '\n\n⚠️ ' + S.redeemDataWarning : '')
+    );
 
-// ✅ Сразу уходим в Pro (не завязываемся на Restore)
-try {
-  const savedLang = (await AsyncStorage.getItem('language')) || 'english';
-  setRedeemModalVisible(false);
-  deepResetTo(navigation, menuRouteByLang(savedLang));
-} catch (_) {}
+    // ✅ 1) Убираем "режим 2 упражнений", если пользователь заходил через free-preview
+    try {
+      await AsyncStorage.removeItem('freePreview');
+    } catch {}
 
-
-
-    // ✅ Сразу синхронизируем entitlements по коду и уходим в Pro без "Restore"
+    // ✅ 2) Сразу синхронизируем entitlements по коду (это выставит hasPro в IapProvider)
     try {
       await syncCodeEntitlementFromServer(String(userIdForCodes));
     } catch (e2) {
-      console.warn('[PAYWALL] syncCodeEntitlementFromServer failed:', e2?.message || e2);
+      console.warn(
+        '[PAYWALL] syncCodeEntitlementFromServer failed:',
+        e2?.message || e2
+      );
     }
 
-    // Закрываем модалку ввода кода
+    // ✅ (микротик, чтобы стейт успел примениться до навигации)
+    await new Promise((res) => setTimeout(res, 0));
+
+    // ✅ 3) Закрываем модалку и уходим в Pro-меню
     setRedeemModalVisible(false);
 
-    // Если уже стало Pro — Paywall сам сделает reset в меню
-    try { probePostPurchase?.(); } catch {}
+    // try {
+    //   const savedLang = (await AsyncStorage.getItem('language')) || 'english';
+    //   deepResetTo(navigation, menuRouteByLang(savedLang), { freePreview: false });
+    // } catch (_) {}
+
+    // ✅ на всякий случай (если внутри probePostPurchase есть доп. логика)
+    try {
+      probePostPurchase?.();
+    } catch {}
   } catch (e) {
     setRedeemOK(false);
     setRedeemMsg(e?.message || 'Failed');
@@ -607,6 +617,7 @@ try {
     setRedeemLoading(false);
   }
 };
+
 
 const openRedeemModal = () => {
   setRedeemInput('');
