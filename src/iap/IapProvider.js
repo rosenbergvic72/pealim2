@@ -12,6 +12,9 @@ import * as RNIap from 'react-native-iap';
 import { Platform, Linking, Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Constants from 'expo-constants';
+import * as Device from 'expo-device';
+
+
 
 /* ===================== Константы / настройки ===================== */
 const SKU = Platform.select({ android: 'monthly_ils_10', ios: 'monthly_ils_10' });
@@ -744,15 +747,25 @@ export function IapProvider({ children, initialSegment = 'basic' }) {
   }, [verifyOnServer, tryOfflineEntitlement, ensureCodeLoaded, isIsoActiveNow, syncCodeEntitlementFromServer, setHasProRespectingCode]);
 
   /* ---- init IAP + загрузка продукта + listeners ---- */
-  useEffect(() => {
-    let subUpdated, subError;
+ 
+ useEffect(() => {
+  let subUpdated, subError;
 
-    (async () => {
-      try {
-        await RNIap.initConnection();
-        if (Platform.OS === 'android') {
-          try { await RNIap.flushFailedPurchasesCachedAsPendingAndroid(); } catch {}
-        }
+  (async () => {
+    // ✅ ДОБАВЬ ВОТ ЭТО ПРЯМО СЮДА:
+    const isIosSim = Platform.OS === 'ios' && !Device.isDevice;
+    if (isIosSim) {
+      console.log('[IAP] iOS Simulator detected — skipping StoreKit');
+      setAvailable(false); // чтобы paywall не пытался показывать планы из Store
+      setReady(true);      // чтобы приложение не “висело” в loading
+      return;
+    }
+
+    try {
+      await RNIap.initConnection();
+      if (Platform.OS === 'android') {
+        try { await RNIap.flushFailedPurchasesCachedAsPendingAndroid(); } catch {}
+      }
 
         const subs = await getSubsSafe();
         const prod = subs?.find((p) => p.productId === SKU) || subs?.[0] || null;
