@@ -106,8 +106,15 @@ const VerbDetailsContainer = ({ verbDetails, showRussianText, handleSpeakerPress
 
   return (
     <View style={styles.verbDetailsContainer}>
-      <Animated.View style={[styles.verbDetailsHalf, styles.verbDetailsLeft, { width: leftWidth }]} />
-      <Animated.View style={[styles.verbDetailsHalf, styles.verbDetailsRight, { width: rightWidth }]} />
+      <Animated.View
+  pointerEvents="none"
+  style={[styles.verbDetailsHalf, styles.verbDetailsLeft, { width: leftWidth }]}
+/>
+<Animated.View
+  pointerEvents="none"
+  style={[styles.verbDetailsHalf, styles.verbDetailsRight, { width: rightWidth }]}
+/>
+
 
       <View style={styles.verbDetailsContent}>
         <View style={styles.verbDetailsLeftContent}>
@@ -125,8 +132,8 @@ const VerbDetailsContainer = ({ verbDetails, showRussianText, handleSpeakerPress
               {verbDetails.russiantext}
             </Text>
           ) : (
-            <LottieView
-  pointerEvents="none"
+         <LottieView
+  pointerEvents="none"   // ⬅️ КЛЮЧ
   ref={animationRef}
   source={animation}
   autoPlay
@@ -269,7 +276,7 @@ const Exercise1 = ({ navigation }) => {
   const [dontShowAgain1, setDontShowAgain1] = useState(false);
   const [language, setLanguage] = useState('en');
 
-  const [shouldOpenDescriptionAfterStart, setShouldOpenDescriptionAfterStart] = useState(false);
+  // const [shouldOpenDescriptionAfterStart, setShouldOpenDescriptionAfterStart] = useState(false);
 
 
   useEffect(() => {
@@ -277,19 +284,13 @@ const Exercise1 = ({ navigation }) => {
       const hidden = await AsyncStorage.getItem('exercise1_description_hidden');
       const lang = await AsyncStorage.getItem('language');
 
-      if (lang) {
-        setLanguage(lang);
-        setDontShowAgain1(hidden === 'true');
-
-        if (hidden !== 'true') {
-  // если сейчас открыт список глаголов — НЕ открываем модалку описания сразу
-  // откроем её после старта упражнения
-  setShouldOpenDescriptionAfterStart(true);
+     if (lang) {
+  setLanguage(lang);
+  setDontShowAgain1(hidden === 'true');
+} else {
+  setDontShowAgain1(hidden === 'true');
 }
 
-      } else {
-        setDontShowAgain1(hidden === 'true');
-      }
     };
     checkFlagAndLang();
   }, []);
@@ -656,38 +657,57 @@ return {
     }
   };
 
+  const stripMp3 = (s = '') => String(s).replace(/\.mp3$/i, '').trim();
+  
   const updateVerbDetails = (currentVerb, isGenderMan, showRussianText = false) => {
     if (!currentVerb) return;
-
+  
+    // 1) Базовый фильтр: только нужный инфинитив
+    let matchedVerbs = verbs1RU.filter((v) => v.infinitive === currentVerb.hebrewVerb);
+  
+    // 2) ✅ УСИЛЕНИЕ: если есть audioFile у задания — фильтруем и по нему
+    // Это гарантирует, что "להקשיב" не сможет дать "אני מאזין"
+    const targetInfMp3 = stripMp3(currentVerb.audioFile || '');
+    if (targetInfMp3) {
+      const byAudio = matchedVerbs.filter((v) => stripMp3(v.audioFile || '') === targetInfMp3);
+      if (byAudio.length > 0) matchedVerbs = byAudio;
+    }
+  
+    // 3) Фильтр по смыслу (RU вариант правильного ответа)
     const ruOptions = currentVerb.translationOptions || [];
     const correctIndex = currentVerb.correctTranslationIndex ?? 0;
     const ruCorrect = ruOptions[correctIndex] || '';
-
-    let matchedVerbs = verbs1RU.filter((verb) => verb.infinitive === currentVerb.hebrewVerb);
-
+  
     if (ruCorrect) {
       const normTarget = normalize(ruCorrect);
-      const filteredByMeaning = matchedVerbs.filter((verb) => normalize(verb.russian) === normTarget);
-      if (filteredByMeaning.length > 0) matchedVerbs = filteredByMeaning;
+      const byMeaning = matchedVerbs.filter((v) => normalize(v.russian) === normTarget);
+      if (byMeaning.length > 0) matchedVerbs = byMeaning;
     }
-
+  
     if (matchedVerbs.length === 0) {
       setVerbDetails({ hebrewtext: 'Глагол не найден', translit: '', russiantext: '', mp3: '' });
       return;
     }
-
+  
+    // 4) Выбор гендера
     const selectedVerb =
-      matchedVerbs.find((verb) => verb.gender === (isGenderMan ? 'man' : 'woman')) || matchedVerbs[0];
-
+      matchedVerbs.find((v) => v.gender === (isGenderMan ? 'man' : 'woman')) || matchedVerbs[0];
+  
+    // 5) Текст перевода (EN правильный вариант)
+    const enCorrect =
+      (currentVerb.translationOptionsEn || [])[currentVerb.correctTranslationIndex ?? 0] || '';
+  
     setVerbDetails({
       hebrewtext: selectedVerb.hebrewtext,
       translit: selectedVerb.translit,
-      russiantext: showRussianText ? selectedVerb.russiantext : '',
+      russiantext: showRussianText ? (selectedVerb.russiantext || '') : '',
       mp3: selectedVerb.mp3,
     });
-
+  
     if (!showRussianText) playAudio(selectedVerb.mp3);
   };
+
+  
 
   const [isGenderMan, setIsGenderMan] = useState(true);
 
@@ -741,18 +761,18 @@ const handleAnswer = (selectedOptionIndex) => {
 };
 
 
-const resetExercise = async () => {
-  // сбрасываем всё, чтобы начать "как с нуля"
-  setExerciseCompleted(false);
-  setShowNextButton(false);
-  setOptionsOrder([]);
-  setVerbDetails({ hebrewtext: '', translit: '', russiantext: '', mp3: '' });
-
-  // важно: снова показываем список
+ const resetExercise = async () => {
+  // 1) сначала возвращаем показ модалки
   modalCloseReasonRef.current = null;
   setIsVerbListVisible(true);
 
-  // чтобы список был не пустой — обновим данные/лист
+  // 2) сбрасываем важные флаги UI, чтобы не было зависаний/старых кнопок
+  setExerciseCompleted(false);
+  setShowNextButton(false);
+  setOptionsOrder([]);
+  setVerbDetails({ hebrewtext: '', translit: '', russiantext: '' });
+
+  // 3) пересобираем данные (список глаголов тоже пересчитается)
   await initializeExercise(language);
 };
 
@@ -859,17 +879,10 @@ const resetExercise = async () => {
           visible={isVerbListVisible}
           language={language}
           verbs={verbListForModal}
-        onStartExercise={() => {
-  modalCloseReasonRef.current = 'start';
-  setIsVerbListVisible(false);
-
-  // ✅ открываем описание только ПОСЛЕ закрытия списка
-  if (!dontShowAgain1 && shouldOpenDescriptionAfterStart) {
-    setTimeout(() => setDescriptionModalVisible(true), 250);
-    setShouldOpenDescriptionAfterStart(false);
-  }
-}}
-
+          onStartExercise={() => {
+            modalCloseReasonRef.current = 'start';
+            setIsVerbListVisible(false);
+          }}
           onClose={() => {
             modalCloseReasonRef.current = 'menu';
             setIsVerbListVisible(false);
@@ -880,7 +893,12 @@ const resetExercise = async () => {
       )}
 
       {!isVerbListVisible && (
-        <ScrollView contentContainerStyle={styles.scrollViewContent}>
+        <ScrollView
+  contentContainerStyle={styles.scrollViewContent}
+  keyboardShouldPersistTaps="always"
+  keyboardDismissMode="on-drag"
+>
+
           <View style={styles.container}>
             <View style={styles.topBar}>
               <Animated.Image source={require('./VERBIFY.png')} style={[styles.logoImage, { opacity: fadeAnim }]} />
@@ -1007,35 +1025,48 @@ const resetExercise = async () => {
         </ScrollView>
       )}
 
-      <ExcludedVerbsModal1
-        visible={isExcludedModalVisible}
-        onClose={() => setIsExcludedModalVisible(false)}
-        excludedIds={excludedIds}
-        pinnedIds={pinnedIds}
-        verbsData={verbsData}
-        onRestoreVerb={async (id) => {
-          const next = (excludedRef.current || []).filter(x => x !== id);
-          await saveExcluded(next);
-        }}
-        onTogglePinnedVerb={handleTogglePinnedVerb}
-        lang={'ru'} // 'ru'|'en'|'fr'|'es'|'pt'|'ar'|'am'
-      />
+  {isExcludedModalVisible && (
+  <ExcludedVerbsModal1
+    visible={true}
+    onClose={() => setIsExcludedModalVisible(false)}
+    excludedIds={excludedIds}
+    pinnedIds={pinnedIds}
+    verbsData={verbsData}
+    onRestoreVerb={async (id) => {
+      const next = (excludedRef.current || []).filter((x) => x !== id);
+      await saveExcluded(next);
+    }}
+    onTogglePinnedVerb={handleTogglePinnedVerb}
+    lang={'ru'}
+  />
+)}
 
-      <StatModal1 visible={isStatModalVisible} onToggle={() => setIsStatModalVisible(false)} statistics={statistics} />
+{isStatModalVisible && (
+  <StatModal1
+    visible={true}
+    onToggle={() => setIsStatModalVisible(false)}
+    statistics={statistics}
+  />
+)}
 
-      <TaskDescriptionModal6
-        visible={isDescriptionModalVisible}
-        onToggle={toggleDescriptionModal}
-        language={language}
-        dontShowAgain1={dontShowAgain1}
-        onToggleDontShowAgain={handleToggleDontShowAgain1}
-      />
+{isDescriptionModalVisible && !isVerbListVisible && (
+  <TaskDescriptionModal6
+    visible={true}
+    onToggle={toggleDescriptionModal}
+    language={language}
+    dontShowAgain1={dontShowAgain1}
+    onToggleDontShowAgain={handleToggleDontShowAgain1}
+  />
+)}
 
-      <ExitConfirmationModal
-        visible={exitConfirmationVisible}
-        onCancel={handleCancelExit}
-        onConfirm={handleConfirmExit}
-      />
+{exitConfirmationVisible && (
+  <ExitConfirmationModal
+    visible={true}
+    onCancel={handleCancelExit}
+    onConfirm={handleConfirmExit}
+  />
+)}
+
     </>
   );
 };
@@ -1109,7 +1140,7 @@ optionButton: {
   elevation: 5,
 },
 optionText: {
-  fontSize: 16,
+  fontSize: 15 ,
   textAlign: 'center',
   color: '#152039',
   fontWeight: 'bold',
@@ -1276,21 +1307,13 @@ optionText: {
     justifyContent: 'center',
     alignItems: 'center',
   },
-  // verbDetailsRightContent: {
-  //   flex: 1,
-  //   justifyContent: 'center',
-  //   alignItems: 'center',
-  //   position: 'relative',
-  //   marginVertical: hp('0.5%'),
-  // },
   verbDetailsRightContent: {
-  flex: 1,
-  justifyContent: 'center',
-  alignItems: 'center',
-  // position: 'relative', // можно оставить, но не нужно
-  // marginVertical: hp('0.5%'), // ❌ убираем - он поднимает/сдвигает
-},
-
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    position: 'relative',
+    marginVertical: hp('0.5%'),
+  },
   verbDetailsHebrew: {
     fontSize: 17,
     color: '#FFFDEF',
@@ -1302,39 +1325,32 @@ optionText: {
     fontWeight: 'bold',
     color: '#CE6857',
     backgroundColor: '#FFFDEF',
-    borderRadius: wp('2.5%'),
+    borderRadius: wp('2%'),
     padding: 1,
     paddingLeft: 5,
     paddingRight: 5,
-    marginTop: hp('0.5%'),
+    marginTop: hp('0.7%'),
     marginBottom: hp('0.5%'),
   },
   verbDetailsRussian: {
-    fontSize: 15,
+    fontSize: 14,
     color: '#333652',
     fontWeight: 'bold',
     backgroundColor: '#FFFDEF',
-    borderRadius: wp('2.5%'),
+    borderRadius: wp('2.2%'),
     padding: wp('0.5%'),
     paddingLeft: wp('2.5%'),
     paddingRight: wp('2.5%'),
   },
-  // lottieAnimation: {
-  //   position: 'absolute',
-  //   width: wp('90%'),
-  //   height: hp('18%'),
-  //   justifyContent: 'center',
-  //   alignItems: 'center',
-  // },
-lottieAnimation: {
-  width: '100%',
-  height: '100%',
-  transform: [
-    { scale: 1.55 },              // ✅ увеличиваем
-    { translateY: hp('0,8%') },   // ✅ возвращаем в центр (подбирается)
-  ],
+ lottieAnimation: {
+  position: 'absolute',
+  top: 0,
+  bottom: 0,
+  left: 0,
+  right: 0,
+  justifyContent: 'center',
+  alignItems: 'center',
 },
-
 
   speakerButton: {
     position: 'absolute',
