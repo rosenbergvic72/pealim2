@@ -291,18 +291,27 @@ const styles = StyleSheet.create({
     width: '80%',
     marginBottom: 20,
   },
-  input: {
-    height: 50,
-    borderColor: '#2D4769',
-    borderWidth: 1,
-    padding: 8,
-    borderRadius: 10,
-    fontWeight: 'bold',
-    fontSize: 20,
-    color: '#2D4769',
-    textAlign: 'center',
-    lineHeight: 36,
-  },
+input: {
+  height: 50,
+  borderColor: '#2D4769',
+  borderWidth: 1,
+  paddingHorizontal: 8,
+  borderRadius: 10,
+  fontWeight: 'bold',
+  fontSize: 20,
+  color: '#2D4769',
+  textAlign: 'center',
+
+  // ✅ центрирование по вертикали на Android
+  textAlignVertical: 'center',
+
+  // ✅ iOS обычно становится ровно, если убрать lineHeight
+  lineHeight: undefined,
+
+  // ✅ лёгкая компенсация iOS (если нужно)
+  paddingVertical: Platform.OS === 'ios' ? 0 : 8,
+},
+
   buttonContainer: {
     width: '80%',
     marginBottom: 30,
