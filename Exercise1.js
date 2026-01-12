@@ -126,15 +126,14 @@ const VerbDetailsContainer = ({ verbDetails, showRussianText, handleSpeakerPress
             </Text>
           ) : (
             <LottieView
-              ref={animationRef}
-              source={animation}
-              autoPlay
-              loop
-              onAnimationFinish={() => {
-                animationRef.current?.reset?.();
-              }}
-              style={styles.lottieAnimation}
-            />
+  pointerEvents="none"
+  ref={animationRef}
+  source={animation}
+  autoPlay
+  loop
+  style={styles.lottieAnimation}
+/>
+
           )}
         </View>
 
@@ -1277,13 +1276,21 @@ optionText: {
     justifyContent: 'center',
     alignItems: 'center',
   },
+  // verbDetailsRightContent: {
+  //   flex: 1,
+  //   justifyContent: 'center',
+  //   alignItems: 'center',
+  //   position: 'relative',
+  //   marginVertical: hp('0.5%'),
+  // },
   verbDetailsRightContent: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    position: 'relative',
-    marginVertical: hp('0.5%'),
-  },
+  flex: 1,
+  justifyContent: 'center',
+  alignItems: 'center',
+  // position: 'relative', // можно оставить, но не нужно
+  // marginVertical: hp('0.5%'), // ❌ убираем - он поднимает/сдвигает
+},
+
   verbDetailsHebrew: {
     fontSize: 17,
     color: '#FFFDEF',
@@ -1312,13 +1319,23 @@ optionText: {
     paddingLeft: wp('2.5%'),
     paddingRight: wp('2.5%'),
   },
-  lottieAnimation: {
-    position: 'absolute',
-    width: wp('90%'),
-    height: hp('18%'),
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
+  // lottieAnimation: {
+  //   position: 'absolute',
+  //   width: wp('90%'),
+  //   height: hp('18%'),
+  //   justifyContent: 'center',
+  //   alignItems: 'center',
+  // },
+lottieAnimation: {
+  width: '100%',
+  height: '100%',
+  transform: [
+    { scale: 1.55 },              // ✅ увеличиваем
+    { translateY: hp('0,8%') },   // ✅ возвращаем в центр (подбирается)
+  ],
+},
+
+
   speakerButton: {
     position: 'absolute',
     bottom: hp('-0.25%'),
