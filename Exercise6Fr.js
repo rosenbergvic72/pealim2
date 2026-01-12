@@ -79,56 +79,49 @@ const highlightEnabled = translitMode !== 2;
   const [verbListForModal, setVerbListForModal] = useState([]);
   const [isVerbListVisible, setIsVerbListVisible] = useState(true);
 
-  const [showDescriptionOnce, setShowDescriptionOnce] = useState(true);
+  
 
-  useEffect(() => {
-    const initialize = async () => {
-      const lang = await AsyncStorage.getItem('language');
-      const hidden = await AsyncStorage.getItem('exercise6Fr_description_hidden');
-      setLanguage(lang || 'fr');
-      setDontShowAgain6(hidden === 'true');
-      setLanguageLoaded(true);
+useEffect(() => {
+  const initialize = async () => {
+    const lang = await AsyncStorage.getItem('language');
+    const hidden = await AsyncStorage.getItem('exercise6_description_hidden');
 
-      if (hidden !== 'true' && showDescriptionOnce) {
-        setTimeout(() => {
-          setDescriptionModalVisible(true);
-          setShowDescriptionOnce(false);
-        }, 300);
-      }
-    };
-    initialize();
-  }, []);
+    setLanguage(lang || 'en');
+    setDontShowAgain6(hidden === 'true');
+    setLanguageLoaded(true);
+
+    // ❌ больше НЕ показываем автоматически
+  };
+
+  initialize();
+}, []);
+
 
   const [isDescriptionModalVisible, setDescriptionModalVisible] = useState(false);
   const [dontShowAgain6, setDontShowAgain6] = useState(false);
   const [languageLoaded, setLanguageLoaded] = useState(false);
 
-  useEffect(() => {
-    const checkFlagAndLang = async () => {
-      const hidden = await AsyncStorage.getItem('exercise6Fr_description_hidden');
-      const lang = await AsyncStorage.getItem('language');
+useEffect(() => {
+  const checkFlagAndLang = async () => {
+    const hidden = await AsyncStorage.getItem('exercise6_description_hidden');
+    const lang = await AsyncStorage.getItem('language');
 
-      console.log('🌍 Language:', lang);
-      console.log('🧪 Hide flag:', hidden);
-
-      if (lang) {
-        setLanguage(lang);
-        setDontShowAgain6(hidden === 'true');
-        setLanguageLoaded(true);
-
-        if (hidden !== 'true') {
-          setTimeout(() => {
-            console.log('📢 Afficher la modale après chargement de la langue');
-            setDescriptionModalVisible(true);
-          }, 100);
-        }
-      }
-
+    if (lang) {
+      setLanguage(lang);
       setDontShowAgain6(hidden === 'true');
-    };
+      setLanguageLoaded(true);
 
-    checkFlagAndLang();
-  }, []);
+      if (hidden !== 'true') {
+        setTimeout(() => setDescriptionModalVisible(true), 100);
+      }
+    }
+
+    setDontShowAgain6(hidden === 'true');
+  };
+
+  checkFlagAndLang();
+}, []);
+
 
   const handleToggleDontShowAgain6 = async () => {
     const newValue = !dontShowAgain6;

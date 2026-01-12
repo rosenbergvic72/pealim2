@@ -537,12 +537,7 @@ const handleTogglePinnedVerb = useCallback(
         setLanguage(lang);
         initializeVerbList(lang, setShuffledVerbs, setVerbListForModal);
 
-        if (hidden !== 'true') {
-          setTimeout(() => {
-            setDescriptionModalVisible(true);
-          }, 300);
-        }
-
+      
         setDontShowAgain2(hidden === 'true');
         setLanguageLoaded(true);
       }
@@ -1222,13 +1217,16 @@ const handleTogglePinnedVerb = useCallback(
 
                 <TouchableOpacity onPress={handleButton2Press}>
                   <Animated.Image source={require('./question.png')} style={[styles.buttonImage, { opacity: fadeAnim }]} />
-                  <TaskDescriptionModal6
-                    visible={isDescriptionModalVisible}
-                    onToggle={toggleDescriptionModal}
-                    language={language}
-                    dontShowAgain2={dontShowAgain2}
-                    onToggleDontShowAgain={handleToggleDontShowAgain2}
-                  />
+                {isDescriptionModalVisible && (
+  <TaskDescriptionModal6
+    visible={true}
+    onToggle={toggleDescriptionModal}
+    language={language}
+    dontShowAgain2={dontShowAgain2}
+    onToggleDontShowAgain={handleToggleDontShowAgain2}
+  />
+)}
+
                 </TouchableOpacity>
 
                 <TouchableOpacity onPress={handleGenderToggle}>
@@ -1386,13 +1384,16 @@ const handleTogglePinnedVerb = useCallback(
 
       <StatModal2 visible={isStatModalVisible} onToggle={() => setIsStatModalVisible(false)} statistics={statistics} />
 
-      <TaskDescriptionModal6
-        visible={isDescriptionModalVisible}
-        onToggle={toggleDescriptionModal}
-        language={language}
-        dontShowAgain2={dontShowAgain2}
-        onToggleDontShowAgain={handleToggleDontShowAgain2}
-      />
+    {isDescriptionModalVisible && (
+  <TaskDescriptionModal6
+    visible={true}
+    onToggle={toggleDescriptionModal}
+    language={language}
+    dontShowAgain2={dontShowAgain2}
+    onToggleDontShowAgain={handleToggleDontShowAgain2}
+  />
+)}
+
     </>
   );
 };

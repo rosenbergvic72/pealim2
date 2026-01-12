@@ -12,7 +12,7 @@ import ExitConfirmationModal from './ExitConfirmationModalEn';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import TaskDescriptionModal6 from './TaskDescriptionModal8';
 import StatModal8En from './StatModal8En';
-import { updateStatistics, getStatistics } from './stat';
+import { updateStatistics, getStatistics } from './stat'; 
 import TypewriterTextRTL from './TypewriterTextRTL';
 import TypewriterTextLTR from './TypewriterTextLTR';
 import LottieView from 'lottie-react-native';
@@ -571,9 +571,7 @@ useEffect(() => {
   
   
   
-  const [showDescriptionOnce, setShowDescriptionOnce] = useState(true);
-  
-  useEffect(() => {
+   useEffect(() => {
     const initialize = async () => {
       const lang = await AsyncStorage.getItem('language');
       const hidden = await AsyncStorage.getItem('exercise8_description_hidden');
@@ -582,13 +580,7 @@ useEffect(() => {
       setLanguageLoaded(true);
   
       // Показываем модалку только если showDescriptionOnce и нет скрывающего флага
-      if (hidden !== 'true' && showDescriptionOnce) {
-        setTimeout(() => {
-          setDescriptionModalVisible(true);
-          setShowDescriptionOnce(false); // После показа сбрасываем флаг
-        }, 300);
-      }
-    };
+        };
     initialize();
   }, []); // Только при самом первом монтировании
 
@@ -602,33 +594,33 @@ useEffect(() => {
   
     const [languageLoaded, setLanguageLoaded] = useState(false);
   
-    useEffect(() => {
-    const checkFlagAndLang = async () => {
-      const hidden = await AsyncStorage.getItem('exercise8_description_hidden');
-      const lang = await AsyncStorage.getItem('language');
+  //   useEffect(() => {
+  //   const checkFlagAndLang = async () => {
+  //     const hidden = await AsyncStorage.getItem('exercise8_description_hidden');
+  //     const lang = await AsyncStorage.getItem('language');
   
-      console.log('🌍 Language:', lang);
-      console.log('🧪 Hide flag:', hidden);
+  //     console.log('🌍 Language:', lang);
+  //     console.log('🧪 Hide flag:', hidden);
   
-      if (lang) {
-        setLanguage(lang);
+  //     if (lang) {
+  //       setLanguage(lang);
   
-        setDontShowAgain8(hidden === 'true');
-      setLanguageLoaded(true);
+  //       setDontShowAgain8(hidden === 'true');
+  //     setLanguageLoaded(true);
   
-        if (hidden !== 'true') {
-          setTimeout(() => {
-            console.log('📢 Показываем модалку после загрузки языка');
-            setDescriptionModalVisible(true);
-          }, 100); // чуть больше времени
-        }
-      }
+  //       if (hidden !== 'true') {тз
+  //         setTimeout(() => {
+  //           console.log('📢 Показываем модалку после загрузки языка');
+  //           setDescriptionModalVisible(true);
+  //         }, 100); // чуть больше времени
+  //       }
+  //     }
   
-      setDontShowAgain8(hidden === 'true');
-    };
+  //     setDontShowAgain8(hidden === 'true');
+  //   };
   
-    checkFlagAndLang();
-  }, []);
+  //   checkFlagAndLang();
+  // }, []);
   
   
   

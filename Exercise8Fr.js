@@ -468,7 +468,7 @@ const [verbListForModal, setVerbListForModal] = useState([]);
 
   const [isDescriptionModalVisible, setDescriptionModalVisible] = useState(false);
   const [dontShowAgain8, setDontShowAgain8] = useState(false);
-  const [showDescriptionOnce, setShowDescriptionOnce] = useState(true);
+ 
 
   const [pendingVerb, setPendingVerb] = useState(null);
   const [startInfinitive, setStartInfinitive] = useState(null);
@@ -488,22 +488,21 @@ const [verbListForModal, setVerbListForModal] = useState([]);
   };
 
   // init lang + flag
-  useEffect(() => {
-    const initialize = async () => {
-      const lang = await AsyncStorage.getItem('language');
-      const hidden = await AsyncStorage.getItem('exercise8_description_hidden');
-      setLanguage(lang || 'fr');
-      setDontShowAgain8(hidden === 'true');
+useEffect(() => {
+  const initialize = async () => {
+    const lang = await AsyncStorage.getItem('language');
+    const hidden = await AsyncStorage.getItem('exercise8_description_hidden');
 
-      if (hidden !== 'true' && showDescriptionOnce) {
-        setTimeout(() => {
-          setDescriptionModalVisible(true);
-          setShowDescriptionOnce(false);
-        }, 300);
-      }
-    };
-    initialize();
-  }, [showDescriptionOnce]);
+    setLanguage(lang || 'en');
+    setDontShowAgain8(hidden === 'true');
+    setLanguageLoaded(true);
+
+    // ❌ больше НЕ показываем автоматически
+  };
+
+  initialize();
+}, []);
+
 
   const handleToggleDontShowAgain8 = async () => {
     const newValue = !dontShowAgain8;

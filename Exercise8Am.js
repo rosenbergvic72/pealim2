@@ -571,7 +571,7 @@ useEffect(() => {
   
   
   
-  const [showDescriptionOnce, setShowDescriptionOnce] = useState(true);
+ 
   
   useEffect(() => {
     const initialize = async () => {
@@ -582,12 +582,7 @@ useEffect(() => {
       setLanguageLoaded(true);
   
       // Показываем модалку только если showDescriptionOnce и нет скрывающего флага
-      if (hidden !== 'true' && showDescriptionOnce) {
-        setTimeout(() => {
-          setDescriptionModalVisible(true);
-          setShowDescriptionOnce(false); // После показа сбрасываем флаг
-        }, 300);
-      }
+    
     };
     initialize();
   }, []); // Только при самом первом монтировании
@@ -601,34 +596,6 @@ useEffect(() => {
     
   
     const [languageLoaded, setLanguageLoaded] = useState(false);
-  
-    useEffect(() => {
-    const checkFlagAndLang = async () => {
-      const hidden = await AsyncStorage.getItem('exercise8_description_hidden');
-      const lang = await AsyncStorage.getItem('language');
-  
-      console.log('🌍 Language:', lang);
-      console.log('🧪 Hide flag:', hidden);
-  
-      if (lang) {
-        setLanguage(lang);
-  
-        setDontShowAgain8(hidden === 'true');
-      setLanguageLoaded(true);
-  
-        if (hidden !== 'true') {
-          setTimeout(() => {
-            console.log('📢 Показываем модалку после загрузки языка');
-            setDescriptionModalVisible(true);
-          }, 100); // чуть больше времени
-        }
-      }
-  
-      setDontShowAgain8(hidden === 'true');
-    };
-  
-    checkFlagAndLang();
-  }, []);
   
   
   

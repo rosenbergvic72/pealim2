@@ -683,12 +683,7 @@ mp3: mp3Inf,
       setLanguage(usedLang);
       initializeVerbList(usedLang, setShuffledVerbs, setVerbListForModal);
 
-      if (hidden !== 'true') {
-        setTimeout(() => {
-          setDescriptionModalVisible(true);
-        }, 300);
-      }
-
+      
       setDontShowAgain2(hidden === 'true');
       setLanguageLoaded(true);
     };
@@ -1407,13 +1402,16 @@ const updateVerbDetails2 = (currentVerb, showHebrewText = false) => {
         statistics={statistics}
       />
 
-      <TaskDescriptionModal6
-        visible={isDescriptionModalVisible}
-        onToggle={toggleDescriptionModal}
-        language={language}
-        dontShowAgain2={dontShowAgain2}
-        onToggleDontShowAgain={handleToggleDontShowAgain2}
-      />
+    {isDescriptionModalVisible && (
+  <TaskDescriptionModal6
+    visible={true}
+    onToggle={toggleDescriptionModal}
+    language={language}
+    dontShowAgain2={dontShowAgain2}
+    onToggleDontShowAgain={handleToggleDontShowAgain2}
+  />
+)}
+
     </>
   );
 };

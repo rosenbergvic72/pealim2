@@ -398,30 +398,14 @@ const buildDeck = (
       console.log('🌍 Language:', lang);
       console.log('🧪 Hide flag:', hidden);
 
-      if (lang) {
-        setLanguage(lang);
-        setDontShowAgain1(hidden === 'true');
-        setLanguageLoaded(true);
+    if (lang) {
+  setLanguage(lang);
+  setDontShowAgain1(hidden === 'true');
+} else {
+  setDontShowAgain1(hidden === 'true');
+}
 
-        if (hidden !== 'true') {
-          setTimeout(() => {
-            console.log('📢 Показываем модалку после загрузки языка');
-            setDescriptionModalVisible(true);
-          }, 100);
-        }
-      } else {
-        // если языка нет, считаем что язык уже загружен (am по умолчанию)
-        setLanguageLoaded(true);
-        if (hidden !== 'true') {
-          setTimeout(() => {
-            setDescriptionModalVisible(true);
-          }, 100);
-        }
-      }
-
-      setDontShowAgain1(hidden === 'true');
     };
-
     checkFlagAndLang();
   }, []);
 
@@ -915,7 +899,7 @@ const buildDeck = (
     setVerbDetails({
       hebrewtext: selectedVerb.hebrewtext,
           translit: selectedVerb.translit,
-          // amtext: showRussianText ? selectedVerb.amtext : '',
+          amtext: showRussianText ? selectedVerb.amtext : '',
            amtext: showRussianText ? (selectedVerb.amtext || '') : '',
           mp3: selectedVerb.mp3,
     });

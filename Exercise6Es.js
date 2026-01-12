@@ -74,50 +74,47 @@ const Exercise6Es = () => {
   const [verbListForModal, setVerbListForModal] = useState([]);
   const [isVerbListVisible, setIsVerbListVisible] = useState(true);
 
-  const [showDescriptionOnce, setShowDescriptionOnce] = useState(true);
-
-  const [dontShowAgain6, setDontShowAgain6] = useState(false);
+   const [dontShowAgain6, setDontShowAgain6] = useState(false);
   const [languageLoaded, setLanguageLoaded] = useState(false);
 
-  useEffect(() => {
-    const initialize = async () => {
-      const lang = await AsyncStorage.getItem('language');
-      const hidden = await AsyncStorage.getItem('exercise6_description_hidden');
-      setLanguage(lang || 'es');
+useEffect(() => {
+  const initialize = async () => {
+    const lang = await AsyncStorage.getItem('language');
+    const hidden = await AsyncStorage.getItem('exercise6_description_hidden');
+
+    setLanguage(lang || 'en');
+    setDontShowAgain6(hidden === 'true');
+    setLanguageLoaded(true);
+
+    // ❌ больше НЕ показываем автоматически
+  };
+
+  initialize();
+}, []);
+
+
+  // Чтобы не менять твою логику — оставляю второй useEffect как в EN
+useEffect(() => {
+  const checkFlagAndLang = async () => {
+    const hidden = await AsyncStorage.getItem('exercise6_description_hidden');
+    const lang = await AsyncStorage.getItem('language');
+
+    if (lang) {
+      setLanguage(lang);
       setDontShowAgain6(hidden === 'true');
       setLanguageLoaded(true);
 
-      if (hidden !== 'true' && showDescriptionOnce) {
-        setTimeout(() => {
-          setDescriptionModalVisible(true);
-          setShowDescriptionOnce(false);
-        }, 300);
+      if (hidden !== 'true') {
+        setTimeout(() => setDescriptionModalVisible(true), 100);
       }
-    };
-    initialize();
-  }, []);
+    }
 
-  // Чтобы не менять твою логику — оставляю второй useEffect как в EN
-  useEffect(() => {
-    const checkFlagAndLang = async () => {
-      const hidden = await AsyncStorage.getItem('exercise6_description_hidden');
-      const lang = await AsyncStorage.getItem('language');
+    setDontShowAgain6(hidden === 'true');
+  };
 
-      if (lang) {
-        setLanguage(lang);
-        setDontShowAgain6(hidden === 'true');
-        setLanguageLoaded(true);
+  checkFlagAndLang();
+}, []);
 
-        if (hidden !== 'true') {
-          setTimeout(() => setDescriptionModalVisible(true), 100);
-        }
-      }
-
-      setDontShowAgain6(hidden === 'true');
-    };
-
-    checkFlagAndLang();
-  }, []);
 
   const handleToggleDontShowAgain6 = async () => {
     const newValue = !dontShowAgain6;

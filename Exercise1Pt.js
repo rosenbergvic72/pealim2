@@ -371,23 +371,14 @@ const Exercise1Pt = ({ navigation }) => {
       console.log('🌍 Language:', lang);
       console.log('🧪 Hide flag:', hidden);
 
-      if (lang) {
-        setLanguage(lang);
+  if (lang) {
+  setLanguage(lang);
+  setDontShowAgain1(hidden === 'true');
+} else {
+  setDontShowAgain1(hidden === 'true');
+}
 
-        setDontShowAgain1(hidden === 'true');
-        setLanguageLoaded(true);
-
-        if (hidden !== 'true') {
-          setTimeout(() => {
-            console.log('📢 Показываем модалку после загрузки языка');
-            setDescriptionModalVisible(true);
-          }, 100);
-        }
-      }
-
-      setDontShowAgain1(hidden === 'true');
     };
-
     checkFlagAndLang();
   }, []);
 

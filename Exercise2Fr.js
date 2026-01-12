@@ -415,12 +415,7 @@ const Exercise2Fr = () => {
         await loadExcludedAndPinned();
         initializeVerbList(lang, setShuffledVerbs, setVerbListForModal); // ✅ передаём функции обновления стейта
 
-        if (hidden !== 'true') {
-          setTimeout(() => {
-            setDescriptionModalVisible(true); // Показываем описание
-          }, 300);
-        }
-
+    
         setDontShowAgain2(hidden === 'true');
         setLanguageLoaded(true);
       }
@@ -1186,13 +1181,16 @@ const Exercise2Fr = () => {
                     source={require('./question.png')}
                     style={[styles.buttonImage, { opacity: fadeAnim }]}
                   />
-                  <TaskDescriptionModal6
-                    visible={isDescriptionModalVisible}
-                    onToggle={toggleDescriptionModal}
-                    language={language}
-                    dontShowAgain2={dontShowAgain2}
-                    onToggleDontShowAgain={handleToggleDontShowAgain2}
-                  />
+                 {isDescriptionModalVisible && (
+  <TaskDescriptionModal6
+    visible={true}
+    onToggle={toggleDescriptionModal}
+    language={language}
+    dontShowAgain2={dontShowAgain2}
+    onToggleDontShowAgain={handleToggleDontShowAgain2}
+  />
+)}
+
                 </TouchableOpacity>
 
                 <TouchableOpacity onPress={handleGenderToggle}>
@@ -1365,13 +1363,16 @@ const Exercise2Fr = () => {
         statistics={statistics}
       />
 
-      <TaskDescriptionModal6
-        visible={isDescriptionModalVisible}
-        onToggle={toggleDescriptionModal}
-        language={language}
-        dontShowAgain2={dontShowAgain2}
-        onToggleDontShowAgain={handleToggleDontShowAgain2}
-      />
+    {isDescriptionModalVisible && (
+  <TaskDescriptionModal6
+    visible={true}
+    onToggle={toggleDescriptionModal}
+    language={language}
+    dontShowAgain2={dontShowAgain2}
+    onToggleDontShowAgain={handleToggleDontShowAgain2}
+  />
+)}
+
     </>
   );
 };

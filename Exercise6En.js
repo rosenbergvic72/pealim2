@@ -74,25 +74,22 @@ const Exercise6En = () => {
   const [verbListForModal, setVerbListForModal] = useState([]);
   const [isVerbListVisible, setIsVerbListVisible] = useState(true);
 
-  const [showDescriptionOnce, setShowDescriptionOnce] = useState(true);
+ 
+useEffect(() => {
+  const initialize = async () => {
+    const lang = await AsyncStorage.getItem('language');
+    const hidden = await AsyncStorage.getItem('exercise6_description_hidden');
 
-  useEffect(() => {
-    const initialize = async () => {
-      const lang = await AsyncStorage.getItem('language');
-      const hidden = await AsyncStorage.getItem('exercise6_description_hidden');
-      setLanguage(lang || 'en');
-      setDontShowAgain6(hidden === 'true');
-      setLanguageLoaded(true);
+    setLanguage(lang || 'en');
+    setDontShowAgain6(hidden === 'true');
+    setLanguageLoaded(true);
 
-      if (hidden !== 'true' && showDescriptionOnce) {
-        setTimeout(() => {
-          setDescriptionModalVisible(true);
-          setShowDescriptionOnce(false);
-        }, 300);
-      }
-    };
-    initialize();
-  }, []);
+    // ❌ больше НЕ показываем автоматически
+  };
+
+  initialize();
+}, []);
+
 
   const getGrade = (percentage) => {
     if (percentage === 100) return 'Exceptional! Flawless! You didn’t make a single mistake!';
@@ -120,26 +117,6 @@ const Exercise6En = () => {
   const [dontShowAgain6, setDontShowAgain6] = useState(false);
   const [languageLoaded, setLanguageLoaded] = useState(false);
 
-  useEffect(() => {
-    const checkFlagAndLang = async () => {
-      const hidden = await AsyncStorage.getItem('exercise6_description_hidden');
-      const lang = await AsyncStorage.getItem('language');
-
-      if (lang) {
-        setLanguage(lang);
-        setDontShowAgain6(hidden === 'true');
-        setLanguageLoaded(true);
-
-        if (hidden !== 'true') {
-          setTimeout(() => setDescriptionModalVisible(true), 100);
-        }
-      }
-
-      setDontShowAgain6(hidden === 'true');
-    };
-
-    checkFlagAndLang();
-  }, []);
 
   const handleToggleDontShowAgain6 = async () => {
     const newValue = !dontShowAgain6;

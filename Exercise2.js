@@ -562,10 +562,7 @@ useEffect(() => {
       // ✅ 3) и только теперь собираем колоду/список (buildDeck использует excludedRef/pinnedRef)
       initializeVerbList(lang, setShuffledVerbs, setVerbListForModal);
 
-      if (hidden !== 'true') {
-        setTimeout(() => setDescriptionModalVisible(true), 300);
-      }
-
+    
       setDontShowAgain2(hidden === 'true');
       setLanguageLoaded(true);
     } catch (e) {
@@ -1253,13 +1250,16 @@ useEffect(() => {
                     source={require('./question.png')}
                     style={[styles.buttonImage, { opacity: fadeAnim }]}
                   />
-                  <TaskDescriptionModal6
-                    visible={isDescriptionModalVisible}
-                    onToggle={toggleDescriptionModal}
-                    language={language}
-                    dontShowAgain2={dontShowAgain2}
-                    onToggleDontShowAgain={handleToggleDontShowAgain2}
-                  />
+                {isDescriptionModalVisible && (
+  <TaskDescriptionModal6
+    visible={true}
+    onToggle={toggleDescriptionModal}
+    language={language}
+    dontShowAgain2={dontShowAgain2}
+    onToggleDontShowAgain={handleToggleDontShowAgain2}
+  />
+)}
+
                 </TouchableOpacity>
 
                 <TouchableOpacity onPress={handleGenderToggle}>
@@ -1429,13 +1429,16 @@ useEffect(() => {
         statistics={statistics}
       />
 
-      <TaskDescriptionModal6
-        visible={isDescriptionModalVisible}
-        onToggle={toggleDescriptionModal}
-        language={language}
-        dontShowAgain2={dontShowAgain2}
-        onToggleDontShowAgain={handleToggleDontShowAgain2}
-      />
+   {isDescriptionModalVisible && (
+  <TaskDescriptionModal6
+    visible={true}
+    onToggle={toggleDescriptionModal}
+    language={language}
+    dontShowAgain2={dontShowAgain2}
+    onToggleDontShowAgain={handleToggleDontShowAgain2}
+  />
+)}
+
     </>
   );
 };

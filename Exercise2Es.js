@@ -485,11 +485,7 @@ useEffect(() => {
       // 3) build deck (uses excludedRef/pinnedRef)
       initializeVerbList(lang || 'en', setShuffledVerbs, setVerbListForModal);
 
-      if (hidden !== 'true') {
-        setTimeout(() => setDescriptionModalVisible(true), 300);
-      }
-
-      setDontShowAgain2(hidden === 'true');
+           setDontShowAgain2(hidden === 'true');
       setLanguageLoaded(true);
     } catch (e) {
       console.log('[Exercise2Es] initialize error:', e);
@@ -1297,13 +1293,16 @@ useEffect(() => {
         statistics={statistics}
       />
 
-      <TaskDescriptionModal6
-        visible={isDescriptionModalVisible}
-        onToggle={toggleDescriptionModal}
-        language={language}
-        dontShowAgain2={dontShowAgain2}
-        onToggleDontShowAgain={handleToggleDontShowAgain2}
-      />
+   {isDescriptionModalVisible && (
+  <TaskDescriptionModal6
+    visible={true}
+    onToggle={toggleDescriptionModal}
+    language={language}
+    dontShowAgain2={dontShowAgain2}
+    onToggleDontShowAgain={handleToggleDontShowAgain2}
+  />
+)}
+
     </>
   );
 };

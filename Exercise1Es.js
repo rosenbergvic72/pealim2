@@ -460,33 +460,16 @@ const Exercise1Es = ({ navigation }) => {
       const hidden = await AsyncStorage.getItem('exercise1_description_hidden');
       const lang = await AsyncStorage.getItem('language');
 
-      if (lang) setLanguage(lang);
-      setDontShowAgain1(hidden === 'true');
-      if (hidden !== 'true') setTimeout(() => setDescriptionModalVisible(true), 120);
+      if (lang) {
+  setLanguage(lang);
+  setDontShowAgain1(hidden === 'true');
+} else {
+  setDontShowAgain1(hidden === 'true');
+}
+
     };
     checkFlagAndLang();
   }, []);
-
-  /* sounds (correct/incorrect) */
-  useEffect(() => {
-    async function load() {
-      const ok = new Audio.Sound();
-      const bad = new Audio.Sound();
-      try {
-        await ok.loadAsync(sounds.success);
-        await bad.loadAsync(sounds.failure, { volume: 0.8 });
-        setCorrectSound(ok);
-        setIncorrectSound(bad);
-      } catch (e) {
-        console.log('Error loading sounds', e);
-      }
-    }
-    load();
-    return () => {
-      correctSound?.unloadAsync();
-      incorrectSound?.unloadAsync();
-    };
-  }, []); // eslint-disable-line
 
   useEffect(() => {
     const volume = soundEnabled ? 1 : 0;
