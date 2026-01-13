@@ -16,6 +16,7 @@ import {
   Keyboard,
   ToastAndroid,
 } from 'react-native';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { askChatGPT } from '../api/chatgptService';
 import { Ionicons } from '@expo/vector-icons';
@@ -25,10 +26,11 @@ import FadeInView from './FadeInView';
 import StyledMarkdown from './StyledMarkdown';
 import SavedAnswersModal from './SavedAnswersModal';
 import { shareAnswerOutsideModal } from './shareAnswerOutsideModal';
-import { Share as RNShare, InteractionManager } from 'react-native';
 import * as Clipboard from 'expo-clipboard';
 
 const ChatBotModal = ({ visible, onClose, blockModalCloseRef }) => {
+  const insets = useSafeAreaInsets();
+
   const [question, setQuestion] = useState('');
   const [history, setHistory] = useState([]);
   const [lang, setLang] = useState('русский');
@@ -36,7 +38,6 @@ const ChatBotModal = ({ visible, onClose, blockModalCloseRef }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [showScrollToBottom, setShowScrollToBottom] = useState(false);
   const [scrollKey, setScrollKey] = useState(0);
-  const [modalKey, setModalKey] = useState(0);
   const [verbContext, setVerbContext] = useState(null);
 
   const scrollViewRef = useRef(null);
@@ -48,7 +49,7 @@ const ChatBotModal = ({ visible, onClose, blockModalCloseRef }) => {
 
   const copyAnswer = async (text) => {
     try {
-      await Clipboard.setStringAsync(text);
+      await Clipboard.setStringAsync(String(text || ''));
       if (Platform.OS === 'android') {
         ToastAndroid.show('Скопировано в буфер обмена', ToastAndroid.SHORT);
       } else {
@@ -59,52 +60,32 @@ const ChatBotModal = ({ visible, onClose, blockModalCloseRef }) => {
     }
   };
 
-  const stripMarkdown = (markdown) => {
-    return String(markdown || '')
-      .replace(/!\[.*?\]\(.*?\)/g, '')
-      .replace(/\[(.*?)\]\(.*?\)/g, '$1')
-      .replace(/(\*\*|__)(.*?)\1/g, '$2')
-      .replace(/(\*|_)(.*?)\1/g, '$2')
-      .replace(/`([^`]+)`/g, '$1')
-      .replace(/^\s*>+/gm, '')
-      .replace(/^-{3,}/g, '')
-      .replace(/^\s*#+\s*(.*)/gm, '$1')
-      .replace(/\|/g, ' ')
-      .replace(/\n{2,}/g, '\n')
-      .trim();
-  };
-
   const translations = {
     русский: {
-      ask: 'Спросить',
-      close: 'Закрыть',
       placeholder: 'Спроси про глагол...',
       you: 'Вы',
-      bot: 'Бот',
       loading: 'Подождите, бот отвечает...',
-      greeting: 'Привет! Я помогу тебе разобраться в иврите. Особенно — с глаголами и их спряжением 🔤',
-      helpHint: 'Можешь спросить, например: как спрягать глагол ללכת или выбрать быстрый запрос ниже.',
+      greeting:
+        'Привет! Я помогу тебе разобраться в иврите. Особенно — с глаголами и их спряжением 🔤',
+      helpHint:
+        'Можешь спросить, например: как спрягать глагол ללכת или выбрать быстрый запрос ниже.',
       saved: '✅ Ответ сохранён!',
       errorSave: '❌ Не удалось сохранить ответ.',
     },
     english: {
-      ask: 'Ask',
-      close: 'Close',
       placeholder: 'Ask about a Hebrew verb...',
       you: 'You',
-      bot: 'Bot',
       loading: 'Please wait, the bot is replying...',
-      greeting: 'Hi! I can help you explore the Hebrew language — especially verbs and how to conjugate them 🔤',
-      helpHint: 'You can ask, for example: how to conjugate the verb ללכת or choose a quick question below.',
+      greeting:
+        'Hi! I can help you explore the Hebrew language — especially verbs and how to conjugate them 🔤',
+      helpHint:
+        'You can ask, for example: how to conjugate the verb ללכת or choose a quick question below.',
       saved: '✅ Answer saved!',
       errorSave: '❌ Failed to save answer.',
     },
     français: {
-      ask: 'Demander',
-      close: 'Fermer',
       placeholder: 'Demande un verbe hébreu...',
       you: 'Vous',
-      bot: 'Bot',
       loading: 'Veuillez patienter, le bot répond...',
       greeting:
         'Bonjour ! Je peux t’aider à mieux comprendre l’hébreu — surtout les verbes et leur conjugaison 🔤',
@@ -114,24 +95,19 @@ const ChatBotModal = ({ visible, onClose, blockModalCloseRef }) => {
       errorSave: '❌ Échec de l’enregistrement.',
     },
     español: {
-      ask: 'Preguntar',
-      close: 'Cerrar',
       placeholder: 'Pregunta sobre un verbo hebreo...',
       you: 'Tú',
-      bot: 'Bot',
       loading: 'Espera un momento, el bot está respondiendo...',
-      greeting: '¡Hola! Te ayudaré a entender el hebreo, en especial los verbos y cómo se conjugan 🔤',
+      greeting:
+        '¡Hola! Te ayudaré a entender el hebreo, en especial los verbos y cómo se conjugan 🔤',
       helpHint:
         'Puedes preguntar, por ejemplo: ¿cómo se conjuga el verbo ללכת? O elige una pregunta rápida abajo.',
       saved: '✅ ¡Respuesta guardada!',
       errorSave: '❌ Error al guardar la respuesta.',
     },
     português: {
-      ask: 'Perguntar',
-      close: 'Fechar',
       placeholder: 'Pergunte sobre um verbo hebraico...',
       you: 'Você',
-      bot: 'Bot',
       loading: 'Aguarde, o bot está respondendo...',
       greeting:
         'Olá! Estou aqui para te ajudar com o hebraico — especialmente com os verbos e suas conjugações 🔤',
@@ -141,23 +117,19 @@ const ChatBotModal = ({ visible, onClose, blockModalCloseRef }) => {
       errorSave: '❌ Falha ao salvar a resposta.',
     },
     العربية: {
-      ask: 'اسأل',
-      close: 'إغلاق',
       placeholder: 'اسأل عن فعل عبري...',
       you: 'أنت',
-      bot: 'بوت',
       loading: 'يرجى الانتظار، البوت يرد...',
-      greeting: 'مرحبًا! سأساعدك على فهم اللغة العبرية، خصوصًا الأفعال وتصريفاتها 🔤',
-      helpHint: 'يمكنك أن تسأل مثلًا: كيف يُصرّف الفعل ללכת؟ أو اختر سؤالًا سريعًا أدناه.',
+      greeting:
+        'مرحبًا! سأساعدك على فهم اللغة العبرية، خصوصًا الأفعال وتصريفاتها 🔤',
+      helpHint:
+        'يمكنك أن تسأل مثلًا: كيف يُصرّف الفعل ללכת؟ أو اختر سؤالًا سريعًا أدناه.',
       saved: '✅ تم حفظ الإجابة!',
       errorSave: '❌ فشل في حفظ الإجابة.',
     },
     አማርኛ: {
-      ask: 'ጠይቅ',
-      close: 'ዝጋ',
       placeholder: 'ስለ የዕብራይስጥ ግስ ጠይቅ...',
       you: 'አንተ',
-      bot: 'ቦት',
       loading: 'እባክህ ቆይ፣ ቦቱ በመስጠት ላይ ነው...',
       greeting:
         'ሰላም! በዕብራይስጥ ቋንቋ ላይ ልትረዳ እችላለሁ። በተለይም በግሶችና በመለያየታቸው ላይ 🔤',
@@ -209,65 +181,12 @@ const ChatBotModal = ({ visible, onClose, blockModalCloseRef }) => {
     አማርኛ: (verb) => `ይህን ግስ ${verb} አቅርብ`,
   };
 
-  const handleClose = async (clearHistory = false) => {
-    if (blockModalCloseRef?.current) {
-      console.log('⛔ handleClose отменён: блокировка активна');
-      return;
-    }
-
-    if (clearHistory) {
-      await AsyncStorage.removeItem('chatHistory');
-      setHistory([]);
-    } else {
-      try {
-        const sessionId = await AsyncStorage.getItem('chatSessionId');
-        await AsyncStorage.setItem(
-          'chatHistory',
-          JSON.stringify({
-            sessionId,
-            messages: history,
-          })
-        );
-        console.log('✅ История чата сохранена перед закрытием модалки');
-      } catch (err) {
-        console.error('❌ Ошибка сохранения истории при закрытии:', err);
-      }
-    }
-
-    setQuestion('');
-    setIsLoading(false);
-    setVerbContext(null);
-    setShowScrollToBottom(false);
-    setScrollKey((prev) => prev + 1);
-    setModalKey((prev) => prev + 1);
-    hasLoaded.current = false;
-
-    await new Promise((resolve) => setTimeout(resolve, 50));
-    onClose?.();
-  };
-
   const hasLoaded = useRef(false);
-
-  useEffect(() => {
-    if (visible && !hasLoaded.current) {
-      hasLoaded.current = true;
-      loadData();
-    } else if (!visible) {
-      if (!blockModalCloseRef?.current) {
-        hasLoaded.current = false;
-        setHistory([]);
-      }
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [visible]);
 
   const loadData = async () => {
     try {
       const sessionId = await AsyncStorage.getItem('chatSessionId');
-      if (!sessionId) {
-        console.log('🛑 Новая сессия — история чата не загружается');
-        return;
-      }
+      if (!sessionId) return;
 
       const name = await AsyncStorage.getItem('name');
       const language = await AsyncStorage.getItem('language');
@@ -307,8 +226,18 @@ const ChatBotModal = ({ visible, onClose, blockModalCloseRef }) => {
     }
   };
 
-  // ⚠️ ВАЖНО: у тебя история хранится "сверху вниз" (новые сообщения через unshift),
-  // поэтому для "вниз" нужно scrollTo({y:0})
+  useEffect(() => {
+    if (visible && !hasLoaded.current) {
+      hasLoaded.current = true;
+      loadData();
+    } else if (!visible) {
+      if (!blockModalCloseRef?.current) {
+        hasLoaded.current = false;
+        setHistory([]);
+      }
+    }
+  }, [visible]);
+
   useEffect(() => {
     const timeout = setTimeout(() => {
       scrollViewRef.current?.scrollTo({ y: 0, animated: true });
@@ -318,21 +247,18 @@ const ChatBotModal = ({ visible, onClose, blockModalCloseRef }) => {
 
   useEffect(() => {
     const subscription = AppState.addEventListener('change', async (nextAppState) => {
-      if (appState === 'active' && (nextAppState === 'background' || nextAppState === 'inactive')) {
+      if (
+        appState === 'active' &&
+        (nextAppState === 'background' || nextAppState === 'inactive')
+      ) {
         if (!isSharingRef.current && !blockModalCloseRef?.current && visible) {
           try {
             const sessionId = await AsyncStorage.getItem('chatSessionId');
             await AsyncStorage.setItem(
               'chatHistory',
-              JSON.stringify({
-                sessionId,
-                messages: history,
-              })
+              JSON.stringify({ sessionId, messages: history })
             );
-            console.log('✅ История чата сохранена при сворачивании');
-          } catch (e) {
-            console.error('❌ Ошибка сохранения истории чата при сворачивании:', e);
-          }
+          } catch (e) {}
         }
       }
       setAppState(nextAppState);
@@ -345,27 +271,19 @@ const ChatBotModal = ({ visible, onClose, blockModalCloseRef }) => {
     try {
       const { sound } = await Audio.Sound.createAsync(require('./click.mp3'));
       await sound.playAsync();
-    } catch (e) {
-      console.warn('Не удалось воспроизвести звук отправки:', e);
-    }
+    } catch {}
   };
-
   const playReplySound = async () => {
     try {
       const { sound } = await Audio.Sound.createAsync(require('./click.mp3'));
       await sound.playAsync();
-    } catch (e) {
-      console.warn('Не удалось воспроизвести звук ответа:', e);
-    }
+    } catch {}
   };
-
   const playReceiveSound = async () => {
     try {
       const { sound } = await Audio.Sound.createAsync(require('./click.mp3'));
       await sound.playAsync();
-    } catch (e) {
-      console.warn('Не удалось воспроизвести звук получения:', e);
-    }
+    } catch {}
   };
 
   const extractVerbFromReply = (reply) => {
@@ -377,42 +295,26 @@ const ChatBotModal = ({ visible, onClose, blockModalCloseRef }) => {
       text.match(/verbo\s+"([^"]+)"/i) ||
       text.match(/فعل\s+"([^"]+)"/i) ||
       text.match(/ግስ\s+"([^"]+)"/i);
-
     return match ? match[1] : null;
   };
 
   const isConjugationReply = (text) => {
     const lowered = String(text || '').toLowerCase();
-
     return (
-      // Русский
       lowered.includes('инфинитив:') ||
       lowered.includes('биньян:') ||
       lowered.includes('корень:') ||
-      // Английский
       lowered.includes('infinitive:') ||
       lowered.includes('binyan:') ||
       lowered.includes('root:') ||
-      // Французский
       lowered.includes('infinitif:') ||
-      lowered.includes('verbe:') ||
       lowered.includes('racine:') ||
-      // Испанский
       lowered.includes('infinitivo:') ||
-      lowered.includes('verbo:') ||
       lowered.includes('raíz:') ||
-      // Португальский
-      lowered.includes('infinitivo:') ||
-      lowered.includes('verbo:') ||
       lowered.includes('raiz:') ||
-      // Арабский (грубая проверка)
       lowered.includes('صيغة المصدر') ||
-      lowered.includes('الفعل') ||
       lowered.includes('الجذر') ||
-      // Амхарский (грубая проверка)
-      lowered.includes('መለኪያ') ||
-      lowered.includes('ግስ') ||
-      lowered.includes('ምንጭ')
+      lowered.includes('ግስ')
     );
   };
 
@@ -423,12 +325,7 @@ const ChatBotModal = ({ visible, onClose, blockModalCloseRef }) => {
     await playSendSound();
     setIsLoading(true);
 
-    const normalized = String(customQuestion).toLowerCase();
-    const isYes = ['да', 'yes', 'oui', 'sí', 'sim', 'نعم', 'አዎ'].includes(normalized);
-    const previousVerb = lastVerbContextRef.current || '';
-    const verbToUse = isYes ? previousVerb : '';
-
-    setHistory((prev) => [{ question: customQuestion, reply: null, verbContext: null }, ...prev]);
+    setHistory((prev) => [{ question: customQuestion, reply: null }, ...prev]);
 
     const formattedHistory = history
       .slice(0, 5)
@@ -440,10 +337,9 @@ const ChatBotModal = ({ visible, onClose, blockModalCloseRef }) => {
 
     let replyAuto;
     try {
-      replyAuto = await askChatGPT(customQuestion, formattedHistory, verbToUse);
+      replyAuto = await askChatGPT(customQuestion, formattedHistory, '');
       await playReceiveSound();
     } catch (err) {
-      console.error('❌ Ошибка в handleAskAuto:', err);
       setIsLoading(false);
       return;
     }
@@ -451,20 +347,13 @@ const ChatBotModal = ({ visible, onClose, blockModalCloseRef }) => {
     const extractedVerbAuto = extractVerbFromReply(replyAuto);
     const isVerbSuggestionAuto = extractedVerbAuto && !isConjugationReply(replyAuto);
 
-    const actualVerb = extractedVerbAuto || previousVerb;
+    const actualVerb = extractedVerbAuto || lastVerbContextRef.current || null;
     setVerbContext(actualVerb);
     lastVerbContextRef.current = actualVerb;
 
     setHistory((prev) =>
-      prev.map((item, index) =>
-        index === 0
-          ? {
-              ...item,
-              reply: replyAuto,
-              verbContext: actualVerb,
-              isVerbSuggestion: isVerbSuggestionAuto,
-            }
-          : item
+      prev.map((item, idx) =>
+        idx === 0 ? { ...item, reply: replyAuto, isVerbSuggestion: isVerbSuggestionAuto } : item
       )
     );
 
@@ -476,82 +365,11 @@ const ChatBotModal = ({ visible, onClose, blockModalCloseRef }) => {
 
     Keyboard.dismiss();
     await playSendSound();
-    setTimeout(() => setIsLoading(true), 300);
+    setTimeout(() => setIsLoading(true), 200);
 
     const newQuestion = question.trim();
-    const normalized = newQuestion.toLowerCase();
 
-    const isYes = [
-      // RU
-      'да',
-      'хочу',
-      'да, хочу',
-      'да хочу',
-      'давай',
-      'покажи',
-      'покажи спряжение',
-      'хочу увидеть',
-      'конечно',
-      // EN
-      'yes',
-      'i want',
-      'yes i want',
-      'show me',
-      'show conjugation',
-      'let me see',
-      'of course',
-      // FR
-      'oui',
-      'je veux',
-      'oui je veux',
-      'montre',
-      'montre-moi',
-      'bien sûr',
-      // ES
-      'sí',
-      'quiero',
-      'sí quiero',
-      'muéstrame',
-      'por supuesto',
-      // PT
-      'sim',
-      'eu quero',
-      'sim eu quero',
-      'me mostra',
-      'claro',
-      // AR
-      'نعم',
-      'أريد',
-      'نعم أريد',
-      'أرني',
-      'بالطبع',
-      // AM
-      'አዎ',
-      'እፈልጋለሁ',
-      'አዎ እፈልጋለሁ',
-      'አሳየኝ',
-      'እሺ',
-    ].includes(normalized);
-
-    if (isYes && lastVerbContextRef.current) {
-      const conjugateText =
-        conjugateCommand[lang]?.(lastVerbContextRef.current) ||
-        conjugateCommand.english(lastVerbContextRef.current);
-      await handleAskAuto(conjugateText);
-      setQuestion('');
-      setIsLoading(false);
-      return;
-    }
-
-    const verbToUse = isYes ? lastVerbContextRef.current : '';
-
-    const tempMessage = {
-      question: newQuestion,
-      reply: null,
-      verbContext: null,
-      isVerbSuggestion: false,
-    };
-    setHistory((prev) => [tempMessage, ...prev]);
+    setHistory((prev) => [{ question: newQuestion, reply: null }, ...prev]);
 
     const formattedHistory = history
       .slice(0, 5)
@@ -563,9 +381,8 @@ const ChatBotModal = ({ visible, onClose, blockModalCloseRef }) => {
 
     let reply;
     try {
-      reply = await askChatGPT(newQuestion, formattedHistory, verbToUse);
+      reply = await askChatGPT(newQuestion, formattedHistory, '');
     } catch (error) {
-      console.error('Ошибка при запросе к боту:', error);
       await playReplySound();
       setIsLoading(false);
       return;
@@ -574,30 +391,12 @@ const ChatBotModal = ({ visible, onClose, blockModalCloseRef }) => {
     const extractedVerb = extractVerbFromReply(reply);
     const isVerbSuggestion = extractedVerb && !isConjugationReply(reply);
 
-    const actualVerb = extractedVerb || verbToUse;
+    const actualVerb = extractedVerb || null;
     setVerbContext(actualVerb);
     lastVerbContextRef.current = actualVerb;
 
-    if (isYes && verbToUse) {
-      const conjugateText =
-        conjugateCommand[lang]?.(verbToUse) || conjugateCommand.english(verbToUse);
-      setQuestion('');
-      setIsLoading(false);
-      await handleAskAuto(conjugateText);
-      return;
-    }
-
     setHistory((prev) =>
-      prev.map((item, index) =>
-        index === 0
-          ? {
-              ...item,
-              reply,
-              verbContext: actualVerb,
-              isVerbSuggestion,
-            }
-          : item
-      )
+      prev.map((item, idx) => (idx === 0 ? { ...item, reply, isVerbSuggestion } : item))
     );
 
     setQuestion('');
@@ -605,19 +404,9 @@ const ChatBotModal = ({ visible, onClose, blockModalCloseRef }) => {
     setIsLoading(false);
   };
 
-  const handleShare = (text) => {
-    const cleanedText = stripMarkdown(text);
-    InteractionManager.runAfterInteractions(() => {
-      RNShare.share({ message: cleanedText }).catch((err) => console.error('Ошибка при шаринге:', err));
-    });
-  };
-
   const showToast = (message) => {
-    if (Platform.OS === 'android') {
-      ToastAndroid.show(message, ToastAndroid.SHORT);
-    } else {
-      alert(message);
-    }
+    if (Platform.OS === 'android') ToastAndroid.show(message, ToastAndroid.SHORT);
+    else alert(message);
   };
 
   const handleSave = async (text) => {
@@ -625,18 +414,12 @@ const ChatBotModal = ({ visible, onClose, blockModalCloseRef }) => {
       const existing = await AsyncStorage.getItem('savedAnswers');
       const saved = existing ? JSON.parse(existing) : [];
 
-      const newEntry = {
-        id: Date.now(),
-        text,
-        timestamp: new Date().toISOString(),
-      };
-
+      const newEntry = { id: Date.now(), text, timestamp: new Date().toISOString() };
       await AsyncStorage.setItem('savedAnswers', JSON.stringify([newEntry, ...saved]));
 
       showToast(translations[lang]?.saved || translations.english.saved);
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     } catch (error) {
-      console.error('Ошибка при сохранении ответа:', error);
       showToast(translations[lang]?.errorSave || translations.english.errorSave);
     }
   };
@@ -645,225 +428,193 @@ const ChatBotModal = ({ visible, onClose, blockModalCloseRef }) => {
     <>
       {visible && (
         <Modal
-          key={modalKey}
           visible={visible}
           animationType="slide"
           transparent={Platform.OS === 'android'}
           presentationStyle={Platform.OS === 'ios' ? 'pageSheet' : 'fullScreen'}
           onRequestClose={async () => {
             if (blockModalCloseRef?.current) return;
-            await handleClose(false);
+            onClose?.();
           }}
         >
           <KeyboardAvoidingView
-            behavior={Platform.OS === 'ios' ? 'padding' : undefined}
             style={{ flex: 1 }}
-            keyboardVerticalOffset={Platform.OS === 'ios' ? 80 : 0}
+            behavior={Platform.OS === 'ios' ? 'padding' : undefined}
           >
-            <View style={styles.container}>
-              {/* Header */}
-              <View style={styles.header}>
-                <Image source={require('../VERBIFY.png')} style={styles.logo} />
-                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                  <TouchableOpacity
-                    onPress={() => setSavedModalVisible(true)}
-                    style={styles.iconButton}
-                  >
-                    <Image source={require('../save2.png')} style={styles.iconImage} />
-                  </TouchableOpacity>
-                  <TouchableOpacity onPress={() => handleClose()}>
-                    <Ionicons name="close" size={36} color="#003366" />
-                  </TouchableOpacity>
-                </View>
-              </View>
-
-              {/* Scrollable chat */}
-              <ScrollView
-                key={scrollKey}
-                ref={scrollViewRef}
-                style={styles.chat}
-                contentContainerStyle={styles.chatContent}
-                keyboardShouldPersistTaps="handled"
-                keyboardDismissMode="interactive"
-                onScroll={(event) => {
-                  const { contentOffset, contentSize, layoutMeasurement } = event.nativeEvent;
-                  const isNearBottom =
-                    contentOffset.y + layoutMeasurement.height >= contentSize.height - 50;
-                  setShowScrollToBottom(!isNearBottom && contentOffset.y > 200);
-                }}
-                scrollEventThrottle={16}
-              >
-                {history.map((item, index) => {
-                  const isLast = index === 0;
-
-                  return (
-                    <View
-                      key={`${index}-${String(item.question || '').slice(0, 10)}`}
-                      style={[styles.messageBlock, isLast && styles.highlightMessage]}
+            <View style={styles.screen}>
+              <View style={styles.sheet}>
+                {/* Header */}
+                <View style={[styles.header, { paddingTop: insets.top, height: 44 + insets.top }]}>
+                  <Image source={require('../VERBIFY.png')} style={styles.logo} />
+                  <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                    <TouchableOpacity
+                      onPress={() => setSavedModalVisible(true)}
+                      style={styles.iconButton}
+                      hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
                     >
-                      {/* Вопрос пользователя */}
-                      {item.question ? (
-                        <View style={styles.questionBubble}>
-                          <View style={styles.labelTag}>
-                            <Text style={styles.labelText} maxFontSizeMultiplier={1.2}>
-                              {username || t.you}
+                      <Image source={require('../save2.png')} style={styles.iconImage} />
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                      onPress={() => onClose?.()}
+                      hitSlop={{ top: 14, bottom: 14, left: 14, right: 14 }}
+                    >
+                      <Ionicons name="close" size={36} color="#003366" />
+                    </TouchableOpacity>
+                  </View>
+                </View>
+
+                {/* BODY */}
+                <View style={styles.body}>
+                  <ScrollView
+                    key={scrollKey}
+                    ref={scrollViewRef}
+                    style={styles.chat}
+                    contentContainerStyle={[
+                      styles.chatContent,
+                      { paddingBottom: 118 + insets.bottom }, // запас под док + safe area
+                    ]}
+                    keyboardShouldPersistTaps="handled"
+                    keyboardDismissMode="interactive"
+                    scrollEventThrottle={16}
+                  >
+                    {history.map((item, index) => (
+                      <View key={index} style={styles.messageBlock}>
+                        {item.question ? (
+                          <View style={styles.questionBubble}>
+                            <View style={styles.labelTag}>
+                              <Text style={styles.labelText} maxFontSizeMultiplier={1.2}>
+                                {username || t.you}
+                              </Text>
+                            </View>
+                            <Text style={styles.userQuestion} maxFontSizeMultiplier={1.2}>
+                              {item.question}
                             </Text>
                           </View>
-                          <Text style={styles.userQuestion} maxFontSizeMultiplier={1.2}>
-                            {item.question}
-                          </Text>
-                        </View>
-                      ) : null}
+                        ) : null}
 
-                      {/* Ответ бота */}
-                      <View style={styles.answerBubble}>
-                        {item.reply ? (
-                          <FadeInView>
-                            <>
-                              {/* Лого бота */}
-                              <View style={styles.botHeader}>
-                                <View style={styles.botIconWrapper}>
-                                  <Image source={require('../AI2.png')} style={styles.botIcon} />
+                        <View style={styles.answerBubble}>
+                          {item.reply ? (
+                            <FadeInView>
+                              <>
+                                <View style={styles.botHeader}>
+                                  <View style={styles.botIconWrapper}>
+                                    <Image source={require('../AI2.png')} style={styles.botIcon} />
+                                  </View>
                                 </View>
-                              </View>
 
-                              {/* Текст ответа */}
-                              {typeof item.reply === 'string' ? (
-                                <StyledMarkdown>{item.reply}</StyledMarkdown>
-                              ) : (
-                                <Text style={styles.emptyText} maxFontSizeMultiplier={1.2}>
-                                  🚫 Error loading text
-                                </Text>
-                              )}
+                                <StyledMarkdown>{String(item.reply)}</StyledMarkdown>
 
-                              {/* Кнопка "Проспрягать этот глагол" */}
-                              {index === 0 && item.isVerbSuggestion && (
-                                <TouchableOpacity
-                                  style={styles.extraButton}
-                                  onPress={async () => {
-                                    const conjugateText = conjugateCommand[lang]
-                                      ? conjugateCommand[lang](verbContext)
-                                      : conjugateCommand.english(verbContext);
-                                    await handleAskAuto(conjugateText);
-                                  }}
-                                >
-                                  <Text style={styles.extraButtonText} maxFontSizeMultiplier={1.2}>
-                                    {conjugateButtonLabels[lang] || conjugateButtonLabels.english}
-                                  </Text>
-                                </TouchableOpacity>
-                              )}
-
-                              {/* Кнопки действий */}
-                              {item.reply && !item.isWelcome && (
-                                <View style={styles.shareWrapper}>
+                                {index === 0 && item.isVerbSuggestion && verbContext ? (
                                   <TouchableOpacity
-                                    onPress={() => handleSave(item.reply)}
-                                    style={[styles.saveButton, { marginRight: 12 }]}
-                                    activeOpacity={0.8}
-                                  >
-                                    <Image source={require('../save1.png')} style={styles.saveIcon} />
-                                  </TouchableOpacity>
-
-                                  <TouchableOpacity
-                                    onPress={() => copyAnswer(item.reply)}
-                                    style={[styles.copyButton, { marginRight: 12 }]}
-                                    activeOpacity={0.8}
-                                  >
-                                    <Ionicons name="copy" size={22} color="#003366" />
-                                  </TouchableOpacity>
-
-                                  <TouchableOpacity
+                                    style={styles.extraButton}
                                     onPress={() =>
-                                      shareAnswerOutsideModal(item.reply, null, blockModalCloseRef)
+                                      handleAskAuto(
+                                        (conjugateCommand[lang] || conjugateCommand.english)(verbContext)
+                                      )
                                     }
-                                    style={styles.shareButton}
-                                    activeOpacity={0.8}
                                   >
-                                    <Image source={require('../share.png')} style={styles.shareIcon} />
+                                    <Text style={styles.extraButtonText} maxFontSizeMultiplier={1.2}>
+                                      {conjugateButtonLabels[lang] || conjugateButtonLabels.english}
+                                    </Text>
                                   </TouchableOpacity>
-                                </View>
-                              )}
+                                ) : null}
 
-                              {/* Быстрые вопросы */}
-                              {item.isWelcome && quickQuestions && quickQuestions.length > 0 && (
-                                <View style={styles.quickQuestionsWrapper}>
-                                  {quickQuestions.map((q, idx) => (
+                                {!item.isWelcome ? (
+                                  <View style={styles.shareWrapper}>
                                     <TouchableOpacity
-                                      key={idx}
-                                      activeOpacity={0.7}
-                                      style={[styles.quickButton, isLoading && { opacity: 0.4 }]}
-                                      onPress={() => !isLoading && handleAskAuto(q.question)}
-                                      disabled={isLoading}
+                                      onPress={() => handleSave(item.reply)}
+                                      style={[styles.saveButton, { marginRight: 12 }]}
+                                      activeOpacity={0.8}
                                     >
-                                      <Text style={styles.quickButtonText} maxFontSizeMultiplier={1.2}>
-                                        {q.label}
-                                      </Text>
+                                      <Image source={require('../save1.png')} style={styles.saveIcon} />
                                     </TouchableOpacity>
-                                  ))}
-                                </View>
-                              )}
-                            </>
-                          </FadeInView>
-                        ) : (
-                          <View style={styles.loadingWrapper}>
-                            <Image source={require('../AI2.png')} style={styles.botIconSmall} />
-                            <ActivityIndicator
-                              size="small"
-                              color="#4A6491"
-                              style={{ marginLeft: 2, marginRight: 5 }}
-                            />
-                            <Text style={styles.loadingText} maxFontSizeMultiplier={1.2}>
-                              {t.loading}
-                            </Text>
-                          </View>
-                        )}
+
+                                    <TouchableOpacity
+                                      onPress={() => copyAnswer(item.reply)}
+                                      style={[styles.copyButton, { marginRight: 12 }]}
+                                      activeOpacity={0.8}
+                                    >
+                                      <Ionicons name="copy" size={22} color="#003366" />
+                                    </TouchableOpacity>
+
+                                    <TouchableOpacity
+                                      onPress={() => shareAnswerOutsideModal(item.reply, null, blockModalCloseRef)}
+                                      style={styles.shareButton}
+                                      activeOpacity={0.8}
+                                    >
+                                      <Image source={require('../share.png')} style={styles.shareIcon} />
+                                    </TouchableOpacity>
+                                  </View>
+                                ) : null}
+
+                                {item.isWelcome && quickQuestions?.length ? (
+                                  <View style={styles.quickQuestionsWrapper}>
+                                    {quickQuestions.map((q, idx) => (
+                                      <TouchableOpacity
+                                        key={idx}
+                                        activeOpacity={0.7}
+                                        style={[styles.quickButton, isLoading && { opacity: 0.4 }]}
+                                        onPress={() => !isLoading && handleAskAuto(q.question)}
+                                        disabled={isLoading}
+                                      >
+                                        <Text style={styles.quickButtonText} maxFontSizeMultiplier={1.2}>
+                                          {q.label}
+                                        </Text>
+                                      </TouchableOpacity>
+                                    ))}
+                                  </View>
+                                ) : null}
+                              </>
+                            </FadeInView>
+                          ) : (
+                            <View style={styles.loadingWrapper}>
+                              <Image source={require('../AI2.png')} style={styles.botIconSmall} />
+                              <ActivityIndicator size="small" color="#4A6491" style={{ marginLeft: 2, marginRight: 5 }} />
+                              <Text style={styles.loadingText} maxFontSizeMultiplier={1.2}>
+                                {t.loading}
+                              </Text>
+                            </View>
+                          )}
+                        </View>
+                      </View>
+                    ))}
+                  </ScrollView>
+
+                  {/* Ввод — максимально низко: убрали лишние padding снизу */}
+                  <SafeAreaView edges={['bottom']} style={styles.inputSafeArea}>
+                    <View style={styles.inputDock}>
+                      <View style={styles.inputRow}>
+                        <TextInput
+                          value={question}
+                          onChangeText={setQuestion}
+                          placeholder={t.placeholder}
+                          style={[
+                            styles.input,
+                            isLoading && styles.inputDisabled,
+                            (lang === 'العربية' || lang === 'עברית' || lang === 'አማርኛ') && {
+                              paddingLeft: 60,
+                              paddingRight: 44,
+                              textAlign: 'right',
+                            },
+                          ]}
+                          multiline
+                          editable={!isLoading}
+                          textAlignVertical="top"
+                          maxFontSizeMultiplier={1.2}
+                        />
+
+                        <TouchableOpacity
+                          onPress={handleAsk}
+                          style={[styles.sendButton, isLoading && { opacity: 0.5 }]}
+                          disabled={isLoading}
+                        >
+                          <Ionicons name="arrow-up-circle" size={36} color="#4A6491" />
+                        </TouchableOpacity>
                       </View>
                     </View>
-                  );
-                })}
-              </ScrollView>
-
-              {/* Scroll to bottom button */}
-              {showScrollToBottom && (
-                <TouchableOpacity
-                  onPress={() => {
-                    scrollViewRef.current?.scrollTo({ y: 0, animated: true });
-                    setShowScrollToBottom(false);
-                  }}
-                  style={styles.scrollToBottomButton}
-                >
-                  <Ionicons name="arrow-down" size={28} color="#4A6491" />
-                </TouchableOpacity>
-              )}
-
-              {/* Input */}
-              <View style={styles.inputWrapper}>
-                <TextInput
-                  value={question}
-                  onChangeText={setQuestion}
-                  placeholder={t.placeholder}
-                  style={[
-                    styles.inputWithButton,
-                    isLoading && styles.inputDisabled,
-                    (lang === 'العربية' || lang === 'עברית' || lang === 'አማርኛ') && {
-                      paddingLeft: 60,
-                      paddingRight: 36,
-                      textAlign: 'right',
-                    },
-                  ]}
-                  multiline
-                  editable={!isLoading}
-                  textAlignVertical="top"
-                  maxFontSizeMultiplier={1.2}
-                />
-
-                <TouchableOpacity
-                  onPress={handleAsk}
-                  style={[styles.sendButton, isLoading && { opacity: 0.5 }]}
-                  disabled={isLoading}
-                >
-                  <Ionicons name="arrow-up-circle" size={36} color="#4A6491" />
-                </TouchableOpacity>
+                  </SafeAreaView>
+                </View>
               </View>
             </View>
           </KeyboardAvoidingView>
@@ -882,16 +633,18 @@ const ChatBotModal = ({ visible, onClose, blockModalCloseRef }) => {
 };
 
 const styles = StyleSheet.create({
-  container: {
+  screen: {
+    flex: 1,
+    backgroundColor: Platform.OS === 'android' ? 'rgba(0,0,0,0.35)' : '#F6F8FB',
+    justifyContent: 'center',
+  },
+
+  sheet: {
     flex: 1,
     backgroundColor: '#F6F8FB',
-    ...(Platform.OS === 'ios'
-      ? {
-          borderTopLeftRadius: 18,
-          borderTopRightRadius: 18,
-          overflow: 'hidden',
-        }
-      : {}),
+    ...(Platform.OS === 'android'
+      ? { marginHorizontal: 10, marginVertical: 26, borderRadius: 16, overflow: 'hidden' }
+      : { borderTopLeftRadius: 18, borderTopRightRadius: 18, overflow: 'hidden' }),
   },
 
   header: {
@@ -899,49 +652,22 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 12,
-    height: 60,
+    paddingVertical: 8,
     backgroundColor: '#D1E3F1',
     borderBottomWidth: 1,
     borderColor: '#ccc',
   },
 
-  logo: {
-    width: 90,
-    height: 90,
-    resizeMode: 'contain',
-  },
+  logo: { width: 72, height: 72, resizeMode: 'contain', marginLeft: 5 },
+  iconButton: { padding: 4, marginHorizontal: 4 },
+  iconImage: { width: 36, height: 36, resizeMode: 'contain' },
 
-  iconButton: {
-    padding: 4,
-    marginHorizontal: 4,
-  },
-  iconImage: {
-    width: 36,
-    height: 36,
-    resizeMode: 'contain',
-  },
+  body: { flex: 1, position: 'relative' },
 
-  // ✅ Главное: чат НЕ от края до края (особенно на планшетах / больших экранах)
   chat: { flex: 1, marginTop: 10 },
-  chatContent: {
-    paddingBottom: 80,
-    paddingHorizontal: 12,
-  },
+  chatContent: { paddingHorizontal: 12 },
 
-  messageBlock: {
-    marginBottom: 20,
-    alignSelf: 'center',
-    width: '100%',
-    maxWidth: 700, // ✅ ограничение ширины (чтобы не было edge-to-edge)
-  },
-
-  highlightMessage: {
-    backgroundColor: '#EEF3FB',
-    borderColor: '#4A6491',
-    borderWidth: 1,
-    borderRadius: 8,
-    padding: 5,
-  },
+  messageBlock: { marginBottom: 20, alignSelf: 'center', width: '100%', maxWidth: 700 },
 
   questionBubble: {
     backgroundColor: '#D1E3F1',
@@ -955,17 +681,12 @@ const styles = StyleSheet.create({
   answerBubble: {
     backgroundColor: '#FFFDEF',
     borderRadius: 10,
-    padding: 10, // чуть больше — выглядит богаче
+    padding: 10,
     alignSelf: 'stretch',
     width: '100%',
-    position: 'relative',
   },
 
-  labelTag: {
-    alignSelf: 'flex-start',
-    marginBottom: 4,
-  },
-
+  labelTag: { alignSelf: 'flex-start', marginBottom: 4 },
   labelText: {
     fontWeight: 'bold',
     color: 'white',
@@ -976,22 +697,9 @@ const styles = StyleSheet.create({
     borderRadius: 6,
     overflow: 'hidden',
   },
+  userQuestion: { color: '#003366', fontWeight: 'bold', fontSize: 15, marginTop: 8, marginBottom: 5 },
 
-  userQuestion: {
-    color: '#003366',
-    fontWeight: 'bold',
-    fontSize: 15,
-    marginTop: 8,
-    marginBottom: 5,
-  },
-
-  botHeader: {
-    width: '100%',
-    justifyContent: 'center',
-    height: 30,
-    marginBottom: 4,
-  },
-
+  botHeader: { width: '100%', justifyContent: 'center', height: 30, marginBottom: 4 },
   botIconWrapper: {
     backgroundColor: '#D1E3F1',
     borderRadius: 8,
@@ -1001,57 +709,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     overflow: 'hidden',
   },
-
-  botIcon: {
-    width: 70,
-    height: 70,
-    resizeMode: 'contain',
-  },
-
-  botIconSmall: {
-    width: 64,
-    height: 64,
-    resizeMode: 'contain',
-  },
-
-  emptyText: {
-    color: '#777',
-    fontStyle: 'italic',
-    paddingVertical: 6,
-  },
-
-  inputWrapper: {
-    position: 'relative',
-    marginTop: 10,
-    marginBottom: 10,
-    marginLeft: 10,
-    marginRight: 10,
-  },
-
-  inputWithButton: {
-    borderWidth: 1,
-    borderColor: '#999',
-    borderRadius: 10,
-    paddingVertical: 10,
-    paddingHorizontal: 16,
-    paddingRight: 44,
-    minHeight: 44,
-    maxHeight: 100,
-    fontSize: 16,
-    backgroundColor: '#f5f5f5',
-  },
-
-  inputDisabled: {
-    backgroundColor: '#e4e4e4',
-    color: '#999',
-  },
-
-  sendButton: {
-    position: 'absolute',
-    right: 10,
-    top: '40%',
-    transform: [{ translateY: -14 }],
-  },
+  botIcon: { width: 70, height: 70, resizeMode: 'contain' },
+  botIconSmall: { width: 64, height: 64, resizeMode: 'contain' },
 
   loadingWrapper: {
     flexDirection: 'row',
@@ -1063,13 +722,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFDEF',
     borderRadius: 10,
   },
-
-  loadingText: {
-    fontStyle: 'italic',
-    color: '#888',
-    fontSize: 12,
-    marginLeft: 6,
-  },
+  loadingText: { fontStyle: 'italic', color: '#888', fontSize: 12, marginLeft: 6 },
 
   extraButton: {
     marginTop: 10,
@@ -1079,64 +732,19 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     alignSelf: 'flex-start',
   },
+  extraButtonText: { fontSize: 15, color: '#003366', fontWeight: '600' },
 
-  extraButtonText: {
-    fontSize: 15,
-    color: '#003366',
-    fontWeight: '600',
-  },
+  shareWrapper: { marginTop: 10, flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'center' },
 
-  shareWrapper: {
-    marginTop: 10,
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
-    alignItems: 'center',
-  },
+  shareButton: { backgroundColor: '#f0f0f0', borderRadius: 20, padding: 8, elevation: 3 },
+  shareIcon: { width: 20, height: 20, resizeMode: 'contain' },
 
-  shareButton: {
-    backgroundColor: '#f0f0f0',
-    borderRadius: 20,
-    padding: 8,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.2,
-    shadowRadius: 2,
-    elevation: 3,
-  },
+  saveButton: { padding: 6, backgroundColor: '#f0f0f0', borderRadius: 20, elevation: 2 },
+  saveIcon: { width: 24, height: 24, resizeMode: 'contain' },
 
-  shareIcon: {
-    width: 20,
-    height: 20,
-    resizeMode: 'contain',
-  },
+  copyButton: { padding: 8, backgroundColor: '#f0f0f0', borderRadius: 20, elevation: 2 },
 
-  saveButton: {
-    padding: 6,
-    backgroundColor: '#f0f0f0',
-    borderRadius: 20,
-    elevation: 2,
-  },
-
-  saveIcon: {
-    width: 24,
-    height: 24,
-    resizeMode: 'contain',
-  },
-
-  copyButton: {
-    padding: 8,
-    backgroundColor: '#f0f0f0',
-    borderRadius: 20,
-    elevation: 2,
-  },
-
-  quickQuestionsWrapper: {
-    marginTop: 12,
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'center',
-  },
-
+  quickQuestionsWrapper: { marginTop: 12, flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center' },
   quickButton: {
     backgroundColor: '#dce7f5',
     marginHorizontal: 4,
@@ -1146,32 +754,48 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     minWidth: '42%',
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.15,
-    shadowRadius: 2,
   },
+  quickButtonText: { fontSize: 14, fontWeight: '700', color: '#003366', textAlign: 'center' },
 
-  quickButtonText: {
-    fontSize: 14,
-    fontWeight: '700',
-    color: '#003366',
-    textAlign: 'center',
-    letterSpacing: 0.3,
-  },
-
-  scrollToBottomButton: {
+  // ключ: панель прибита к низу модалки, без лишнего paddingBottom
+  inputSafeArea: {
     position: 'absolute',
-    bottom: 100,
-    right: 20,
-    backgroundColor: '#dce7f5',
-    borderRadius: 25,
-    padding: 10,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: '#F6F8FB',
+  },
+
+  inputDock: {
+    paddingHorizontal: 10,
+    paddingTop: 10,
+    paddingBottom: 2, // ✅ меньше воздуха, ближе к границе модалки
+    borderTopWidth: 1,
+    borderColor: '#E3E7ED',
+    marginBottom: 10
+  },
+
+  inputRow: { position: 'relative' },
+
+  input: {
+    borderWidth: 1,
+    borderColor: '#999',
+    borderRadius: 10,
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    paddingRight: 48,
+    minHeight: 44,
+    maxHeight: 120,
+    fontSize: 16,
+    backgroundColor: '#f5f5f5',
+  },
+
+  inputDisabled: { backgroundColor: '#e4e4e4', color: '#999' },
+
+  sendButton: {
+    position: 'absolute',
+    right: 10,
+    top: 8,
   },
 });
 

@@ -832,8 +832,13 @@ const Exercise1Fr = ({ navigation }) => {
   const handleButton3Press = async () => {
     const exerciseId = 'exercise1Fr';
     try {
-      const stats = await getStatistics(exerciseId);
-      setStatistics(stats ? { currentScore: stats.averageScore } : null);
+      const stats = await getStatistics('exercise1En');
+
+setStatistics(
+  stats
+    ? { currentScore: stats.averageScore }
+    : null
+);
       setIsStatModalVisible(true);
     } catch (error) {
       console.error('Failed to fetch statistics:', error);

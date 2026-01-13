@@ -772,7 +772,10 @@ const handleAnswer = (selectedOptionIndex) => {
   else setIncorrectAnswers((prev) => prev + 1);
 
   updateVerbDetails(shuffledVerbs[currentIndex], isGenderMan, true);
+  setTimeout(() => {
   setShowNextButton(true);
+}, 1000);
+
 
   const totalAnswered = correctAnswers + incorrectAnswers + 1;
   setProgress(totalAnswered);
@@ -793,8 +796,9 @@ const handleAnswer = (selectedOptionIndex) => {
   if (nextIndex < shuffledVerbs.length) {
     setCurrentIndex(nextIndex);
   } else {
-    // ✅ Вот здесь показываем Completion
+    // ✅ Exercise finished: show Completion + persist stats immediately
     setExerciseCompleted(true);
+    handleExerciseCompletion();
   }
 };
 
@@ -807,7 +811,14 @@ const handleAnswer = (selectedOptionIndex) => {
   setExerciseCompleted(false);
   setShowNextButton(false);
   setOptionsOrder([]);
-  setVerbDetails({ hebrewtext: '', translit: '', russiantext: '' });
+  setVerbDetails({ hebrewtext: '', translit: '', entext: '' });
+
+  // ✅ сброс статистики и прогресса (иначе statisticsUpdated может залипнуть)
+  setStatisticsUpdated(false);
+  setCorrectAnswers(0);
+  setIncorrectAnswers(0);
+  setProgress(0);
+  setCurrentIndex(0);
 
   // 3) пересобираем данные (список глаголов тоже пересчитается)
   await initializeExercise(language);
@@ -837,7 +848,7 @@ const handleAnswer = (selectedOptionIndex) => {
 
       setTimeout(async () => {
         try {
-          await updateStatistics('exercise1', currentScore);
+          await updateStatistics('exercise1En', currentScore);
         } catch (error) {
           console.error('Failed to update statistics:', error);
         }
@@ -845,19 +856,19 @@ const handleAnswer = (selectedOptionIndex) => {
     }
   };
 
-  const handleButton3Press = async () => {
-    const exerciseId = 'exercise1';
-    try {
-      const stats = await getStatistics(exerciseId);
-      setStatistics(stats ? { currentScore: stats.averageScore } : null);
-      setIsStatModalVisible(true);
-    } catch (error) {
-      console.error('Failed to fetch statistics:', error);
-      setStatistics(null);
-      setIsStatModalVisible(false);
-    }
-  };
+const handleButton3Press = async () => {
+  const exerciseId = 'exercise1En';
+  try {
+    const stats = await getStatistics(exerciseId);
 
+    setStatistics(stats ? { currentScore: stats.averageScore } : null);
+    setIsStatModalVisible(true);
+  } catch (error) {
+    console.error('Failed to fetch statistics:', error);
+    setStatistics(null);
+    setIsStatModalVisible(false);
+  }
+};
   return (
     <>
       {isVerbListVisible && (
@@ -1034,7 +1045,13 @@ const handleAnswer = (selectedOptionIndex) => {
         lang={'en'} // 'ru'|'en'|'fr'|'es'|'pt'|'ar'|'am'
       />
 
-      <StatModal1En visible={isStatModalVisible} onToggle={() => setIsStatModalVisible(false)} statistics={statistics} />
+     <StatModal1En
+  visible={isStatModalVisible}
+  onToggle={() => setIsStatModalVisible(false)}
+  statistics={statistics}
+/>
+
+
 
       <TaskDescriptionModal6
         visible={isDescriptionModalVisible}
