@@ -378,6 +378,20 @@ function menuRouteByLang(lang) {
     default: return 'Menu';
   }
 }
+
+function welcomeRouteByLang(lang) {
+  switch (lang) {
+    case 'english':   return 'WelcomePageEn';
+    case 'русский':   return 'WelcomePage';
+    case 'français':  return 'WelcomePageFr';
+    case 'español':   return 'WelcomePageEs';
+    case 'português': return 'WelcomePagePt';
+    case 'العربية':   return 'WelcomePageAr';
+    case 'አማርኛ':    return 'WelcomePageAm';
+    default:          return 'WelcomePageEn';
+  }
+}
+
 function deepResetTo(nav, name, params) {
   nav.dispatch(CommonActions.reset({ index: 0, routes: [{ name, params }] }));
 }
@@ -535,6 +549,7 @@ export default function Paywall({ navigation }) {
   };
 
 // ✅ Реальная активация кода (UI готов, сервер подключён)
+// После успеха: reset на Welcome (если язык выбран) или на SelectLanguage (если нет)
 const submitRedeemCode = async () => {
   if (redeemLoading) return;
 
@@ -595,16 +610,35 @@ const submitRedeemCode = async () => {
       );
     }
 
+    // ✅ 2.5) Коридор, чтобы restore не закинул обратно на Paywall (anti-loop)
+    try {
+      await writeGateSnooze();
+    } catch {}
+
     // ✅ (микротик, чтобы стейт успел примениться до навигации)
     await new Promise((res) => setTimeout(res, 0));
 
-    // ✅ 3) Закрываем модалку и уходим в Pro-меню
+    // ✅ 3) Закрываем модалку
     setRedeemModalVisible(false);
 
-    // try {
-    //   const savedLang = (await AsyncStorage.getItem('language')) || 'english';
-    //   deepResetTo(navigation, menuRouteByLang(savedLang), { freePreview: false });
-    // } catch (_) {}
+    // ✅ 4) Reset на Welcome или SelectLanguage
+    try {
+      const savedLang = await AsyncStorage.getItem('language');
+
+      if (!savedLang) {
+        // язык ещё не выбран
+        deepResetTo(navigation, 'SelectLanguage', { from: 'redeem' });
+      } else {
+        // язык выбран — ведём на Welcome (экран подставь по своим реальным роутам)
+        // Вариант A: если у тебя отдельные Welcome по языкам:
+        // deepResetTo(navigation, welcomeRouteByLang(savedLang), { language: savedLang, from: 'redeem' });
+
+        // Вариант B: если у тебя один общий WelcomePage:
+        deepResetTo(navigation, 'WelcomePage', { language: savedLang, from: 'redeem' });
+      }
+    } catch (e3) {
+      console.warn('[PAYWALL] redirect after redeem failed:', e3?.message || e3);
+    }
 
     // ✅ на всякий случай (если внутри probePostPurchase есть доп. логика)
     try {
@@ -617,6 +651,7 @@ const submitRedeemCode = async () => {
     setRedeemLoading(false);
   }
 };
+
 
 
 const openRedeemModal = () => {

@@ -381,7 +381,7 @@ function AppInner() {
   const insets = useSafeAreaInsets();
   const TOP_INSET = insets.top || 0;
 
-  const TITLE_FS = 18;
+  const TITLE_FS = 16;
 
   const [notificationsEnabled, setNotificationsEnabled] = useState(false);
   const [notificationsReady, setNotificationsReady] = useState(false);

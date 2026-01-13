@@ -93,24 +93,24 @@ const Exercise4Pt = () => {
   const [isDescriptionModalVisible, setDescriptionModalVisible] = useState(false);
   const [dontShowAgain4, setDontShowAgain4] = useState(false);
 
-  useEffect(() => {
-    const checkFlagAndLang = async () => {
-      const hidden = await AsyncStorage.getItem('exercise1_description_hidden');
-      const lang = await AsyncStorage.getItem('language');
+useEffect(() => {
+  const checkFlagAndLang = async () => {
+    const hidden = await AsyncStorage.getItem('exercise4_description_hidden'); // ✅ здесь лучше 4, а не 1
+    const lang = await AsyncStorage.getItem('language');
 
-      if (lang) {
-        setLanguage(lang);
-        setDontShowAgain4(hidden === 'true');
-        if (hidden !== 'true') {
-          setTimeout(() => setDescriptionModalVisible(true), 100);
-        }
-      }
+    if (lang) setLanguage(lang);
 
-      setDontShowAgain4(hidden === 'true');
-    };
+    setDontShowAgain4(hidden === 'true');
 
-    checkFlagAndLang();
-  }, []);
+    // ✅ автопоказ выключаем полностью
+    // if (hidden !== 'true') {
+    //   setTimeout(() => setDescriptionModalVisible(true), 100);
+    // }
+  };
+
+  checkFlagAndLang();
+}, []);
+
 
   const handleToggleDontShowAgain4 = async () => {
     const newValue = !dontShowAgain4;

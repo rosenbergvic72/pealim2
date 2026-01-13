@@ -465,33 +465,25 @@ const [isDescriptionModalVisible, setDescriptionModalVisible] = useState(false);
   
     const [languageLoaded, setLanguageLoaded] = useState(false);
   
-    useEffect(() => {
-    const checkFlagAndLang = async () => {
-      const hidden = await AsyncStorage.getItem('exercise7_description_hidden');
-      const lang = await AsyncStorage.getItem('language');
-  
-      console.log('🌍 Language:', lang);
-      console.log('🧪 Hide flag:', hidden);
-  
-      if (lang) {
-        setLanguage(lang);
-  
-        setDontShowAgain7(hidden === 'true');
-      setLanguageLoaded(true);
-  
-        if (hidden !== 'true') {
-          setTimeout(() => {
-            console.log('📢 Показываем модалку после загрузки языка');
-            setDescriptionModalVisible(true);
-          }, 100); // чуть больше времени
-        }
-      }
-  
-      setDontShowAgain7(hidden === 'true');
-    };
-  
-    checkFlagAndLang();
-  }, []);
+useEffect(() => {
+  const checkFlagAndLang = async () => {
+    const hidden = await AsyncStorage.getItem('exercise7_description_hidden');
+    const lang = await AsyncStorage.getItem('language');
+
+    if (lang) setLanguage(lang);
+
+    setDontShowAgain7(hidden === 'true');
+    setLanguageLoaded(true);
+
+    // ✅ автопоказ выключаем
+    // if (hidden !== 'true') {
+    //   setTimeout(() => setDescriptionModalVisible(true), 100);
+    // }
+  };
+
+  checkFlagAndLang();
+}, []);
+
   
   
   

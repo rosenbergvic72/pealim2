@@ -90,26 +90,24 @@ const Exercise4 = () => {
   const [language, setLanguage] = useState('ru');
   const [languageLoaded, setLanguageLoaded] = useState(false);
 
-  useEffect(() => {
-    const checkFlagAndLang = async () => {
-      const hidden = await AsyncStorage.getItem('exercise1_description_hidden'); // как в твоём коде
-      const lang = await AsyncStorage.getItem('language');
+useEffect(() => {
+  const checkFlagAndLang = async () => {
+    const hidden = await AsyncStorage.getItem('exercise4_description_hidden'); // ✅ здесь лучше 4, а не 1
+    const lang = await AsyncStorage.getItem('language');
 
-      if (lang) {
-        setLanguage(lang);
-        setDontShowAgain4(hidden === 'true');
-        setLanguageLoaded(true);
+    if (lang) setLanguage(lang);
 
-        if (hidden !== 'true') {
-          setTimeout(() => setDescriptionModalVisible(true), 100);
-        }
-      }
+    setDontShowAgain4(hidden === 'true');
 
-      setDontShowAgain4(hidden === 'true');
-    };
+    // ✅ автопоказ выключаем полностью
+    // if (hidden !== 'true') {
+    //   setTimeout(() => setDescriptionModalVisible(true), 100);
+    // }
+  };
 
-    checkFlagAndLang();
-  }, []);
+  checkFlagAndLang();
+}, []);
+
 
   const handleToggleDontShowAgain4 = async () => {
     const newValue = !dontShowAgain4;

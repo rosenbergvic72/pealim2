@@ -93,25 +93,25 @@ const [correctOptionSound, setCorrectOptionSound] = useState(null); // Звук 
     console.log('🌍 Language:', lang);
     console.log('🧪 Hide flag:', hidden);
 
-    if (lang) {
-      setLanguage(lang);
+    if (lang) setLanguage(lang);
 
-      setDontShowAgain5(hidden === 'true');
+    // флаг оставляем (на будущее / совместимость), но он больше НЕ управляет автопоказом
+    setDontShowAgain5(hidden === 'true');
+
     setLanguageLoaded(true);
 
-      if (hidden !== 'true') {
-        setTimeout(() => {
-          console.log('📢 Показываем модалку после загрузки языка');
-          setDescriptionModalVisible(true);
-        }, 100); // чуть больше времени
-      }
-    }
-
-    setDontShowAgain5(hidden === 'true');
+    // ✅ автопоказ полностью отключён
+    // if (hidden !== 'true') {
+    //   setTimeout(() => {
+    //     console.log('📢 Показываем модалку после загрузки языка');
+    //     setDescriptionModalVisible(true);
+    //   }, 100);
+    // }
   };
 
   checkFlagAndLang();
 }, []);
+
 
 
 
