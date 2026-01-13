@@ -1127,7 +1127,7 @@ useEffect(() => {
                 <View
                   style={{
                     width: '100%',
-                    minHeight: 110,
+                    minHeight: 90,
                     position: 'relative',
                     justifyContent: 'center',
                     alignItems: 'center',
@@ -1163,7 +1163,7 @@ useEffect(() => {
                       position: 'absolute',
                       left: 0,
                       right: 0,
-                      bottom: 0,
+                      bottom: 10,
                       height: TRANSLIT_ROW_H,
                       justifyContent: 'center',
                       alignItems: 'center',
@@ -1439,7 +1439,7 @@ const styles = StyleSheet.create({
     marginVertical: 10,
   },
   hebrewCard: {
-    minHeight: 90,
+    minHeight: 80,
 
 justifyContent: 'center',
     backgroundColor: '#FFFDEF',
@@ -1464,7 +1464,7 @@ justifyContent: 'center',
   },
   translitText: {
     fontSize: 20,
-    lineHeight: 30, 
+    lineHeight: 26, 
     color: '#FF5757',
     fontWeight: 'bold',
     marginTop: 1,
