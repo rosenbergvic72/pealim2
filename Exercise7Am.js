@@ -1122,7 +1122,7 @@ useEffect(() => {
                 return (
                   <View
                     style={{
-                      width: '100%',
+                      width: '90%',
                       minHeight: 110,
                       position: 'relative',
                       justifyContent: 'center',
@@ -1159,7 +1159,7 @@ useEffect(() => {
                         position: 'absolute',
                         left: 0,
                         right: 0,
-                        bottom: 0,
+                        bottom: 6,
                         height: TRANSLIT_ROW_H,
                         justifyContent: 'center',
                         alignItems: 'center',

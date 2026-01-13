@@ -1128,7 +1128,7 @@ const [isDescriptionModalVisible, setDescriptionModalVisible] = useState(false);
                   <View
                     style={{
                       width: '100%',
-                      minHeight: 110,
+                      minHeight: 90,
                       position: 'relative',
                       justifyContent: 'center',
                       alignItems: 'center',
@@ -1164,7 +1164,7 @@ const [isDescriptionModalVisible, setDescriptionModalVisible] = useState(false);
                         position: 'absolute',
                         left: 0,
                         right: 0,
-                        bottom: 0,
+                        bottom: 6,
                         height: TRANSLIT_ROW_H,
                         justifyContent: 'center',
                         alignItems: 'center',
