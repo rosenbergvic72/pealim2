@@ -20,6 +20,7 @@
 
     "android": {
       "package": "com.rosenbergvictor72.pealim2",
+      "softwareKeyboardLayoutMode": "resize",
       "versionCode": 2000098,
       "permissions": [
         "RECORD_AUDIO",

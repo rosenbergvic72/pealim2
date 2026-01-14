@@ -479,10 +479,12 @@ const ChatBotModal = ({ visible, onClose, blockModalCloseRef }) => {
         await handleClose(false);
       }}
     >
-      <KeyboardAvoidingView
-        style={{ flex: 1 }}
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-      >
+<KeyboardAvoidingView style={{ flex: 1 }} behavior="padding">
+
+
+
+
+
         <View style={styles.screen}>
           <View style={styles.sheet}>
             {/* Header */}
@@ -650,7 +652,11 @@ const ChatBotModal = ({ visible, onClose, blockModalCloseRef }) => {
             )}
 
             {/* ✅ INPUT: липкий низ, максимально близко к границе модалки */}
-            <SafeAreaView edges={['bottom']} style={styles.inputSafeArea}>
+            <SafeAreaView
+  edges={Platform.OS === 'ios' ? ['bottom'] : []}
+  style={styles.inputSafeArea}
+>
+
               <View
                 style={[
                   styles.inputWrapper,
@@ -719,11 +725,13 @@ sheet: {
   marginVertical: 26,
   borderRadius: 16,
   overflow: 'hidden',
-
-  ...(Platform.OS === 'ios'
-    ? { maxHeight: '90%', alignSelf: 'center', width: '95%' }
-    : { maxHeight: '92%', alignSelf: 'center', width: '96%' }),
+  // одинаково для iOS и Android
+  maxHeight: '90%',
+  alignSelf: 'center',
+  width: '95%',
 },
+
+
 
 
   header: {
