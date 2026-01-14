@@ -983,11 +983,14 @@ const updateVerbDetails = (currentVerb, isGenderMan, showRussianText = false) =>
             setIsVerbListVisible(false);
           }}
           onClose={() => {
-            modalCloseReasonRef.current = 'menu';
-            setIsVerbListVisible(false);
-            if (navigation.canGoBack()) navigation.goBack();
-            else navigation.navigate('MenuFr');
-          }}
+  modalCloseReasonRef.current = 'menu';
+
+  // ❗️НЕ делаем setIsVerbListVisible(false),
+  // иначе на мгновение смонтируется экран упражнения и может стартануть звук.
+  if (navigation.canGoBack()) navigation.goBack();
+  else navigation.navigate('MenuFr');
+}}
+
         />
       )}
 

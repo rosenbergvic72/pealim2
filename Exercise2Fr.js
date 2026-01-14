@@ -1131,12 +1131,15 @@ const Exercise2Fr = () => {
               updateVerbDetails2(shuffledVerbs[0], false);
             }
           }}
-          onClose={() => {
-            modalCloseReasonRef.current = 'menu';
-            setIsVerbListVisible(false);
-            if (navigation.canGoBack()) navigation.goBack();
-            else navigation.navigate('MenuFr');
-          }}
+         onClose={() => {
+  modalCloseReasonRef.current = 'menu';
+
+  // ❗️НЕ закрываем модалку стейтом.
+  // Иначе экран упражнения успеет смонтироваться и запустить эффекты/анимации,
+  // а потом мы делаем reset в меню -> warning.
+  goToMenu();
+}}
+
         />
       )}
 

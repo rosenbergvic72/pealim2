@@ -1199,11 +1199,14 @@ useEffect(() => {
               updateVerbDetails2(shuffledVerbs[0], false);
             }
           }}
-          onClose={() => {
-            modalCloseReasonRef.current = 'menu';
-            setIsVerbListVisible(false);
-            goToMenu();
-          }}
+    onClose={() => {
+  modalCloseReasonRef.current = 'menu';
+  allowLeaveRef.current = true;   // ✅ разрешаем уйти без перехвата
+  setExitConfirmationVisible(false);
+  goToMenu();                     // reset в Menu
+}}
+
+
         />
       )}
 

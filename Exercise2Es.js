@@ -1084,10 +1084,14 @@ useEffect(() => {
             }
           }}
           onClose={() => {
-            modalCloseReasonRef.current = 'menu';
-            setIsVerbListVisible(false);
-            goToMenu();
-          }}
+  modalCloseReasonRef.current = 'menu';
+
+  // ❗️НЕ закрываем модалку стейтом.
+  // Иначе экран упражнения успеет смонтироваться и запустить эффекты/анимации,
+  // а потом мы делаем reset в меню -> warning.
+  goToMenu();
+}}
+
         />
       )}
 

@@ -859,11 +859,14 @@ const Exercise1 = ({ navigation }) => {
             setIsVerbListVisible(false);
           }}
           onClose={() => {
-            modalCloseReasonRef.current = 'menu';
-            setIsVerbListVisible(false);
-            if (navigation.canGoBack()) navigation.goBack();
-            else navigation.navigate('Menu');
-          }}
+  modalCloseReasonRef.current = 'menu';
+
+  // ❗️НЕ делаем setIsVerbListVisible(false),
+  // иначе на мгновение смонтируется экран упражнения и может стартануть звук.
+  if (navigation.canGoBack()) navigation.goBack();
+  else navigation.navigate('Menu');
+}}
+
         />
       )}
 
