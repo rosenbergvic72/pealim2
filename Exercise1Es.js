@@ -597,6 +597,33 @@ const Exercise1Es = ({ navigation }) => {
     return shuffledOptions;
   };
 
+  useEffect(() => {
+  async function loadSounds() {
+    const correctSoundObject = new Audio.Sound();
+    const incorrectSoundObject = new Audio.Sound();
+
+    try {
+      await correctSoundObject.loadAsync(sounds.success);
+      await incorrectSoundObject.loadAsync(sounds.failure, { volume: 0.8 });
+
+      setCorrectSound(correctSoundObject);
+      setIncorrectSound(incorrectSoundObject);
+    } catch (error) {
+      console.log('Error loading sounds', error);
+    }
+  }
+
+  loadSounds();
+
+  return () => {
+    // разгружаем при выходе
+    correctSound?.unloadAsync();
+    incorrectSound?.unloadAsync();
+  };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+}, []);
+
+
   /* details + audio chain */
   const playAudio = async (audioFile) => {
     if (!autoPlaySounds) return;

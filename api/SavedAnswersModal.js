@@ -18,7 +18,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Ionicons } from '@expo/vector-icons';
 import StyledMarkdown from './StyledMarkdown';
 import * as Clipboard from 'expo-clipboard';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useSafeAreaInsets, SafeAreaView } from 'react-native-safe-area-context';
+
 
 /**
  * inline=true -> НЕ использует <Modal>, а рендерится как overlay внутри другой модалки.
@@ -409,10 +410,24 @@ const SavedAnswersModal = ({ visible, onClose, blockModalCloseRef, inline = fals
                 </View>
               </View>
 
-              <ScrollView contentContainerStyle={{ padding: 16 }}>
-                <StyledMarkdown>{selectedAnswer.text}</StyledMarkdown>
-                <Text style={styles.timestampPreview}>{formatDate(selectedAnswer.timestamp)}</Text>
-              </ScrollView>
+          <SafeAreaView edges={['bottom']} style={{ flex: 1 }}>
+  <ScrollView
+    contentInsetAdjustmentBehavior="always"
+    contentContainerStyle={{
+      padding: 16,
+      paddingBottom: 24 + insets.bottom, // ✅ гарантированный отступ
+    }}
+    // для iOS дополнительный inset, не мешает Android
+    contentInset={{ bottom: 24 }}
+  >
+    <StyledMarkdown>{selectedAnswer.text}</StyledMarkdown>
+    <Text style={styles.timestampPreview}>{formatDate(selectedAnswer.timestamp)}</Text>
+
+    {/* ✅ «жёсткая» прокладка, чтобы точно не прилипало */}
+    <View style={{ height: Math.max(16, insets.bottom) }} />
+  </ScrollView>
+</SafeAreaView>
+
             </View>
           )}
         </View>
