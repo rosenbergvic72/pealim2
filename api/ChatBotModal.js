@@ -712,18 +712,19 @@ const styles = StyleSheet.create({
   },
 
   // как у тебя было “окошечком”
-  sheet: {
-    flex: 1,
-    backgroundColor: '#F6F8FB',
-    marginHorizontal: 10,
-    marginVertical: 26,
-    borderRadius: 16,
-    overflow: 'hidden',
-    // чуть меньше высота на iOS, чтобы было “окошечком”
-    ...(Platform.OS === 'ios'
-      ? { maxHeight: '90%', alignSelf: 'center', width: '95%' }
-      : null),
-  },
+sheet: {
+  flex: 1,
+  backgroundColor: '#F6F8FB',
+  marginHorizontal: 10,
+  marginVertical: 26,
+  borderRadius: 16,
+  overflow: 'hidden',
+
+  ...(Platform.OS === 'ios'
+    ? { maxHeight: '90%', alignSelf: 'center', width: '95%' }
+    : { maxHeight: '92%', alignSelf: 'center', width: '96%' }),
+},
+
 
   header: {
     flexDirection: 'row',
