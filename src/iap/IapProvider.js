@@ -127,6 +127,7 @@ const IapContext = createContext({
   buyMonthly: async () => {},
   buyAnnual: async () => {},
   openRedeem: async () => {},
+  applyCodeEntitlementLocal: async (_untilIso) => ({ ok: false }),
   restore: async () => false,
 
   probePostPurchase: async () => false,
@@ -391,7 +392,28 @@ export function IapProvider({ children, initialSegment = 'basic' }) {
     } catch {}
   }, []);
 
-  const ensureCodeLoaded = useCallback(async () => {
+  
+  // ✅ Apply partner-code entitlement locally (immediate Pro after redeem).
+  // This avoids the 15s anti-spam window in syncCodeEntitlementFromServer.
+  const applyCodeEntitlementLocal = useCallback(
+    async (untilIso) => {
+      const until = untilIso ? String(untilIso) : null;
+
+      if (until && isIsoActiveNow(until)) {
+        await saveCodeAccessUntil(until);
+        setHasPro(true);
+        return { ok: true, pro: true, accessUntil: until };
+      }
+
+      // If until is missing/expired -> clear local code entitlement
+      await saveCodeAccessUntil(null);
+      setHasProRespectingCode(false);
+      return { ok: true, pro: false, accessUntil: null };
+    },
+    [isIsoActiveNow, saveCodeAccessUntil, setHasProRespectingCode]
+  );
+
+const ensureCodeLoaded = useCallback(async () => {
     if (codeLoadedRef.current) return;
     try {
       const until = await AsyncStorage.getItem(CODE_ACCESS_UNTIL_KEY);
@@ -509,12 +531,15 @@ export function IapProvider({ children, initialSegment = 'basic' }) {
   const verifyOnServer = useCallback(async (purchaseToken, productId) => {
     if (!VERIFY_URL || !purchaseToken) return null;
 
-    const payload = {
-      userId: await getUserId(),
-      productId: productId || SKU,
-      packageName: PKG,
-      purchaseToken,
-    };
+  const uid = await getUserId();
+const payload = {
+  userId: uid,
+  deviceId: uid,          // ✅ просто дублируем для логов/диагностики
+  productId: productId || SKU,
+  packageName: PKG,
+  purchaseToken,
+};
+
 
     const ctrl = new AbortController();
     const to = setTimeout(() => ctrl.abort(), IAP_VERIFY_TIMEOUT_MS);
@@ -1136,6 +1161,11 @@ export function IapProvider({ children, initialSegment = 'basic' }) {
       if (!uid) return { ok: false, reason: 'no_userId' };
       return syncCodeEntitlementFromServer(uid);
     },
+
+      // ✅ Expose helpers so Paywall can switch to Pro immediately after redeem
+      syncCodeEntitlementFromServer,
+      applyCodeEntitlementLocal,
+
       restore,
 
       probePostPurchase,
@@ -1169,6 +1199,7 @@ export function IapProvider({ children, initialSegment = 'basic' }) {
       debug,
       codeAccessUntil,
       syncCodeEntitlementFromServer,
+      applyCodeEntitlementLocal,
       ensureCodeLoaded,
       setHasProRespectingCode,
       isIsoActiveNow,

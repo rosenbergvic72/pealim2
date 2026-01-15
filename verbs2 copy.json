@@ -1,0 +1,422 @@
+[
+  {
+  "verbRussian": "Нюхать",
+  "verbEnglish": "to smell",
+  "verbFrench": "sentir",
+  "verbSpanish": "oler",
+  "verbPortuguese": "cheirar",
+  "verbArabic": "يشم",
+  "verbAmharic": "መሽታ ማስተዋል",
+  "audioFile": "lehariach.mp3",
+  "verbHebrewOptions": [
+    {
+      "text": "להריח",
+      "transliteration": "leha'riach",
+      "isCorrect": true
+    },
+    {
+      "text": "לראות",
+      "transliteration": "lir'ot",
+      "isCorrect": false
+    },
+    {
+      "text": "לשמוע",
+      "transliteration": "lishmo'a",
+      "isCorrect": false
+    },
+    {
+      "text": "לגעת",
+      "transliteration": "laga'at",
+      "isCorrect": false
+    }
+  ]
+},
+{
+  "verbRussian": "Пахнуть",
+  "verbEnglish": "to smell",
+  "verbFrench": "sentir (odeur)",
+  "verbSpanish": "oler",
+  "verbPortuguese": "cheirar",
+  "verbArabic": "تفوح رائحة",
+  "verbAmharic": "መሽታ መስጠት",
+  "audioFile": "lindof.mp3",
+  "verbHebrewOptions": [
+    {
+      "text": "לנדוף",
+      "transliteration": "lindóf",
+      "isCorrect": true
+    },
+    {
+      "text": "להריח",
+      "transliteration": "leha'riach",
+      "isCorrect": false
+    },
+    {
+      "text": "לראות",
+      "transliteration": "lir'ot",
+      "isCorrect": false
+    },
+    {
+      "text": "לשמוע",
+      "transliteration": "lishmo'a",
+      "isCorrect": false
+    }
+  ]
+},
+{
+  "verbRussian": "Реагировать",
+  "verbEnglish": "to react",
+  "verbFrench": "réagir",
+  "verbSpanish": "reaccionar",
+  "verbPortuguese": "reagir",
+  "verbArabic": "يتفاعل",
+  "verbAmharic": "መልስ መስጠት",
+  "audioFile": "lehagiv.mp3",
+  "verbHebrewOptions": [
+    {
+      "text": "להגיב",
+      "transliteration": "lehagív",
+      "isCorrect": true
+    },
+    {
+      "text": "לענות",
+      "transliteration": "la'anót",
+      "isCorrect": false
+    },
+    {
+      "text": "לשאול",
+      "transliteration": "lish'ól",
+      "isCorrect": false
+    },
+    {
+      "text": "להתעלם",
+      "transliteration": "lehit'além",
+      "isCorrect": false
+    }
+  ]
+},
+
+{
+  "verbRussian": "Ласкать",
+  "verbEnglish": "to caress",
+  "verbFrench": "caresser",
+  "verbSpanish": "acariciar",
+  "verbPortuguese": "acariciar",
+  "verbArabic": "يداعب",
+  "verbAmharic": "መላስ",
+  "audioFile": "lelatef.mp3",
+  "verbHebrewOptions": [
+    {
+      "text": "ללטף",
+      "transliteration": "lelatéf",
+      "isCorrect": true
+    },
+    {
+      "text": "לגעת",
+      "transliteration": "laga'at",
+      "isCorrect": false
+    },
+    {
+      "text": "לחבק",
+      "transliteration": "lechabék",
+      "isCorrect": false
+    },
+    {
+      "text": "להכות",
+      "transliteration": "lehakót",
+      "isCorrect": false
+    }
+  ]
+},
+{
+  "verbRussian": "Баловать",
+  "verbEnglish": "to spoil",
+  "verbFrench": "choyer",
+  "verbSpanish": "mimar",
+  "verbPortuguese": "mimar",
+  "verbArabic": "يدلل",
+  "verbAmharic": "ማሳሰብ",
+  "audioFile": "lefanek.mp3",
+  "verbHebrewOptions": [
+    {
+      "text": "לפנק",
+      "transliteration": "lefanék",
+      "isCorrect": true
+    },
+    {
+      "text": "ללטף",
+      "transliteration": "lelatéf",
+      "isCorrect": false
+    },
+    {
+      "text": "לטפל",
+      "transliteration": "letapél",
+      "isCorrect": false
+    },
+    {
+      "text": "להעניש",
+      "transliteration": "leha'anísh",
+      "isCorrect": false
+    }
+  ]
+},
+{
+  "verbRussian": "Наказывать",
+  "verbEnglish": "to punish",
+  "verbFrench": "punir",
+  "verbSpanish": "castigar",
+  "verbPortuguese": "punir",
+  "verbArabic": "يعاقب",
+  "verbAmharic": "መቅጣት",
+  "audioFile": "lehaanish.mp3",
+  "verbHebrewOptions": [
+    {
+      "text": "להעניש",
+      "transliteration": "leha'anísh",
+      "isCorrect": true
+    },
+    {
+      "text": "לסלוח",
+      "transliteration": "lisloákh",
+      "isCorrect": false
+    },
+    {
+      "text": "לגמול",
+      "transliteration": "ligmól",
+      "isCorrect": false
+    },
+    {
+      "text": "להתעלם",
+      "transliteration": "lehit'além",
+      "isCorrect": false
+    }
+  ]
+},
+{
+  "verbRussian": "Отрицать",
+  "verbEnglish": "to deny",
+  "verbFrench": "nier",
+  "verbSpanish": "negar",
+  "verbPortuguese": "negar",
+  "verbArabic": "ينكر",
+  "verbAmharic": "መከልከል",
+  "audioFile": "lehakhish.mp3",
+  "verbHebrewOptions": [
+    {
+      "text": "להכחיש",
+      "transliteration": "lehakhísh",
+      "isCorrect": true
+    },
+    {
+      "text": "לאשר",
+      "transliteration": "leashér",
+      "isCorrect": false
+    },
+    {
+      "text": "להודות",
+      "transliteration": "lehodót",
+      "isCorrect": false
+    },
+    {
+      "text": "להתעלם",
+      "transliteration": "lehit'além",
+      "isCorrect": false
+    }
+  ]
+},
+{
+  "verbRussian": "Лишать",
+  "verbEnglish": "to deprive",
+  "verbFrench": "priver",
+  "verbSpanish": "privar",
+  "verbPortuguese": "privar",
+  "verbArabic": "يحرم",
+  "verbAmharic": "መከልከል",
+  "audioFile": "lishlol.mp3",
+  "verbHebrewOptions": [
+    {
+      "text": "לשלול",
+      "transliteration": "lishlól",
+      "isCorrect": true
+    },
+    {
+      "text": "לתת",
+      "transliteration": "latét",
+      "isCorrect": false
+    },
+    {
+      "text": "להרשות",
+      "transliteration": "leharshót",
+      "isCorrect": false
+    },
+    {
+      "text": "לתמוך",
+      "transliteration": "litmókh",
+      "isCorrect": false
+    }
+  ]
+},
+{
+  "verbRussian": "Стирать (вещи)",
+  "verbEnglish": "to wash clothes",
+  "verbFrench": "laver le linge",
+  "verbSpanish": "lavar la ropa",
+  "verbPortuguese": "lavar roupa",
+  "verbArabic": "يغسل الملابس",
+  "verbAmharic": "ልብስ መታጠብ",
+  "audioFile": "likbos.mp3",
+  "verbHebrewOptions": [
+    {
+      "text": "לכבוס",
+      "transliteration": "likbós",
+      "isCorrect": true
+    },
+    {
+      "text": "לשטוף",
+      "transliteration": "lishtóf",
+      "isCorrect": false
+    },
+    {
+      "text": "לנקות",
+      "transliteration": "lenakót",
+      "isCorrect": false
+    },
+    {
+      "text": "לגהץ",
+      "transliteration": "legahéts",
+      "isCorrect": false
+    }
+  ]
+},
+{
+  "verbRussian": "Избавляться",
+  "verbEnglish": "to get rid of",
+  "verbFrench": "se débarrasser de",
+  "verbSpanish": "deshacerse de",
+  "verbPortuguese": "livrar-se de",
+  "verbArabic": "يتخلص من",
+  "verbAmharic": "መውጣት ከነገር",
+  "audioFile": "lehipater.mp3",
+  "verbHebrewOptions": [
+    {
+      "text": "להיפטר",
+      "transliteration": "lehipatér",
+      "isCorrect": true
+    },
+    {
+      "text": "לקבל",
+      "transliteration": "lekabél",
+      "isCorrect": false
+    },
+    {
+      "text": "לשמור",
+      "transliteration": "lishmór",
+      "isCorrect": false
+    },
+    {
+      "text": "להחזיר",
+      "transliteration": "lehakhzír",
+      "isCorrect": false
+    }
+  ]
+},
+{
+  "verbRussian": "Отрезать",
+  "verbEnglish": "to cut",
+  "verbFrench": "couper",
+  "verbSpanish": "cortar",
+  "verbPortuguese": "cortar",
+  "verbArabic": "يقطع",
+  "verbAmharic": "መቁረጥ",
+  "audioFile": "ligzor.mp3",
+  "verbHebrewOptions": [
+    {
+      "text": "לגזור",
+      "transliteration": "ligzór",
+      "isCorrect": true
+    },
+    {
+      "text": "לקרוע",
+      "transliteration": "likróa",
+      "isCorrect": false
+    },
+    {
+      "text": "להדביק",
+      "transliteration": "lehadbík",
+      "isCorrect": false
+    },
+    {
+      "text": "לתפור",
+      "transliteration": "litpór",
+      "isCorrect": false
+    }
+  ]
+},
+{
+  "verbRussian": "Подтверждать",
+  "verbEnglish": "to verify",
+  "verbFrench": "vérifier",
+  "verbSpanish": "verificar",
+  "verbPortuguese": "verificar",
+  "verbArabic": "يؤكد",
+  "verbAmharic": "ማረጋገጥ",
+  "audioFile": "leamet.mp3",
+  "verbHebrewOptions": [
+    {
+      "text": "לאמת",
+      "transliteration": "le'amét",
+      "isCorrect": true
+    },
+    {
+      "text": "להכחיש",
+      "transliteration": "lehakhísh",
+      "isCorrect": false
+    },
+    {
+      "text": "לפקפק",
+      "transliteration": "lefaqfék",
+      "isCorrect": false
+    },
+    {
+      "text": "להתעלם",
+      "transliteration": "lehit'além",
+      "isCorrect": false
+    }
+  ]
+},
+
+
+
+
+
+{
+  "verbRussian": "Переводить (язык)",
+  "verbEnglish": "to translate",
+  "verbFrench": "traduire",
+  "verbSpanish": "traducir",
+  "verbPortuguese": "traduzir",
+  "verbArabic": "أن يترجم",
+  "verbAmharic": "መተርጎም",
+
+  "audioFile": "letargem.mp3",
+  "verbHebrewOptions": [
+    { "text": "לתרגם", "transliteration": "letargem", "isCorrect": true },
+    { "text": "לכתוב", "transliteration": "lichtov", "isCorrect": false },
+    { "text": "לדבר", "transliteration": "ledaber", "isCorrect": false },
+    { "text": "לחשוב", "transliteration": "lakhshov", "isCorrect": false }
+  ]
+}
+
+
+
+    
+
+
+
+
+
+
+
+
+
+]  

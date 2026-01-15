@@ -1313,12 +1313,10 @@ const styles = StyleSheet.create({
     paddingLeft: wp('2.5%'),
     paddingRight: wp('2.5%'),
   },
-  lottieAnimation: {
+ lottieAnimation: {
     position: 'absolute',
-    top: 0,
-    bottom: 0,
-    left: 0,
-    right: 0,
+    width: wp('90%'),
+    height: hp('18%'),
     justifyContent: 'center',
     alignItems: 'center',
   },

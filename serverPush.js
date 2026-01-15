@@ -5,19 +5,38 @@ import Constants from 'expo-constants';
 import * as Application from 'expo-application';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-/* ======= СЕРВЕР ======= */
+/* ======= PUSH SERVER ======= */
 const API_BASE = 'https://pealim-server.onrender.com';
 const REGISTER_PATH = '/registerDevice';
 const SCHEDULE_PATH = '/schedule'; // POST
 
-/* ======= ВСПОМОГАТЕЛЬНОЕ ======= */
-async function getUserId() {
+/* ======= HELPERS ======= */
+
+// Старый legacy userId (случайный) — оставляем для совместимости
+async function getLegacyUserId() {
   let id = await AsyncStorage.getItem('userId');
   if (!id) {
     id = `u_${Platform.OS}_${Math.random().toString(36).slice(2, 10)}`;
     await AsyncStorage.setItem('userId', id);
   }
   return id;
+}
+
+// Новый стабильный device id (как в IapProvider / code entitlements)
+async function getDeviceAudienceId() {
+  const id = await AsyncStorage.getItem('iap:deviceUserId');
+  return id ? String(id) : null;
+}
+
+// ЕДИНЫЙ ключ для пуш-сервера
+// 1) если есть iap:deviceUserId -> audienceId = он
+// 2) иначе fallback на legacy userId
+async function getAudienceId() {
+  const deviceId = await getDeviceAudienceId();
+  if (deviceId) return { audienceId: deviceId, deviceId, userId: null };
+
+  const legacyUserId = await getLegacyUserId();
+  return { audienceId: legacyUserId, deviceId: null, userId: legacyUserId };
 }
 
 async function safeJson(res) {
@@ -33,10 +52,10 @@ function todayLocalYMD() {
   const y = d.getFullYear();
   const m = String(d.getMonth() + 1).padStart(2, '0');
   const dd = String(d.getDate()).padStart(2, '0');
-  return `${y}-${m}-${dd}`; // локальная дата устройства
+  return `${y}-${m}-${dd}`;
 }
 
-/* ======= УВЕДОМЛЕНИЯ: разрешения и канал ======= */
+/* ======= PERMISSIONS + ANDROID CHANNEL ======= */
 async function askNotifPermission() {
   try {
     const perm = await Notifications.getPermissionsAsync();
@@ -60,32 +79,27 @@ async function ensureAndroidChannel() {
   });
 }
 
-/* ======= ТОКЕН EXPO PUSH ======= */
+/* ======= EXPO PUSH TOKEN ======= */
 export async function getExpoPushTokenAsync() {
   try {
-    // 1) Разрешения (iOS + Android 13+)
     const allowed = await askNotifPermission();
     if (!allowed) {
       console.log('[push] permission denied');
       return null;
     }
 
-    // 2) Канал для Android
     await ensureAndroidChannel();
 
-    // Expo Go не поддерживает удалённые пуши
     if (Constants.appOwnership === 'expo') {
       console.log('[push] Expo Go detected: remote push is not available');
       return null;
     }
 
-    // 3) В стендалоне/dev-client требуется projectId
     const configProjectId =
       Constants?.expoConfig?.extra?.eas?.projectId ??
       Constants?.easConfig?.projectId ??
       null;
 
-    // Хардовый fallback твоего проекта (на всякий случай)
     const HARD_CODED_PROJECT_ID = '1c3fbe10-9608-4dd7-a477-f0ae7c294b5e';
     const projectId = configProjectId || HARD_CODED_PROJECT_ID;
 
@@ -106,30 +120,36 @@ export async function getExpoPushTokenAsync() {
   }
 }
 
-/* ======= РЕГИСТРАЦИЯ ДЕВАЙСА НА СЕРВЕРЕ ======= */
+/* ======= REGISTER DEVICE ON SERVER ======= */
 export async function registerDeviceOnServer(language = 'english') {
   const cached = await AsyncStorage.getItem('expoPushToken');
   const token = cached || (await getExpoPushTokenAsync());
   if (!token) {
-    console.log('[register] skip: no_expo_token (permissions? dev-client? google-services.json?)');
+    console.log('[register] skip: no_expo_token');
     return { ok: false, error: 'no_expo_token' };
   }
 
-  const userId = await getUserId();
-  const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
-  const utcOffsetMin = -new Date().getTimezoneOffset(); // положительный для восточных TZ
+  const { audienceId, deviceId, userId } = await getAudienceId();
 
-  // Маркет и реальный applicationId сборки (для диагностики/аналитики)
-  const store = Constants?.expoConfig?.extra?.store ?? 'gp'; // 'gp' | 'rustore'
+  const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
+  const utcOffsetMin = -new Date().getTimezoneOffset();
+
+  const store = Constants?.expoConfig?.extra?.store ?? 'gp'; // gp | rustore
   const appId =
     Application.applicationId ??
     Constants?.expoConfig?.android?.package ??
+    Constants?.expoConfig?.ios?.bundleIdentifier ??
     null;
 
+  console.log('[register] audienceId/userId/deviceId:', audienceId, userId, deviceId);
   console.log('[register] store/appId:', store, appId);
 
+  // ВАЖНО: шлём audienceId + (опционально) deviceId/userId
   const payload = {
-    userId,
+    audienceId,
+    deviceId, // метаданные
+    userId,   // метаданные (legacy)
+
     expoPushToken: token,
     language,
     tz,
@@ -154,12 +174,11 @@ export async function registerDeviceOnServer(language = 'english') {
   }
 }
 
-/* ======= УСТАНОВКА РАСПИСАНИЯ ======= */
-/** daysOfWeek: null или массив чисел 0..6 (0=вс). Например, будни: [1,2,3,4,5] */
+/* ======= SET BASE SCHEDULE ======= */
 export async function setServerSchedule(hour = 20, minute = 0, daysOfWeek = null) {
-  const userId = await getUserId();
+  const { audienceId } = await getAudienceId();
 
-  const body = { userId, hour, minute };
+  const body = { audienceId, hour, minute };
   if (Array.isArray(daysOfWeek) && daysOfWeek.length) {
     body.daysOfWeek = daysOfWeek;
   }
@@ -171,7 +190,7 @@ export async function setServerSchedule(hour = 20, minute = 0, daysOfWeek = null
       body: JSON.stringify(body),
     });
     const data = await safeJson(res);
-    console.log('[schedule] set base time', { hour, minute, daysOfWeek, status: res.status });
+    console.log('[schedule] set base time', { audienceId, hour, minute, daysOfWeek, status: res.status });
     return { ok: res.ok, status: res.status, data };
   } catch (e) {
     console.log('setServerSchedule error:', e);
@@ -179,15 +198,15 @@ export async function setServerSchedule(hour = 20, minute = 0, daysOfWeek = null
   }
 }
 
-/* ======= ОЧИСТКА РАСПИСАНИЯ ======= */
+/* ======= CLEAR SCHEDULE ======= */
 export async function clearServerSchedule() {
-  const userId = await getUserId();
+  const { audienceId } = await getAudienceId();
   try {
-    const res = await fetch(`${API_BASE}/schedule/${encodeURIComponent(userId)}`, {
+    const res = await fetch(`${API_BASE}/schedule/${encodeURIComponent(audienceId)}`, {
       method: 'DELETE',
     });
     const data = await safeJson(res);
-    console.log('[schedule] cleared', { status: res.status });
+    console.log('[schedule] cleared', { audienceId, status: res.status });
     return { ok: res.ok, status: res.status, data };
   } catch (e) {
     console.log('clearServerSchedule error:', e);
@@ -195,16 +214,16 @@ export async function clearServerSchedule() {
   }
 }
 
-/* ======= АКТИВНЫЙ ДЕНЬ ======= */
+/* ======= MARK ACTIVITY TODAY ======= */
 export async function markActivityToday() {
-  const userId = await getUserId();
+  const { audienceId } = await getAudienceId();
   try {
     const res = await fetch(API_BASE + '/activity/mark', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ userId }),
+      body: JSON.stringify({ audienceId }),
     });
-    console.log('[activity] mark today status', res.status);
+    console.log('[activity] mark today', { audienceId, status: res.status });
     return { ok: res.ok, status: res.status };
   } catch (e) {
     console.warn('markActivityToday failed', e);
@@ -212,7 +231,6 @@ export async function markActivityToday() {
   }
 }
 
-// Один раз в день — локальный предохранитель
 export async function ensureMarkedToday() {
   const key = 'activityMarked:' + todayLocalYMD();
   const already = await AsyncStorage.getItem(key);
@@ -222,17 +240,17 @@ export async function ensureMarkedToday() {
   return res;
 }
 
-/* ======= АЛЬТЕРНАТИВНОЕ ОКНО (например, пятница 10:45) ======= */
+/* ======= ALT SCHEDULE (WEEKEND) ======= */
 export async function setAltServerSchedule(hour, minute, daysOfWeek = [5]) {
-  const userId = await getUserId();
+  const { audienceId } = await getAudienceId();
   try {
     const res = await fetch(`${API_BASE}/schedule/weekend`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ userId, hour, minute, daysOfWeek }),
+      body: JSON.stringify({ audienceId, hour, minute, daysOfWeek }),
     });
     const data = await safeJson(res);
-    console.log('[schedule] set ALT time', { hour, minute, daysOfWeek, status: res.status });
+    console.log('[schedule] set ALT time', { audienceId, hour, minute, daysOfWeek, status: res.status });
     return { ok: res.ok, status: res.status, data };
   } catch (e) {
     console.log('setAltServerSchedule error:', e);
@@ -240,14 +258,15 @@ export async function setAltServerSchedule(hour, minute, daysOfWeek = [5]) {
   }
 }
 
-/* ======= ПОВТОРНАЯ РЕГИСТРАЦИЯ + РАСПИСАНИЯ ======= */
+/* ======= FORCE RE-REGISTER + RESCHEDULE ======= */
 export async function forceReRegisterAndReschedule() {
   try {
-    // очистка локальных идентификаторов
+    // ВАЖНО: НЕ удаляем iap:deviceUserId — это наша стабильная аудитория.
     await AsyncStorage.multiRemove([
-      'userId',
+      'userId', // legacy only
       'expoPushToken',
       'notificationScheduled',
+      'notificationAltScheduled',
       'activityMarked:' + todayLocalYMD(),
     ]);
 
@@ -255,10 +274,7 @@ export async function forceReRegisterAndReschedule() {
     const reg = await registerDeviceOnServer(lang);
     console.log('[reReg] result:', reg);
 
-    // базовое каждый день 19:45
     await setServerSchedule(19, 45, null);
-
-    // пример: пятница 10:45
     await setAltServerSchedule(10, 45, [5]);
 
     console.log('[reReg] done');

@@ -84,7 +84,7 @@ async function redeemPartnerCodeOnServer({ code, userId }) {
       message: (json && (json.message || json.error)) || `HTTP ${res.status}`,
     };
   }
-  return { ok: !!json?.ok, message: json?.message || '' };
+  return { ok: !!json?.ok, message: json?.message || '', accessUntil: json?.accessUntil || null };
 }
 
 /* ===== Локализация (сокр.) ===== */
@@ -403,6 +403,7 @@ export default function Paywall({ navigation }) {
     shouldShowPost, markPostShown,
     applyPromoCode, probePostPurchase,
     syncCodeEntitlementFromServer,
+    applyCodeEntitlementLocal,
     __devGrantPro,
     // ✅ если в твоём IapProvider уже есть userId — отлично.
     // Если называется иначе — замени строку userIdForCodes ниже.
@@ -599,6 +600,15 @@ const submitRedeemCode = async () => {
     try {
       await AsyncStorage.removeItem('freePreview');
     } catch {}
+
+    // ✅ 1.5) МГНОВЕННО включаем Pro локально по accessUntil (без ожидания /entitlements и без 15s anti-spam)
+    if (r?.accessUntil) {
+      try {
+        await applyCodeEntitlementLocal(String(r.accessUntil));
+      } catch (e0) {
+        console.warn('[PAYWALL] applyCodeEntitlementLocal failed:', e0?.message || e0);
+      }
+    }
 
     // ✅ 2) Сразу синхронизируем entitlements по коду (это выставит hasPro в IapProvider)
     try {
