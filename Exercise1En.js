@@ -182,16 +182,14 @@ const VerbDetailsContainer = ({ verbDetails, showRussianText, handleSpeakerPress
               {verbDetails.entext}
             </Text>
           ) : (
-            <LottieView
-              ref={animationRef}
-              source={animation}
-              autoPlay
-              loop
-              onAnimationFinish={() => {
-                animationRef.current?.reset?.();
-              }}
-              style={styles.lottieAnimation}
-            />
+         <LottieView
+                     pointerEvents="none"
+                     ref={animationRef}
+                     source={animation}
+                     autoPlay
+                     loop
+                     style={styles.lottieAnimation}
+                   />
           )}
         </View>
 
