@@ -3191,7 +3191,7 @@
       "correctTranslationIndex": 0
   },
   {
-      "hebrewVerb": "ליהנות",
+      "hebrewVerb": "להנות",
       "root": "ה-נ-ה",
       "binyan": "NIF'AL",
       "transliteration": "lehanot",
@@ -3447,7 +3447,7 @@
   {
       "hebrewVerb": "לזוז",
       "root": "ז-ו-ז",
-      "binyan": "HIF'IL",
+      "binyan": "PA'AL",
       "transliteration": "lazuz",
       "audioFile": "lazuz.mp3",
       "translationOptions": [

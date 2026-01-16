@@ -1597,7 +1597,7 @@
         "binyan": "PI'EL",
         "transliteration": "lekarer",
         "audioFile": "lekarer.mp3",
-        "binyanOptions": ["PI'EL", "PA'AL", "HIF'IL", "HITPA'EL"],
+        "binyanOptions": ["PI'EL", "PA'AL", "HIF'IL", "NIF'AL"],
         "correctTranslationIndex": 0
     },
     {
@@ -1613,7 +1613,7 @@
         "binyan": "PA'AL",
         "transliteration": "livchor",
         "audioFile": "livhor.mp3",
-        "binyanOptions": ["PI'EL", "PA'AL", "HIF'IL", "HITPA'EL"],
+        "binyanOptions": ["PI'EL", "PA'AL", "HIF'IL", "NIF'AL"],
         "correctTranslationIndex": 1
     },
     {
@@ -1629,7 +1629,7 @@
         "binyan": "HITPA'EL",
         "transliteration": "lehitkonen",
         "audioFile": "lehitkonen.mp3",
-        "binyanOptions": ["PI'EL", "PA'AL", "HIF'IL", "HITPA'EL"],
+        "binyanOptions": ["PI'EL", "NIF'AL", "HIF'IL", "HITPA'EL"],
         "correctTranslationIndex": 3
     },
     {
@@ -1645,7 +1645,7 @@
         "binyan": "HIF'IL",
         "transliteration": "lehafsik",
         "audioFile": "lehafsik.mp3",
-        "binyanOptions": ["PI'EL", "PA'AL", "HIF'IL", "HITPA'EL"],
+        "binyanOptions": ["PI'EL", "NIF'AL", "HIF'IL", "HITPA'EL"],
         "correctTranslationIndex": 2
     },
     {
@@ -1661,7 +1661,7 @@
         "binyan": "PA'AL",
         "transliteration": "likpotz",
         "audioFile": "likpotz.mp3",
-        "binyanOptions": ["PI'EL", "PA'AL", "HIF'IL", "HITPA'EL"],
+        "binyanOptions": ["PI'EL", "PA'AL", "HIF'IL", "NIF'AL"],
         "correctTranslationIndex": 1
     },
     {
@@ -1693,7 +1693,7 @@
         "binyan": "HITPA'EL",
         "transliteration": "lehitkasher",
         "audioFile": "lehitkasher.mp3",
-        "binyanOptions": ["PI'EL", "PA'AL", "HIF'IL", "HITPA'EL"],
+        "binyanOptions": ["PI'EL", "NIF'AL", "HIF'IL", "HITPA'EL"],
         "correctTranslationIndex": 3
     },
     {
@@ -1709,7 +1709,7 @@
         "binyan": "PI'EL",
         "transliteration": "le'arbev",
         "audioFile": "learbev.mp3",
-        "binyanOptions": ["PI'EL", "PA'AL", "HIF'IL", "HITPA'EL"],
+        "binyanOptions": ["PI'EL", "PA'AL", "HIF'IL", "NIF'AL"],
         "correctTranslationIndex": 0
     },
     {
@@ -1725,7 +1725,7 @@
         "binyan": "PI'EL",
         "transliteration": "leshanot",
         "audioFile": "lishnot.mp3",
-        "binyanOptions": ["PI'EL", "PA'AL", "HIF'IL", "HITPA'EL"],
+        "binyanOptions": ["PI'EL", "NIF'AL", "HIF'IL", "HITPA'EL"],
         "correctTranslationIndex": 1
     },
     {
@@ -1741,7 +1741,7 @@
         "binyan": "PI'EL",
         "transliteration": "leshaper",
         "audioFile": "leshaper.mp3",
-        "binyanOptions": ["PI'EL", "PA'AL", "HIF'IL", "HITPA'EL"],
+        "binyanOptions": ["PI'EL", "PA'AL", "HIF'IL", "NIF'AL"],
         "correctTranslationIndex": 0
     },
     {
@@ -1757,7 +1757,7 @@
         "binyan": "HIF'IL",
         "transliteration": "lehaskim",
         "audioFile": "lehaskim.mp3",
-        "binyanOptions": ["PI'EL", "PA'AL", "HIF'IL", "HITPA'EL"],
+        "binyanOptions": ["PI'EL", "NIF'AL", "HIF'IL", "HITPA'EL"],
         "correctTranslationIndex": 2
     },
     {
@@ -1773,7 +1773,7 @@
         "binyan": "HITPA'EL",
         "transliteration": "lehistaper",
         "audioFile": "lehistaper.mp3",
-        "binyanOptions": ["PI'EL", "PA'AL", "HIF'IL", "HITPA'EL"],
+        "binyanOptions": ["PI'EL", "NIF'AL", "HIF'IL", "HITPA'EL"],
         "correctTranslationIndex": 3
     },
     {
@@ -1789,7 +1789,7 @@
         "binyan": "PA'AL",
         "transliteration": "lishmor",
         "audioFile": "lishmor.mp3",
-        "binyanOptions": ["PI'EL", "PA'AL", "HIF'IL", "HITPA'EL"],
+        "binyanOptions": ["PI'EL", "PA'AL", "HIF'IL", "NIF'AL"],
         "correctTranslationIndex": 1
     },
     {
@@ -1805,7 +1805,7 @@
         "binyan": "PI'EL",
         "transliteration": "lelamed",
         "audioFile": "lelamed.mp3",
-        "binyanOptions": ["PI'EL", "PA'AL", "HIF'IL", "HITPA'EL"],
+        "binyanOptions": ["PI'EL", "PA'AL", "HIF'IL", "NIF'AL"],
         "correctTranslationIndex": 0
     },
     {
@@ -1821,7 +1821,7 @@
         "binyan": "PA'AL",
         "transliteration": "liftoach",
         "audioFile": "liftoach.mp3",
-        "binyanOptions": ["PI'EL", "PA'AL", "HIF'IL", "HITPA'EL"],
+        "binyanOptions": ["PI'EL", "PA'AL", "HIF'IL", "NIF'AL"],
         "correctTranslationIndex": 1
     },
     {
@@ -1837,7 +1837,7 @@
         "binyan": "PA'AL",
         "transliteration": "lisgor",
         "audioFile": "lisgor.mp3",
-        "binyanOptions": ["PI'EL", "PA'AL", "HIF'IL", "HITPA'EL"],
+        "binyanOptions": ["PI'EL", "PA'AL", "HIF'IL", "NIF'AL"],
         "correctTranslationIndex": 1
     },
     {
@@ -1853,7 +1853,7 @@
         "binyan": "PA'AL",
         "transliteration": "lavo",
         "audioFile": "lavo.mp3",
-        "binyanOptions": ["PI'EL", "PA'AL", "HIF'IL", "HITPA'EL"],
+        "binyanOptions": ["PI'EL", "PA'AL", "HIF'IL", "NIF'AL"],
         "correctTranslationIndex": 1
     },
     {
@@ -1885,7 +1885,7 @@
         "binyan": "HIF'IL",
         "transliteration": "lehachriz",
         "audioFile": "lehachriz.mp3",
-        "binyanOptions": ["PI'EL", "PA'AL", "HIF'IL", "HITPA'EL"],
+        "binyanOptions": ["PI'EL", "NIF'AL", "HIF'IL", "HITPA'EL"],
         "correctTranslationIndex": 2
     },
     {
@@ -1901,7 +1901,7 @@
         "binyan": "HIF'IL",
         "transliteration": "lehar'ot",
         "audioFile": "leharot.mp3",
-        "binyanOptions": ["PI'EL", "PA'AL", "HIF'IL", "HITPA'EL"],
+        "binyanOptions": ["PI'EL", "NIF'AL", "HIF'IL", "HITPA'EL"],
         "correctTranslationIndex": 2
     },
     {
@@ -1917,7 +1917,7 @@
         "binyan": "HIF'IL",
         "transliteration": "lehatzil",
         "audioFile": "lehatzil.mp3",
-        "binyanOptions": ["PI'EL", "PA'AL", "HIF'IL", "HITPA'EL"],
+        "binyanOptions": ["PI'EL", "NIF'AL", "HIF'IL", "HITPA'EL"],
         "correctTranslationIndex": 2
     },
     {
@@ -1933,7 +1933,7 @@
         "binyan": "HIF'IL",
         "transliteration": "lehakir",
         "audioFile": "lehakir.mp3",
-        "binyanOptions": ["PI'EL", "PA'AL", "HIF'IL", "HITPA'EL"],
+        "binyanOptions": ["PI'EL", "NIF'AL", "HIF'IL", "HITPA'EL"],
         "correctTranslationIndex": 2
     },
     {
@@ -1950,7 +1950,7 @@
         "binyan": "PA'AL",
         "transliteration": "la'atzor",
         "audioFile": "laatzor.mp3",
-        "binyanOptions": ["PI'EL", "PA'AL", "HIF'IL", "HITPA'EL"],
+        "binyanOptions": ["PI'EL", "PA'AL", "HIF'IL", "NIF'AL"],
         "correctTranslationIndex": 1
     },
     {
@@ -1966,7 +1966,7 @@
         "binyan": "HIF'IL",
         "transliteration": "lehaktin",
         "audioFile": "lehaktin.mp3",
-        "binyanOptions": ["PI'EL", "PA'AL", "HIF'IL", "HITPA'EL"],
+        "binyanOptions": ["PI'EL", "NIF'AL", "HIF'IL", "HITPA'EL"],
         "correctTranslationIndex": 2
     },
     {
@@ -1982,7 +1982,7 @@
         "binyan": "PA'AL",
         "transliteration": "le'esof",
         "audioFile": "leesof.mp3",
-        "binyanOptions": ["PI'EL", "PA'AL", "HIF'IL", "HITPA'EL"],
+        "binyanOptions": ["PI'EL", "PA'AL", "HIF'IL", "NIF'AL"],
         "correctTranslationIndex": 1
     },
     {
@@ -1998,7 +1998,7 @@
         "binyan": "PI'EL",
         "transliteration": "levashel",
         "audioFile": "levashel.mp3",
-        "binyanOptions": ["PI'EL", "PA'AL", "HIF'IL", "HITPA'EL"],
+        "binyanOptions": ["PI'EL", "PA'AL", "NIF'AL", "HITPA'EL"],
         "correctTranslationIndex": 0
     },
     {
@@ -2014,7 +2014,7 @@
         "binyan": "HITPA'EL",
         "transliteration": "lehishta'amem",
         "audioFile": "lehishtaamem.mp3",
-        "binyanOptions": ["PI'EL", "PA'AL", "HIF'IL", "HITPA'EL"],
+        "binyanOptions": ["PI'EL", "PA'AL", "NIF'AL", "HITPA'EL"],
         "correctTranslationIndex": 3
     },
     {
@@ -2030,7 +2030,7 @@
         "binyan": "PI'EL",
         "transliteration": "lemaher",
         "audioFile": "lemaher.mp3",
-        "binyanOptions": ["PI'EL", "PA'AL", "HIF'IL", "HITPA'EL"],
+        "binyanOptions": ["PI'EL", "PA'AL", "HIF'IL", "NIF'AL"],
         "correctTranslationIndex": 0
     },
     {
@@ -2046,7 +2046,7 @@
         "binyan": "PI'EL",
         "transliteration": "le'acher",
         "audioFile": "leacher.mp3",
-        "binyanOptions": ["PI'EL", "PA'AL", "HIF'IL", "HITPA'EL"],
+        "binyanOptions": ["PI'EL", "PA'AL", "HIF'IL", "NIF'AL"],
         "correctTranslationIndex": 0
     },
     {
@@ -2062,7 +2062,7 @@
         "binyan": "HITPA'EL",
         "transliteration": "lehit'akesh",
         "audioFile": "lehitakesh.mp3",
-        "binyanOptions": ["PI'EL", "PA'AL", "HIF'IL", "HITPA'EL"],
+        "binyanOptions": ["PI'EL", "NIF'AL", "HIF'IL", "HITPA'EL"],
         "correctTranslationIndex": 3
     },
     {
@@ -2078,7 +2078,7 @@
         "binyan": "PA'AL",
         "transliteration": "linhog",
         "audioFile": "linhog.mp3",
-        "binyanOptions": ["PI'EL", "PA'AL", "HIF'IL", "HITPA'EL"],
+        "binyanOptions": ["PI'EL", "PA'AL", "HIF'IL", "NIF'AL"],
         "correctTranslationIndex": 1
     },
     {
@@ -2094,7 +2094,7 @@
         "binyan": "PA'AL",
         "transliteration": "lirkov",
         "audioFile": "lirkov.mp3",
-        "binyanOptions": ["PI'EL", "PA'AL", "HIF'IL", "HITPA'EL"],
+        "binyanOptions": ["PI'EL", "PA'AL", "HIF'IL", "NIF'AL"],
         "correctTranslationIndex": 1
     },
     {
@@ -2110,7 +2110,7 @@
         "binyan": "HITPA'EL",
         "transliteration": "lehitrachetz",
         "audioFile": "lehitrachetz.mp3",
-        "binyanOptions": ["PI'EL", "PA'AL", "HIF'IL", "HITPA'EL"],
+        "binyanOptions": ["NIF'AL", "PA'AL", "HIF'IL", "HITPA'EL"],
         "correctTranslationIndex": 3
     },
     {
@@ -2126,7 +2126,7 @@
         "binyan": "PA'AL",
         "transliteration": "lirchotz",
         "audioFile": "lirchotz.mp3",
-        "binyanOptions": ["PI'EL", "PA'AL", "HIF'IL", "HITPA'EL"],
+        "binyanOptions": ["PI'EL", "PA'AL", "HIF'IL", "NIF'AL"],
         "correctTranslationIndex": 1
     },
     {
@@ -2158,7 +2158,7 @@
         "binyan": "PI'EL",
         "transliteration": "lenakot",
         "audioFile": "lenakot.mp3",
-        "binyanOptions": ["PI'EL", "PA'AL", "HIF'IL", "HITPA'EL"],
+        "binyanOptions": ["PI'EL", "PA'AL", "HIF'IL", "NIF'AL"],
         "correctTranslationIndex": 0
     },
     {
@@ -2174,7 +2174,7 @@
         "binyan": "HITPA'EL",
         "transliteration": "lehitga'agea",
         "audioFile": "lehitgaagea.mp3",
-        "binyanOptions": ["PI'EL", "PA'AL", "HIF'IL", "HITPA'EL"],
+        "binyanOptions": ["PI'EL", "NIF'AL", "HIF'IL", "HITPA'EL"],
         "correctTranslationIndex": 3
     },
     {
@@ -2190,7 +2190,7 @@
         "binyan": "HIF'IL",
         "transliteration": "lehagid",
         "audioFile": "lehagid.mp3",
-        "binyanOptions": ["PI'EL", "PA'AL", "HIF'IL", "HITPA'EL"],
+        "binyanOptions": ["PI'EL", "NIF'AL", "HIF'IL", "HITPA'EL"],
         "correctTranslationIndex": 2
     },
     {
@@ -2206,7 +2206,7 @@
         "binyan": "PA'AL",
         "transliteration": "likro",
         "audioFile": "likro.mp3",
-        "binyanOptions": ["PI'EL", "PA'AL", "HIF'IL", "HITPA'EL"],
+        "binyanOptions": ["PI'EL", "PA'AL", "HIF'IL", "NIF'AL"],
         "correctTranslationIndex": 1
     },
     {
@@ -2222,7 +2222,7 @@
         "binyan": "PA'AL",
         "transliteration": "lit'om",
         "audioFile": "litom.mp3",
-        "binyanOptions": ["PI'EL", "PA'AL", "HIF'IL", "HITPA'EL"],
+        "binyanOptions": ["PI'EL", "PA'AL", "HIF'IL", "NIF'AL"],
         "correctTranslationIndex": 1
     },
     {
@@ -2238,7 +2238,7 @@
         "binyan": "PI'EL",
         "transliteration": "lenasot",
         "audioFile": "lenasot.mp3",
-        "binyanOptions": ["PI'EL", "PA'AL", "HIF'IL", "HITPA'EL"],
+        "binyanOptions": ["PI'EL", "PA'AL", "HIF'IL", "NIF'AL"],
         "correctTranslationIndex": 0
     },
     {
@@ -2254,7 +2254,7 @@
         "binyan": "HITPA'EL",
         "transliteration": "lehitgaber",
         "audioFile": "lehitgaber.mp3",
-        "binyanOptions": ["PI'EL", "PA'AL", "HIF'IL", "HITPA'EL"],
+        "binyanOptions": ["PI'EL", "NIF'AL", "HIF'IL", "HITPA'EL"],
         "correctTranslationIndex": 3
     },
     {
@@ -2270,7 +2270,7 @@
         "binyan": "PI'EL",
         "transliteration": "lenachesh",
         "audioFile": "lenachesh.mp3",
-        "binyanOptions": ["PI'EL", "PA'AL", "HIF'IL", "HITPA'EL"],
+        "binyanOptions": ["PI'EL", "PA'AL", "NIF'AL", "HITPA'EL"],
         "correctTranslationIndex": 0
     },
     {
@@ -2286,7 +2286,7 @@
         "binyan": "PA'AL",
         "transliteration": "lirshom",
         "audioFile": "lirshom.mp3",
-        "binyanOptions": ["PI'EL", "PA'AL", "HIF'IL", "HITPA'EL"],
+        "binyanOptions": ["NIF'AL", "PA'AL", "HIF'IL", "HITPA'EL"],
         "correctTranslationIndex": 1
     },
     {
@@ -2466,7 +2466,7 @@
         "correctTranslationIndex": 3
     },
     {
-        "hebrewVerb": "ליהנות",
+        "hebrewVerb": "להנות",
         "root": "ה-נ-ה",
         "translation": "Наслаждаться",
         "verbEnglish": "to enjoy",

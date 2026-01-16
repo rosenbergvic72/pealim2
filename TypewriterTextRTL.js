@@ -1,20 +1,31 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Text, View, StyleSheet, Animated } from 'react-native';
+import { View, StyleSheet, Animated } from 'react-native';
 
-const TypewriterTextRTL = ({ text, typingSpeed = 100, style }) => {
+const TypewriterTextRTL = ({ text, typingSpeed = 100, style, onDone }) => {
   const [displayedText, setDisplayedText] = useState('');
   const sizeAnim = useRef(new Animated.Value(30)).current;
+  const doneRef = useRef(false);
 
   useEffect(() => {
     let index = 0;
-    let currentText = ''; // Локальная переменная для текста
+    let currentText = '';
+    doneRef.current = false;
+    setDisplayedText('');
+
     const timer = setInterval(() => {
       if (index < text.length) {
-        currentText += text.charAt(index); // Добавляем символ к локальной переменной
-        setDisplayedText(currentText); // Обновляем состояние
+        currentText += text.charAt(index);
+        setDisplayedText(currentText);
         index++;
       } else {
-        clearInterval(timer); // Останавливаем таймер после завершения
+        clearInterval(timer);
+
+        // ✅ call onDone once per text
+        if (!doneRef.current) {
+          doneRef.current = true;
+          if (typeof onDone === 'function') onDone();
+        }
+
         Animated.sequence([
           Animated.timing(sizeAnim, {
             toValue: 34,
@@ -30,8 +41,8 @@ const TypewriterTextRTL = ({ text, typingSpeed = 100, style }) => {
       }
     }, typingSpeed);
 
-    return () => clearInterval(timer); // Чистим таймер при размонтировании
-  }, [text, typingSpeed, sizeAnim]);
+    return () => clearInterval(timer);
+  }, [text, typingSpeed, sizeAnim, onDone]);
 
   return (
     <View style={styles.container}>

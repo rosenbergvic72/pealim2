@@ -384,6 +384,136 @@
     }
   ]
 },
+{
+  "verbRussian": "Быть осторожным",
+  "verbEnglish": "to be careful",
+  "verbFrench": "faire attention",
+  "verbSpanish": "tener cuidado",
+  "verbPortuguese": "ter cuidado",
+  "verbArabic": "يحذر",
+  "verbAmharic": "መጠንቀቅ",
+  "audioFile": "lehizaher.mp3",
+  "verbHebrewOptions": [
+    {
+      "text": "להיזהר",
+      "transliteration": "lehizahér",
+      "isCorrect": true
+    },
+    {
+      "text": "לסכן",
+      "transliteration": "lesakén",
+      "isCorrect": false
+    },
+    {
+      "text": "להתעלם",
+      "transliteration": "lehit'além",
+      "isCorrect": false
+    },
+    {
+      "text": "למהר",
+      "transliteration": "lemahér",
+      "isCorrect": false
+    }
+  ]
+},
+{
+  "verbRussian": "Носить обувь",
+  "verbEnglish": "to wear shoes",
+  "verbFrench": "porter des chaussures",
+  "verbSpanish": "llevar zapatos",
+  "verbPortuguese": "usar sapatos",
+  "verbArabic": "يرتدي حذاء",
+  "verbAmharic": "ጫማ መልበስ",
+  "audioFile": "linol.mp3",
+  "verbHebrewOptions": [
+    {
+      "text": "לנעול",
+      "transliteration": "lin'ól",
+      "isCorrect": true
+    },
+    {
+      "text": "ללבוש",
+      "transliteration": "lilbósh",
+      "isCorrect": false
+    },
+    {
+      "text": "לחלוץ",
+      "transliteration": "lachalóts",
+      "isCorrect": false
+    },
+    {
+      "text": "לקנות",
+      "transliteration": "liknót",
+      "isCorrect": false
+    }
+  ]
+},
+{
+  "verbRussian": "Носить шапку",
+  "verbEnglish": "to wear a hat",
+  "verbFrench": "porter un chapeau",
+  "verbSpanish": "llevar un sombrero",
+  "verbPortuguese": "usar chapéu",
+  "verbArabic": "يرتدي قبعة",
+  "verbAmharic": "ኮፍያ መልበስ",
+  "audioFile": "lachvosh.mp3",
+  "verbHebrewOptions": [
+    {
+      "text": "לחבוש",
+      "transliteration": "lachvósh",
+      "isCorrect": true
+    },
+    {
+      "text": "ללבוש",
+      "transliteration": "lilbósh",
+      "isCorrect": false
+    },
+    {
+      "text": "לנעול",
+      "transliteration": "lin'ól",
+      "isCorrect": false
+    },
+    {
+      "text": "לקרוא",
+      "transliteration": "likró",
+      "isCorrect": false
+    }
+  ]
+},
+{
+  "verbRussian": "Носить украшения",
+  "verbEnglish": "to wear jewelry",
+  "verbFrench": "porter des bijoux",
+  "verbSpanish": "llevar joyas",
+  "verbPortuguese": "usar joias",
+  "verbArabic": "يرتدي مجوهرات",
+  "verbAmharic": "ጌጣጌጥ መልበስ",
+  "audioFile": "laanod.mp3",
+  "verbHebrewOptions": [
+    {
+      "text": "לענוד",
+      "transliteration": "la'anód",
+      "isCorrect": true
+    },
+    {
+      "text": "ללבוש",
+      "transliteration": "lilbósh",
+      "isCorrect": false
+    },
+    {
+      "text": "לנעול",
+      "transliteration": "lin'ól",
+      "isCorrect": false
+    },
+    {
+      "text": "לקרוא",
+      "transliteration": "likró",
+      "isCorrect": false
+    }
+  ]
+},
+
+
 
 
 

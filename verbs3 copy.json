@@ -194,6 +194,74 @@
   "correctTranslationIndex": 0
 },
 
+{
+  "hebrewVerb": "להיזהר",
+  "root": "ז-ה-ר",
+  "translation": "Быть осторожным",
+  "verbEnglish": "to be careful",
+  "verbFrench": "faire attention",
+  "verbSpanish": "tener cuidado",
+  "verbPortuguese": "ter cuidado",
+  "verbArabic": "يحذر",
+  "verbAmharic": "መጠንቀቅ",
+  "binyan": "NIF'AL",
+  "transliteration": "lehizahér",
+  "audioFile": "lehizaher.mp3",
+  "binyanOptions": ["NIF'AL"],
+  "correctTranslationIndex": 0
+},
+{
+  "hebrewVerb": "לנעול",
+  "root": "נ-ע-ל",
+  "translation": "Носить обувь",
+  "verbEnglish": "to wear shoes",
+  "verbFrench": "porter des chaussures",
+  "verbSpanish": "llevar zapatos",
+  "verbPortuguese": "usar sapatos",
+  "verbArabic": "يرتدي حذاء",
+  "verbAmharic": "ጫማ መልበስ",
+  "binyan": "PA'AL",
+  "transliteration": "lin'ól",
+  "audioFile": "linol.mp3",
+  "binyanOptions": ["PA'AL"],
+  "correctTranslationIndex": 0
+},
+{
+  "hebrewVerb": "לחבוש",
+  "root": "ח-ב-ש",
+  "translation": "Носить шапку",
+  "verbEnglish": "to wear a hat",
+  "verbFrench": "porter un chapeau",
+  "verbSpanish": "llevar un sombrero",
+  "verbPortuguese": "usar chapéu",
+  "verbArabic": "يرتدي قبعة",
+  "verbAmharic": "ኮፍያ መልበስ",
+  "binyan": "PA'AL",
+  "transliteration": "lachvósh",
+  "audioFile": "lachvosh.mp3",
+  "binyanOptions": ["PA'AL"],
+  "correctTranslationIndex": 0
+},
+{
+  "hebrewVerb": "לענוד",
+  "root": "ע-נ-ד",
+  "translation": "Носить украшения",
+  "verbEnglish": "to wear jewelry",
+  "verbFrench": "porter des bijoux",
+  "verbSpanish": "llevar joyas",
+  "verbPortuguese": "usar joias",
+  "verbArabic": "يرتدي مجوهرات",
+  "verbAmharic": "ጌጣጌጥ መልበስ",
+  "binyan": "PA'AL",
+  "transliteration": "la'anód",
+  "audioFile": "laanod.mp3",
+  "binyanOptions": ["PA'AL"],
+  "correctTranslationIndex": 0
+},
+
+
+
+
 
 
 

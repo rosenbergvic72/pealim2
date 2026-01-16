@@ -572,6 +572,209 @@
   ],
   "correctTranslationIndex": 0
 },
+{
+  "hebrewVerb": "להיזהר",
+  "root": "ז-ה-ר",
+  "binyan": "NIF'AL",
+  "transliteration": "lehizahér",
+  "audioFile": "lehizaher.mp3",
+  "translationOptions": [
+    "Быть осторожным",
+    "Рисковать",
+    "Игнорировать",
+    "Спешить"
+  ],
+  "translationOptionsEn": [
+    "to be careful",
+    "to take risks",
+    "to ignore",
+    "to hurry"
+  ],
+  "translationOptionsFr": [
+    "faire attention",
+    "prendre des risques",
+    "ignorer",
+    "se dépêcher"
+  ],
+  "translationOptionsEs": [
+    "tener cuidado",
+    "arriesgarse",
+    "ignorar",
+    "apresurarse"
+  ],
+  "translationOptionsPt": [
+    "ter cuidado",
+    "arriscar",
+    "ignorar",
+    "apressar-se"
+  ],
+  "translationOptionsAr": [
+    "يحذر",
+    "يخاطر",
+    "يتجاهل",
+    "يستعجل"
+  ],
+  "translationOptionsAm": [
+    "መጠንቀቅ",
+    "መደፈር",
+    "መተው",
+    "መቸኮል"
+  ],
+  "correctTranslationIndex": 0
+},
+{
+  "hebrewVerb": "לנעול",
+  "root": "נ-ע-ל",
+  "binyan": "PA'AL",
+  "transliteration": "lin'ól",
+  "audioFile": "linol.mp3",
+  "translationOptions": [
+    "Носить обувь",
+    "Готовить",
+    "Читать",
+    "Рисовать"
+  ],
+  "translationOptionsEn": [
+    "to wear shoes",
+    "to cook",
+    "to read",
+    "to draw"
+  ],
+  "translationOptionsFr": [
+    "porter des chaussures",
+    "cuisiner",
+    "lire",
+    "dessiner"
+  ],
+  "translationOptionsEs": [
+    "llevar zapatos",
+    "cocinar",
+    "leer",
+    "dibujar"
+  ],
+  "translationOptionsPt": [
+    "usar sapatos",
+    "cozinhar",
+    "ler",
+    "desenhar"
+  ],
+  "translationOptionsAr": [
+    "يرتدي حذاء",
+    "يطبخ",
+    "يقرأ",
+    "يرسم"
+  ],
+  "translationOptionsAm": [
+    "ጫማ መልበስ",
+    "ማብሰል",
+    "መንበብ",
+    "መሳል"
+  ],
+  "correctTranslationIndex": 0
+},
+{
+  "hebrewVerb": "לחבוש",
+  "root": "ח-ב-ש",
+  "binyan": "PA'AL",
+  "transliteration": "lachvósh",
+  "audioFile": "lachvosh.mp3",
+  "translationOptions": [
+    "Носить шапку",
+    "Готовить",
+    "Читать",
+    "Плавать"
+  ],
+  "translationOptionsEn": [
+    "to wear a hat",
+    "to cook",
+    "to read",
+    "to swim"
+  ],
+  "translationOptionsFr": [
+    "porter un chapeau",
+    "cuisiner",
+    "lire",
+    "nager"
+  ],
+  "translationOptionsEs": [
+    "llevar un sombrero",
+    "cocinar",
+    "leer",
+    "nadar"
+  ],
+  "translationOptionsPt": [
+    "usar chapéu",
+    "cozinhar",
+    "ler",
+    "nadar"
+  ],
+  "translationOptionsAr": [
+    "يرتدي قبعة",
+    "يطبخ",
+    "يقرأ",
+    "يسبح"
+  ],
+  "translationOptionsAm": [
+    "ኮፍያ መልበስ",
+    "ማብሰል",
+    "መንበብ",
+    "መዋኘት"
+  ],
+  "correctTranslationIndex": 0
+},
+{
+  "hebrewVerb": "לענוד",
+  "root": "ע-נ-ד",
+  "binyan": "PA'AL",
+  "transliteration": "la'anód",
+  "audioFile": "laanod.mp3",
+  "translationOptions": [
+    "Носить украшения",
+    "Согласовывать",
+    "Откладывать",
+    "Поддерживать"
+  ],
+  "translationOptionsEn": [
+    "to wear jewelry",
+    "to coordinate",
+    "to postpone",
+    "to support"
+  ],
+  "translationOptionsFr": [
+    "porter des bijoux",
+    "coordonner",
+    "reporter",
+    "soutenir"
+  ],
+  "translationOptionsEs": [
+    "llevar joyas",
+    "coordinar",
+    "posponer",
+    "apoyar"
+  ],
+  "translationOptionsPt": [
+    "usar joias",
+    "coordenar",
+    "adiar",
+    "apoiar"
+  ],
+  "translationOptionsAr": [
+    "يرتدي مجوهرات",
+    "ينسق",
+    "يؤجل",
+    "يدعم"
+  ],
+  "translationOptionsAm": [
+    "ጌጣጌጥ መልበስ",
+    "መዋጮ",
+    "መዘግየት",
+    "መደገፍ"
+  ],
+  "correctTranslationIndex": 0
+},
+
+
+
 
 
 

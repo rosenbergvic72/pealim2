@@ -2749,7 +2749,7 @@
 
         "audioFile": "lehanot.mp3",
         "verbHebrewOptions": [
-          { "text": "ליהנות", "transliteration": "lehanot", "isCorrect": true },
+          { "text": "להנות", "transliteration": "lehanot", "isCorrect": true },
           { "text": " להתחתן", "transliteration": "lehitchaten", "isCorrect": false },
           { "text": "להתלונן", "transliteration": "lehitlonen", "isCorrect": false },
           { "text": "לבזבז", "transliteration": "levazbez", "isCorrect": false }
