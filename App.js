@@ -6,6 +6,7 @@ import './debugAnimatedTiming';
 import './debugAnimated';
 
 import React, { useEffect, useRef, useState } from 'react';
+
 import {
   StatusBar,
   AppState,
@@ -364,6 +365,7 @@ export default function App() {
   const isExpoGo = Constants.appOwnership === 'expo';
   const USE_IAP = !isExpoGo && extra.store === 'gp' && !extra.disableIap;
   const RootProvider = USE_IAP ? IapProvider : NoIapProvider;
+
 
   return (
     <RootProvider initialSegment="default">
