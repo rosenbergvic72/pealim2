@@ -63,7 +63,11 @@ const getGrade = (percentage) => {
     }
 };
 
-
+const normalizeBinyan = (s) =>
+  String(s || '')
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z]/g, '');
 
 
 
@@ -149,6 +153,10 @@ useEffect(() => {
 
   const [soundEnabled, setSoundEnabled] = useState(true);
   const [sound, setSound] = useState(null);
+
+  const [highlightEnabled, setHighlightEnabled] = useState(true);
+const handleHighlightToggle = () => setHighlightEnabled(p => !p);
+
   
   const handleSoundToggle = () => {
     console.log("Current sound state before toggle:", soundEnabled);
@@ -640,6 +648,65 @@ useEffect(() => {
     }
   };
 
+  // Берём биньян текущей карточки из shuffledVerbs[currentIndex]
+const getCurrentBinyanKey = () => {
+  const v = shuffledVerbs?.[currentIndex];
+  if (!v) return '';
+  return normalizeBinyan(v.binyan || '');
+};
+
+// Подсветка: второе слово, первая буква א-ת; выключается по toggle; не подсвечиваем PA'AL
+const renderHebrewDetails = (hebrewtext) => {
+  const raw = String(hebrewtext || '').trim();
+  if (!raw) return '';
+
+  const words = raw.split(/\s+/).filter(Boolean);
+  if (words.length === 0) return '';
+
+  if (words.length === 1) {
+    return <Text>{words[0]}</Text>;
+  }
+
+  const first = words[0];
+  const second = words[1];
+  const tail = words.slice(2).join(' ');
+
+  const b = getCurrentBinyanKey();
+  const isPaal = b === 'paal';
+
+  const shouldHighlight = highlightEnabled && !isPaal;
+
+  if (!shouldHighlight) {
+    return (
+      <Text>
+        {first}{' '}{second}{tail ? ` ${tail}` : ''}
+      </Text>
+    );
+  }
+
+  const i = second.search(/[א-ת]/);
+  if (i === -1) {
+    return (
+      <Text>
+        {first}{' '}{second}{tail ? ` ${tail}` : ''}
+      </Text>
+    );
+  }
+
+  const before = second.slice(0, i);
+  const letter = second[i];
+  const after = second.slice(i + 1);
+
+  return (
+    <Text>
+      {first}{' '}
+      {before ? before : ''}
+      <Text style={styles.detailsHighlight}>{letter}</Text>
+      {after ? after : ''}
+      {tail ? ` ${tail}` : ''}
+    </Text>
+  );
+};
  
   const handleSpeakerPress = (mp3FileName) => {
     playSound(mp3FileName); // Передаем название файла в функцию воспроизведения
@@ -665,6 +732,14 @@ useEffect(() => {
     style={[styles.buttonImage, { opacity: fadeAnim }]}
   />
 </TouchableOpacity>
+
+<TouchableOpacity onPress={handleHighlightToggle}>
+  <Animated.Image
+    source={highlightEnabled ? require('./translit1.png') : require('./translit2.png')}
+    style={[styles.buttonImage, { opacity: fadeAnim }]}
+  />
+</TouchableOpacity>
+
 
 <TouchableOpacity onPress={handleButton3Press}>
       <Animated.Image
@@ -734,12 +809,14 @@ useEffect(() => {
       <Animated.Text style={[styles.title, { opacity: fadeAnim }]} maxFontSizeMultiplier={1.2}>SELECCIONA EL BINYÁN</Animated.Text>
 
       {currentIndex < shuffledVerbs.length && (
-        <VerbCard3
-          verbData={shuffledVerbs[currentIndex]}
-          options={optionsOrder}
-          onAnswer={handleAnswer}
-          soundEnabled={soundEnabled} // Добавляем soundEnabled
-        />
+       <VerbCard3
+  verbData={shuffledVerbs[currentIndex]}
+  options={optionsOrder}
+  onAnswer={handleAnswer}
+  soundEnabled={soundEnabled}
+  highlightEnabled={highlightEnabled}
+/>
+
       )}
 
 
@@ -747,7 +824,7 @@ useEffect(() => {
   console.log('Rendering verb info:', verbInfo),
   <View style={styles.infoContainer}>
     <View style={styles.verbDetailsLeftContent}>
-        <Text style={styles.verbDetailsHebrew}maxFontSizeMultiplier={1.2}>{verbInfo.hebrewtext}</Text>
+        <Text style={styles.verbDetailsHebrew}maxFontSizeMultiplier={1.2}> {renderHebrewDetails(verbInfo.hebrewtext)}</Text>
         <Text style={styles.verbDetailsTranslit}maxFontSizeMultiplier={1.2}>{verbInfo.translit}</Text>
       </View>
       <View style={styles.verbDetailsRightContent}>
@@ -1136,6 +1213,11 @@ const styles = StyleSheet.create({
     height: '250%',
     resizeMode: 'contain',
   },
+
+  detailsHighlight: {
+  color: 'rgba(255, 251, 0, 1)',
+},
+
   
 
 });

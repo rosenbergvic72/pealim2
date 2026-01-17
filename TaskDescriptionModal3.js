@@ -27,6 +27,7 @@ const translations = {
     gender: 'Выбор голоса озвучивания',
     aiBot: 'ИИ чатбот',
     close: 'Закрыть',
+    translit: 'Показ/скрытие подсветки букв в ивритских глаголах',
   },
 
   en: {
@@ -43,6 +44,7 @@ const translations = {
     gender: 'Voice selection',
     aiBot: 'AI chatbot',
     close: 'Close',
+    translit: 'Show/hide highlighted letters in Hebrew verbs',
   },
 
   fr: {
@@ -59,6 +61,7 @@ const translations = {
     gender: 'Choix de la voix',
     aiBot: 'Chatbot IA',
     close: 'Fermer',
+    translit: 'Afficher/masquer la mise en évidence des lettres dans les verbes en hébreu',
   },
 
   es: {
@@ -75,6 +78,7 @@ const translations = {
     gender: 'Selección de voz',
     aiBot: 'Chatbot con IA',
     close: 'Cerrar',
+    translit: 'Mostrar/ocultar el resaltado de letras en los verbos en hebreo',
   },
 
   pt: {
@@ -91,6 +95,7 @@ const translations = {
     gender: 'Escolha de voz',
     aiBot: 'Chatbot IA',
     close: 'Fechar',
+    translit: 'Mostrar/ocultar o destaque de letras nos verbos em hebraico',
   },
 
   ar: {
@@ -107,6 +112,7 @@ const translations = {
     gender: 'اختيار الصوت',
     aiBot: 'روبوت الدردشة الذكي',
     close: 'إغلاق',
+    translit: 'إظهار/إخفاء تمييز الحروف في الأفعال العبرية',
   },
 
   am: {
@@ -123,6 +129,7 @@ const translations = {
     gender: 'ድምፅ መምረጫ',
     aiBot: 'አርቲፊሻል ኢንተሊጀንስ ቻትቦት',
     close: 'ዝጋ',
+    translit: 'በዕብራይስጥ ግሶች ውስጥ የፊደሎች ማብራሪያ አሳይ/ደብቅ',
   },
 };
 
@@ -204,6 +211,13 @@ const TaskDescriptionModal3 = ({ visible, onToggle, language }) => {
                 {t.sound}
               </Text>
             </View>
+
+            <View style={styles.iconRow}>
+                        <Image source={require('./translit1.png')} style={styles.icon} />
+                        <Text style={styles.iconText} maxFontSizeMultiplier={1.2}>
+                          {t.translit}
+                        </Text>
+                      </View>
 
             <View style={styles.iconRow}>
               <Image source={require('./stat.png')} style={styles.icon} />

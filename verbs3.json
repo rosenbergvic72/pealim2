@@ -1726,7 +1726,7 @@
         "transliteration": "leshanot",
         "audioFile": "lishnot.mp3",
         "binyanOptions": ["PI'EL", "NIF'AL", "HIF'IL", "HITPA'EL"],
-        "correctTranslationIndex": 1
+        "correctTranslationIndex": 0
     },
     {
         "hebrewVerb": "לשפר",

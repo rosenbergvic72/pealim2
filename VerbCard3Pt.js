@@ -1,33 +1,180 @@
-// VerbCard3.js
-import React, { useState, useEffect, useRef } from 'react';
+// VerbCard3Pt.js
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { View, Text, Image, TouchableOpacity, StyleSheet, Animated } from 'react-native';
 import { Audio } from 'expo-av';
 import sounds from './Soundss';
-import TypewriterTextRTL from './TypewriterTextRTL';
 import LottieView from 'lottie-react-native';
 
-const VerbCard3Pt = ({ verbData, onAnswer, soundEnabled }) => {
+const DEFAULT_TYPING_SPEED = 100;
+
+// ✅ HITPA'EL / HITPAEL / hitpa-el -> "hitpael"
+const normalizeBinyan = (s) =>
+  String(s || '')
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z]/g, '');
+
+/* ===================== Highlight helpers ===================== */
+
+const getHebrewLetterPositions = (raw) => {
+  const pos = [];
+  for (let i = 0; i < raw.length; i++) {
+    if (/[א-ת]/.test(raw[i])) pos.push(i);
+  }
+  return pos;
+};
+
+// ✅ HITPA'EL:
+// if 2nd+3rd heb letters are "הת" -> highlight 2 & 3
+// else -> highlight 2 & 4
+// HIF'IL / NIF'AL -> highlight 2
+const getTargetsForBinyan = (rawHeb, binKey) => {
+  if (!rawHeb) return null;
+
+  if (binKey === 'hitpael') {
+    const hebPos = getHebrewLetterPositions(rawHeb);
+    const p2 = hebPos[1];
+    const p3 = hebPos[2];
+    const p4 = hebPos[3];
+
+    if (typeof p2 !== 'number') return null;
+
+    const second = rawHeb[p2] || '';
+    const third = typeof p3 === 'number' ? rawHeb[p3] : '';
+    const isHetTav = second === 'ה' && third === 'ת';
+
+    if (isHetTav) return [2, 3];
+    return typeof p4 === 'number' ? [2, 4] : [2];
+  }
+
+  if (binKey === 'hifil' || binKey === 'nifal' || binKey === 'nifaal') return [2];
+
+  return null;
+};
+
+const computeHighlightPositionsSet = (rawHeb, binKey) => {
+  const raw = String(rawHeb || '');
+  if (!raw) return null;
+
+  const targets = getTargetsForBinyan(raw, binKey);
+  if (!targets) return null;
+
+  const hebPos = getHebrewLetterPositions(raw);
+  const set = new Set(
+    targets.map((n) => hebPos[n - 1]).filter((p) => typeof p === 'number')
+  );
+
+  return set.size ? set : null;
+};
+
+const renderTypedWithHighlight = (typedText, highlightSet, highlightEnabled) => {
+  const t = String(typedText || '');
+  if (!highlightEnabled || !highlightSet || !highlightSet.size) return t;
+
+  return (
+    <>
+      {Array.from(t).map((ch, idx) => {
+        const hi = highlightSet.has(idx);
+        return (
+          <Text key={idx} style={hi ? styles.prefixYellow : null}>
+            {ch}
+          </Text>
+        );
+      })}
+    </>
+  );
+};
+
+/* ===================== Root highlighting (HITPA'EL only) ===================== */
+
+const HITPAEL_ROOT_SPECIALS = new Set(['ש', 'ס', 'ז', 'צ']);
+
+const renderRootWithOptionalHighlight = (rootRaw, isHitpael, highlightEnabled) => {
+  const r = String(rootRaw || '');
+  if (!r) return '';
+
+  if (!highlightEnabled) return r;
+  if (!isHitpael) return r;
+
+  const m = r.match(/[א-ת]/);
+  if (!m || typeof m.index !== 'number') return r;
+
+  const i = m.index;
+  const firstHeb = r[i];
+
+  if (!HITPAEL_ROOT_SPECIALS.has(firstHeb)) return r;
+
+  const before = r.slice(0, i);
+  const after = r.slice(i + 1);
+
+  return (
+    <>
+      {!!before && <Text>{before}</Text>}
+      <Text style={styles.prefixYellow}>{firstHeb}</Text>
+      {!!after && <Text>{after}</Text>}
+    </>
+  );
+};
+
+/* ===================== Typewriter (встроенный, чтобы подсвечивать) ===================== */
+
+const TypewriterHebrewCardRTL = ({
+  text,
+  typingSpeed = DEFAULT_TYPING_SPEED,
+  style,
+  highlightEnabled,
+  highlightSet,
+}) => {
+  const [displayedText, setDisplayedText] = useState('');
+  const intervalRef = useRef(null);
+
+  useEffect(() => {
+    const full = String(text || '');
+    let i = 0;
+
+    setDisplayedText('');
+    if (intervalRef.current) clearInterval(intervalRef.current);
+
+    intervalRef.current = setInterval(() => {
+      i += 1;
+      setDisplayedText(full.slice(0, i));
+      if (i >= full.length) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
+      }
+    }, Math.max(10, Number(typingSpeed) || DEFAULT_TYPING_SPEED));
+
+    return () => {
+      if (intervalRef.current) clearInterval(intervalRef.current);
+      intervalRef.current = null;
+    };
+  }, [text, typingSpeed]);
+
+  return (
+    <Text style={[style, { writingDirection: 'rtl' }]} maxFontSizeMultiplier={1.2}>
+      {renderTypedWithHighlight(displayedText, highlightSet, highlightEnabled)}
+    </Text>
+  );
+};
+
+/* ===================== Main ===================== */
+
+const VerbCard3Pt = ({ verbData, onAnswer, soundEnabled, highlightEnabled = true }) => {
   const [sound, setSound] = useState();
   const [isPlaying, setIsPlaying] = useState(false);
   const animationRef = useRef(null);
 
   useEffect(() => {
     return () => {
-      if (sound) {
-        sound.unloadAsync();
-      }
+      if (sound) sound.unloadAsync();
     };
   }, [sound]);
 
   const playAudio = async (audioFileName, isAutoPlay = false) => {
     try {
-      // Если это автоматическое воспроизведение и звук отключен — не воспроизводим
-      if (isAutoPlay && !soundEnabled) {
-        console.log('Sound is disabled, skipping automatic playback.');
-        return;
-      }
+      if (isAutoPlay && !soundEnabled) return;
 
-      const fileNameKey = audioFileName.replace('.mp3', '');
+      const fileNameKey = String(audioFileName || '').replace('.mp3', '');
       const audioFile = sounds[fileNameKey];
 
       if (!audioFile) {
@@ -35,14 +182,13 @@ const VerbCard3Pt = ({ verbData, onAnswer, soundEnabled }) => {
         return;
       }
 
-      await sound?.unloadAsync(); // Останавливаем предыдущий звук
+      await sound?.unloadAsync();
       const { sound: newSound } = await Audio.Sound.createAsync(audioFile);
       setSound(newSound);
+
       setIsPlaying(true);
-      await newSound.playAsync(); // Воспроизводим новый звук
-      setTimeout(() => {
-        setIsPlaying(false);
-      }, 1000); // Анимация на 1 секунду
+      await newSound.playAsync();
+      setTimeout(() => setIsPlaying(false), 1000);
     } catch (error) {
       console.error('Error playing sound:', error);
     }
@@ -50,74 +196,38 @@ const VerbCard3Pt = ({ verbData, onAnswer, soundEnabled }) => {
 
   // Автоматическое воспроизведение звука инфинитива
   useEffect(() => {
-    if (verbData && verbData.audioFile) {
-      playAudio(verbData.audioFile, true); // Передаем флаг isAutoPlay = true
-    }
+    if (verbData?.audioFile) playAudio(verbData.audioFile, true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [verbData, soundEnabled]);
 
-  const shuffleArray = (array) => {
-    const shuffledArray = array.slice();
-    for (let i = shuffledArray.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [shuffledArray[i], shuffledArray[j]] = [shuffledArray[j], shuffledArray[i]];
-    }
-    return shuffledArray;
-  };
-
-  const generateOptions = () => {
-    const correctAnswerIndex = verbData.correctTranslationIndex;
-    const correctTranslation = verbData.binyanOptions[correctAnswerIndex];
-    const incorrectOptions = verbData.binyanOptions.filter(
-      (_, index) => index !== correctAnswerIndex
-    );
-
-    const shuffledOptions = shuffleArray(
-      incorrectOptions.map((option) => ({ text: option, isCorrect: false }))
-    );
-
-    // Вставляем правильный ответ в случайное место
-    shuffledOptions.splice(
-      Math.floor(Math.random() * (shuffledOptions.length + 1)),
-      0,
-      { text: correctTranslation, isCorrect: true }
-    );
-
-    return shuffledOptions;
-  };
-
-  const shuffledOptions = generateOptions();
-
-  const handlePress = (selectedOptionIndex) => {
-    const isCorrect = shuffledOptions[selectedOptionIndex].isCorrect;
-    onAnswer(isCorrect);
-  };
-
-  const [opacity1] = useState(new Animated.Value(0));
   const [opacity2] = useState(new Animated.Value(0));
   const [opacity3] = useState(new Animated.Value(0));
   const [opacity4] = useState(new Animated.Value(0));
 
   useEffect(() => {
-    // Сброс значений прозрачности перед началом новой анимации
-    opacity1.setValue(0);
     opacity2.setValue(0);
     opacity3.setValue(0);
     opacity4.setValue(0);
 
-    // Последовательный запуск анимации для каждого текстового элемента
-    Animated.timing(opacity1, { toValue: 1, duration: 500, useNativeDriver: true }).start();
-    setTimeout(() => Animated.timing(opacity2, { toValue: 1, duration: 500, useNativeDriver: true }).start(), 100);
+    Animated.timing(opacity2, { toValue: 1, duration: 500, useNativeDriver: true }).start();
     setTimeout(() => Animated.timing(opacity3, { toValue: 1, duration: 500, useNativeDriver: true }).start(), 200);
     setTimeout(() => Animated.timing(opacity4, { toValue: 1, duration: 500, useNativeDriver: true }).start(), 300);
-  }, [verbData]); // Эффект запускается при каждом изменении verbData
+  }, [verbData]);
 
   useEffect(() => {
-    if (isPlaying) {
-      animationRef.current?.play();
-    } else {
-      animationRef.current?.reset();
-    }
+    if (isPlaying) animationRef.current?.play();
+    else animationRef.current?.reset();
   }, [isPlaying]);
+
+  const rawHeb = String(verbData?.hebrewVerb || '');
+  const binyanRaw = String(verbData?.binyan || '');
+  const binKey = useMemo(() => normalizeBinyan(binyanRaw), [binyanRaw]);
+  const isHitpael = binKey === 'hitpael';
+
+  const highlightSet = useMemo(
+    () => computeHighlightPositionsSet(rawHeb, binKey),
+    [rawHeb, binKey]
+  );
 
   return (
     <View style={styles.cardContainer}>
@@ -131,11 +241,35 @@ const VerbCard3Pt = ({ verbData, onAnswer, soundEnabled }) => {
             style={styles.lottieAnimation}
           />
         )}
-        <TypewriterTextRTL text={verbData.hebrewVerb} maxFontSizeMultiplier={1.2} typingSpeed={100} style={styles.hebrewVerb} />
-        <Animated.Text style={[styles.translit, { opacity: opacity2 }]} maxFontSizeMultiplier={1.2}>{verbData.transliteration}</Animated.Text>
-        <Animated.Text style={[styles.root, { opacity: opacity3 }]} maxFontSizeMultiplier={1.2}>{`Root: ${verbData.root}`}</Animated.Text>
-        <Animated.Text style={[styles.bin, { opacity: opacity4 }]} maxFontSizeMultiplier={1.2}>{verbData.verbPortuguese}</Animated.Text>
-        <TouchableOpacity onPress={() => playAudio(verbData.audioFile)} style={styles.audioButton}>
+
+        {/* ✅ иврит с подсветкой букв */}
+        <View style={styles.hebrewVerbWrapper}>
+          <TypewriterHebrewCardRTL
+            text={rawHeb}
+            typingSpeed={DEFAULT_TYPING_SPEED}
+            style={styles.hebrewVerb}
+            highlightEnabled={highlightEnabled}
+            highlightSet={highlightSet}
+          />
+        </View>
+
+        <Animated.Text style={[styles.translit, { opacity: opacity2 }]} maxFontSizeMultiplier={1.2}>
+          {verbData?.transliteration}
+        </Animated.Text>
+
+        {/* ✅ корень: зелёная метка + чёрное значение (с подсветкой как EN/RU/ES/FR) */}
+        <Animated.Text style={[styles.root, { opacity: opacity3 }]} maxFontSizeMultiplier={1.2}>
+          Raiz:{' '}
+          <Text style={styles.rootValue} maxFontSizeMultiplier={1.2}>
+            {renderRootWithOptionalHighlight(verbData?.root, isHitpael, highlightEnabled)}
+          </Text>
+        </Animated.Text>
+
+        <Animated.Text style={[styles.bin, { opacity: opacity4 }]} maxFontSizeMultiplier={1.2}>
+          {verbData?.verbPortuguese}
+        </Animated.Text>
+
+        <TouchableOpacity onPress={() => playAudio(verbData?.audioFile)} style={styles.audioButton}>
           <Image source={require('./speaker3.png')} style={styles.audioIcon} />
         </TouchableOpacity>
       </View>
@@ -150,29 +284,42 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     padding: 10,
     backgroundColor: '#FFFDEF',
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 2
-    },
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
-    elevation: 5
+    elevation: 5,
   },
   hebrewVerbContainer: {
     alignItems: 'center',
     position: 'relative',
   },
+
+  // ✅ фикс высоты, чтобы печать не "прыгала"
+  hebrewVerbWrapper: {
+    width: '100%',
+    height: 50,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+
   hebrewVerb: {
     fontSize: 27,
     fontWeight: 'bold',
     color: '#333652',
     borderRadius: 20,
-    // padding: 1,
     paddingLeft: 10,
     paddingRight: 10,
     textAlign: 'center',
+    includeFontPadding: false,
   },
+
+  // ✅ подсветка букв
+  prefixYellow: {
+    color: '#00a2ffff',
+    fontWeight: 'bold',
+  },
+
   translit: {
     fontSize: 18,
     fontWeight: 'bold',
@@ -183,6 +330,7 @@ const styles = StyleSheet.create({
     marginBottom: 5,
     marginTop: 10,
   },
+
   root: {
     fontSize: 16,
     fontWeight: 'bold',
@@ -191,6 +339,13 @@ const styles = StyleSheet.create({
     paddingLeft: 10,
     paddingRight: 10,
   },
+
+  rootValue: {
+    color: '#000',
+    fontSize: 19,
+    fontWeight: 'bold',
+  },
+
   bin: {
     fontSize: 16,
     fontWeight: 'bold',
@@ -201,6 +356,7 @@ const styles = StyleSheet.create({
     marginTop: 5,
     marginBottom: 10,
   },
+
   audioButton: {
     marginTop: 10,
     position: 'absolute',
