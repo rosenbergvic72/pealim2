@@ -36,6 +36,17 @@
   "channel": "development"
 },
 
+"development-ios-noiap": {
+  "developmentClient": true,
+  "distribution": "internal",
+  "env": {
+    "STORE": "gp",
+    "EXPO_PUBLIC_DISABLE_IAP": "1",
+    "EXPO_PUBLIC_PRO_BYPASS": "1"
+  },
+  "channel": "development-ios-noiap"
+},
+
 
     "production-gp": {
       "android": { "buildType": "app-bundle" },
