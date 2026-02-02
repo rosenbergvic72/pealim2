@@ -1153,6 +1153,7 @@ mp3: mp3Inf,
           visible={isVerbListVisible}
           language={language}
           verbs={verbListForModal}
+          pinnedIds={pinnedVerbs}
           onStartExercise={() => {
             modalCloseReasonRef.current = 'start';
 

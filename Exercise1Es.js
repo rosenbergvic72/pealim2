@@ -884,6 +884,7 @@ const Exercise1Es = ({ navigation }) => {
           visible={isVerbListVisible}
           language={language}
           verbs={verbListForModal}
+          pinnedIds={pinnedIds}
           onStartExercise={() => {
             modalCloseReasonRef.current = 'start';
             setIsVerbListVisible(false);

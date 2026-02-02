@@ -12,8 +12,8 @@ import {
 } from 'react-native';
 import FadeInView from './api/FadeInView';
 import { Audio } from 'expo-av';
-import sounds from './Soundss';       // инфинитивы
-import soundsconj from './soundconj'; // спряжения
+import sounds from './Soundss';
+import soundsconj from './soundconj';
 
 const titles = {
   ru: 'Глаголы в этом упражнении',
@@ -78,12 +78,10 @@ async function ensureAudioMode() {
 async function playForItem(item) {
   const keyInf = norm(item?.mp3Inf);
   const keyConj = norm(item?.mp3Conj);
-
   const file = (keyInf && sounds?.[keyInf]) || (keyConj && soundsconj?.[keyConj]);
   if (!file) return;
 
   await ensureAudioMode();
-
   const cacheKey = keyInf || keyConj;
 
   try {
@@ -98,23 +96,24 @@ async function playForItem(item) {
 
     sound.setOnPlaybackStatusUpdate(async (st) => {
       if (st.didJustFinish) {
-        try {
-          await sound.unloadAsync();
-        } catch {}
+        try { await sound.unloadAsync(); } catch {}
         delete cachedListSounds[cacheKey];
       }
     });
-  } catch {
-    // молча
-  }
+  } catch {}
 }
 
-const VerbListModal = ({ visible, onStartExercise, onClose, verbs = [], language }) => {
-  // ✅ КРИТИЧНО: на iOS убирает “призрачный” прозрачный слой
+const VerbListModal = ({
+  visible,
+  onStartExercise,
+  onClose,
+  verbs = [],
+  language,
+  pinnedIds = [],
+}) => {
   if (!visible) return null;
 
   const fallbackLang = 'en';
-
   const normalizedInput = String(language || '').toLowerCase().trim();
   const langKey = languageMap[normalizedInput] || normalizedInput || fallbackLang;
 
@@ -124,15 +123,6 @@ const VerbListModal = ({ visible, onStartExercise, onClose, verbs = [], language
 
   useEffect(() => {
     Vibration.vibrate(100);
-    (async () => {
-      try {
-        await ensureAudioMode();
-        const { sound } = await Audio.Sound.createAsync(require('./api/click.mp3'), { shouldPlay: true });
-        sound.setOnPlaybackStatusUpdate((status) => {
-          if (status.didJustFinish) sound.unloadAsync();
-        });
-      } catch {}
-    })();
   }, []);
 
   return (
@@ -140,13 +130,11 @@ const VerbListModal = ({ visible, onStartExercise, onClose, verbs = [], language
       visible
       animationType="slide"
       transparent
-      // ✅ КРИТИЧНО для iOS-оверлеев
       presentationStyle="overFullScreen"
       onRequestClose={onClose}
     >
       <FadeInView style={styles.overlay}>
-        {/* ✅ Меняем высоту ТОЛЬКО на iOS. Android остаётся 92% как было */}
-        <View style={[styles.container, Platform.OS === 'ios' ? styles.containerIOS : null]}>
+        <View style={[styles.container, Platform.OS === 'ios' && styles.containerIOS]}>
           <Text style={[styles.title, isRTL(langKey) && { textAlign: 'right' }]} maxFontSizeMultiplier={1.2}>
             {title}
           </Text>
@@ -156,41 +144,49 @@ const VerbListModal = ({ visible, onStartExercise, onClose, verbs = [], language
             keyExtractor={(item, idx) =>
               `${norm(item?.mp3Inf) || norm(item?.mp3Conj)}_${item?.hebrewtext || ''}_${idx}`
             }
-            renderItem={({ item }) => (
-              <View style={styles.bubble}>
-                <View style={styles.verbLeft}>
-                  <Text style={styles.entext} maxFontSizeMultiplier={1.2}>
-                    {item?.entext}
-                  </Text>
-                </View>
+            renderItem={({ item }) => {
+              const isPinned = pinnedIds.includes(item?.hebrewtext);
 
-                <View style={styles.verbRight}>
-                  <TouchableOpacity onPress={() => playForItem(item)} style={styles.speakerButton}>
-                    <Image source={require('./speaker6.png')} style={styles.speakerIcon} />
-                  </TouchableOpacity>
+              return (
+                <View style={styles.bubble}>
+                  {/* ЛЕВАЯ ЧАСТЬ — перевод + иконка */}
+                  <View style={styles.verbLeft}>
+                    <Text style={styles.entext} maxFontSizeMultiplier={1.2}>
+                      {item?.entext}
+                    </Text>
 
-                  <Text style={styles.hebrew} maxFontSizeMultiplier={1.2}>
-                    {item?.hebrewtext}
-                  </Text>
-                  <Text style={styles.translit} maxFontSizeMultiplier={1.2}>
-                    {item?.translit}
-                  </Text>
+                    {isPinned && (
+                      <Image
+                        source={require('./gant2.png')}
+                        style={styles.pinnedIcon}
+                      />
+                    )}
+                  </View>
+
+                  {/* ПРАВАЯ ЧАСТЬ — иврит + звук */}
+                  <View style={styles.verbRight}>
+                    <TouchableOpacity onPress={() => playForItem(item)} style={styles.speakerButton}>
+                      <Image source={require('./speaker6.png')} style={styles.speakerIcon} />
+                    </TouchableOpacity>
+
+                    <Text style={styles.hebrew} maxFontSizeMultiplier={1.2}>
+                      {item?.hebrewtext}
+                    </Text>
+                    <Text style={styles.translit} maxFontSizeMultiplier={1.2}>
+                      {item?.translit}
+                    </Text>
+                  </View>
                 </View>
-              </View>
-            )}
+              );
+            }}
           />
 
           <TouchableOpacity onPress={onStartExercise} style={styles.button}>
-            <Text style={styles.buttonText} maxFontSizeMultiplier={1.2}>
-              {buttonText}
-            </Text>
+            <Text style={styles.buttonText}>{buttonText}</Text>
           </TouchableOpacity>
 
-          {/* ✅ Кнопка "Закрыть" снизу как надпись */}
-          <TouchableOpacity onPress={onClose} style={styles.closeLink} activeOpacity={0.8}>
-            <Text style={[styles.closeText, isRTL(langKey) && { textAlign: 'right' }]} maxFontSizeMultiplier={1.2}>
-              {closeText}
-            </Text>
+          <TouchableOpacity onPress={onClose} style={styles.closeLink}>
+            <Text style={styles.closeText}>{closeText}</Text>
           </TouchableOpacity>
         </View>
       </FadeInView>
@@ -206,7 +202,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
 
-  // ✅ Android — как было (92%)
   container: {
     backgroundColor: '#fff',
     width: '96%',
@@ -214,8 +209,6 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     padding: 20,
   },
-
-  // ✅ iOS — только уменьшаем высоту (Android не трогаем)
   containerIOS: {
     height: '84%',
   },
@@ -229,6 +222,68 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     color: '#003366',
     padding: 12,
+  },
+
+  bubble: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    backgroundColor: '#F2F4F8',
+    borderRadius: 12,
+    paddingVertical: 6,
+    paddingHorizontal: 15,
+    marginBottom: 10,
+  },
+
+  verbLeft: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+
+  verbRight: {
+    flex: 1,
+    alignItems: 'flex-end',
+    position: 'relative',
+  },
+
+  entext: {
+    fontSize: 15,
+    fontWeight: 'bold',
+    color: '#333',
+  },
+
+  pinnedIcon: {
+    width: 22,
+    height: 22,
+    resizeMode: 'contain',
+    opacity: 0.9,
+  },
+
+  hebrew: {
+    fontWeight: 'bold',
+    fontSize: 18,
+    color: '#2F4766',
+    marginRight: 30,
+  },
+
+  translit: {
+    fontStyle: 'italic',
+    color: '#C03A2B',
+    fontSize: 14,
+    fontWeight: 'bold',
+    marginRight: 30,
+  },
+
+  speakerButton: {
+    position: 'absolute',
+    right: 0,
+    top: '50%',
+    transform: [{ translateY: -11 }],
+  },
+  speakerIcon: {
+    width: 22,
+    height: 22,
   },
 
   button: {
@@ -246,7 +301,6 @@ const styles = StyleSheet.create({
 
   closeLink: {
     marginTop: 6,
-    paddingVertical: 0,
     alignSelf: 'center',
   },
   closeText: {
@@ -254,36 +308,6 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#4A6491',
   },
-
-  bubble: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    backgroundColor: '#F2F4F8',
-    borderRadius: 12,
-    paddingVertical: 4,
-    paddingHorizontal: 15,
-    marginBottom: 10,
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOpacity: 0.4,
-    shadowOffset: { width: 0, height: 1 },
-    shadowRadius: 2,
-  },
-  verbLeft: { flex: 1, alignItems: 'flex-start' },
-  verbRight: { flex: 1, alignItems: 'flex-end', justifyContent: 'center', position: 'relative' },
-  hebrew: { fontWeight: 'bold', fontSize: 18, color: '#2F4766', marginRight: 30 },
-  translit: { fontStyle: 'italic', color: '#C03A2B', fontSize: 14, fontWeight: 'bold', marginRight: 30 },
-  entext: { color: '#333', fontSize: 15, textAlign: 'left', fontWeight: 'bold' },
-
-  speakerButton: {
-    position: 'absolute',
-    right: -28,
-    top: '50%',
-    transform: [{ translateY: -11 }],
-    marginRight: 24,
-  },
-  speakerIcon: { width: 22, height: 22, resizeMode: 'contain' },
 });
 
 export default VerbListModal;

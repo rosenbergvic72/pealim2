@@ -988,6 +988,7 @@ const updateVerbDetails = (currentVerb, isGenderMan, showRussianText = false) =>
           visible={isVerbListVisible}
           language={language}
           verbs={verbListForModal}
+          pinnedIds={pinnedIds}
           onStartExercise={() => {
             modalCloseReasonRef.current = 'start';
             setIsVerbListVisible(false);

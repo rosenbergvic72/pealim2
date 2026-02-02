@@ -1017,6 +1017,7 @@ const buildDeck = (
           visible={isVerbListVisible}
           language={language}
           verbs={verbListForModal}
+          pinnedIds={pinnedIds}
           onStartExercise={() => {
             modalCloseReasonRef.current = 'start';
             setIsVerbListVisible(false);

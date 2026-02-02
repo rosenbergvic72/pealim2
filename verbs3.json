@@ -3046,21 +3046,21 @@
         "correctTranslationIndex": 1
     },
     {
-        "hebrewVerb": "לנגן",
-        "root": "נ-ג-ן",
-        "translation": "Играть",
-        "verbEnglish": "to play",
-        "verbFrench": "jouer",
-        "verbSpanish": "tocar",
-        "verbPortuguese": "tocar",
-        "verbArabic": "أن يعزف",
-        "verbAmharic": "መጫወት",
-        "binyan": "PI'EL",
-        "transliteration": "lenagen",
-        "audioFile": "lenagen.mp3",
-        "binyanOptions": ["PI'EL", "PA'AL", "HIF'IL", "HITPA'EL"],
-        "correctTranslationIndex": 0
-    },
+  "hebrewVerb": "לנגן",
+  "root": "נ-ג-ן",
+  "translation": "Играть (музыка)",
+  "verbEnglish": "to play (music)",
+  "verbFrench": "jouer (de la musique)",
+  "verbSpanish": "tocar (música)",
+  "verbPortuguese": "tocar (música)",
+  "verbArabic": "أن يعزف (موسيقى)",
+  "verbAmharic": "መጫወት (ሙዚቃ)",
+  "binyan": "PI'EL",
+  "transliteration": "lenagen",
+  "audioFile": "lenagen.mp3",
+  "binyanOptions": ["PI'EL", "PA'AL", "HIF'IL", "HITPA'EL"],
+  "correctTranslationIndex": 0
+},
     {
         "hebrewVerb": "לחבר",
         "root": "ח-ב-ר",
@@ -4626,23 +4626,25 @@
   "binyanOptions": ["PI'EL", "PA'AL", "HIF'IL", "HITPA'EL"],
         "correctTranslationIndex": 0
     },
-    {
-        "hebrewVerb": "להתעדכן",
-        "root": " ע-ד-כ-ן",
-        "binyan": "HITPA'EL",
-        "transliteration": "lehitadken",
-        "audioFile": "lehitadken.mp3",
-        "translation": "Догонять",
-            
-        "verbEnglish": "to catch up",
-"verbFrench": "rattraper",
-"verbSpanish": "alcanzar",
-"verbPortuguese": "alcançar",
-"verbArabic": "أن يلحق",
-"verbAmharic": "መያዝ",
+{
+  "hebrewVerb": "להתעדכן",
+  "root": "ע-ד-כ-נ",
+  "binyan": "HITPA'EL",
+  "transliteration": "lehitadken",
+  "audioFile": "lehitadken.mp3",
+  "translation": "Обновляться",
+
+  "verbEnglish": "to get updated",
+  "verbFrench": "se mettre à jour",
+  "verbSpanish": "ponerse al día",
+  "verbPortuguese": "atualizar-se",
+  "verbArabic": "أن يتحدّث",
+  "verbAmharic": "መዘመን",
+
   "binyanOptions": ["PI'EL", "PA'AL", "HIF'IL", "HITPA'EL"],
-        "correctTranslationIndex": 3
-    },
+  "correctTranslationIndex": 3
+},
+
     {
         "hebrewVerb": "להתקנא",
         "root": "ק-נ-א",

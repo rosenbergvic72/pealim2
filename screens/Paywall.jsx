@@ -14,6 +14,9 @@ Text.defaultProps.maxFontSizeMultiplier = 1.2;
 if (TextInput.defaultProps == null) TextInput.defaultProps = {};
 TextInput.defaultProps.maxFontSizeMultiplier = 1.2;
 
+
+const LAST_GOOD_PRO_AT_KEY = 'iap:lastGoodProAt';
+const TRIAL_EVER_USED_KEY = 'iap:trialEverUsed';
 const SHOW_PLAY_REDEEM = false;
 const DEV_SKIP = false; // автоскок в dev — отключён
 
@@ -116,7 +119,11 @@ const STR = {
     headerTrialEmph: '5-DAY FREE TRIAL (for new subscribers)',
     headerTrialTail:
       '. Pick a plan and tap START FREE TRIAL. After the trial, full access continues automatically at the plan price—you can cancel anytime in Google Play / App Store, or tap CONTINUE FOR FREE.',
+    headerNoTrialEmph: 'Subscription',
+    headerNoTrialTail:
+      '. Pick a plan and tap SUBSCRIBE. You can cancel anytime in Google Play / App Store, or tap CONTINUE FOR FREE.',
     freePreview: 'CONTINUE FOR FREE',
+    freePreviewSubtitle: 'Train 350 Hebrew verbs',
     fullAccess: 'Full access',
     limitedAccess: 'Limited access',
     exercises12: 'Exercises 1 & 2',
@@ -127,7 +134,7 @@ const STR = {
   },
   русский: {
     startTrial: 'НАЧАТЬ ПРОБНЫЙ ПЕРИОД',
-    subscribe: 'ПОДПИСАТЬСЯ',
+    subscribe: 'ОФОРМИТЬ ПОДПИСКУ',
     monthly: 'Помесячно',
     annual: 'На год',
     promoLabel: 'Промокод',
@@ -153,7 +160,11 @@ const STR = {
     headerTrialEmph: '5 ДНЕЙ БЕСПЛАТНОГО ДОСТУПА (для новых подписчиков)',
     headerTrialTail:
       '. Выберите план и нажмите НАЧАТЬ ПРОБНЫЙ ПЕРИОД. После триала полный доступ продлится автоматически по цене выбранного плана — отменить можно в любой момент в Google Play / App Store, или нажмите ПРОДОЛЖИТЬ БЕСПЛАТНО.',
+    headerNoTrialEmph: 'Оформи подписку для полного доступа ко всем упражнениям',
+    headerNoTrialTail:
+      '. Выберите план и нажмите ОФОРМИТЬ ПОДПИСКУ. Отменить можно в любой момент в Google Play / App Store, или нажмите ПРОДОЛЖИТЬ БЕСПЛАТНО.',
     freePreview: 'ПРОДОЛЖИТЬ БЕСПЛАТНО',
+    freePreviewSubtitle: 'Тренируй 350 глаголов иврита',
     fullAccess: 'Полный доступ',
     limitedAccess: 'Ограниченный доступ',
     exercises12: 'Упражнения 1 и 2',
@@ -190,7 +201,12 @@ const STR = {
     headerTrialEmph: 'ESSAI GRATUIT DE 5 JOURS (pour les nouveaux abonnés)',
     headerTrialTail:
       '. Choisissez une formule et touchez DÉMARRER L’ESSAI GRATUIT. À la fin de l’essai, l’accès se prolonge automatiquement au prix de la formule — résiliation possible à tout moment (Google Play / App Store), ou touchez CONTINUER GRATUITEMENT.',
-    freePreview: 'CONTINUER GRATUITEMENT',
+    headerNoTrialEmph: 'Abonnez-vous pour accéder à tous les exercices',
+   headerNoTrialTail:
+  ". Choisissez une formule et touchez S’ABONNER. Vous pouvez résilier à tout moment (Google Play / App Store), ou touchez CONTINUER GRATUITEMENT.",
+freePreview: 'CONTINUER GRATUITEMENT',
+freePreviewSubtitle: 'Entraîne 350 verbes en hébreu',
+
     fullAccess: 'Accès complet',
     limitedAccess: 'Accès limité',
     exercises12: 'Exercices 1 et 2',
@@ -227,7 +243,11 @@ const STR = {
     headerTrialEmph: 'PRUEBA GRATUITA DE 5 DÍAS (para nuevos suscriptores)',
     headerTrialTail:
       '. Elige un plan y pulsa INICIAR PRUEBA GRATUITA. Tras la prueba, el acceso completo continúa automáticamente al precio del plan — puedes cancelar en cualquier momento en Google Play / App Store, o pulsa CONTINUAR GRATIS.',
+    headerNoTrialEmph: 'Suscríbete para tener acceso completo a todos los ejercicios',
+    headerNoTrialTail:
+      '. Elige un plan y pulsa SUSCRIBIRSE. Puedes cancelar en cualquier momento en Google Play / App Store, o pulsa CONTINUAR GRATIS.',
     freePreview: 'CONTINUAR GRATIS',
+    freePreviewSubtitle: 'Entrena 350 verbos en hebreo',
     fullAccess: 'Acceso completo',
     limitedAccess: 'Acceso limitado',
     exercises12: 'Ejercicios 1 y 2',
@@ -264,7 +284,11 @@ const STR = {
     headerTrialEmph: '5 DIAS DE AVALIAÇÃO GRÁTIS (para novos assinantes)',
     headerTrialTail:
       '. Escolha um plano e toque em INICIAR AVALIAÇÃO GRÁTIS. Após a avaliação, o acesso completo continua automaticamente pelo preço do plano — você pode cancelar a qualquer momento no Google Play / App Store, ou toque em CONTINUAR GRÁTIS.',
+    headerNoTrialEmph: 'Assine para ter acesso total a todos os exercícios',
+    headerNoTrialTail:
+      '. Escolha um plano e toque em ASSINAR. Você pode cancelar a qualquer momento no Google Play / App Store, ou toque em CONTINUAR GRÁTIS.',
     freePreview: 'CONTINUAR GRÁTIS',
+    freePreviewSubtitle: 'Treine 350 verbos em hebraico',
     fullAccess: 'Acesso total',
     limitedAccess: 'Acesso limitado',
     exercises12: 'Exercícios 1 e 2',
@@ -301,7 +325,11 @@ const STR = {
     headerTrialEmph: '5 ቀን ነጻ ሙከራ (ለአዲስ ተመዝጋቢዎች)',
     headerTrialTail:
       '። እቅድ ይምረጡ እና «ነጻ ሙከራ ጀምር» ይጫኑ። ከሙከራው በኋላ ሙሉ መዳረሻ በእቅዱ ዋጋ በራሱ ይቀጥላል — በGoogle Play / App Store ማቋረጥ በማንኛውም ጊዜ ይቻላል፣ ወይም «ነፃ መቀጠል» ይጫኑ።',
+    headerNoTrialEmph: 'ሙሉ መዳረሻ ለሁሉም ልምምዶች ይመዝገቡ',
+    headerNoTrialTail:
+      '። እቅድ ይምረጡ እና «መመዝገብ» ይጫኑ። በGoogle Play / App Store በማንኛውም ጊዜ ማቋረጥ ይቻላል፣ ወይም «ነፃ መቀጠል» ይጫኑ።',
     freePreview: 'ነፃ መቀጠል',
+    freePreviewSubtitle: '350 የእብራይስጥ ግሶችን አስተማሩ',
     fullAccess: 'ሙሉ መዳረሻ',
     limitedAccess: 'የተገደበ መዳረሻ',
     exercises12: 'ልምምዶች 1 እና 2',
@@ -338,7 +366,11 @@ const STR = {
     headerTrialEmph: 'فترة تجريبية مجانية لمدة 5 أيام (للمشتركين الجدد)',
     headerTrialTail:
       '. اختر خطة واضغط «بدء الفترة التجريبية». بعد الفترة التجريبية، يستمر الوصول الكامل تلقائيًا بسعر الخطة — ويمكنك الإلغاء في أي وقت عبر Google Play / App Store، أو اضغط «المتابعة مجانًا».',
+    headerNoTrialEmph: 'اشترك للوصول الكامل إلى جميع التمارين',
+    headerNoTrialTail:
+      '. اختر خطة واضغط «اشترك». يمكنك الإلغاء في أي وقت عبر Google Play / App Store، أو اضغط «المتابعة مجانًا».',
     freePreview: 'المتابعة مجانًا',
+    freePreviewSubtitle: 'تدرّب على 350 فعلًا عبريًا',
     fullAccess: 'وصول كامل',
     limitedAccess: 'وصول محدود',
     exercises12: 'تمارين 1 و2',
@@ -422,9 +454,13 @@ export default function Paywall({ navigation }) {
   const [redeemMsg, setRedeemMsg] = useState('');
   const [redeemOK, setRedeemOK] = useState(false);
   const [redeemLoading, setRedeemLoading] = useState(false);
+const [trialEverUsed, setTrialEverUsed] = useState(false);
+const [trialFlagReady, setTrialFlagReady] = useState(false);
 
   const isRTL = RTL_LANGS.has(langKey);
   const S = STR[langKey] || STR.english;
+  const showTrial = !trialFlagReady ? true : !trialEverUsed;
+
 
   const navigatedRef = useRef(false);
   const appStateRef = useRef(AppState.currentState);
@@ -450,6 +486,23 @@ export default function Paywall({ navigation }) {
       if (saved && STR[saved]) setLangKey(saved);
     })();
   }, []);
+
+  /* trial flag (hide free-trial messaging after any previous Pro on this device) */
+  useEffect(() => {
+    (async () => {
+      try {
+        const lastGood = await AsyncStorage.getItem(LAST_GOOD_PRO_AT_KEY);
+        const explicit = await AsyncStorage.getItem(TRIAL_EVER_USED_KEY);
+        const ever = (!!lastGood && Number(lastGood) > 0) || explicit === 'true';
+        setTrialEverUsed(ever);
+      } catch (_) {
+        // ignore
+      } finally {
+        setTrialFlagReady(true);
+      }
+    })();
+  }, []);
+
 
   /* dev autoskip — выключен */
   useEffect(() => { if (DEV_SKIP) {/* noop */} }, []);
@@ -704,7 +757,7 @@ const openRedeemModal = () => {
     })();
   }, [ready, postChecked, hasPro, showPost, navigation, probePostPurchase]);
 
-  const UIButton = ({ label, subLabel, subLabel2, onPress, disabled, kind = 'outline', big = false, style }) => (
+  const UIButton = ({ label, subLabel, subLabel2, subLabelAccent = false, onPress, disabled, kind = 'outline', big = false, style }) => (
     <TouchableOpacity
       activeOpacity={0.8}
       onPress={onPress}
@@ -727,7 +780,11 @@ const openRedeemModal = () => {
       </Text>
       {!!subLabel && (
         <Text
-          style={[styles.btnSubText, kind === 'solid' ? styles.btnSubTextSolid : styles.btnSubTextOutline]}
+          style={[
+            styles.btnSubText,
+            kind === 'solid' ? styles.btnSubTextSolid : styles.btnSubTextOutline,
+            subLabelAccent && styles.btnSubTextAccent,
+          ]}
           maxFontSizeMultiplier={1.2}
         >
           {subLabel}
@@ -847,10 +904,10 @@ const openRedeemModal = () => {
           <View style={styles.headerBox}>
             <Text style={styles.headerTitle} maxFontSizeMultiplier={1.2}>
               <Text style={styles.headerEmph} maxFontSizeMultiplier={1.2}>
-                {STR[langKey]?.headerTrialEmph}
+                {showTrial ? S.headerTrialEmph : S.headerNoTrialEmph}
               </Text>
               {!!STR[langKey]?.headerTrialTail && (
-                <Text maxFontSizeMultiplier={1.2}> {STR[langKey]?.headerTrialTail}</Text>
+                <Text maxFontSizeMultiplier={1.2}> {showTrial ? S.headerTrialTail : S.headerNoTrialTail}</Text>
               )}
             </Text>
           </View>
@@ -925,7 +982,7 @@ const openRedeemModal = () => {
           <View style={styles.spacer} />
           {/* CTA: полный доступ */}
           <UIButton
-            label={STR[langKey]?.startTrial}
+            label={showTrial ? S.startTrial : S.subscribe}
             subLabel={S.fullAccess}
             onPress={onPrimaryCta}
             disabled={!ready || !plan}    // активна только после ручного выбора плана
@@ -937,8 +994,9 @@ const openRedeemModal = () => {
           <View style={styles.spacerSm} />
           <UIButton
             label={STR[langKey]?.freePreview}
-            subLabel={S.limitedAccess}
-            subLabel2={S.exercises12}
+            subLabel={STR[langKey]?.freePreviewSubtitle}
+            subLabelAccent
+            subLabel2={`${S.limitedAccess} • ${S.exercises12}`}
             onPress={goMenuFreePreview}
             kind="outline"
           />
@@ -1153,6 +1211,7 @@ const styles = StyleSheet.create({
   btnSubText2: { marginTop: 1, fontSize: 12, opacity: 0.8, fontWeight: '600' },
   btnSubTextOutline: { color: BRAND },
   btnSubTextSolid: { color: BRAND_TEXT },
+  btnSubTextAccent: { color: ACCENT, fontWeight: '900', opacity: 1 },
 
   bottomArea: { paddingVertical: 8, alignItems: 'center' },
   footerLink: { fontSize: 14, textDecorationLine: 'underline', color: BRAND, opacity: 0.9 },

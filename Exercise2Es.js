@@ -1065,6 +1065,7 @@ useEffect(() => {
           visible={isVerbListVisible}
           language={language}
           verbs={verbListForModal}
+          pinnedIds={pinnedVerbs}
           onStartExercise={() => {
             modalCloseReasonRef.current = 'start';
 

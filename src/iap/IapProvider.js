@@ -91,19 +91,48 @@ const OPT_DEV_PRO =
 // «липкий» Pro в DEV (не понижать после ответа сервера)
 const DEV_STICKY_PRO = String(process.env.EXPO_PUBLIC_DEV_STICKY_PRO || '0') === '1';
 
-/** Теги офферов */
-const TAG_MAP = {
-  basic:   { monthly: ['basic', 'monthly'],   annual: ['basic', 'annual'] },
-  promo:   { monthly: ['promo', 'monthly'],   annual: ['promo', 'annual'] },
-  ulpan:   { monthly: ['ulpan', 'monthly'],   annual: ['ulpan', 'annual'] },
-  nativ:   { monthly: ['nativ', 'monthly'],   annual: ['nativ', 'annual'] },
-  partner: { monthly: ['partner', 'monthly'], annual: ['partner', 'annual'] },
-  test:    { monthly: ['test', 'monthly'],    annual: ['test', 'annual'] },
-  tikva:   { monthly: ['tikva', 'monthly'],   annual: ['tikva', 'annual'] },
-  timur:   { monthly: ['timur', 'monthly'],   annual: ['timur', 'annual'] },
-  kala:   { monthly: ['kala', 'monthly'],   annual: ['kala', 'annual'] },
-  default: { monthly: null,                   annual: null },
-};
+/**
+ * Теги офферов (Google Play Subscription Offers).
+ *
+ * Мы используем 3 типа тегов:
+ * - segment: basic / test / ulpan / ...
+ * - trial mode: trial5 или notrial
+ * - cadence: monthly / annual
+ *
+ * Для сегментов со скидкой (test/ulpan/...) у нас есть 2 оффера:
+ *   - segment + trial5 + cadence
+ *   - segment + notrial + cadence
+ *
+ * Для basic сейчас есть только trial5-оффер (для новых),
+ * а после использованного trial показываем/покупаем обычные base plans:
+ *   annual-ils-80 / monthly-ils-10 (без тегов).
+ */
+const SEGMENTS = [
+  'basic',
+  'promo',
+  'ulpan',
+  'nativ',
+  'partner',
+  'test',
+  'tikva',
+  'timur',
+  'kala',
+  'auslender',
+  'default',
+];
+
+function requiredTagsForSegment(segment, cadence /* 'monthly' | 'annual' */, preferNoTrial) {
+  if (!segment || segment === 'default') return null;
+
+  // basic: только trial5-офферы; после trial — берём базовый план без тегов
+  if (segment === 'basic') {
+    return preferNoTrial ? null : ['basic', 'trial5', cadence];
+  }
+
+  // остальные сегменты: есть trial5 и notrial
+  const trialTag = preferNoTrial ? 'notrial' : 'trial5';
+  return [segment, trialTag, cadence];
+}
 
 /* ===================== Контекст ===================== */
 const IapContext = createContext({
@@ -207,64 +236,50 @@ function pickByPeriod(product, kind) {
   const fits = kind === 'monthly' ? hasMonthlyPeriod : hasAnnualPeriod;
   return offers.filter(fits);
 }
-function pickPreferredBaseOffer(product, kind) {
+function pickPreferredBaseOffer(product, kind, preferNoTrial = false) {
   const periodOffers = pickByPeriod(product, kind);
   if (!periodOffers.length) return null;
+
   const tags = kind === 'monthly' ? ['basic', 'monthly'] : ['basic', 'annual'];
+
+  // 1) Strict match by tags (if you tag your offers/base-plans)
   const strict = periodOffers.find(
     (o) => (o.offerTags || []).length && tags.every((t) => o.offerTags.includes(t)),
   );
   if (strict) return strict;
-  const byId = periodOffers.find(
-    (o) =>
-      String(o.offerId || '').toLowerCase().includes('trial') ||
-      String(o.basePlanId || '').toLowerCase().includes('trial'),
-  );
-  if (byId) return byId;
-  const withTrial = periodOffers.filter(hasFreeTrial);
-  if (withTrial.length) {
-    return (
-      withTrial
-        .map((o) => ({ o, m: priceMicrosOf(o) }))
-        .filter((x) => x.m > 0)
-        .sort((a, b) => a.m - b.m)[0]?.o || withTrial[0]
-    );
+
+  const hasFreeTrial = (o) =>
+    (o.pricingPhases?.pricingPhaseList || []).some((p) => {
+      const type = String(p?.recurrenceMode || p?.billingCycleCount || '').toLowerCase();
+      const priceMicros = Number(p?.priceAmountMicros || 0);
+      const cycle = String(p?.billingPeriod || '');
+      // Heuristic: a "free trial" is a phase with price 0 and a period (P?D / P?W / P?M).
+      return priceMicros === 0 && cycle.startsWith('P');
+    });
+
+  const isTrialById = (o) =>
+    String(o.offerId || '').toLowerCase().includes('trial') ||
+    String(o.basePlanId || '').toLowerCase().includes('trial');
+
+  // 2) If the device already had Pro before, prefer a non-trial offer if available
+  if (preferNoTrial) {
+    const nonTrial = periodOffers
+      .filter((o) => !hasFreeTrial(o) && !isTrialById(o))
+      .sort((a, b) => (getOfferPriceMicros(a) ?? 0) - (getOfferPriceMicros(b) ?? 0))[0];
+    if (nonTrial) return nonTrial;
   }
+
+  // 3) Otherwise, prefer a trial offer (if present), else fall back to cheapest
+  const withTrial = periodOffers.find((o) => isTrialById(o) || hasFreeTrial(o));
+  if (withTrial) return withTrial;
+
   return (
     periodOffers
-      .map((o) => ({ o, m: priceMicrosOf(o) })).
-      filter((x) => x.m > 0).
-      sort((a, b) => a.m - b.m)[0]?.o || periodOffers[0]
+      .slice()
+      .sort((a, b) => (getOfferPriceMicros(a) ?? 0) - (getOfferPriceMicros(b) ?? 0))[0] || null
   );
 }
-function findSegmentOffer(product, requiredTags, kind, segment) {
-  const periodOffers = pickByPeriod(product, kind);
-  if (!periodOffers.length) return null;
-  if (requiredTags?.length) {
-    const strict = periodOffers.find(
-      (o) => (o.offerTags || []).length && requiredTags.every((t) => o.offerTags.includes(t)),
-    );
-    if (strict) return strict;
-  }
-  const needle = String(segment || '').toLowerCase();
-  if (needle) {
-    const byId = periodOffers.find(
-      (o) =>
-        String(o.offerId || '').toLowerCase().includes(needle) ||
-        String(o.basePlanId || '').toLowerCase().includes(needle),
-    );
-    if (byId) return byId;
-  }
-  if (segment && segment !== 'basic') {
-    return (
-      periodOffers
-        .map((o) => ({ o, m: priceMicrosOf(o) }))
-        .filter((x) => x.m > 0)
-        .sort((a, b) => a.m - b.m)[0]?.o || periodOffers[0]
-    );
-  }
-  return periodOffers[0];
-}
+
 
 /* ===================== API helpers ===================== */
 async function getSubsSafe() {
@@ -342,6 +357,7 @@ export function IapProvider({ children, initialSegment = 'basic' }) {
   const [ready, setReady] = useState(false);
   const [available, setAvailable] = useState(true);
   const [hasPro, setHasPro] = useState(false);
+const [trialEverUsed, setTrialEverUsed] = useState(false);
   const [codeAccessUntil, setCodeAccessUntil] = useState(null);
   const codeAccessUntilRef = useRef(null);
   const codeLoadedRef = useRef(false);
@@ -501,7 +517,20 @@ const ensureCodeLoaded = useCallback(async () => {
   );
 
   /* ---- стартовые сбросы ---- */
+  
+
+  // trial flag: once this device ever had Pro, we prefer non-trial offers (and can hide trial messaging in UI)
   useEffect(() => {
+    (async () => {
+      try {
+        const lastGood = await AsyncStorage.getItem(LAST_GOOD_PRO_AT_KEY);
+        const explicit = await AsyncStorage.getItem(TRIAL_EVER_USED_KEY);
+        const ever = (!!lastGood && Number(lastGood) > 0) || explicit === 'true';
+        setTrialEverUsed(ever);
+      } catch (_) {}
+    })();
+  }, []);
+useEffect(() => {
     (async () => {
       setSegment('basic');
       setPromoActive(false);
@@ -604,8 +633,8 @@ const payload = {
         return;
       }
 
-      const baseMonthlyOffer = pickPreferredBaseOffer(prod, 'monthly');
-      const baseAnnualOffer  = pickPreferredBaseOffer(prod, 'annual');
+      const baseMonthlyOffer = pickPreferredBaseOffer(prod, 'monthly', trialEverUsed);
+      const baseAnnualOffer  = pickPreferredBaseOffer(prod, 'annual', trialEverUsed);
 
       let baseMonthly = firstPaidPhase(baseMonthlyOffer)?.formatted;
       let baseAnnual  = firstPaidPhase(baseAnnualOffer)?.formatted;
@@ -622,12 +651,17 @@ const payload = {
       let segMonthlyOffer = null;
       let segAnnualOffer  = null;
       if (promoActive) {
-        const segTags = TAG_MAP[segment];
-        segMonthlyOffer = segTags
-          ? findSegmentOffer(prod, segTags.monthly, 'monthly', segment)
+        // Для промо-сегментов:
+        // - если триал уже использовался на устройстве → ищем notrial-* офферы
+        // - иначе → ищем trial5-* офферы
+        const segMonthlyTags = getSegmentOfferTags(segment, 'monthly', trialEverUsed);
+        const segAnnualTags  = getSegmentOfferTags(segment, 'annual',  trialEverUsed);
+
+        segMonthlyOffer = segMonthlyTags
+          ? findSegmentOffer(prod, segMonthlyTags, 'monthly', segment)
           : null;
-        segAnnualOffer  = segTags
-          ? findSegmentOffer(prod, segTags.annual, 'annual', segment)
+        segAnnualOffer = segAnnualTags
+          ? findSegmentOffer(prod, segAnnualTags, 'annual', segment)
           : null;
       }
 
@@ -650,7 +684,7 @@ const payload = {
         displayPrices: newPrices,
       }));
     },
-    [segment, promoActive],
+    [segment, promoActive, trialEverUsed],
   );
 
   /* ---- офлайн-энтайтлмент из кеша ---- */
@@ -671,6 +705,8 @@ const payload = {
       if ((lastPro || json?.pro) && lastGoodAt && Date.now() - lastGoodAt < IAP_SERVER_GRACE_MS) {
         console.log('[IAP] OFFLINE GRACE by lastGoodProAt', { lastGoodAt, graceMs: IAP_SERVER_GRACE_MS });
         setHasPro(true);
+        setTrialEverUsed(true);
+        AsyncStorage.setItem(TRIAL_EVER_USED_KEY, 'true').catch(() => {});
         return true;
       }
     } catch {}
@@ -686,6 +722,8 @@ const payload = {
       // 1) Если локально уже есть активный partner-code — сразу Pro, без IAP restore
       if (isIsoActiveNow(codeAccessUntilRef.current)) {
         setHasPro(true);
+        setTrialEverUsed(true);
+        AsyncStorage.setItem(TRIAL_EVER_USED_KEY, 'true').catch(() => {});
         return true;
       }
 
@@ -884,6 +922,8 @@ const payload = {
             // DEV: можно включить Pro сразу (опционально)
             if (OPT_DEV_PRO) {
               setHasPro(true);
+              setTrialEverUsed(true);
+              AsyncStorage.setItem(TRIAL_EVER_USED_KEY, 'true').catch(() => {});
               setJustPurchased(true);
               setShouldShowPost(true);
               try {
@@ -967,13 +1007,13 @@ const payload = {
         return null;
       }
       if (!promoActive) {
-        const basePref = pickPreferredBaseOffer(prod, kind);
+        const basePref = pickPreferredBaseOffer(prod, kind, !!trialEverUsed);
         if (basePref?.offerToken) {
-          console.log('[IAP] Using BASIC preferred offer (trial-first)');
+          console.log('[IAP] Using BASIC preferred offer', { preferNoTrial: !!trialEverUsed });
           return basePref.offerToken;
         }
       }
-      const required = TAG_MAP[segment]?.[kind] ?? null;
+      const required = promoActive ? getSegmentOfferTags(segment, kind, !!trialEverUsed) : null;
       const segOffer = findSegmentOffer(prod, required, kind, segment);
       if (segOffer?.offerToken) {
         console.log('[IAP] Found segment offer token:', {
@@ -987,7 +1027,7 @@ const payload = {
         console.log('[IAP] Using period fallback token');
         return byPeriod.offerToken;
       }
-      const baseFallback = pickPreferredBaseOffer(prod, kind);
+      const baseFallback = pickPreferredBaseOffer(prod, kind, !!trialEverUsed);
       if (baseFallback?.offerToken) {
         console.log('[IAP] Using basic fallback offer');
         return baseFallback.offerToken;
@@ -1122,6 +1162,8 @@ const payload = {
   const __devGrantPro = useCallback(async () => {
     if (!devSessionAllowed) return;
     setHasPro(true);
+    setTrialEverUsed(true);
+    AsyncStorage.setItem(TRIAL_EVER_USED_KEY, 'true').catch(() => {});
     setJustPurchased(false);
     setShouldShowPost(false);
   }, [devSessionAllowed]);
@@ -1136,6 +1178,7 @@ const payload = {
       ready,
       available,
       hasPro,
+      trialEverUsed,
 
       /** ✅ NEW */
       userId,
@@ -1180,6 +1223,7 @@ const payload = {
       ready,
       available,
       hasPro,
+      trialEverUsed,
       userId,
       justPurchased,
       consumeJustPurchased,
@@ -1274,3 +1318,4 @@ export function NoIapProvider({ children }) {
 
   return <IapContext.Provider value={value}>{children}</IapContext.Provider>;
 }
+const TRIAL_EVER_USED_KEY = 'iap:trialEverUsed';

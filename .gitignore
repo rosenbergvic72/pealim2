@@ -84,3 +84,13 @@ assets/fonts/Montserrat-*.ttf
 * copy*.jsx
 * copy *.jsx
 * copy *.js
+
+# local backup copies
+verbs* copy.json
+verbs*copy.json
+
+
+# local backup copies
+verbs* copy.json
+verbs*copy.json
+

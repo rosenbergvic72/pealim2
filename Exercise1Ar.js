@@ -809,6 +809,7 @@ const updateVerbDetails = (currentVerb, isGenderMan, showRussianText = false) =>
           visible={isVerbListVisible}
           language={language}
           verbs={verbListForModal}
+          pinnedIds={pinnedIds}
           onStartExercise={async () => {
             // перестраиваем колоду с учетом актуальных pinned/excluded прямо перед стартом
             await initializeExercise(language);

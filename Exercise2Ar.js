@@ -1151,6 +1151,7 @@ const updateVerbDetails2 = (currentVerb, showHebrewText = false) => {
           visible={isVerbListVisible}
           language={language}
           verbs={verbListForModal}
+          pinnedIds={pinnedVerbs}
           onStartExercise={() => {
             modalCloseReasonRef.current = 'start';
 

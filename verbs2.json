@@ -842,7 +842,7 @@
 "verbArabic": "أن يضحك",
 "verbAmharic": "መሳቀቅ",
 
-        "audioFile": "litzok.mp3",
+        "audioFile": "litzchok.mp3",
         "verbHebrewOptions": [
           { "text": "לצחוק", "transliteration": "litzchok", "isCorrect": true },
           { "text": "לקום", "transliteration": "lakum", "isCorrect": false },
@@ -3335,23 +3335,25 @@
           { "text": "להאמין", "transliteration": "leha'amin", "isCorrect": false }
         ]
       },
-      {
-        "verbRussian": "Играть",
-        "verbEnglish": "to play",
-"verbFrench": "jouer",
-"verbSpanish": "tocar",
-"verbPortuguese": "tocar",
-"verbArabic": "أن يعزف",
-"verbAmharic": "መጫወት",
+  {
+  "verbRussian": "Играть (музыка)",
+  "verbEnglish": "to play (music)",
+  "verbFrench": "jouer (de la musique)",
+  "verbSpanish": "tocar (música)",
+  "verbPortuguese": "tocar (música)",
+  "verbArabic": "أن يعزف (موسيقى)",
+  "verbAmharic": "መጫወት (ሙዚቃ)",
 
-        "audioFile": "lenagen.mp3",
-        "verbHebrewOptions": [
-          { "text": "לנגן", "transliteration": "lenagen", "isCorrect": true },
-          { "text": "לחבר", "transliteration": "lehaber", "isCorrect": false },
-          { "text": "להאמין", "transliteration": "leha'amin", "isCorrect": false },
-          { "text": "לבטוח", "transliteration": "livtoach", "isCorrect": false }
-        ]
-      },
+  "audioFile": "lenagen.mp3",
+
+  "verbHebrewOptions": [
+    { "text": "לנגן", "transliteration": "lenagen", "isCorrect": true },
+    { "text": "לחבר", "transliteration": "lehaber", "isCorrect": false },
+    { "text": "להאמין", "transliteration": "leha'amin", "isCorrect": false },
+    { "text": "לבטוח", "transliteration": "livtoach", "isCorrect": false }
+  ]
+},
+
       {
         "verbRussian": "Соединять",
         "verbEnglish": "to connect",
@@ -4971,23 +4973,23 @@
       ]
     },
     {
-      "verbRussian": "Догонять",
+  "verbRussian": "Обновляться",
+  "verbEnglish": "to get updated",
+  "verbFrench": "se mettre à jour",
+  "verbSpanish": "ponerse al día",
+  "verbPortuguese": "atualizar-se",
+  "verbArabic": "أن يتحدّث",
+  "verbAmharic": "መዘመን",
 
-"verbEnglish": "to catch up",
-"verbFrench": "rattraper",
-"verbSpanish": "alcanzar",
-"verbPortuguese": "alcançar",
-"verbArabic": "أن يلحق",
-"verbAmharic": "መያዝ",
+  "audioFile": "lehitadken.mp3",
 
-      "audioFile": "lehitadken.mp3",
-      "verbHebrewOptions": [
-        { "text": "להתעדכן", "transliteration": "lehitadken", "isCorrect": true },
-        { "text": "לעשן", "transliteration": "le'ashen", "isCorrect": false },
-        { "text": "להתרחץ", "transliteration": "lehitrachetz", "isCorrect": false },
-        { "text": "לעשות", "transliteration": "la'asot", "isCorrect": false }
-      ]
-    },
+  "verbHebrewOptions": [
+    { "text": "להתעדכן", "transliteration": "lehitadken", "isCorrect": true },
+    { "text": "לעשן", "transliteration": "le'ashen", "isCorrect": false },
+    { "text": "להתרחץ", "transliteration": "lehitrachetz", "isCorrect": false },
+    { "text": "לעשות", "transliteration": "la'asot", "isCorrect": false }
+  ]
+},
     {
       "verbRussian": "Завидовать",
 

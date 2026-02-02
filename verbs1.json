@@ -3956,26 +3956,23 @@
     "correctTranslationIndex": 0
     },
     {
-    "hebrewVerb": "לנגן",
-    "root": "נ-ג-ן",
-    "binyan": "PI'EL",
-    "transliteration": "lenagen",
-    "audioFile": "lenagen.mp3",
-    "translationOptions": [
-    "Играть",
-    "Развлекаться",
-    "Скучать",
-    "Грустить"
-    ],
-    "translationOptionsEn": ["to play", "to have fun", "to miss", "to be sad"],
-"translationOptionsFr": ["jouer", "s'amuser", "manquer", "être triste"],
-"translationOptionsEs": ["tocar", "divertirse", "echar de menos", "estar triste"],
-"translationOptionsPt": ["tocar", "divertir-se", "sentir falta", "estar triste"],
-"translationOptionsAr": [ "أن يعزف" , "أن تنقذ", "أن تقلل", "أن تجمع"],
-"translationOptionsAm": ["መጫወት", "መደሰት", "መረሳት", "መከራ"],
+  "hebrewVerb": "לנגן",
+  "root": "נ-ג-ן",
+  "binyan": "PI'EL",
+  "transliteration": "lenagen",
+  "audioFile": "lenagen.mp3",
 
-    "correctTranslationIndex": 0
-    },
+  "translationOptions": ["Играть (музыка)", "Развлекаться", "Скучать", "Грустить"],
+  "translationOptionsEn": ["to play (music)", "to have fun", "to miss", "to be sad"],
+  "translationOptionsFr": ["jouer (de la musique)", "s'amuser", "manquer", "être triste"],
+  "translationOptionsEs": ["tocar (música)", "divertirse", "echar de menos", "estar triste"],
+  "translationOptionsPt": ["tocar (música)", "divertir-se", "sentir falta", "estar triste"],
+  "translationOptionsAr": ["أن يعزف (موسيقى)", "أن يستمتع", "أن يفتقد", "أن يكون حزينًا"],
+  "translationOptionsAm": ["መጫወት (ሙዚቃ)", "መደሰት", "መናፈቅ", "መከራ"],
+
+  "correctTranslationIndex": 0
+},
+
     {
     "hebrewVerb": "לחבר",
     "root": "ח-ב-ר",
@@ -5943,27 +5940,21 @@
                   
                         "correctTranslationIndex": 0
                     },
-                    {
-                        "hebrewVerb": "להתעדכן",
-                        "root": " ע-ד-כ-ן",
-                        "binyan": "HITPA'EL",
-                        "transliteration": "lehitadken",
-                        "audioFile": "lehitadken.mp3",
-                        "translationOptions": [
-                            "Догонять",
-                            "Брать",
-                            "Останавливать",
-                            "Солить"
-                        ],
-                        "translationOptionsEn": ["to catch up", "to take", "to stop", "to salt"],
-                  "translationOptionsFr": ["rattraper", "prendre", "arrêter", "saler"],
-                  "translationOptionsEs": ["alcanzar", "tomar", "detener", "salar"],
-                  "translationOptionsPt": ["alcançar", "pegar", "parar", "salgar"],
-                  "translationOptionsAr": ["أن يلحق", "أن تأخذ", "أن توقف", "أن تملح"],
-                  "translationOptionsAm": ["መያዝ", "መውሰድ", "ማቆም", "መጨው"],
-                  
-                        "correctTranslationIndex": 0
-                    },
+             {
+  "hebrewVerb": "להתעדכן",
+  "root": "ע-ד-כ-נ",
+  "binyan": "HITPA'EL",
+  "transliteration": "lehitadken",
+  "audioFile": "lehitadken.mp3",
+  "translationOptions": ["Обновляться", "Брать", "Останавливать", "Солить"],
+  "translationOptionsEn": ["to get updated", "to take", "to stop", "to salt"],
+  "translationOptionsFr": ["se mettre à jour", "prendre", "arrêter", "saler"],
+  "translationOptionsEs": ["ponerse al día", "tomar", "detener", "salar"],
+  "translationOptionsPt": ["atualizar-se", "pegar", "parar", "salgar"],
+  "translationOptionsAr": ["أن يتحدّث", "أن يأخذ", "أن يوقف", "أن يملّح"],
+  "translationOptionsAm": ["መዘመን", "መውሰድ", "ማቆም", "መጨው"],
+  "correctTranslationIndex": 0
+},
                     {
                         "hebrewVerb": "להתקנא",
                         "root": "ק-נ-א",

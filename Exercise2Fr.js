@@ -1119,6 +1119,7 @@ const Exercise2Fr = () => {
           visible={isVerbListVisible}
           language={language}
           verbs={verbListForModal}
+          pinnedIds={pinnedVerbs}
           onStartExercise={() => {
             modalCloseReasonRef.current = 'start';
             setIsVerbListVisible(false);      // просто закрываем список и остаёмся в упражнении
