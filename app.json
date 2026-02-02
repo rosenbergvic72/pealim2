@@ -23,9 +23,11 @@
       "softwareKeyboardLayoutMode": "resize",
       "versionCode": 2000098,
       "permissions": [
-        "RECORD_AUDIO",
-        "POST_NOTIFICATIONS"
-      ],
+  "RECORD_AUDIO",
+  "POST_NOTIFICATIONS",
+  "com.google.android.gms.permission.AD_ID"
+]
+,
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/iconjjj.png",
         "backgroundColor": "#2d4769"
