@@ -768,7 +768,7 @@ function AppInner() {
   options={{
     ...createHeaderTitle('Paywall', true, 'Уведомления'),
     headerForceBack: true,
-    headerBackTarget: 'Welcome',
+    // headerBackTarget: 'Welcome',
     cardStyle: { backgroundColor: '#F0F0F0' },
   }}
 />

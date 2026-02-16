@@ -11,10 +11,10 @@ import {
   Animated,
 } from 'react-native';
 import VerbCard2 from './VerbCard2En';
-// import verbsData from './verbs2.json';
-import verbsData from './verbs2copy.json';
-// import verbs1RU from './verbs11RU.json';
-import verbs1RU from './verbs11RUcopy.json';
+import verbsData from './verbs2.json';
+// import verbsData from './verbs2copy.json';
+import verbs1RU from './verbs11RU.json';
+// import verbs1RU from './verbs11RUcopy.json';
 import ProgressBar from './ProgressBar';
 import CompletionMessageEn from './CompletionMessageEn';
 import { useNavigation, useFocusEffect, CommonActions } from '@react-navigation/native';

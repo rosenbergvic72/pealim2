@@ -141,7 +141,7 @@ const AppDescriptionModal = ({ visible, onToggle }) => {
                 <Text style={[styles.bold, styles.highlightExercise]}>
                   • التمرينان 1 و 2 -
                 </Text>{' '}
-                يساعدان على حفظ حوالي 300 فعل رئيسي وأشكاله الأساسية.
+                يساعدان على حفظ حوالي 350 فعل رئيسي وأشكاله الأساسية.
               </Text>
 
               <Text style={styles.listItem}>

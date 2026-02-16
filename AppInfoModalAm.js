@@ -15,8 +15,8 @@ const AppInfoModal = ({ visible, onToggle , updatedAt, appSize }) => {
               <Text style={styles.modalTitle}>ስለ መተግበሪያው</Text>
       
               {/* ስሪት እና ዝማኔ */}
-              <Text style={styles.modalText}>ስሪት: <Text style={styles.bold}>{Constants.expoConfig?.version || 'ያልታወቀ'}</Text></Text>
-              <Text style={styles.modalText}>የዘመነ: <Text style={styles.bold}>{updatedAt || '09.12.2025'}</Text></Text>
+              <Text style={styles.modalText}>ስሪት: <Text style={styles.bold}>{Constants.expoConfig?.version || '1.1.7'}</Text></Text>
+              <Text style={styles.modalText}>የዘመነ: <Text style={styles.bold}>{updatedAt || '15.02.2026'}</Text></Text>
       
               {/* መሰረታዊ መረጃ
               <Text style={styles.sectionTitle}>መግለጫ:</Text>

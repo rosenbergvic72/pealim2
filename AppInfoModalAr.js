@@ -15,8 +15,8 @@ const AppInfoModal = ({ visible, onToggle , updatedAt, appSize }) => {
               <Text style={styles.modalTitle}>حول التطبيق</Text>
       
               {/* الإصدار والتحديث */}
-              <Text style={styles.modalText}>الإصدار: <Text style={styles.bold}>{Constants.expoConfig?.version || 'غير معروف'}</Text></Text>
-              <Text style={styles.modalText}>تم التحديث:  <Text style={styles.bold}>{updatedAt || '09.12.2025'}</Text></Text>
+              <Text style={styles.modalText}>الإصدار: <Text style={styles.bold}>{Constants.expoConfig?.version || '1.1.7'}</Text></Text>
+              <Text style={styles.modalText}>تم التحديث:  <Text style={styles.bold}>{updatedAt || '15.02.2026'}</Text></Text>
       
               {/* المعلومات الأساسية
               <Text style={styles.sectionTitle}>الوصف:</Text>

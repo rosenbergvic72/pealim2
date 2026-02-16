@@ -136,7 +136,7 @@ const AppDescriptionModal = ({ visible, onToggle }) => {
                 <Text style={[styles.bold, styles.highlightExercise]}>
                   • Упражнения 1 и 2 –
                 </Text>{' '}
-                помогают запомнить около 300 ключевых глаголов и их основные формы.
+                помогают запомнить около 350 ключевых глаголов и их основные формы.
               </Text>
 
               <Text style={styles.listItem}>

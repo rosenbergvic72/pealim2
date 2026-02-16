@@ -131,6 +131,7 @@ const STR = {
     postBody:
       'Full access is unlocked. If you receive a Google Play email about “registering” the subscription — it’s standard; access is already granted.',
     postContinue: 'Continue',
+    fullAccessAllExercises: 'Full access • All exercises',
   },
   русский: {
     startTrial: 'НАЧАТЬ ПРОБНЫЙ ПЕРИОД',
@@ -172,6 +173,7 @@ const STR = {
     postBody:
       'Доступ ко всем функциям открыт. Если придёт письмо Google о «регистрации у разработчика» — это стандартное письмо, доступ уже предоставлен.',
     postContinue: 'Продолжить',
+    fullAccessAllExercises: 'Полный доступ • Все упражнения',
   },
   français: {
     startTrial: 'DÉMARRER L’ESSAI GRATUIT',
@@ -214,6 +216,7 @@ freePreviewSubtitle: 'Entraîne 350 verbes en hébreu',
     postBody:
       'Accès complet débloqué. L’e-mail Google Play sur « l’enregistrement » est standard ; l’accès est déjà accordé.',
     postContinue: 'Continuer',
+    fullAccessAllExercises: 'Accès complet • Tous les exercices',
   },
   español: {
     startTrial: 'INICIAR PRUEBA GRATUITA',
@@ -255,6 +258,7 @@ freePreviewSubtitle: 'Entraîne 350 verbes en hébreu',
     postBody:
       'Acceso completo desbloqueado. El correo de Google Play sobre “registrar” es normal; el acceso ya está concedido.',
     postContinue: 'Continuar',
+    fullAccessAllExercises: 'Acceso completo • Todos los ejercicios',
   },
   português: {
     startTrial: 'INICIAR AVALIAÇÃO GRÁTIS',
@@ -296,6 +300,7 @@ freePreviewSubtitle: 'Entraîne 350 verbes en hébreu',
     postBody:
       'Acesso completo liberado. O e-mail do Google Play sobre “registro” é padrão; o acesso já foi concedido.',
     postContinue: 'Continuar',
+    fullAccessAllExercises: 'Acesso total • Todos os exercícios',
   },
   'አማርኛ': {
     startTrial: 'ነጻ ሙከራ ጀምር',
@@ -337,6 +342,7 @@ freePreviewSubtitle: 'Entraîne 350 verbes en hébreu',
     postBody:
       'ሙሉ መዳረሻ ተከፍቷል። የ Google Play “ምዝገባ” ኢሜይል መደበኛ ነው፤ መዳረሻ አስቀድሞ ተሰጥቷል።',
     postContinue: 'ቀጥል',
+    fullAccessAllExercises: 'ሙሉ መዳረሻ • ሁሉም ልምምዶች',
   },
   العربية: {
     startTrial: 'بدء الفترة التجريبية',
@@ -378,6 +384,7 @@ freePreviewSubtitle: 'Entraîne 350 verbes en hébreu',
     postBody:
       'تم فتح الوصول الكامل. رسالة “التسجيل لدى المطوّر” من Google Play إجراء قياسي؛ تم منح الوصول.',
     postContinue: 'متابعة',
+    fullAccessAllExercises: 'وصول كامل • جميع التمارين',
   },
 };
 
@@ -757,7 +764,7 @@ const openRedeemModal = () => {
     })();
   }, [ready, postChecked, hasPro, showPost, navigation, probePostPurchase]);
 
-  const UIButton = ({ label, subLabel, subLabel2, subLabelAccent = false, onPress, disabled, kind = 'outline', big = false, style }) => (
+  const UIButton = ({ label, subLabel, subLabel2, subLabelStyle, subLabel2Style, subLabelAccent = false, onPress, disabled, kind = 'outline', big = false, style }) => (
     <TouchableOpacity
       activeOpacity={0.8}
       onPress={onPress}
@@ -768,6 +775,7 @@ const openRedeemModal = () => {
         big && styles.btnBig,
         disabled && styles.btnDisabled,
         style,
+        subLabelStyle,
       ]}
     >
       <Text maxFontSizeMultiplier={1.2}>
@@ -784,6 +792,7 @@ const openRedeemModal = () => {
             styles.btnSubText,
             kind === 'solid' ? styles.btnSubTextSolid : styles.btnSubTextOutline,
             subLabelAccent && styles.btnSubTextAccent,
+            subLabelStyle,
           ]}
           maxFontSizeMultiplier={1.2}
         >
@@ -792,7 +801,7 @@ const openRedeemModal = () => {
       )}
       {!!subLabel2 && (
         <Text
-          style={[styles.btnSubText2, kind === 'solid' ? styles.btnSubTextSolid : styles.btnSubTextOutline]}
+          style={[styles.btnSubText2, kind === 'solid' ? styles.btnSubTextSolid : styles.btnSubTextOutline, subLabel2Style,]}
           maxFontSizeMultiplier={1.2}
         >
           {subLabel2}
@@ -983,7 +992,7 @@ const openRedeemModal = () => {
           {/* CTA: полный доступ */}
           <UIButton
             label={showTrial ? S.startTrial : S.subscribe}
-            subLabel={S.fullAccess}
+            subLabel={S.fullAccessAllExercises}
             onPress={onPrimaryCta}
             disabled={!ready || !plan}    // активна только после ручного выбора плана
             kind="solid"
@@ -992,14 +1001,16 @@ const openRedeemModal = () => {
 
           {/* Бесплатно */}
           <View style={styles.spacerSm} />
-          <UIButton
-            label={STR[langKey]?.freePreview}
-            subLabel={STR[langKey]?.freePreviewSubtitle}
-            subLabelAccent
-            subLabel2={`${S.limitedAccess} • ${S.exercises12}`}
-            onPress={goMenuFreePreview}
-            kind="outline"
-          />
+      <UIButton
+  label={STR[langKey]?.freePreview}
+  subLabel={STR[langKey]?.freePreviewSubtitle}
+  subLabelAccent
+  subLabel2={`${S.limitedAccess} • ${S.exercises12}`}
+  onPress={goMenuFreePreview}
+  kind="outline"
+  subLabelStyle={{ fontSize: 16 }}   // ✅ больше только тут
+/>
+
 
           {/* DEV: локальный анлок */}
           {__DEV__ && __devGrantPro && !hasPro && (

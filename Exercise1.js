@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { ScrollView, View, Text, TouchableOpacity, StyleSheet, BackHandler, Image, Animated } from 'react-native';
 import VerbCard1 from './VerbCard1';
-// import verbsData from './verbs1.json';
-import verbsData from './verbs1copy.json';
-// import verbs1RU from './verbs11RU.json';
-import verbs1RU from './verbs11RUcopy.json';
+import verbsData from './verbs1.json';
+// import verbsData from './verbs1copy.json';
+import verbs1RU from './verbs11RU.json';
+// import verbs1RU from './verbs11RUcopy.json';
 import ProgressBar from './ProgressBar';
 import { useFocusEffect } from '@react-navigation/native';
 import CompletionMessage from './CompletionMessage';

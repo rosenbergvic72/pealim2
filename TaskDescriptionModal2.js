@@ -15,7 +15,7 @@ import FadeInView from './api/FadeInView';
 const translations = {
   ru: {
     title: 'ОПИСАНИЕ ЗАДАНИЯ 2',
-    intro1: 'В этом упражнении вы сможете запомнить и повторить около 300 самых употребляемых глаголов иврита.',
+    intro1: 'В этом упражнении вы сможете запомнить и повторить около 350 самых употребляемых глаголов иврита.',
     intro2:
       'Вам будет показан инфинитив глагола на русском языке, а также четыре варианта его перевода на иврит. Ваша задача — выбрать правильный вариант.',
     intro3:
@@ -41,7 +41,7 @@ const translations = {
 
   en: {
     title: 'TASK 2 DESCRIPTION',
-    intro1: 'In this exercise, you will be able to memorize and review about 300 of the most common Hebrew verbs.',
+    intro1: 'In this exercise, you will be able to memorize and review about 350 of the most common Hebrew verbs.',
     intro2:
       'You will be shown the infinitive of a verb in English, along with four options for its translation into Hebrew. Your task is to choose the correct one.',
     intro3:
@@ -67,7 +67,7 @@ const translations = {
   fr: {
     title: 'DESCRIPTION DE L’EXERCICE 2',
     intro1:
-      'Dans cet exercice, vous pourrez mémoriser et réviser environ 300 des verbes hébreux les plus courants.',
+      'Dans cet exercice, vous pourrez mémoriser et réviser environ 350 des verbes hébreux les plus courants.',
     intro2:
       'L’infinitif du verbe vous sera présenté en français, avec quatre options de traduction en hébreu. Votre tâche est de choisir la bonne réponse.',
     intro3:
@@ -93,7 +93,7 @@ const translations = {
 
   es: {
     title: 'DESCRIPCIÓN DEL EJERCICIO 2',
-    intro1: 'En este ejercicio podrás memorizar y repasar unos 300 de los verbos hebreos más comunes.',
+    intro1: 'En este ejercicio podrás memorizar y repasar unos 350 de los verbos hebreos más comunes.',
     intro2:
       'Se te mostrará el infinitivo del verbo en español, junto con cuatro opciones de traducción al hebreo. Tu tarea es elegir la correcta.',
     intro3:
@@ -118,7 +118,7 @@ const translations = {
 
   pt: {
     title: 'DESCRIÇÃO DO EXERCÍCIO 2',
-    intro1: 'Neste exercício, você poderá memorizar e revisar cerca de 300 dos verbos hebraicos mais comuns.',
+    intro1: 'Neste exercício, você poderá memorizar e revisar cerca de 350 dos verbos hebraicos mais comuns.',
     intro2:
       'Será mostrado o infinitivo do verbo em português, com quatro opções de tradução para o hebraico. Sua tarefa é escolher a correta.',
     intro3:
@@ -143,7 +143,7 @@ const translations = {
 
   ar: {
     title: 'وَصف التمرين 2',
-    intro1: 'في هذا التمرين، يمكنك حفظ ومراجعة حوالي 300 من أكثر الأفعال العبرية شيوعًا.',
+    intro1: 'في هذا التمرين، يمكنك حفظ ومراجعة حوالي 350 من أكثر الأفعال العبرية شيوعًا.',
     intro2:
       'سيتم عرض الفعل بصيغة المصدر باللغة العربية، إلى جانب أربع ترجمات ممكنة إلى العبرية. مهمتك هي اختيار الترجمة الصحيحة.',
     intro3:
@@ -168,7 +168,7 @@ const translations = {
 
   am: {
     title: 'ልዩ ምልክት ስለ ልምድ 2',
-    intro1: 'በዚህ ልምድ ውስጥ ከተለመዱት የዕብራይስጥ ግሶች 300 የሚጠጋገቡና የሚታወቁን መማረድና መድገም ይችላሉ።',
+    intro1: 'በዚህ ልምድ ውስጥ ከተለመዱት የዕብራይስጥ ግሶች 350 የሚጠጋገቡና የሚታወቁን መማረድና መድገም ይችላሉ።',
     intro2:
       'የግሱ ነፃ ቅርጽ በአማርኛ ይታያል፣ ከዚህ ጋር አራት የዕብራይስጥ ትርጉም አማራጮች ይሆናሉ። ትክክለኛውን ምርጫ ይምረጡ።',
     intro3:

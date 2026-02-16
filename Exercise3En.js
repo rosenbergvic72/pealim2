@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { ScrollView, View, Text, TouchableOpacity, StyleSheet, BackHandler, Image } from 'react-native';
 import VerbCard3 from './VerbCard3En';
-// import verbsData from './verbs3.json';
-import verbsData from './verbs3copy.json';
+import verbsData from './verbs3.json';
+// import verbsData from './verbs3copy.json';
 import ProgressBar from './ProgressBar';
 import { useFocusEffect } from '@react-navigation/native';
 import CompletionMessageEn from './CompletionMessageEn';
@@ -13,8 +13,8 @@ import TaskDescriptionModal6 from './TaskDescriptionModal3';
 import StatModal3En from './StatModal3En';
 import { updateStatistics, getStatistics } from './stat';
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
-// import verbs11RU from './verbs11RU.json';
-import verbs11RU from './verbs11RUcopy.json';
+import verbs11RU from './verbs11RU.json';
+// import verbs11RU from './verbs11RUcopy.json';
 import soundsConj from './soundconj';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 

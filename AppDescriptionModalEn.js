@@ -138,7 +138,7 @@ const AppDescriptionModal = ({ visible, onToggle }) => {
                 <Text style={[styles.bold, styles.highlightExercise]}>
                   • Exercises 1 and 2 -
                 </Text>{' '}
-                help memorize about 300 key verbs.
+                help memorize about 350 key verbs.
               </Text>
 
               <Text style={styles.listItem}>
