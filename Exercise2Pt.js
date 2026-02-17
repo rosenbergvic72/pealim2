@@ -1460,7 +1460,7 @@ const styles = StyleSheet.create({
   },
   optionButton: {
     width: '49%',
-    height: 90,
+    height: 80,
     padding: 15,
     backgroundColor: '#FFFDEF',
     marginBottom: 10,

@@ -24,6 +24,11 @@ import { useIap } from './src/iap/IapProvider'; // ⬅️ PRO
 import StatsReportModalMulti from './StatsReportModalMulti';
 import Constants from 'expo-constants';
 
+const FONT_REG = 'mt-regular';
+const FONT_MED = 'mt-medium';
+const FONT_BOLD = 'mt-bold';
+const FONT_SEMIBOLD = 'mt-semibold';
+
 export default function MenuPage({ route }) {
   const navigation = useNavigation();
   const { hasPro } = useIap(); // ⬅️ доступ к PRO
@@ -43,6 +48,8 @@ export default function MenuPage({ route }) {
   const [exitConfirmationVisible, setExitConfirmationVisible] = useState(false);
   const [isStatModalVisible, setIsStatModalVisible] = useState(false);
   const [isDescriptionModalVisible, setIsDescriptionModalVisible] = useState(false);
+
+  
 
   // === NEW: определяем превью-режим ===
   useEffect(() => {
@@ -987,7 +994,7 @@ const styles = StyleSheet.create({
   },
   statsText: {
     fontSize: 11,
-    fontWeight: 'bold',
+    fontFamily: FONT_SEMIBOLD,
     color: 'white',
     textAlign: 'right',
     marginRight: 8,
@@ -1018,7 +1025,7 @@ const styles = StyleSheet.create({
   image: { width: 90, height: 90, marginRight: 20, marginLeft: 5 },
   greeting: { fontSize: 16, fontWeight: 'bold', color: '#2D4769', marginLeft: 10 },
   titleText: {
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: 'bold',
     marginBottom: 10,
     textAlign: 'center',
@@ -1069,7 +1076,7 @@ const styles = StyleSheet.create({
   upperPart2: { flexDirection: 'row', justifyContent: 'center', alignItems: 'center', width: '100%' },
   upperText1: {
     fontSize: 10,
-    fontWeight: 'bold',
+    fontFamily: FONT_BOLD,
     color: '#2D4769',
     backgroundColor: 'white',
     padding: 3,
@@ -1077,7 +1084,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     marginLeft: 10,
   },
-  upperText: { fontSize: 14, fontWeight: 'bold', color: 'white', marginBottom: 10, textAlign: 'center' },
+  upperText: { fontSize: 13, fontWeight: 'bold', color: 'white', marginBottom: 10, textAlign: 'center' },
 
   lowerRight: {
     flexDirection: 'row',

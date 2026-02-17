@@ -17,6 +17,24 @@ import * as Device from 'expo-device';
 /* ===================== Константы / настройки ===================== */
 const SKU = Platform.select({ android: 'monthly_ils_10', ios: 'monthly_ils_10' });
 
+/* ===================== Restore prompt snooze (avoid repeated Google account popups) ===================== */
+const RESTORE_SNOOZE_KEY = 'iap:restoreSnoozeUntil';
+const RESTORE_SNOOZE_DEFAULT_MS = 10 * 60 * 1000; // 10 min
+
+async function writeRestoreSnooze(ms = RESTORE_SNOOZE_DEFAULT_MS) {
+  try { await AsyncStorage.setItem(RESTORE_SNOOZE_KEY, String(Date.now() + ms)); } catch {}
+}
+async function isRestoreSnoozed() {
+  try {
+    const raw = await AsyncStorage.getItem(RESTORE_SNOOZE_KEY);
+    const until = Number(raw || 0);
+    const ok = Number.isFinite(until) && Date.now() < until;
+    if (!ok) await AsyncStorage.removeItem(RESTORE_SNOOZE_KEY);
+    return ok;
+  } catch { return false; }
+}
+
+
 /** URL серверной верификации */
 const VERIFY_URL =
   Constants?.expoConfig?.extra?.IAP_VERIFY_URL ||
@@ -1047,6 +1065,8 @@ const restoreActiveSubscription = useCallback(async () => {
   const consumeJustPurchased = useCallback(() => setJustPurchased(false), []);
 
   const __devGrantPro = useCallback(async () => {
+    try { await AsyncStorage.setItem(DEV_FORCE_PRO_KEY, '1'); devForceProRef.current = true; } catch {}
+
     if (!devSessionAllowed) return;
     setHasPro(true);
     setTrialEverUsed(true);
@@ -1142,6 +1162,8 @@ export function NoIapProvider({ children }) {
     ) === '1';
 
   const __devGrantPro = useCallback(async () => {
+    try { await AsyncStorage.setItem(DEV_FORCE_PRO_KEY, '1'); devForceProRef.current = true; } catch {}
+
     if (!devAllowed) return;
     setMockPro(true);
   }, [devAllowed]);

@@ -333,7 +333,7 @@ const SearchModalPt = ({ visible, onToggle, onSelectVerb }) => {
    Styles
 ========================= */
 
-const TABLE_FONT = 12;
+const TABLE_FONT = 13;
 
 const styles = StyleSheet.create({
   centeredView: {

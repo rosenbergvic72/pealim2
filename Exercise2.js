@@ -1453,20 +1453,22 @@ useEffect(() => {
 
 const styles = StyleSheet.create({
   scrollViewContent: {
-    flexGrow: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
+  flexGrow: 1,
+  justifyContent: 'flex-start',   // ← вместо center
+  alignItems: 'center',
+  paddingTop: 0,                // можно 5–15 по вкусу
+},
 
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 10,
-    backgroundColor: '#AFC1D0',
-    height: '100%',
-    width: '100%',
-  },
+container: {
+  flex: 1,
+  justifyContent: 'flex-start',  // ← вместо center
+  alignItems: 'center',
+  padding: 10,
+  paddingTop: 0,                // можно уменьшить ещё
+  backgroundColor: '#AFC1D0',
+  width: '100%',
+},
+
 
   topBar: {
     flexDirection: 'row',
@@ -1506,7 +1508,7 @@ const styles = StyleSheet.create({
   },
   optionButton: {
     width: '49%',
-    height: 90,
+    height: 80,
     padding: 15,
     backgroundColor: '#FFFDEF',
     marginBottom: 10,

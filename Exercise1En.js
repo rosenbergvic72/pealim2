@@ -686,12 +686,13 @@ const updateVerbDetails = (currentVerb, isGenderMan, showRussianText = false) =>
   const enCorrect =
     (currentVerb.translationOptionsEn || [])[currentVerb.correctTranslationIndex ?? 0] || '';
 
-  setVerbDetails({
-    hebrewtext: selectedVerb.hebrewtext,
-    translit: selectedVerb.translit,
-    entext: showRussianText ? enCorrect : '',
-    mp3: selectedVerb.mp3,
-  });
+setVerbDetails({
+  hebrewtext: selectedVerb.hebrewtext,
+  translit: selectedVerb.translit,
+  entext: showRussianText ? (selectedVerb.entext || '') : '',
+  mp3: selectedVerb.mp3,
+});
+
 
   if (!showRussianText) playAudio(selectedVerb.mp3);
 };
@@ -1071,21 +1072,22 @@ const handleButton3Press = async () => {
 };
 
 const styles = StyleSheet.create({
-  scrollViewContent: {
-    flexGrow: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
+     scrollViewContent: {
+  flexGrow: 1,
+  justifyContent: 'flex-start',   // ← вместо center
+  alignItems: 'center',
+  paddingTop: 0,                // можно 5–15 по вкусу
+},
 
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 10,
-    backgroundColor: '#AFC1D0',
-    height: '100%',
-    width: '100%',
-  },
+container: {
+  flex: 1,
+  justifyContent: 'flex-start',  // ← вместо center
+  alignItems: 'center',
+  padding: 10,
+  paddingTop: 0,                // можно уменьшить ещё
+  backgroundColor: '#AFC1D0',
+  width: '100%',
+},
 
   topBar: {
     flexDirection: 'row',
@@ -1125,7 +1127,7 @@ const styles = StyleSheet.create({
   },
 optionButton: {
   width: '49%',
-  minHeight: hp('8.5%'),     // было height
+  minHeight: hp('7.5%'),     // было height
   paddingVertical: hp('1.4%'),// вместо/добавь к padding
   paddingHorizontal: wp('3%'),
   backgroundColor: '#D1E3F1',

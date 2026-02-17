@@ -5,6 +5,11 @@ import { Audio } from 'expo-av';
 import sounds from './Soundss';
 import LottieView from 'lottie-react-native';
 
+const FONT_REG = 'mt-regular';
+const FONT_MED = 'mt-medium';
+const FONT_BOLD = 'mt-bold';
+const FONT_SEMIBOLD = 'mt-semibold';
+
 const DEFAULT_TYPING_SPEED = 100;
 
 // ✅ HITPA'EL / HITPAEL / hitpa-el -> "hitpael"
@@ -303,9 +308,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
 
-  hebrewVerb: {
-    fontSize: 27,
-    fontWeight: 'bold',
+ hebrewVerb: {
+    fontSize: 30,
+    fontFamily: FONT_BOLD,
     color: '#333652',
     borderRadius: 20,
     paddingLeft: 10,

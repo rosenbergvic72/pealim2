@@ -21,6 +21,11 @@ import VerbListModal2 from './VerbListModal2';
 import shuffleArray from './utils/shuffleArray';
 import verbs1Data from './verbs1.json';
 
+const FONT_REG = 'mt-regular';
+const FONT_MED = 'mt-medium';
+const FONT_BOLD = 'mt-bold';
+const FONT_SEMIBOLD = 'mt-semibold';
+
 
 const Exercise6Ar = () => {
   const [pairs, setPairs] = useState([]);
@@ -1388,11 +1393,7 @@ const styles = StyleSheet.create({
     marginLeft: 3,
     color: '#152039',
   },
-  hebrewText: {
-    fontSize: 18,
-    textAlign: 'center',
-    color: '#152039',
-  },
+hebrewText: { fontSize: 22, textAlign: 'center', color: '#152039', fontFamily: FONT_SEMIBOLD },
 
   // ✅ когда скрыли транслит — визуально центрируем иврит
   hebrewCenterWhenNoTranslit: {

@@ -24,6 +24,9 @@ const DEV_SKIP = false; // автоскок в dev — отключён
 const GATE_SNOOZE_KEY = 'iap:gateSnoozeUntil';
 const GATE_SNOOZE_MS  = 5000;
 
+/* ===== Автовосстановление покупок: защита от спама (особенно на Android) ===== */
+const RESTORE_THROTTLE_MS = 60000; // не чаще 1 раза в минуту, чтобы не дергать Google Play логин
+
 async function writeGateSnooze(ms = GATE_SNOOZE_MS) {
   try { await AsyncStorage.setItem(GATE_SNOOZE_KEY, String(Date.now() + ms)); } catch {}
 }
@@ -472,6 +475,38 @@ const [trialFlagReady, setTrialFlagReady] = useState(false);
   const navigatedRef = useRef(false);
   const appStateRef = useRef(AppState.currentState);
 
+  // ✅ Защита: restore() может вызывать системный запрос аккаунта/пароля на Android.
+  // Поэтому делаем троттлинг + блокировку повторных вызовов (даже если restore пересоздается в провайдере).
+  const restoreFnRef = useRef(restore);
+  const showPostRef = useRef(false);
+  const redeemVisibleRef = useRef(false);
+  const restoreLockRef = useRef({ inFlight: false, lastAt: 0 });
+
+  useEffect(() => { restoreFnRef.current = restore; }, [restore]);
+  useEffect(() => { showPostRef.current = !!(hasPro && !!shouldShowPost); }, [hasPro, shouldShowPost]);
+  useEffect(() => { redeemVisibleRef.current = !!redeemModalVisible; }, [redeemModalVisible]);
+
+  const maybeRestoreSafe = useCallback(async (reason) => {
+    try {
+      if (redeemVisibleRef.current) return;
+      if (showPostRef.current) return;
+      if (await isGateSnoozed()) return;
+
+      const now = Date.now();
+      const lock = restoreLockRef.current;
+      if (lock.inFlight) return;
+      if (lock.lastAt && now - lock.lastAt < RESTORE_THROTTLE_MS) return;
+
+      lock.inFlight = true;
+      lock.lastAt = now;
+      await restoreFnRef.current?.();
+    } catch (e) {
+      console.warn('[PAYWALL] restore skipped/failed:', reason, e?.message || e);
+    } finally {
+      restoreLockRef.current.inFlight = false;
+    }
+  }, []);
+
   // Если пользователь снова попал на Paywall (например, после повторной активации/навигации),
   // разрешаем повторный auto-redirect в Pro.
   useFocusEffect(
@@ -534,33 +569,29 @@ const [trialFlagReady, setTrialFlagReady] = useState(false);
     })();
   }, [probePostPurchase]);
 
-  /* при фокусе — восстановим доступ, если нет коридора и не показываем пост-модалку */
-  useFocusEffect(
-    useCallback(() => {
-      let canceled = false;
-      (async () => {
-        if (canceled) return;
-        if (!(await isGateSnoozed()) && !showPost) {
-          await restore();
-        }
-      })();
-      return () => { canceled = true; };
-    }, [restore, showPost]),
-  );
+  /* при фокусе — мягко попробуем восстановить доступ (с троттлингом) */
+useFocusEffect(
+  useCallback(() => {
+    let canceled = false;
+    (async () => {
+      if (canceled) return;
+      await maybeRestoreSafe('focus');
+    })();
+    return () => { canceled = true; };
+  }, [maybeRestoreSafe]),
+);
 
-  /* AppState → active: обновим доступ */
-  useEffect(() => {
-    const sub = AppState.addEventListener('change', async (state) => {
-      const prev = appStateRef.current;
-      appStateRef.current = state;
-      if ((prev === 'background' || prev === 'inactive') && state === 'active') {
-        if (!(await isGateSnoozed()) && !showPost) {
-          await restore();
-        }
-      }
-    });
-    return () => sub.remove();
-  }, [restore, showPost]);
+  /* AppState → active: мягко попробуем восстановить доступ (с троттлингом) */
+useEffect(() => {
+  const sub = AppState.addEventListener('change', async (state) => {
+    const prev = appStateRef.current;
+    appStateRef.current = state;
+    if ((prev === 'background' || prev === 'inactive') && state === 'active') {
+      await maybeRestoreSafe('resume');
+    }
+  });
+  return () => sub.remove();
+}, [maybeRestoreSafe]);
 
   /* бесплатный превью-режим */
   const goMenuFreePreview = async () => {
@@ -605,6 +636,9 @@ const [trialFlagReady, setTrialFlagReady] = useState(false);
     if (!__DEV__ || !__devGrantPro) return;
     try { await AsyncStorage.removeItem('freePreview'); } catch {}
     await __devGrantPro();
+    // ✅ после DEV-анлока не дергаем restore какое-то время — иначе может сбросить hasPro обратно
+    try { await writeGateSnooze(60000); } catch {}
+    try { restoreLockRef.current.lastAt = Date.now(); } catch {}
     const saved = (await AsyncStorage.getItem('language')) || 'english';
     deepResetTo(navigation, menuRouteByLang(saved), {});
   };
@@ -651,10 +685,7 @@ const submitRedeemCode = async () => {
 
     // ✅ Успех
     setRedeemOK(true);
-    setRedeemMsg(
-      S.redeemSuccessBody +
-        (S.redeemDataWarning ? '\n\n⚠️ ' + S.redeemDataWarning : '')
-    );
+    setRedeemMsg(S.redeemSuccessBody);
 
     // ✅ 1) Убираем "режим 2 упражнений", если пользователь заходил через free-preview
     try {
@@ -684,6 +715,7 @@ const submitRedeemCode = async () => {
     try {
       await writeGateSnooze();
     } catch {}
+    try { restoreLockRef.current.lastAt = Date.now(); } catch {}
 
     // ✅ (микротик, чтобы стейт успел примениться до навигации)
     await new Promise((res) => setTimeout(res, 0));
@@ -699,12 +731,8 @@ const submitRedeemCode = async () => {
         // язык ещё не выбран
         deepResetTo(navigation, 'SelectLanguage', { from: 'redeem' });
       } else {
-        // язык выбран — ведём на Welcome (экран подставь по своим реальным роутам)
-        // Вариант A: если у тебя отдельные Welcome по языкам:
-        // deepResetTo(navigation, welcomeRouteByLang(savedLang), { language: savedLang, from: 'redeem' });
-
-        // Вариант B: если у тебя один общий WelcomePage:
-        deepResetTo(navigation, 'WelcomePage', { language: savedLang, from: 'redeem' });
+        // язык выбран — ведём на Welcome по языку
+        deepResetTo(navigation, welcomeRouteByLang(savedLang), { language: savedLang, from: 'redeem' });
       }
     } catch (e3) {
       console.warn('[PAYWALL] redirect after redeem failed:', e3?.message || e3);
@@ -714,7 +742,7 @@ const submitRedeemCode = async () => {
     try {
       probePostPurchase?.();
     } catch {}
-  } catch (e) {
+} catch (e) {
     setRedeemOK(false);
     setRedeemMsg(e?.message || 'Failed');
   } finally {

@@ -1,9 +1,12 @@
 // App.js
+import './src/ui/iosFontWeightPatch';
+
 import './polyfills';
 import 'react-native-gesture-handler';
 import './animatedTimingPatch';
 import './debugAnimatedTiming';
 import './debugAnimated';
+import { Audio } from 'expo-av';
 
 import React, { useEffect, useRef, useState } from 'react';
 
@@ -136,6 +139,8 @@ import Constants from 'expo-constants';
 import { IapProvider, NoIapProvider } from './src/iap/IapProvider';
 import Paywall from './screens/Paywall';
 import { withMenuGate } from './src/iap/withMenuGate';
+
+
 
 const gate = withAccessGate;
 
@@ -376,6 +381,8 @@ export default function App() {
   );
 }
 
+
+
 /* ===== ВНУТРЕННИЙ компонент — логика и навигация ===== */
 function AppInner() {
   const appState = useRef(AppState.currentState);
@@ -384,6 +391,22 @@ function AppInner() {
   const TOP_INSET = insets.top || 0;
 
   const TITLE_FS = 16;
+
+useEffect(() => {
+  (async () => {
+    try {
+      await Audio.setAudioModeAsync({
+        playsInSilentModeIOS: true,
+        staysActiveInBackground: false,
+        shouldDuckAndroid: false,
+      });
+      await Audio.setIsEnabledAsync(true);
+    } catch (e) {
+      console.log('[Audio init] error', e);
+    }
+  })();
+}, []);
+
 
   const [notificationsEnabled, setNotificationsEnabled] = useState(false);
   const [notificationsReady, setNotificationsReady] = useState(false);
@@ -448,6 +471,8 @@ function AppInner() {
   ...Ionicons.font,
   'mt-regular': require('./assets/fonts/Montserrat-Regular.ttf'),
   'mt-bold': require('./assets/fonts/Montserrat-Bold.ttf'),
+  'mt-semibold': require('./assets/fonts/Montserrat-SemiBold.ttf'),
+  'mt-medium': require('./assets/fonts/Montserrat-Medium.ttf'),
   'ar-regular': require('./assets/fonts/Tajawal-Regular.ttf'),
   'ar-bold': require('./assets/fonts/Tajawal-Bold.ttf'),
 });
@@ -650,7 +675,7 @@ function AppInner() {
           style={{
   color: 'white',
   fontSize: TITLE_FS,
-  lineHeight: rtl ? TITLE_FS + 6 : TITLE_FS + 2,
+  lineHeight: rtl ? TITLE_FS + 2 : TITLE_FS + 2,
   fontFamily: rtl ? 'ar-bold' : 'mt-bold',
   // fontWeight: '700', // ❌ убрать
   textAlign: rtl ? 'right' : 'left',
@@ -692,7 +717,7 @@ function AppInner() {
                 style={{
                   color: 'white',
                   fontWeight: 'bold',
-                  fontSize: 16,
+                  fontSize: 14,
                   lineHeight: 20,
                   fontFamily: rtl ? 'ar-bold' : 'mt-bold',
                   marginRight: rtl ? 8 : 12,

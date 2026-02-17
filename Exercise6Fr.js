@@ -20,6 +20,11 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import VerbListModal2 from './VerbListModal2';
 import shuffleArray from './utils/shuffleArray';
 import verbs1Data from './verbs1.json';
+
+const FONT_REG = 'mt-regular';
+const FONT_MED = 'mt-medium';
+const FONT_BOLD = 'mt-bold';
+const FONT_SEMIBOLD = 'mt-semibold';
  
 
 const Exercise6Fr = () => {
@@ -111,9 +116,9 @@ useEffect(() => {
       setDontShowAgain6(hidden === 'true');
       setLanguageLoaded(true);
 
-      if (hidden !== 'true') {
-        setTimeout(() => setDescriptionModalVisible(true), 100);
-      }
+      // if (hidden !== 'true') {
+      //   setTimeout(() => setDescriptionModalVisible(true), 100);
+      // }
     }
 
     setDontShowAgain6(hidden === 'true');
@@ -1264,12 +1269,7 @@ const styles = StyleSheet.create({
     color: '#152039',
   },
 
-  hebrewText: {
-    fontSize: 18,
-    textAlign: 'center',
-    color: '#152039',
-  },
-
+hebrewText: { fontSize: 22, textAlign: 'center', color: '#152039', fontFamily: FONT_SEMIBOLD },
   // ✅ когда транслит скрыт — только визуально центрируем иврит, высота кнопки не меняется
   hebrewCenterWhenNoTranslit: {
     transform: [{ translateY: 12 }],

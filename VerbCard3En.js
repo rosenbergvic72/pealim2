@@ -5,6 +5,11 @@ import { Audio } from 'expo-av';
 import sounds from './Soundss';
 import LottieView from 'lottie-react-native';
 
+const FONT_REG = 'mt-regular';
+const FONT_MED = 'mt-medium';
+const FONT_BOLD = 'mt-bold';
+const FONT_SEMIBOLD = 'mt-semibold';
+
 // ✅ super-safe: keeps only latin letters -> HITPA'EL / HITPAEL / hitpa-el all become "hitpael"
 const normalizeBinyan = (s) =>
   String(s || '')
@@ -321,13 +326,12 @@ const styles = StyleSheet.create({
 
   hebrewVerb: {
     fontSize: 30,
-    fontWeight: 'bold',
+    fontFamily: FONT_BOLD,
     color: '#333652',
     borderRadius: 20,
     paddingLeft: 10,
     paddingRight: 10,
     textAlign: 'center',
-    lineHeight: 34,
     includeFontPadding: false,
   },
 

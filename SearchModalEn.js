@@ -292,7 +292,7 @@ const SearchModalEn = ({ visible, onToggle, onSelectVerb }) => {
    Styles
 ========================= */
 
-const TABLE_FONT = 12;
+const TABLE_FONT = 13;
 
 const styles = StyleSheet.create({
   centeredView: { flex: 1, justifyContent: 'center', alignItems: 'center' },

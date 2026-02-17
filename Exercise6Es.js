@@ -20,6 +20,11 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import VerbListModal2 from './VerbListModal2';
 import verbs1Data from './verbs1.json';
 
+const FONT_REG = 'mt-regular';
+const FONT_MED = 'mt-medium';
+const FONT_BOLD = 'mt-bold';
+const FONT_SEMIBOLD = 'mt-semibold';
+
 const Exercise6Es = () => {
   const [pairs, setPairs] = useState([]);
   const totalPairs = pairs.length;
@@ -1118,8 +1123,7 @@ const styles = StyleSheet.create({
 
   russianText: { textAlign: 'left', flex: 1, marginLeft: 3, color: '#152039' },
 
-  hebrewText: { fontSize: 18, textAlign: 'center', color: '#152039' },
-
+ hebrewText: { fontSize: 22, textAlign: 'center', color: '#152039', fontFamily: FONT_SEMIBOLD },
   hebrewCenterWhenNoTranslit: { transform: [{ translateY: 12 }] },
 
   translitText: { fontSize: 15, textAlign: 'center', marginTop: 2, color: '#FF5757', fontWeight: 'bold' },

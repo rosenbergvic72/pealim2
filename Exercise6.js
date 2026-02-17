@@ -23,6 +23,12 @@ import shuffleArray from './utils/shuffleArray';
 // ✅ добавили: берем биньян/корень
 import verbs1Data from './verbs1.json';
 
+const FONT_REG = 'mt-regular';
+const FONT_MED = 'mt-medium';
+const FONT_BOLD = 'mt-bold';
+const FONT_SEMIBOLD = 'mt-semibold';
+
+
 const Exercise6 = () => {
   const [pairs, setPairs] = useState([]);
   const totalPairs = pairs.length;
@@ -1129,7 +1135,7 @@ const styles = StyleSheet.create({
 
   russianText: { textAlign: 'left', flex: 1, marginLeft: 3, color: '#152039' },
 
-  hebrewText: { fontSize: 18, textAlign: 'center', color: '#152039' },
+  hebrewText: { fontSize: 22, textAlign: 'center', color: '#152039', fontFamily: FONT_SEMIBOLD },
 
   hebrewCenterWhenNoTranslit: { transform: [{ translateY: 12 }] },
 

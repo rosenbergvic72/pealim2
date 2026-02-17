@@ -16,6 +16,12 @@ import soundsconj from './soundconj';
 // ✅ берем root/binyan отсюда
 import verbs1Data from './verbs1.json';
 
+
+const FONT_REG = 'mt-regular';
+const FONT_MED = 'mt-medium';
+const FONT_BOLD = 'mt-bold';
+const FONT_SEMIBOLD = 'mt-semibold';
+
 // props:
 // visible, language, verbs, onStartExercise, onClose
 const VerbListModal2 = ({
@@ -726,9 +732,9 @@ const styles = StyleSheet.create({
     marginBottom: 2,
   },
   hebrewText: {
-    fontSize: 16,
+    fontSize: 17,
     color: '#152039',
-    fontWeight: '700',
+    fontWeight: '600',
     textAlign: 'right',
     flexShrink: 1,
   },
@@ -739,7 +745,7 @@ const styles = StyleSheet.create({
   },
 
   verbTranslit: {
-    fontSize: 13,
+    fontSize: 15,
     color: '#E03E38',
     fontWeight: '600',
     fontStyle: 'italic',

@@ -25,6 +25,11 @@ import verbs1Data from './verbs1.json';
 
 // import { PixelRatio } from 'react-native';
 
+const FONT_REG = 'mt-regular';
+const FONT_MED = 'mt-medium';
+const FONT_BOLD = 'mt-bold';
+const FONT_SEMIBOLD = 'mt-semibold';
+
 const Exercise6Pt = () => {
   const [pairs, setPairs] = useState([]);
   const totalPairs = pairs.length; // Установите общее количество пар
@@ -1398,12 +1403,7 @@ const styles = StyleSheet.create({
     marginLeft: 3,
     color: '#152039',
   },
-  hebrewText: {
-    fontSize: 18,
-    textAlign: 'center',
-    color: '#152039',
-  },
-
+hebrewText: { fontSize: 22, textAlign: 'center', color: '#152039', fontFamily: FONT_SEMIBOLD },
   // ✅ когда транслит скрыт — визуально центрируем иврит, высоту не меняем
   hebrewCenterWhenNoTranslit: {
     transform: [{ translateY: 12 }],
