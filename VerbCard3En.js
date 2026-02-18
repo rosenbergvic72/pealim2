@@ -1,6 +1,6 @@
 // VerbCard3En.js
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { View, Text, Image, TouchableOpacity, StyleSheet, Animated } from 'react-native';
+import { View, Text, Image, TouchableOpacity, StyleSheet, Animated, Platform } from 'react-native';
 import { Audio } from 'expo-av';
 import sounds from './Soundss';
 import LottieView from 'lottie-react-native';
@@ -9,6 +9,8 @@ const FONT_REG = 'mt-regular';
 const FONT_MED = 'mt-medium';
 const FONT_BOLD = 'mt-bold';
 const FONT_SEMIBOLD = 'mt-semibold';
+
+const HEBREW_FONT = Platform.OS === 'android' ? 'mt-semibold' : 'mt-bold';
 
 // ✅ super-safe: keeps only latin letters -> HITPA'EL / HITPAEL / hitpa-el all become "hitpael"
 const normalizeBinyan = (s) =>
@@ -335,10 +337,7 @@ const styles = StyleSheet.create({
     includeFontPadding: false,
   },
 
-  prefixYellow: {
-    color: '#00a2ffff',
-    fontWeight: 'bold',
-  },
+prefixYellow: { color: '#00a2ffff', fontFamily: HEBREW_FONT },
 
   translit: {
     fontSize: 18,
@@ -352,23 +351,26 @@ const styles = StyleSheet.create({
   },
 
   root: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#4C7031',
-    borderRadius: 20,
-    paddingLeft: 10,
-    paddingRight: 10,
-  },
-
-  rootValue: {
+      fontSize: 16,
+      // fontWeight: 'bold',
+      fontFamily: HEBREW_FONT, 
+      color: '#4C7031',
+      borderRadius: 20,
+      paddingLeft: 10,
+      paddingRight: 10,
+    },
+  
+   rootValue: {
+    fontFamily: HEBREW_FONT,   // ✅ добавь
     color: '#000',
-    fontSize: 19,
-    fontWeight: 'bold',
+    fontSize: Platform.OS === 'ios' ? 22 : 17,
+    // fontWeight: 'bold',        // можно оставить или убрать, если есть Bold-начертание
   },
 
   bin: {
     fontSize: 16,
-    fontWeight: 'bold',
+    // fontWeight: 'bold',
+    fontFamily: HEBREW_FONT, 
     color: '#003882',
     borderRadius: 20,
     paddingLeft: 10,

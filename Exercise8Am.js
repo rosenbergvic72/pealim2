@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { View, Text, TouchableOpacity, ScrollView, StyleSheet, Image, BackHandler } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView, StyleSheet, Image, BackHandler, Platform } from 'react-native';
 import verbsData from './verbs6RU.json';
 import verbs1Data from './verbs1.json';
 import ProgressBar from './ProgressBar';
@@ -22,7 +22,15 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import VerbListModal2 from './VerbListModal2';
 import shuffleArray from './utils/shuffleArray';
 
+const FONT_REG = 'mt-regular';
+const FONT_MED = 'mt-medium';
+const FONT_BOLD = 'mt-bold';
+const FONT_SEMIBOLD = 'mt-semibold';
 
+const HEBREW_FONT = Platform.OS === 'android' ? 'mt-semibold' : 'mt-bold';
+const HEBREW_FS = Platform.OS === 'android' ? 34 : 34;
+const HEBREW_LINE_H = Platform.OS === 'android' ? 36 : 34;
+const HEBREW_LINES = 2;
 /* ===================== ONLY: Hebrew parts highlighting ===================== */
 
 // Remove niqqud + cantillation marks, keep only letters
@@ -1342,16 +1350,20 @@ const [currentVerb, setCurrentVerb] = useState({
                 onAnimationFinish={() => setIsAnimationVisible(false)}
               />
             )}
+          <View style={styles.hebrewTextBox}>
             <TypewriterHebrewHighlightedRTL
               text={verbs[currentIndex].hebrewtext}
               typingSpeed={50}
-              style={[styles.hebrewText, !showTranslit && { transform: [{ translateY: 14 }], textAlign: 'center', alignSelf: 'center' }]}
+              style={[
+                styles.hebrewText,
+                !showTranslit && { transform: [{ translateY: 14 }] },
+              ]}
               formIndex={verbs[currentIndex].hebrewFormIndex}
               isBeVerb={String(mainVerb?.infinitive || '') === 'להיות'}
               highlightEnabled={highlightEnabled}
               isNifalForCurrentVerb={isNifalForCurrentVerb}
-              maxFontSizeMultiplier={1.2}
             />
+          </View>
 
             <View style={styles.translitRow}>
               <Text
@@ -1443,11 +1455,13 @@ const [currentVerb, setCurrentVerb] = useState({
 
 const styles = StyleSheet.create({
 
-  scrollViewContent: {
-    flexGrow: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
+ scrollViewContent: {
+  flexGrow: 1,
+  justifyContent: 'flex-start',
+  alignItems: 'center',
+  paddingTop: 0, // можно 0..6
+},
+
 
   container: {
     flex: 1,
@@ -1655,12 +1669,20 @@ const styles = StyleSheet.create({
   shadowRadius: 3.84,
   elevation: 5,
 },
-    hebrewText: {
-    fontSize: 36,
-    fontWeight: 'bold',
-    color: '#152039',
-    textAlign: 'center',
-  },
+    hebrewTextBox: {
+      height: HEBREW_LINE_H * HEBREW_LINES,
+      justifyContent: 'center',
+      alignItems: 'center',
+      width: '100%',
+    },
+        hebrewText: {
+      fontSize: HEBREW_FS,
+      fontFamily: HEBREW_FONT,
+      color: '#152039',
+      textAlign: 'center',
+      lineHeight: HEBREW_LINE_H,
+      ...(Platform.OS === 'android' ? { includeFontPadding: false } : {}),
+    },
   translitText: {
     fontSize: 20,
     color: '#FF5757',
@@ -1819,8 +1841,8 @@ const styles = StyleSheet.create({
 
 
   // Hebrew parts highlighting
-  prefixYellow: { color: '#00a2ffff', fontWeight: 'bold' },
-  suffixGreen: { color: '#ff3ab3ff', fontWeight: 'bold' },
+  prefixYellow: { color: '#00a2ffff', fontFamily: HEBREW_FONT },
+suffixGreen: { color: '#ff3ab3ff', fontFamily: HEBREW_FONT },
 });
 
 export default Exercise8Am;

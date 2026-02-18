@@ -960,10 +960,10 @@ const styles = StyleSheet.create({
   greeting: { fontSize: 20, color: '#2D4769', marginLeft: 10, lineHeight: 24, ...AR_TEXT_BOLD },
 
   titleText: {
-    fontSize: 23,
+    fontSize: 21,
     textAlign: 'center',
     color: '#2D4769',
-    marginTop: 10,
+    marginTop: 13,
     marginBottom: 10,
     lineHeight: 28,
     ...AR_TEXT_BOLD,
@@ -1029,7 +1029,7 @@ const styles = StyleSheet.create({
     ...AR_TEXT_BOLD,
   },
   upperText: {
-    fontSize: 16,
+    fontSize: 15,
     color: 'white',
     marginBottom: 10,
     textAlign: 'center',
@@ -1082,7 +1082,7 @@ const styles = StyleSheet.create({
     flexShrink: 1,
     textAlign: 'center',
     color: 'white',
-    fontSize: 14,
+    fontSize: 13,
     includeFontPadding: false,
     textAlignVertical: 'center',
     lineHeight: 18,

@@ -1043,7 +1043,7 @@ const styles = StyleSheet.create({
     marginLeft: 10,
   },
   titleText: {
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: 'bold',
     marginBottom: 10,
     textAlign: 'center',
@@ -1105,7 +1105,7 @@ const styles = StyleSheet.create({
     marginLeft: 10,
   },
   upperText: {
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: 'bold',
     color: 'white',
     marginBottom: 10,
@@ -1190,7 +1190,7 @@ const styles = StyleSheet.create({
     flexShrink: 1,
     textAlign: 'center',
     color: 'white',
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: 'bold',
     includeFontPadding: false,
     textAlignVertical: 'center',

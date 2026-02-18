@@ -298,7 +298,7 @@ const styles = StyleSheet.create({
   centeredView: { flex: 1, justifyContent: 'center', alignItems: 'center' },
   modalView: {
     width: '94%',
-    maxHeight: '94%',
+    maxHeight: '86%',
     backgroundColor: '#FFFDEF',
     borderRadius: 20,
     padding: 20,

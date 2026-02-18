@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { View, Text, TouchableOpacity, ScrollView, StyleSheet, Image, BackHandler } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView, StyleSheet, Image, BackHandler, Platform } from 'react-native';
 import verbsData from './verbs6RU.json';
 import verbs1Data from './verbs1.json';
 import ProgressBar from './ProgressBar';
@@ -19,7 +19,15 @@ import LottieView from 'lottie-react-native';
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
+const FONT_REG = 'mt-regular';
+const FONT_MED = 'mt-medium';
+const FONT_BOLD = 'mt-bold';
+const FONT_SEMIBOLD = 'mt-semibold';
 
+const HEBREW_FONT = Platform.OS === 'android' ? 'mt-semibold' : 'mt-bold';
+const HEBREW_FS = Platform.OS === 'android' ? 34 : 34;
+const HEBREW_LINE_H = Platform.OS === 'android' ? 38 : 34;
+const HEBREW_LINES = 2;
 /* ===================== HEBREW HIGHLIGHTING (Exercise7) ===================== */
 
 // суффиксы настоящего (длинные — раньше)
@@ -1144,17 +1152,24 @@ useEffect(() => {
                       transform: [{ translateY: showTranslit ? 0 : TRANSLIT_ROW_H / 2 }],
                     }}
                   >
-                    <TypewriterHebrewHighlightedRTL
-                      text={cv.hebrewtext}
-                      idx={idx}
-                      isNifal={nifal}
-                      mainVerb={cv}
-                      showHighlight={showHighlight}
-                      runKey={runKey}
-                      typingSpeed={50}
-                      style={styles.hebrewText}
-                      maxFontSizeMultiplier={1.2}
-                    />
+                 <View style={styles.hebrewTextBox}>
+                                                 <TypewriterHebrewHighlightedRTL
+                   text={cv.hebrewtext}
+                   idx={idx}
+                   isNifal={nifal}
+                   mainVerb={cv}
+                   showHighlight={showHighlight}
+                   runKey={runKey}
+                   typingSpeed={50}
+                   style={[
+    styles.hebrewText,
+    !showTranslit && {
+      transform: [{ translateY: Platform.OS === 'ios' ? 4 : 0 }],
+    },
+  ]}
+                 />
+                 
+                                                </View>
                   </View>
 
                   {/* Transliteration row: скрываем opacity, но место всегда есть */}
@@ -1242,11 +1257,12 @@ useEffect(() => {
 
 const styles = StyleSheet.create({
 
-  scrollViewContent: {
-    flexGrow: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
+ scrollViewContent: {
+  flexGrow: 1,
+  justifyContent: 'flex-start',
+  alignItems: 'center',
+  paddingTop: 0, // можно 0..6
+},
 
   container: {
     flex: 1,
@@ -1456,12 +1472,20 @@ justifyContent: 'center',
     shadowRadius: 3.84,
     elevation: 5,
   },
-  hebrewText: {
-    fontSize: 36,
-    fontWeight: 'bold',
-    color: '#152039',
-    textAlign: 'center',
-  },
+ hebrewTextBox: {
+   height: HEBREW_LINE_H * HEBREW_LINES,
+   justifyContent: 'center',
+   alignItems: 'center',
+   width: '100%',
+ },
+     hebrewText: {
+   fontSize: HEBREW_FS,
+   fontFamily: HEBREW_FONT,
+   color: '#152039',
+   textAlign: 'center',
+   lineHeight: HEBREW_LINE_H,
+   ...(Platform.OS === 'android' ? { includeFontPadding: false } : {}),
+ },
   translitText: {
     fontSize: 20,
     lineHeight: 26, 
@@ -1601,14 +1625,8 @@ justifyContent: 'center',
     fontWeight: 'bold',
   },
   // подсветка частей глагола
-  prefixYellow: {
-    color: '#00a2ffff',
-    fontWeight: 'bold',
-  },
-  suffixGreen: {
-    color: '#ff3ab3ff',
-    fontWeight: 'bold',
-  },
+prefixYellow: { color: '#00a2ffff', fontFamily: HEBREW_FONT },
+suffixGreen: { color: '#ff3ab3ff', fontFamily: HEBREW_FONT },
 
   lottie: {
     position: 'absolute',

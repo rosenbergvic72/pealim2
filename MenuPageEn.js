@@ -874,6 +874,7 @@ export default function MenuPage({ route }) {
             ]}
           >
             <TouchableOpacity style={styles.infoButton} onPress={() => setIsModalVisible(true)}>
+              <Image source={require('./quest.png')} style={styles.infoIcon} />
               <Text
                 style={styles.infoText}
                 numberOfLines={2}
@@ -900,6 +901,7 @@ export default function MenuPage({ route }) {
               style={styles.infoButton}
               onPress={() => setIsInfoModalVisible(true)}
             >
+              <Image source={require('./about4.png')} style={styles.infoIcon} />
               <Text
                 style={styles.infoText}
                 numberOfLines={2}
@@ -1047,7 +1049,7 @@ const styles = StyleSheet.create({
     marginLeft: 10,
   },
   titleText: {
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: 'bold',
     marginBottom: 10,
     textAlign: 'center',
@@ -1164,6 +1166,12 @@ const styles = StyleSheet.create({
     width: '100%',
     alignItems: 'center',
     marginBottom: 10,
+  },
+
+   infoIcon: {
+    width: 24,
+    height: 24,
+    marginRight: 12,
   },
 
   // Сама кнопка: стабильная высота и корректное центрирование

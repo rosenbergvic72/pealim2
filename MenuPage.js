@@ -1145,7 +1145,7 @@ const styles = StyleSheet.create({
     flexShrink: 1,
     textAlign: 'center',
     color: 'white',
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: 'bold',
     includeFontPadding: false,
     textAlignVertical: 'center',

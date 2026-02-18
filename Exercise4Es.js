@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
-import { ScrollView, View, Text, TouchableOpacity, StyleSheet, Image, BackHandler } from 'react-native';
+import { ScrollView, View, Text, TouchableOpacity, StyleSheet, Image, BackHandler, Platform } from 'react-native';
 import verbsData from './verbs6RU.json';
 import verbs1Data from './verbs1.json';
 import ProgressBar from './ProgressBar';
@@ -21,6 +21,9 @@ const FONT_REG = 'mt-regular';
 const FONT_MED = 'mt-medium';
 const FONT_BOLD = 'mt-bold';
 const FONT_SEMIBOLD = 'mt-semibold';
+
+const HEBREW_FONT = Platform.OS === 'android' ? 'mt-semibold' : 'mt-bold';
+const HEBREW_FS = Platform.OS === 'android' ? 18 : 22;
 
 const Exercise4Es = () => {
   const [pairs, setPairs] = useState([]);
@@ -927,7 +930,7 @@ useEffect(() => {
               >
                 <Text
                   style={[
-                    styles.text,
+                    // styles.text,
                     styles.hebrewText,
                     !showTranslit && styles.hebrewCenterWhenNoTranslit,
                   ]}
@@ -979,15 +982,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
 
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 10,
-    backgroundColor: '#AFC1D0',
-    height: '100%',
-    width: '100%',
-  },
+ container: { flex: 1, justifyContent: 'center', alignItems: 'center',
+paddingHorizontal: 10,
+paddingBottom: 5,
+paddingTop: 0,   // ← важно
+backgroundColor: '#AFC1D0', height: '100%', width: '100%' },
 
   completionMessageContainer: {
     position: 'absolute',
@@ -1162,7 +1161,7 @@ const styles = StyleSheet.create({
   button: {
     width: '48.5%',
     marginHorizontal: 5,
-    padding: 5,
+    padding: 4,
     backgroundColor: '#D1E3F1',
     borderRadius: 10,
     justifyContent: 'center',
@@ -1193,18 +1192,31 @@ const styles = StyleSheet.create({
     color: '#152039',
   },
 
-hebrewText: { fontSize: 22, textAlign: 'center', color: '#152039', fontFamily: FONT_SEMIBOLD },
+hebrewText: {
+  fontSize: HEBREW_FS,
+  lineHeight: HEBREW_FS + 2,   // важно!
+  textAlign: 'center',
+  color: '#152039',
+  fontFamily: HEBREW_FONT,
+  marginTop: 2,                // убрать
+  paddingTop: 2,
+},
+
   hebrewCenterWhenNoTranslit: {
     transform: [{ translateY: 12 }],
   },
 
-  translitText: {
-    fontSize: 15,
-    textAlign: 'center',
-    marginTop: 2,
-    color: '#FF5757',
-    fontWeight: 'bold',
-  },
+translitText: {
+  fontSize: 15,
+  lineHeight: 16,              // важно!
+  textAlign: 'center',
+  color: '#FF5757',
+  fontWeight: 'bold',
+  marginTop: 2,                // убрать
+  paddingTop: 2,               // убрать
+  marginBottom: 2,
+  paddingBottom: 2,
+},
 
   translitHidden: {
     opacity: 0,

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
-import { View, Text, TouchableOpacity, ScrollView, StyleSheet, Image, BackHandler } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView, StyleSheet, Image, BackHandler, Platform } from 'react-native';
 import verbsData from './verbs6RU.json';
 import ProgressBar from './ProgressBar';
 import { Animated } from 'react-native';
@@ -29,6 +29,9 @@ const FONT_REG = 'mt-regular';
 const FONT_MED = 'mt-medium';
 const FONT_BOLD = 'mt-bold';
 const FONT_SEMIBOLD = 'mt-semibold';
+
+const HEBREW_FONT = Platform.OS === 'android' ? 'mt-semibold' : 'mt-bold';
+const HEBREW_FS = Platform.OS === 'android' ? 18 : 22;
 
 const Exercise6Pt = () => {
   const [pairs, setPairs] = useState([]);
@@ -201,9 +204,9 @@ useEffect(() => {
       setDontShowAgain6(hidden === 'true');
       setLanguageLoaded(true);
 
-      if (hidden !== 'true') {
-        setTimeout(() => setDescriptionModalVisible(true), 100);
-      }
+      // if (hidden !== 'true') {
+      //   setTimeout(() => setDescriptionModalVisible(true), 100);
+      // }
     }
 
     setDontShowAgain6(hidden === 'true');
@@ -1130,7 +1133,7 @@ if (virtualPos === 23 || virtualPos === 24)
                   >
                     <Text
                       style={[
-                        styles.text,
+                        // styles.text,
                         styles.hebrewText,
                         !showTranslit && styles.hebrewCenterWhenNoTranslit,
                       ]}
@@ -1199,16 +1202,11 @@ const styles = StyleSheet.create({
 
   },
 
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 10,
-    backgroundColor: '#AFC1D0',
-    height: '100%',
-    width: '100%',
-
-  },
+ container: { flex: 1, justifyContent: 'center', alignItems: 'center',
+paddingHorizontal: 10,
+paddingBottom: 5,
+paddingTop: 0,   // ← важно
+backgroundColor: '#AFC1D0', height: '100%', width: '100%' },
 
   completionMessageContainer: {
     position: 'absolute',
@@ -1403,19 +1401,31 @@ const styles = StyleSheet.create({
     marginLeft: 3,
     color: '#152039',
   },
-hebrewText: { fontSize: 22, textAlign: 'center', color: '#152039', fontFamily: FONT_SEMIBOLD },
-  // ✅ когда транслит скрыт — визуально центрируем иврит, высоту не меняем
+hebrewText: {
+  fontSize: HEBREW_FS,
+  lineHeight: HEBREW_FS + 2,   // важно!
+  textAlign: 'center',
+  color: '#152039',
+  fontFamily: HEBREW_FONT,
+  marginTop: 2,                // убрать
+  paddingTop: 2,
+},
+
   hebrewCenterWhenNoTranslit: {
     transform: [{ translateY: 12 }],
   },
 
-  translitText: {
-    fontSize: 15,
-    textAlign: 'center',
-    marginTop: 2,
-    color: '#FF5757',
-    fontWeight: 'bold',
-  },
+translitText: {
+  fontSize: 15,
+  lineHeight: 16,              // важно!
+  textAlign: 'center',
+  color: '#FF5757',
+  fontWeight: 'bold',
+  marginTop: 2,                // убрать
+  paddingTop: 2,               // убрать
+  marginBottom: 2,
+  paddingBottom: 2,
+},
 
   // ✅ место сохраняем, только прячем
   translitHidden: {
@@ -1479,14 +1489,8 @@ hebrewText: { fontSize: 22, textAlign: 'center', color: '#152039', fontFamily: F
   },
 
   // ✅ стили подсветки частей иврита
-  prefixYellow: {
-    color: '#00a2ff',
-    fontWeight: 'bold',
-  },
-  suffixGreen: {
-    color: '#ff3ab3',
-    fontWeight: 'bold',
-  },
+ prefixYellow: { color: '#00a2ffff', fontFamily: HEBREW_FONT },
+suffixGreen: { color: '#ff3ab3ff', fontFamily: HEBREW_FONT },
   translitHidden: { opacity: 0 },
 
 });

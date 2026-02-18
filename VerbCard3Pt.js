@@ -1,6 +1,6 @@
 // VerbCard3Pt.js
 import React, { useState, useEffect, useRef, useMemo } from 'react';
-import { View, Text, Image, TouchableOpacity, StyleSheet, Animated } from 'react-native';
+import { View, Text, Image, TouchableOpacity, StyleSheet, Animated, Platform } from 'react-native';
 import { Audio } from 'expo-av';
 import sounds from './Soundss';
 import LottieView from 'lottie-react-native';
@@ -9,6 +9,8 @@ const FONT_REG = 'mt-regular';
 const FONT_MED = 'mt-medium';
 const FONT_BOLD = 'mt-bold';
 const FONT_SEMIBOLD = 'mt-semibold';
+
+const HEBREW_FONT = Platform.OS === 'android' ? 'mt-semibold' : 'mt-bold';
 
 const DEFAULT_TYPING_SPEED = 100;
 
@@ -320,10 +322,7 @@ const styles = StyleSheet.create({
   },
 
   // ✅ подсветка букв
-  prefixYellow: {
-    color: '#00a2ffff',
-    fontWeight: 'bold',
-  },
+ prefixYellow: { color: '#00a2ffff', fontFamily: HEBREW_FONT },
 
   translit: {
     fontSize: 18,
@@ -336,19 +335,21 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
 
-  root: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#4C7031',
-    borderRadius: 20,
-    paddingLeft: 10,
-    paddingRight: 10,
-  },
-
-  rootValue: {
+  rroot: {
+      fontSize: 16,
+      // fontWeight: 'bold',
+      fontFamily: HEBREW_FONT, 
+      color: '#4C7031',
+      borderRadius: 20,
+      paddingLeft: 10,
+      paddingRight: 10,
+    },
+  
+   rootValue: {
+    fontFamily: HEBREW_FONT,   // ✅ добавь
     color: '#000',
-    fontSize: 19,
-    fontWeight: 'bold',
+    fontSize: Platform.OS === 'ios' ? 22 : 17,
+    // fontWeight: 'bold',        // можно оставить или убрать, если есть Bold-начертание
   },
 
   bin: {

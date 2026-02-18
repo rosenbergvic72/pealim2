@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { ScrollView, View, Text, TouchableOpacity, StyleSheet, BackHandler, Image  } from 'react-native';
+import { ScrollView, View, Text, TouchableOpacity, StyleSheet, BackHandler, Image, Platform  } from 'react-native';
 import VerbCard3 from './VerbCard3Pt';
 import verbsData from './verbs3.json';
 import ProgressBar from './ProgressBar';
@@ -17,7 +17,7 @@ import soundsConj from './soundconj'; // Импорт дополнительны
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
-
+const HEBREW_FONT = Platform.OS === 'android' ? 'mt-semibold' : 'mt-bold';
 
 const findFirstMatchingVerb = (infinitive) => {
   console.log('Filtering verbs by infinitive:', infinitive); // Логируем инфинитив для поиска
@@ -1167,12 +1167,14 @@ const styles = StyleSheet.create({
   },
   
   verbDetailsHebrew: {
-    fontSize: 18,
-    color: '#FFFDEF',
-    fontWeight: 'bold',
-    marginTop: hp('1%'),
-    marginBottom: hp('0.1%'),
-  },
+   fontSize: Platform.OS === 'ios' ? 22 : 17,
+   color: '#FFFDEF',
+   fontFamily: HEBREW_FONT,
+   // лучше убрать fontWeight, чтобы не конфликтовать с кастомным шрифтом
+   // fontWeight: 'bold',
+   marginTop: hp('1%'),
+   marginBottom: hp('0.1%'),
+ },
   
   verbDetailsTranslit: {
     fontSize: 14,
