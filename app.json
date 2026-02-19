@@ -31,19 +31,17 @@
       "googleServicesFile": "./google-services.json"
     },
     "ios": {
-      "bundleIdentifier": "com.rosenbergvictor72.pealim2",
-      "buildNumber": "3",
-      "infoPlist": {
-        "ITSAppUsesNonExemptEncryption": false,
-
-        "NSPhotoLibraryUsageDescription": "Verbify needs access to your photo library only if you choose to select images (e.g., for sharing or saving content).",
-        "NSPhotoLibraryAddUsageDescription": "Verbify saves images to your photo library only when you explicitly choose to save or share content.",
-        "NSPhotoLibraryAdditionsUsageDescription": "Verbify adds images to your photo library only when you explicitly choose to save or share content.",
-
-        "NSCameraUsageDescription": "Verbify uses the camera only if you choose to scan codes or add images.",
-        "NSMicrophoneUsageDescription": "Verbify uses the microphone only if you choose features that require audio recording."
-      }
-    },
+  "bundleIdentifier": "com.rosenbergvictor72.pealim2",
+  "buildNumber": "2",
+  "infoPlist": {
+    "ITSAppUsesNonExemptEncryption": false,
+    "NSPhotoLibraryUsageDescription": "...",
+    "NSPhotoLibraryAddUsageDescription": "...",
+    "NSCameraUsageDescription": "...",
+    "NSMicrophoneUsageDescription": "..."
+  }
+}
+,
     "plugins": [
       "expo-localization",
       "expo-notifications",
