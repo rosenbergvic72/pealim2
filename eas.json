@@ -96,18 +96,12 @@
     "preview-ios": {
       "ios": {}
     },
-
     "production-gp": {
       "android": {
         "serviceAccountKeyPath": "./google-play-service-account.json",
         "track": "production"
       }
     },
-
-    "production-rustore-aab": {},
-
-    "production-ios": {
-      "ios": {}
-    }
+    "production-rustore-aab": {}
   }
 }
