@@ -70,7 +70,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center', // ✅ ВОТ ЭТО ГЛАВНОЕ
     padding: 5,
-    height: 130,
+    height: 146,
     borderRadius: 10,
     marginBottom: 20,
     backgroundColor: '#D1E3F1',
@@ -92,15 +92,19 @@ const styles = StyleSheet.create({
   },
 
   // ✅ колонка кнопок справа
-  sideButtonsColumn: {
-    position: 'absolute',
-    right: wp('1.5%'),
-    top: 6,
-    alignItems: 'center',
-    gap: 7,
-    zIndex: 60,
-    elevation: 60,
-  },
+sideButtonsColumn: {
+  position: 'absolute',
+  right: wp('1.5%'),
+  top: 0,
+  bottom: 0,
+  justifyContent: 'center',
+  alignItems: 'center',
+  gap: 7,
+  zIndex: 60,
+  elevation: 60,
+},
+
+
   smallIconBtn: {
     width: wp('8.5%'),
     height: wp('8.5%'),

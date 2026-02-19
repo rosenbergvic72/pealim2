@@ -15,26 +15,13 @@ import Constants from 'expo-constants';
 import * as Device from 'expo-device';
 
 /* ===================== Константы / настройки ===================== */
-const SKU = Platform.select({ android: 'monthly_ils_10', ios: 'monthly_ils_10' });
+// Android uses ONE subscription productId with base plans/offers.
+// iOS uses SEPARATE productIds per duration (monthly/annual).
+const SKU_MONTHLY = Platform.select({ android: 'monthly_ils_10', ios: 'monthly_ils_10' });
+const SKU_ANNUAL  = Platform.select({ android: 'monthly_ils_10', ios: 'annual_ils_80' });
 
-/* ===================== Restore prompt snooze (avoid repeated Google account popups) ===================== */
-const RESTORE_SNOOZE_KEY = 'iap:restoreSnoozeUntil';
-const RESTORE_SNOOZE_DEFAULT_MS = 10 * 60 * 1000; // 10 min
-
-async function writeRestoreSnooze(ms = RESTORE_SNOOZE_DEFAULT_MS) {
-  try { await AsyncStorage.setItem(RESTORE_SNOOZE_KEY, String(Date.now() + ms)); } catch {}
-}
-async function isRestoreSnoozed() {
-  try {
-    const raw = await AsyncStorage.getItem(RESTORE_SNOOZE_KEY);
-    const until = Number(raw || 0);
-    const ok = Number.isFinite(until) && Date.now() < until;
-    if (!ok) await AsyncStorage.removeItem(RESTORE_SNOOZE_KEY);
-    return ok;
-  } catch { return false; }
-}
-
-
+// Back-compat: SKU points to monthly.
+const SKU = SKU_MONTHLY;
 /** URL серверной верификации */
 const VERIFY_URL =
   Constants?.expoConfig?.extra?.IAP_VERIFY_URL ||
@@ -167,6 +154,19 @@ export const useIap = () => useContext(IapContext);
 
 /* ===================== Helpers: цены/периоды ===================== */
 function formatPriceFallback(micros, currency) {
+
+function iosPriceOf(prod) {
+  const lp = prod?.localizedPrice;
+  if (lp) return lp;
+  const price = prod?.price;
+  const currency = prod?.currency || prod?.currencyCode;
+  if (price && currency) {
+    try { return new Intl.NumberFormat(undefined, { style: 'currency', currency }).format(Number(price)); }
+    catch { return `${price} ${currency}`.trim(); }
+  }
+  return undefined;
+}
+
   const n = Number(micros);
   if (!Number.isFinite(n) || n <= 0) return undefined;
   const amount = n / 1_000_000;
@@ -269,7 +269,7 @@ function findSegmentOffer(product, requiredTags, kind /* monthly|annual */) {
 /* ===================== API helpers ===================== */
 async function getSubsSafe() {
   try {
-    return await RNIap.getSubscriptions({ skus: [SKU] });
+    return await RNIap.getSubscriptions({ skus: Platform.OS === 'ios' ? [SKU_MONTHLY, SKU_ANNUAL] : [SKU] });
   } catch (e) {
     console.log('[IAP] getSubscriptions error', e);
     return [];
@@ -363,9 +363,10 @@ export function IapProvider({ children, initialSegment = 'basic' }) {
     promoAnnual: undefined,
   });
 
-  const [debug, setDebug] = useState({ productId: SKU, segment, promoActive });
+  const [debug, setDebug] = useState({ productId: SKU_MONTHLY, productIdAnnual: SKU_ANNUAL, segment, promoActive });
 
   const productRef = useRef(null);
+  const productRefAnnual = useRef(null);
   const processed = useRef(new Set());
   const purchasingRef = useRef(false);
 
@@ -542,11 +543,12 @@ export function IapProvider({ children, initialSegment = 'basic' }) {
     if (!VERIFY_URL || !purchaseToken) return null;
 
     const uid = await getUserId();
-    const payload = {
+        const payload = {
       userId: uid,
       deviceId: uid,
+      platform: Platform.OS,
       productId: productId || SKU,
-      packageName: PKG,
+      ...(Platform.OS === 'android' ? { packageName: PKG } : {}),
       purchaseToken,
     };
 
@@ -593,6 +595,32 @@ export function IapProvider({ children, initialSegment = 'basic' }) {
   const recalcPrices = useCallback(
     (reason = 'manual') => {
       const prod = productRef.current;
+
+      // === iOS: no subscriptionOfferDetails; prices are on each product ===
+      if (Platform.OS === 'ios') {
+        const monthlyProd = productRef.current;
+        const annualProd = productRefAnnual.current;
+
+        const baseMonthly = iosPriceOf(monthlyProd);
+        const baseAnnual = iosPriceOf(annualProd);
+
+        const newPrices = {
+          baseMonthly,
+          baseAnnual,
+          promoMonthly: baseMonthly,
+          promoAnnual: baseAnnual,
+        };
+        setDisplayPrices(newPrices);
+        setDebug((d) => ({
+          ...d,
+          segment,
+          promoActive,
+          recalcReason: reason,
+          ios: true,
+          displayPrices: newPrices,
+        }));
+        return;
+      }
 
       if (!prod?.subscriptionOfferDetails?.length) {
         setDisplayPrices({
@@ -805,8 +833,10 @@ const restoreActiveSubscription = useCallback(async () => {
         }
 
         const subs = await getSubsSafe();
-        const prod = subs?.find((p) => p.productId === SKU) || subs?.[0] || null;
+        const prod = subs?.find((p) => p.productId === SKU_MONTHLY) || subs?.[0] || null;
+        const prodAnnual = subs?.find((p) => p.productId === SKU_ANNUAL) || null;
         productRef.current = prod;
+        productRefAnnual.current = prodAnnual;
         setAvailable(!!prod);
 
         if (prod) recalcPrices('product-loaded');
@@ -828,7 +858,11 @@ const restoreActiveSubscription = useCallback(async () => {
             if (!purchase) return;
 
             const { productId, transactionId, purchaseToken } = purchase;
-            if (productId !== SKU) return;
+            if (Platform.OS === 'ios') {
+              if (productId !== SKU_MONTHLY && productId !== SKU_ANNUAL) return;
+            } else {
+              if (productId !== SKU) return;
+            }
             if (!isPurchaseCompleted(purchase)) return;
 
             const dedupeKey = purchaseToken || transactionId;
@@ -967,15 +1001,17 @@ const restoreActiveSubscription = useCallback(async () => {
 
         purchasingRef.current = true;
 
+        const selectedSku = Platform.OS === 'ios' ? (kind === 'annual' ? SKU_ANNUAL : SKU_MONTHLY) : SKU;
+
         const baseParams = {
-          sku: SKU,
+          sku: selectedSku,
           andDangerouslyFinishTransactionAutomatically: false,
         };
 
         if (Platform.OS === 'android') {
           await RNIap.requestSubscription({
             ...baseParams,
-            subscriptionOffers: [{ sku: SKU, offerToken }],
+            subscriptionOffers: [{ sku: selectedSku, offerToken }],
           });
         } else {
           await RNIap.requestSubscription(baseParams);
@@ -1065,8 +1101,6 @@ const restoreActiveSubscription = useCallback(async () => {
   const consumeJustPurchased = useCallback(() => setJustPurchased(false), []);
 
   const __devGrantPro = useCallback(async () => {
-    try { await AsyncStorage.setItem(DEV_FORCE_PRO_KEY, '1'); devForceProRef.current = true; } catch {}
-
     if (!devSessionAllowed) return;
     setHasPro(true);
     setTrialEverUsed(true);
@@ -1162,8 +1196,6 @@ export function NoIapProvider({ children }) {
     ) === '1';
 
   const __devGrantPro = useCallback(async () => {
-    try { await AsyncStorage.setItem(DEV_FORCE_PRO_KEY, '1'); devForceProRef.current = true; } catch {}
-
     if (!devAllowed) return;
     setMockPro(true);
   }, [devAllowed]);

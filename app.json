@@ -5,43 +5,40 @@
     "version": "1.1.1",
     "orientation": "portrait",
     "icon": "./assets/images/iconjjj.png",
-
     "splash": {
-      "image": "./assets/images/icon512.png",  
+      "image": "./assets/images/icon512.png",
       "resizeMode": "contain",
       "backgroundColor": "#2d4769"
     },
-
     "extra": {
       "eas": {
         "projectId": "1c3fbe10-9608-4dd7-a477-f0ae7c294b5e"
       }
     },
-
     "android": {
       "package": "com.rosenbergvictor72.pealim2",
       "softwareKeyboardLayoutMode": "resize",
       "versionCode": 2000098,
       "permissions": [
-  "RECORD_AUDIO",
-  "POST_NOTIFICATIONS",
-  "com.google.android.gms.permission.AD_ID"
-]
-,
+        "RECORD_AUDIO",
+        "POST_NOTIFICATIONS",
+        "com.google.android.gms.permission.AD_ID"
+      ],
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/iconjjj.png",
         "backgroundColor": "#2d4769"
       },
       "googleServicesFile": "./google-services.json"
     },
-
     "ios": {
       "bundleIdentifier": "com.rosenbergvictor72.pealim2",
       "infoPlist": {
-        "ITSAppUsesNonExemptEncryption": false
+        "ITSAppUsesNonExemptEncryption": false,
+        "NSPhotoLibraryUsageDescription": "Verbify needs access to your photo library only if you choose to select an image (e.g., for sharing or saving content).",
+        "NSCameraUsageDescription": "Verbify uses the camera only if you choose to scan codes or add images.",
+        "NSMicrophoneUsageDescription": "Verbify uses the microphone only if you choose features that require audio recording."
       }
     },
-
     "plugins": [
       "expo-localization",
       "expo-notifications",
