@@ -28,6 +28,7 @@
     "preview-ios": {
       "distribution": "store",
       "ios": {},
+       "autoIncrement": "buildNumber",
       "env": {
         "STORE": "ios",
         "EXPO_PUBLIC_DISABLE_IAP": "0",
