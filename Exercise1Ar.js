@@ -992,19 +992,30 @@ const updateVerbDetails = (currentVerb, isGenderMan, showRussianText = false) =>
 /* ---------- styles ---------- */
 
 const styles = StyleSheet.create({
-  scrollViewContent: { flexGrow: 1, alignItems: 'center' },
+  scrollViewContent: {
+  flexGrow: 1,
+  justifyContent: 'flex-start',   // ← вместо center
+  alignItems: 'center',
+  paddingTop: 0,                // можно 5–15 по вкусу
+},
 
-  container: {
-    flex: 1,
-    justifyContent: 'flex-start',
+container: {
+  flex: 1,
+  justifyContent: 'flex-start',  // ← вместо center
+  alignItems: 'center',
+  padding: 10,
+  paddingTop: 0,                // можно уменьшить ещё
+  backgroundColor: '#AFC1D0',
+  width: '100%',
+},
+
+  topBar: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center',
-    padding: 10,
-    backgroundColor: '#AFC1D0',
-    height: '100%',
     width: '100%',
+    paddingTop: 0,
   },
-
-  topBar: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', width: '100%', paddingTop: 0 },
   logoImage: { width: 90, height: 90, marginLeft: 10 },
   buttonContainer: { flexDirection: 'row', marginRight: wp('2.5%') },
   buttonImage: { width: 44, height: 44, marginLeft: 10 },
@@ -1012,7 +1023,7 @@ const styles = StyleSheet.create({
   optionsContainer: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', marginBottom: hp('1.5%') },
   optionButton: {
     width: '49%',
-    height: hp('7%'),
+    height: hp('6.5%'),
     padding: wp('3%'),
     backgroundColor: '#D1E3F1',
     marginBottom: hp('1%'),
@@ -1039,7 +1050,7 @@ const styles = StyleSheet.create({
 
   nextButton: {
     width: '80%',
-    padding: hp('1.2%'),
+    padding: hp('1.1%'),
     borderRadius: wp('2.5%'),
     textAlign: 'center',
     justifyContent: 'center',
@@ -1051,7 +1062,7 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   nextButtonText: {
-    fontSize: 20,
+    fontSize: 18,
     textAlign: 'center',
     color: 'white',
     fontWeight: 'bold',
@@ -1108,7 +1119,7 @@ const styles = StyleSheet.create({
     paddingVertical: 2,
   },
   percentText: {
-    fontSize: 18,
+    fontSize: 20,
     color: 'white',
     fontWeight: 'bold',
     textAlign: 'center',
@@ -1214,9 +1225,9 @@ const styles = StyleSheet.create({
   speakerIcon: { width: '250%', height: '250%', resizeMode: 'contain' },
 
   title: {
-    fontSize: 30,
+    fontSize: 26,
     fontWeight: 'bold',
-    marginTop: 18,
+    marginTop: 16,
     marginBottom: 6,
     color: '#2F4766',
     lineHeight: 34,

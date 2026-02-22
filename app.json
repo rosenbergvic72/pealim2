@@ -32,7 +32,7 @@
     },
     "ios": {
   "bundleIdentifier": "com.rosenbergvictor72.pealim2",
-  "buildNumber": "2",
+  "buildNumber": "6",
   "infoPlist": {
     "ITSAppUsesNonExemptEncryption": false,
     "NSPhotoLibraryUsageDescription": "...",

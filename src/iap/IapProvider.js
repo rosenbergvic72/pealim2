@@ -17,11 +17,18 @@ import * as Device from 'expo-device';
 /* ===================== Константы / настройки ===================== */
 // Android uses ONE subscription productId with base plans/offers.
 // iOS uses SEPARATE productIds per duration (monthly/annual).
-const SKU_MONTHLY = Platform.select({ android: 'monthly_ils_10', ios: 'monthly_ils_10' });
-const SKU_ANNUAL  = Platform.select({ android: 'monthly_ils_10', ios: 'annual_ils_80' });
+const SKU_MONTHLY = Platform.select({
+  android: 'monthly_ils_10',
+  ios: 'monthly_ils_10',
+});
+const SKU_ANNUAL = Platform.select({
+  android: 'monthly_ils_10', // на Android это всё равно один productId, различие в basePlan/offer
+  ios: 'annual_ils_80',
+});
 
-// Back-compat: SKU points to monthly.
+// Back-compat: SKU points to monthly on both platforms.
 const SKU = SKU_MONTHLY;
+
 /** URL серверной верификации */
 const VERIFY_URL =
   Constants?.expoConfig?.extra?.IAP_VERIFY_URL ||
@@ -154,19 +161,6 @@ export const useIap = () => useContext(IapContext);
 
 /* ===================== Helpers: цены/периоды ===================== */
 function formatPriceFallback(micros, currency) {
-
-function iosPriceOf(prod) {
-  const lp = prod?.localizedPrice;
-  if (lp) return lp;
-  const price = prod?.price;
-  const currency = prod?.currency || prod?.currencyCode;
-  if (price && currency) {
-    try { return new Intl.NumberFormat(undefined, { style: 'currency', currency }).format(Number(price)); }
-    catch { return `${price} ${currency}`.trim(); }
-  }
-  return undefined;
-}
-
   const n = Number(micros);
   if (!Number.isFinite(n) || n <= 0) return undefined;
   const amount = n / 1_000_000;
@@ -179,6 +173,24 @@ function iosPriceOf(prod) {
   } catch {
     return `${amount.toFixed(2)} ${currency || ''}`.trim();
   }
+}
+
+function iosPriceOf(prod) {
+  if (!prod) return undefined;
+  const lp = prod?.localizedPrice;
+  if (lp) return lp;
+
+  // на некоторых версиях react-native-iap поля отличаются
+  const price = prod?.price;
+  const currency = prod?.currency || prod?.currencyCode;
+  if (price && currency) {
+    try {
+      return new Intl.NumberFormat(undefined, { style: 'currency', currency }).format(Number(price));
+    } catch {
+      return `${price} ${currency}`.trim();
+    }
+  }
+  return undefined;
 }
 
 function getPhases(offer) {
@@ -226,7 +238,7 @@ function pickByPeriod(product, kind) {
 
 /**
  * Выбор "базового" оффера:
- * - preferNoTrial=true → пытаемся найти оффер без триала (это и есть monthly_ils_10 / annual-ils-80)
+ * - preferNoTrial=true → пытаемся найти оффер без триала
  * - иначе → пытаемся найти оффер с триалом
  * - fallback → самый дешёвый по priceMicros
  */
@@ -243,8 +255,6 @@ function pickPreferredBaseOffer(product, kind, preferNoTrial = false) {
       .filter((o) => !hasFreeTrial(o) && !isTrialById(o))
       .sort((a, b) => priceMicrosOf(a) - priceMicrosOf(b))[0];
     if (nonTrial) return nonTrial;
-
-    // если внезапно non-trial нет — берём самый дешёвый
     return periodOffers.sort((a, b) => priceMicrosOf(a) - priceMicrosOf(b))[0] || null;
   }
 
@@ -269,7 +279,8 @@ function findSegmentOffer(product, requiredTags, kind /* monthly|annual */) {
 /* ===================== API helpers ===================== */
 async function getSubsSafe() {
   try {
-    return await RNIap.getSubscriptions({ skus: Platform.OS === 'ios' ? [SKU_MONTHLY, SKU_ANNUAL] : [SKU] });
+    const skus = Platform.OS === 'ios' ? [SKU_MONTHLY, SKU_ANNUAL] : [SKU];
+    return await RNIap.getSubscriptions({ skus });
   } catch (e) {
     console.log('[IAP] getSubscriptions error', e);
     return [];
@@ -337,6 +348,12 @@ function notExpiredBy(expiresAt) {
   return Date.now() < t;
 }
 
+function extractTokenOrReceipt(purchase) {
+  // Android: purchaseToken
+  // iOS: transactionReceipt (часто нужно именно это)
+  return purchase?.purchaseToken || purchase?.transactionReceipt || purchase?.transactionId || '';
+}
+
 /* ===================== Provider ===================== */
 export function IapProvider({ children, initialSegment = 'basic' }) {
   const [ready, setReady] = useState(false);
@@ -363,7 +380,12 @@ export function IapProvider({ children, initialSegment = 'basic' }) {
     promoAnnual: undefined,
   });
 
-  const [debug, setDebug] = useState({ productId: SKU_MONTHLY, productIdAnnual: SKU_ANNUAL, segment, promoActive });
+  const [debug, setDebug] = useState({
+    segment,
+    promoActive,
+    productIdMonthly: SKU_MONTHLY,
+    productIdAnnual: SKU_ANNUAL,
+  });
 
   const productRef = useRef(null);
   const productRefAnnual = useRef(null);
@@ -539,17 +561,17 @@ export function IapProvider({ children, initialSegment = 'basic' }) {
     ensureCodeLoaded();
   }, [ensureCodeLoaded]);
 
-  const verifyOnServer = useCallback(async (purchaseToken, productId) => {
-    if (!VERIFY_URL || !purchaseToken) return null;
+  const verifyOnServer = useCallback(async (purchaseTokenOrReceipt, productId) => {
+    if (!VERIFY_URL || !purchaseTokenOrReceipt) return null;
 
     const uid = await getUserId();
-        const payload = {
+    const payload = {
       userId: uid,
       deviceId: uid,
       platform: Platform.OS,
       productId: productId || SKU,
       ...(Platform.OS === 'android' ? { packageName: PKG } : {}),
-      purchaseToken,
+      purchaseToken: purchaseTokenOrReceipt, // на iOS сюда кладём receipt
     };
 
     const ctrl = new AbortController();
@@ -594,9 +616,7 @@ export function IapProvider({ children, initialSegment = 'basic' }) {
 
   const recalcPrices = useCallback(
     (reason = 'manual') => {
-      const prod = productRef.current;
-
-      // === iOS: no subscriptionOfferDetails; prices are on each product ===
+      // === iOS: prices are on each product ===
       if (Platform.OS === 'ios') {
         const monthlyProd = productRef.current;
         const annualProd = productRefAnnual.current;
@@ -610,6 +630,7 @@ export function IapProvider({ children, initialSegment = 'basic' }) {
           promoMonthly: baseMonthly,
           promoAnnual: baseAnnual,
         };
+
         setDisplayPrices(newPrices);
         setDebug((d) => ({
           ...d,
@@ -617,11 +638,17 @@ export function IapProvider({ children, initialSegment = 'basic' }) {
           promoActive,
           recalcReason: reason,
           ios: true,
+          gotMonthly: !!monthlyProd,
+          gotAnnual: !!annualProd,
+          monthlyTitle: monthlyProd?.title,
+          annualTitle: annualProd?.title,
           displayPrices: newPrices,
         }));
         return;
       }
 
+      // === Android: offerDetails ===
+      const prod = productRef.current;
       if (!prod?.subscriptionOfferDetails?.length) {
         setDisplayPrices({
           baseMonthly: undefined,
@@ -629,17 +656,23 @@ export function IapProvider({ children, initialSegment = 'basic' }) {
           promoMonthly: undefined,
           promoAnnual: undefined,
         });
+        setDebug((d) => ({
+          ...d,
+          segment,
+          promoActive,
+          recalcReason: reason,
+          android: true,
+          noOffers: true,
+        }));
         return;
       }
 
-      // base = предпочтение non-trial если trialEverUsed=true
       const baseMonthlyOffer = pickPreferredBaseOffer(prod, 'monthly', trialEverUsed);
       const baseAnnualOffer = pickPreferredBaseOffer(prod, 'annual', trialEverUsed);
 
       let baseMonthly = firstPaidPhase(baseMonthlyOffer)?.formatted;
       let baseAnnual = firstPaidPhase(baseAnnualOffer)?.formatted;
 
-      // fallback
       if (!baseMonthly) baseMonthly = firstPaidPhase(pickByPeriod(prod, 'monthly')[0])?.formatted;
       if (!baseAnnual) baseAnnual = firstPaidPhase(pickByPeriod(prod, 'annual')[0])?.formatted;
 
@@ -649,7 +682,6 @@ export function IapProvider({ children, initialSegment = 'basic' }) {
       if (promoActive) {
         const segMonthlyTags = getSegmentOfferTags(segment, 'monthly', trialEverUsed);
         const segAnnualTags = getSegmentOfferTags(segment, 'annual', trialEverUsed);
-
         segMonthlyOffer = segMonthlyTags ? findSegmentOffer(prod, segMonthlyTags, 'monthly') : null;
         segAnnualOffer = segAnnualTags ? findSegmentOffer(prod, segAnnualTags, 'annual') : null;
       }
@@ -658,10 +690,10 @@ export function IapProvider({ children, initialSegment = 'basic' }) {
       const promoAnnual = firstPaidPhase(segAnnualOffer)?.formatted || baseAnnual;
 
       const newPrices = {
-        baseMonthly: baseMonthly || '₪19,90',
-        baseAnnual: baseAnnual || '₪159,90',
-        promoMonthly: promoMonthly || baseMonthly || '₪13,90',
-        promoAnnual: promoAnnual || baseAnnual || '₪111,90',
+        baseMonthly: baseMonthly,
+        baseAnnual: baseAnnual,
+        promoMonthly: promoMonthly || baseMonthly,
+        promoAnnual: promoAnnual || baseAnnual,
       };
 
       setDisplayPrices(newPrices);
@@ -670,6 +702,8 @@ export function IapProvider({ children, initialSegment = 'basic' }) {
         segment,
         promoActive,
         recalcReason: reason,
+        android: true,
+        trialEverUsed,
         displayPrices: newPrices,
       }));
     },
@@ -698,66 +732,66 @@ export function IapProvider({ children, initialSegment = 'basic' }) {
     return false;
   }, []);
 
-const restoreActiveSubscription = useCallback(async () => {
-  try {
-    await ensureCodeLoaded();
+  const restoreActiveSubscription = useCallback(async () => {
+    try {
+      await ensureCodeLoaded();
 
-    if (isIsoActiveNow(codeAccessUntilRef.current)) {
-      setHasPro(true);
-      setTrialEverUsed(true);
-      AsyncStorage.setItem(TRIAL_EVER_USED_KEY, 'true').catch(() => {});
-      return true;
-    }
-
-    const uidForCode = userId || (await getUserId());
-    if (uidForCode) {
-      const synced = await syncCodeEntitlementFromServer(uidForCode);
-      if (synced?.pro && isIsoActiveNow(codeAccessUntilRef.current)) {
-        return true;
-      }
-    }
-
-    // === RESTORE FROM STORE (важно: finishTransaction тут тоже) ===
-    const purchases = await RNIap.getAvailablePurchases();
-    const sub = purchases?.find((p) => p.productId === SKU);
-
-    if (sub?.purchaseToken) {
-      // 1) Пытаемся "подтвердить" покупку на клиенте (acknowledge), если она ещё не подтверждена
-      //    Это как раз и закрывает кейс "open the app to confirm plan"
-      try {
-        await RNIap.finishTransaction(sub, false); // подписка => false
-      } catch (e) {
-        // если уже подтверждено — часто тут просто будет ошибка/ничего страшного
-      }
-
-      // 2) Сохраняем токен и верифицируем на сервере
-      await AsyncStorage.setItem(LAST_TOKEN_KEY, sub.purchaseToken);
-
-      const v = await verifyOnServer(sub.purchaseToken, sub.productId);
-      if (v?.offline) {
-        const ok = await tryOfflineEntitlement();
-        setHasProRespectingCode(ok);
-        return ok;
-      }
-
-      if (v?.pro === true) {
+      // 0) partner-code entitlement
+      if (isIsoActiveNow(codeAccessUntilRef.current)) {
         setHasPro(true);
         setTrialEverUsed(true);
         AsyncStorage.setItem(TRIAL_EVER_USED_KEY, 'true').catch(() => {});
         return true;
-      } else if (v !== null) {
-        setHasProRespectingCode(false);
-        return false;
       }
-    }
 
-    // остальная твоя логика (history / saved token / offline) — оставь как есть
-    const history = await RNIap.getPurchaseHistory?.();
-    if (history) {
-      const histSub = history?.find((p) => p.productId === SKU);
-      if (histSub?.purchaseToken) {
-        await AsyncStorage.setItem(LAST_TOKEN_KEY, histSub.purchaseToken);
-        const v = await verifyOnServer(histSub.purchaseToken, histSub.productId);
+      const uidForCode = userId || (await getUserId());
+      if (uidForCode) {
+        const synced = await syncCodeEntitlementFromServer(uidForCode);
+        if (synced?.pro && isIsoActiveNow(codeAccessUntilRef.current)) return true;
+      }
+
+      // 1) restore from store
+      const purchases = await RNIap.getAvailablePurchases();
+
+      const match = purchases?.find((p) => {
+        if (Platform.OS === 'ios') {
+          return p.productId === SKU_MONTHLY || p.productId === SKU_ANNUAL;
+        }
+        return p.productId === SKU;
+      });
+
+      if (match) {
+        try {
+          await RNIap.finishTransaction(match, false);
+        } catch {}
+
+        const tokenOrReceipt = extractTokenOrReceipt(match);
+        if (tokenOrReceipt) {
+          await AsyncStorage.setItem(LAST_TOKEN_KEY, tokenOrReceipt);
+
+          const v = await verifyOnServer(tokenOrReceipt, match.productId);
+          if (v?.offline) {
+            const ok = await tryOfflineEntitlement();
+            setHasProRespectingCode(ok);
+            return ok;
+          }
+          if (v?.pro === true) {
+            setHasPro(true);
+            setTrialEverUsed(true);
+            AsyncStorage.setItem(TRIAL_EVER_USED_KEY, 'true').catch(() => {});
+            return true;
+          }
+          if (v !== null) {
+            setHasProRespectingCode(false);
+            return false;
+          }
+        }
+      }
+
+      // 2) fallback: saved token/receipt
+      const saved = await AsyncStorage.getItem(LAST_TOKEN_KEY);
+      if (saved) {
+        const v = await verifyOnServer(saved, Platform.OS === 'ios' ? SKU_MONTHLY : SKU);
         if (v?.offline) {
           const ok = await tryOfflineEntitlement();
           setHasProRespectingCode(ok);
@@ -768,50 +802,30 @@ const restoreActiveSubscription = useCallback(async () => {
           setTrialEverUsed(true);
           AsyncStorage.setItem(TRIAL_EVER_USED_KEY, 'true').catch(() => {});
           return true;
-        } else if (v !== null) {
+        }
+        if (v !== null) {
           setHasProRespectingCode(false);
           return false;
         }
       }
+
+      const offlineOk = await tryOfflineEntitlement();
+      setHasProRespectingCode(offlineOk);
+      return offlineOk;
+    } catch {
+      const offlineOk = await tryOfflineEntitlement();
+      setHasProRespectingCode(offlineOk);
+      return offlineOk;
     }
-
-    const saved = await AsyncStorage.getItem(LAST_TOKEN_KEY);
-    if (saved) {
-      const v = await verifyOnServer(saved, SKU);
-      if (v?.offline) {
-        const ok = await tryOfflineEntitlement();
-        setHasProRespectingCode(ok);
-        return ok;
-      }
-      if (v?.pro) {
-        setHasPro(true);
-        setTrialEverUsed(true);
-        AsyncStorage.setItem(TRIAL_EVER_USED_KEY, 'true').catch(() => {});
-        return true;
-      } else if (v !== null) {
-        setHasProRespectingCode(false);
-        return false;
-      }
-    }
-
-    const offlineOk = await tryOfflineEntitlement();
-    setHasProRespectingCode(offlineOk);
-    return offlineOk;
-  } catch (e) {
-    const offlineOk = await tryOfflineEntitlement();
-    setHasProRespectingCode(offlineOk);
-    return offlineOk;
-  }
-}, [
-  ensureCodeLoaded,
-  isIsoActiveNow,
-  syncCodeEntitlementFromServer,
-  userId,
-  verifyOnServer,
-  tryOfflineEntitlement,
-  setHasProRespectingCode,
-]);
-
+  }, [
+    ensureCodeLoaded,
+    isIsoActiveNow,
+    syncCodeEntitlementFromServer,
+    userId,
+    verifyOnServer,
+    tryOfflineEntitlement,
+    setHasProRespectingCode,
+  ]);
 
   useEffect(() => {
     let subUpdated, subError;
@@ -826,6 +840,7 @@ const restoreActiveSubscription = useCallback(async () => {
 
       try {
         await RNIap.initConnection();
+
         if (Platform.OS === 'android') {
           try {
             await RNIap.flushFailedPurchasesCachedAsPendingAndroid();
@@ -833,13 +848,30 @@ const restoreActiveSubscription = useCallback(async () => {
         }
 
         const subs = await getSubsSafe();
-        const prod = subs?.find((p) => p.productId === SKU_MONTHLY) || subs?.[0] || null;
-        const prodAnnual = subs?.find((p) => p.productId === SKU_ANNUAL) || null;
-        productRef.current = prod;
-        productRefAnnual.current = prodAnnual;
-        setAvailable(!!prod);
 
-        if (prod) recalcPrices('product-loaded');
+        const prodMonthly = subs?.find((p) => p.productId === SKU_MONTHLY) || null;
+        const prodAnnual = subs?.find((p) => p.productId === SKU_ANNUAL) || null;
+
+        // Android: как правило subs[0] это тот же SKU
+        const prodAndroid = Platform.OS === 'android' ? (subs?.[0] || null) : null;
+
+        productRef.current = Platform.OS === 'android' ? prodAndroid : prodMonthly;
+        productRefAnnual.current = Platform.OS === 'ios' ? prodAnnual : null;
+
+        const okAvailable =
+          Platform.OS === 'ios' ? !!prodMonthly : !!prodAndroid;
+
+        setAvailable(okAvailable);
+
+        setDebug((d) => ({
+          ...d,
+          subsCount: subs?.length || 0,
+          loadedMonthly: !!prodMonthly,
+          loadedAnnual: !!prodAnnual,
+          loadedAndroid: !!prodAndroid,
+        }));
+
+        if (okAvailable) recalcPrices('product-loaded');
 
         if (RESTORE_ON_LAUNCH) {
           await restoreActiveSubscription();
@@ -850,22 +882,25 @@ const restoreActiveSubscription = useCallback(async () => {
             const state = Number(p?.purchaseStateAndroid ?? 0);
             return state === 1 && !!p?.purchaseToken;
           }
-          return !!(p?.transactionId || p?.transactionReceipt);
+          return !!(p?.transactionReceipt || p?.transactionId);
         }
 
         subUpdated = RNIap.purchaseUpdatedListener(async (purchase) => {
           try {
             if (!purchase) return;
 
-            const { productId, transactionId, purchaseToken } = purchase;
+            const { productId, transactionId } = purchase;
+
             if (Platform.OS === 'ios') {
               if (productId !== SKU_MONTHLY && productId !== SKU_ANNUAL) return;
             } else {
               if (productId !== SKU) return;
             }
+
             if (!isPurchaseCompleted(purchase)) return;
 
-            const dedupeKey = purchaseToken || transactionId;
+            const tokenOrReceipt = extractTokenOrReceipt(purchase);
+            const dedupeKey = tokenOrReceipt || transactionId;
             if (!dedupeKey) return;
             if (processed.current.has(dedupeKey)) return;
             processed.current.add(dedupeKey);
@@ -875,7 +910,7 @@ const restoreActiveSubscription = useCallback(async () => {
             } catch {}
 
             try {
-              if (purchaseToken) await AsyncStorage.setItem(LAST_TOKEN_KEY, purchaseToken);
+              if (tokenOrReceipt) await AsyncStorage.setItem(LAST_TOKEN_KEY, tokenOrReceipt);
               await AsyncStorage.multiSet([
                 [IAP_LAST_PRO, 'true'],
                 [IAP_LAST_GOOD_PRO_AT, String(Date.now())],
@@ -897,8 +932,8 @@ const restoreActiveSubscription = useCallback(async () => {
             }
 
             let verified = null;
-            if (VERIFY_URL && purchaseToken) {
-              verified = await verifyOnServer(purchaseToken, productId);
+            if (VERIFY_URL && tokenOrReceipt) {
+              verified = await verifyOnServer(tokenOrReceipt, productId);
             }
 
             if (verified?.offline) {
@@ -934,6 +969,7 @@ const restoreActiveSubscription = useCallback(async () => {
 
         setReady(true);
       } catch (e) {
+        setDebug((d) => ({ ...d, initError: e?.message || String(e) }));
         setAvailable(false);
         setReady(true);
       }
@@ -961,22 +997,18 @@ const restoreActiveSubscription = useCallback(async () => {
       const prod = productRef.current;
       if (!prod?.subscriptionOfferDetails?.length) return null;
 
-      // 1) Без промо: берём базовый preferred (после trial → non-trial base plan)
       if (!promoActive) {
         const basePref = pickPreferredBaseOffer(prod, kind, !!trialEverUsed);
         if (basePref?.offerToken) return basePref.offerToken;
       }
 
-      // 2) Промо: по тегам
       const required = promoActive ? getSegmentOfferTags(segment, kind, !!trialEverUsed) : null;
       const segOffer = findSegmentOffer(prod, required, kind);
       if (segOffer?.offerToken) return segOffer.offerToken;
 
-      // 3) Fallback: любой по периоду
       const byPeriod = pickByPeriod(prod, kind)[0];
       if (byPeriod?.offerToken) return byPeriod.offerToken;
 
-      // 4) Последний шанс
       const baseFallback = pickPreferredBaseOffer(prod, kind, !!trialEverUsed);
       if (baseFallback?.offerToken) return baseFallback.offerToken;
 
@@ -993,15 +1025,13 @@ const restoreActiveSubscription = useCallback(async () => {
           Alert.alert('Store unavailable', 'Subscription details are not loaded yet.');
           return;
         }
-        const offerToken = findOfferToken(kind);
-        if (!offerToken) {
-          Alert.alert('Plan not available', 'Selected plan is currently unavailable.');
-          return;
-        }
 
-        purchasingRef.current = true;
-
-        const selectedSku = Platform.OS === 'ios' ? (kind === 'annual' ? SKU_ANNUAL : SKU_MONTHLY) : SKU;
+        const selectedSku =
+          Platform.OS === 'ios'
+            ? kind === 'annual'
+              ? SKU_ANNUAL
+              : SKU_MONTHLY
+            : SKU;
 
         const baseParams = {
           sku: selectedSku,
@@ -1009,11 +1039,18 @@ const restoreActiveSubscription = useCallback(async () => {
         };
 
         if (Platform.OS === 'android') {
+          const offerToken = findOfferToken(kind);
+          if (!offerToken) {
+            Alert.alert('Plan not available', 'Selected plan is currently unavailable.');
+            return;
+          }
+          purchasingRef.current = true;
           await RNIap.requestSubscription({
             ...baseParams,
             subscriptionOffers: [{ sku: selectedSku, offerToken }],
           });
         } else {
+          purchasingRef.current = true;
           await RNIap.requestSubscription(baseParams);
         }
       } catch (e) {
