@@ -31,17 +31,16 @@
       "googleServicesFile": "./google-services.json"
     },
     "ios": {
-  "bundleIdentifier": "com.rosenbergvictor72.pealim2",
-  "buildNumber": "7",
-  "infoPlist": {
-    "ITSAppUsesNonExemptEncryption": false,
-    "NSPhotoLibraryUsageDescription": "...",
-    "NSPhotoLibraryAddUsageDescription": "...",
-    "NSCameraUsageDescription": "...",
-    "NSMicrophoneUsageDescription": "..."
-  }
-}
-,
+      "bundleIdentifier": "com.rosenbergvictor72.pealim2",
+      "buildNumber": "10",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false,
+        "NSPhotoLibraryUsageDescription": "...",
+        "NSPhotoLibraryAddUsageDescription": "...",
+        "NSCameraUsageDescription": "...",
+        "NSMicrophoneUsageDescription": "..."
+      }
+    },
     "plugins": [
       "expo-localization",
       "expo-notifications",

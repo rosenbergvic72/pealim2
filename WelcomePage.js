@@ -165,23 +165,28 @@ export default function WelcomePage({ navigation, route }) {
   // Обработка нажатия кнопки "Далее"
 const handleNextPress = async () => {
   if (!name.trim()) return;
+
   try {
-    await AsyncStorage.setItem('name', name);
+    await AsyncStorage.setItem('name', name.trim());
     await AsyncStorage.setItem('language', language);
 
     const extra = Constants.expoConfig?.extra || {};
-    const USE_IAP = extra.store === 'gp' && !extra.disableIap;
+    const disableIap = !!extra.disableIap;
 
-    if (USE_IAP) {
-      // GP: показываем Paywall + запускаем внутренний 5-дневный триал
-      navigation.replace('Paywall', {
-        segment: 'promo',
-        startTrial: true,
+    // ✅ Android: IAP только если store === 'gp'
+    // ✅ iOS: IAP, если не отключён флагом (store может быть не "gp")
+    const useIap = !disableIap && (Platform.OS === 'android' ? extra.store === 'gp' : true);
+
+    if (useIap) {
+      // ✅ ведём на нужный paywall по телефону
+      navigation.replace(Platform.OS === 'ios' ? 'PaywallIOS' : 'Paywall', {
+        from: 'WelcomePage',
       });
-    } else {
-      // Без IAP (rustore/internal): сразу в меню этого языка
-      navigation.replace('Menu', { name });
+      return;
     }
+
+    // ✅ как сейчас: RU Welcome всегда ведёт в RU Menu
+    navigation.replace('Menu', { name: name.trim() });
   } catch (e) {
     console.error('Ошибка при переходе:', e);
   }

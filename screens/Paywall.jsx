@@ -1,19 +1,8 @@
 // screens/Paywall.jsx
 import React, { useEffect, useState, useRef, useCallback } from 'react';
-import * as RNIap from 'react-native-iap';
 import {
-  View,
-  Text,
-  StyleSheet,
-  TextInput,
-  TouchableOpacity,
-  ScrollView,
-  Platform,
-  KeyboardAvoidingView,
-  Alert,
-  Modal,
-  AppState,
-  Linking,
+  View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView,
+  Platform, KeyboardAvoidingView, Alert, Modal, AppState,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { CommonActions, useFocusEffect } from '@react-navigation/native';
@@ -25,25 +14,21 @@ Text.defaultProps.maxFontSizeMultiplier = 1.2;
 if (TextInput.defaultProps == null) TextInput.defaultProps = {};
 TextInput.defaultProps.maxFontSizeMultiplier = 1.2;
 
+
 const LAST_GOOD_PRO_AT_KEY = 'iap:lastGoodProAt';
 const TRIAL_EVER_USED_KEY = 'iap:trialEverUsed';
 const SHOW_PLAY_REDEEM = false;
 const DEV_SKIP = false; // автоскок в dev — отключён
 
-// ✅ iOS: показывать кнопку "Активировать код" (App Store Redeem) под CTA
-const SHOW_REDEEM_BUTTON_UNDER_CTA = true;
-
 /* ===== Коридор после пост-модалки (anti-restore loop) ===== */
 const GATE_SNOOZE_KEY = 'iap:gateSnoozeUntil';
-const GATE_SNOOZE_MS = 5000;
+const GATE_SNOOZE_MS  = 5000;
 
 /* ===== Автовосстановление покупок: защита от спама (особенно на Android) ===== */
-const RESTORE_THROTTLE_MS = 60000; // не чаще 1 раза в минуту
+const RESTORE_THROTTLE_MS = 60000; // не чаще 1 раза в минуту, чтобы не дергать Google Play логин
 
 async function writeGateSnooze(ms = GATE_SNOOZE_MS) {
-  try {
-    await AsyncStorage.setItem(GATE_SNOOZE_KEY, String(Date.now() + ms));
-  } catch {}
+  try { await AsyncStorage.setItem(GATE_SNOOZE_KEY, String(Date.now() + ms)); } catch {}
 }
 async function isGateSnoozed() {
   try {
@@ -52,9 +37,7 @@ async function isGateSnoozed() {
     const ok = Number.isFinite(until) && Date.now() < until;
     if (!ok) await AsyncStorage.removeItem(GATE_SNOOZE_KEY);
     return ok;
-  } catch {
-    return false;
-  }
+  } catch { return false; }
 }
 
 /* ===== Промокоды → сегменты ===== */
@@ -62,25 +45,29 @@ const CODE_SEGMENTS = {
   ULPAN2025: 'ulpan',
   NATIV2025: 'nativ',
   PARTNER40: 'partner',
-  PROMO30: 'promo',
-  TEST90: 'test',
-  TIKVA30: 'tikva',
+  PROMO30:   'promo',
+  TEST90:    'test',
+  TIKVA30:   'tikva',
   TIMUR2026: 'timur',
   IVRITKALA2026: 'kala',
 };
 const resolveSegmentByCode = (code) =>
   CODE_SEGMENTS[String(code || '').trim().toUpperCase()] || null;
 
-/* ===== Коды доступа (партнёрские) ===== */
+/* ===== Коды доступа (партнёрские) =====
+   UI готов. Чтобы заработало “по-настоящему”, пропиши URL твоего сервера
+   и верни { ok: true } при успешной активации.
+*/
 const PARTNER_REDEEM_URL = 'https://iap-server.onrender.com/redeem/code'; // ✅ твой боевой URL
 
 function normalizeAccessCode(raw) {
   return String(raw || '')
     .trim()
     .toUpperCase()
-    .replace(/[^\w-]/g, '');
+    .replace(/[^\w-]/g, ''); // оставляем A-Z 0-9 _ и -
 }
 function looksLikeAccessCode(code) {
+  // мягкая валидация: 8..32 символа, латиница/цифры/_/-
   if (!code) return false;
   if (code.length < 8 || code.length > 32) return false;
   return /^[A-Z0-9_-]+$/.test(code);
@@ -92,30 +79,21 @@ async function redeemPartnerCodeOnServer({ code, userId }) {
   const res = await fetch(PARTNER_REDEEM_URL, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
+    // ✅ сервер требует code + userId
     body: JSON.stringify({ code, userId }),
   });
   let json = null;
-  try {
-    json = await res.json();
-  } catch {}
+  try { json = await res.json(); } catch {}
   if (!res.ok) {
     return {
       ok: false,
       message: (json && (json.message || json.error)) || `HTTP ${res.status}`,
     };
   }
-  return {
-    ok: !!json?.ok,
-    message: json?.message || '',
-    accessUntil: json?.accessUntil || null,
-  };
+  return { ok: !!json?.ok, message: json?.message || '', accessUntil: json?.accessUntil || null };
 }
 
-/* ===== iOS ссылки ===== */
-const PRIVACY_URL = 'https://verbifyapp.netlify.app/';
-const TERMS_URL = 'https://verbifyapp.netlify.app/'; // TODO: заменить на страницу Terms
-
-/* ===== Локализация ===== */
+/* ===== Локализация (сокр.) ===== */
 const STR = {
   english: {
     startTrial: 'START FREE TRIAL',
@@ -129,16 +107,7 @@ const STR = {
     invalid: 'Code is invalid',
     playRedeem: 'Google Play code',
     restore: 'Restore access',
-
-    // Android: partner-code
     activateCode: 'Activate code',
-
-    // iOS: App Store Redeem (под CTA)
-    appStoreRedeem: 'Activate code',
-
-    // iOS/Android: partner-code ссылка внизу на iOS
-    accessCodeLink: 'Enter access code (school/course)',
-
     redeemTitle: 'Activate access code',
     redeemHint: 'Enter the access code you received from a school, course, or teacher.',
     redeemPlaceholder: 'ACCESS-CODE',
@@ -148,9 +117,7 @@ const STR = {
     redeemInvalid: 'Please enter a valid code.',
     redeemSuccessTitle: 'Done 🎉',
     redeemSuccessBody: 'Done! Pro access is active.',
-    redeemDataWarning:
-      'Important: do not delete the app or clear its data — access codes are tied to this device ID. If you remove the app data, you may lose Pro access.',
-
+    redeemDataWarning: 'Important: do not delete the app or clear its data — access codes are tied to this device ID. If you remove the app data, you may lose Pro access.',
     choosePlan: 'Choose a plan',
     headerTrialEmph: '5-DAY FREE TRIAL (for new subscribers)',
     headerTrialTail:
@@ -168,12 +135,7 @@ const STR = {
       'Full access is unlocked. If you receive a Google Play email about “registering” the subscription — it’s standard; access is already granted.',
     postContinue: 'Continue',
     fullAccessAllExercises: 'Full access • All exercises',
-
-    // iOS bottom links
-    privacy: 'Privacy Policy',
-    terms: 'Terms of Use',
   },
-
   русский: {
     startTrial: 'НАЧАТЬ ПРОБНЫЙ ПЕРИОД',
     subscribe: 'ОФОРМИТЬ ПОДПИСКУ',
@@ -186,16 +148,7 @@ const STR = {
     invalid: 'Промокод недействителен',
     playRedeem: 'Код Google Play',
     restore: 'Восстановить доступ',
-
-    // Android: partner-code
     activateCode: 'Активировать код',
-
-    // iOS: App Store Redeem (под CTA)
-    appStoreRedeem: 'Активировать код',
-
-    // iOS partner-code внизу
-    accessCodeLink: 'Ввести код доступа (школа/курс)',
-
     redeemTitle: 'Активация кода доступа',
     redeemHint: 'Введите код доступа, который вы получили от школы, курса или преподавателя.',
     redeemPlaceholder: 'КОД-ДОСТУПА',
@@ -207,7 +160,6 @@ const STR = {
     redeemSuccessBody: 'Код активирован. Доступ Pro включён на срок действия кода.',
     redeemDataWarning:
       'Важно: не удаляйте приложение и не очищайте его данные — коды доступа привязаны к этому устройству. При удалении данных вы можете потерять доступ к Pro.',
-
     choosePlan: 'Выберите план',
     headerTrialEmph: '5 ДНЕЙ БЕСПЛАТНОГО ДОСТУПА (для новых подписчиков)',
     headerTrialTail:
@@ -225,12 +177,7 @@ const STR = {
       'Доступ ко всем функциям открыт. Если придёт письмо Google о «регистрации у разработчика» — это стандартное письмо, доступ уже предоставлен.',
     postContinue: 'Продолжить',
     fullAccessAllExercises: 'Полный доступ • Все упражнения',
-
-    // iOS bottom links
-    privacy: 'Политика конфиденциальности',
-    terms: 'Условия использования',
   },
-
   français: {
     startTrial: 'DÉMARRER L’ESSAI GRATUIT',
     subscribe: "S'ABONNER",
@@ -243,11 +190,7 @@ const STR = {
     invalid: 'Code invalide',
     playRedeem: 'Code Google Play',
     restore: "Restaurer l’accès",
-
     activateCode: 'Activer un code',
-    appStoreRedeem: 'Activer un code',
-    accessCodeLink: "Saisir un code d’accès (école/cours)",
-
     redeemTitle: "Activation d’un code d’accès",
     redeemHint: 'Saisissez le code d’accès que vous avez reçu d’une école, d’un cours ou d’un professeur.',
     redeemPlaceholder: 'CODE-ACCÈS',
@@ -259,16 +202,16 @@ const STR = {
     redeemSuccessBody: 'Code activé. L’accès Pro est activé pour la durée du code.',
     redeemDataWarning:
       "Important : ne supprimez pas l’application et n’effacez pas ses données — les codes d’accès sont liés à cet appareil. En cas de suppression des données, vous pouvez perdre l’accès Pro.",
-
     choosePlan: 'Choisissez une formule',
     headerTrialEmph: 'ESSAI GRATUIT DE 5 JOURS (pour les nouveaux abonnés)',
     headerTrialTail:
       '. Choisissez une formule et touchez DÉMARRER L’ESSAI GRATUIT. À la fin de l’essai, l’accès se prolonge automatiquement au prix de la formule — résiliation possible à tout moment (Google Play / App Store), ou touchez CONTINUER GRATUITEMENT.',
     headerNoTrialEmph: 'Abonnez-vous pour accéder à tous les exercices',
-    headerNoTrialTail:
-      ". Choisissez une formule et touchez S’ABONNER. Vous pouvez résilier à tout moment (Google Play / App Store), ou touchez CONTINUER GRATUITEMENT.",
-    freePreview: 'CONTINUER GRATUITEMENT',
-    freePreviewSubtitle: 'Entraîne 350 verbes en hébreu',
+   headerNoTrialTail:
+  ". Choisissez une formule et touchez S’ABONNER. Vous pouvez résilier à tout moment (Google Play / App Store), ou touchez CONTINUER GRATUITEMENT.",
+freePreview: 'CONTINUER GRATUITEMENT',
+freePreviewSubtitle: 'Entraîne 350 verbes en hébreu',
+
     fullAccess: 'Accès complet',
     limitedAccess: 'Accès limité',
     exercises12: 'Exercices 1 et 2',
@@ -277,11 +220,7 @@ const STR = {
       'Accès complet débloqué. L’e-mail Google Play sur « l’enregistrement » est standard ; l’accès est déjà accordé.',
     postContinue: 'Continuer',
     fullAccessAllExercises: 'Accès complet • Tous les exercices',
-
-    privacy: 'Politique de confidentialité',
-    terms: "Conditions d’utilisation",
   },
-
   español: {
     startTrial: 'INICIAR PRUEBA GRATUITA',
     subscribe: 'SUSCRIBIRSE',
@@ -294,11 +233,7 @@ const STR = {
     invalid: 'Código no válido',
     playRedeem: 'Código de Google Play',
     restore: 'Restaurar acceso',
-
     activateCode: 'Activar código',
-    appStoreRedeem: 'Activar código',
-    accessCodeLink: 'Introducir código de acceso (escuela/curso)',
-
     redeemTitle: 'Activación de código',
     redeemHint: 'Introduce el código de acceso que recibiste de una escuela, un curso o un profesor.',
     redeemPlaceholder: 'CÓDIGO-DE-ACCESO',
@@ -310,7 +245,6 @@ const STR = {
     redeemSuccessBody: 'Código activado. El acceso Pro está activo durante la vigencia del código.',
     redeemDataWarning:
       'Importante: no elimines la aplicación ni borres sus datos — los códigos de acceso están vinculados a este dispositivo. Si borras los datos, puedes perder el acceso Pro.',
-
     choosePlan: 'Elige un plan',
     headerTrialEmph: 'PRUEBA GRATUITA DE 5 DÍAS (para nuevos suscriptores)',
     headerTrialTail:
@@ -328,11 +262,7 @@ const STR = {
       'Acceso completo desbloqueado. El correo de Google Play sobre “registrar” es normal; el acceso ya está concedido.',
     postContinue: 'Continuar',
     fullAccessAllExercises: 'Acceso completo • Todos los ejercicios',
-
-    privacy: 'Política de privacidad',
-    terms: 'Términos de uso',
   },
-
   português: {
     startTrial: 'INICIAR AVALIAÇÃO GRÁTIS',
     subscribe: 'ASSINAR',
@@ -345,11 +275,7 @@ const STR = {
     invalid: 'Código inválido',
     playRedeem: 'Código do Google Play',
     restore: 'Restaurar acesso',
-
     activateCode: 'Ativar código',
-    appStoreRedeem: 'Ativar código',
-    accessCodeLink: 'Inserir código de acesso (escola/curso)',
-
     redeemTitle: 'Ativar código de acesso',
     redeemHint: 'Digite o código de acesso que você recebeu de uma escola, curso ou professor.',
     redeemPlaceholder: 'CÓDIGO-DE-ACESSO',
@@ -361,7 +287,6 @@ const STR = {
     redeemSuccessBody: 'Código ativado. O acesso Pro está ativo durante a validade do código.',
     redeemDataWarning:
       'Importante: não apague o aplicativo nem limpe seus dados — os códigos de acesso estão vinculados a este dispositivo. Ao remover os dados, você pode perder o acesso Pro.',
-
     choosePlan: 'Escolha um plano',
     headerTrialEmph: '5 DIAS DE AVALIAÇÃO GRÁTIS (para novos assinantes)',
     headerTrialTail:
@@ -379,11 +304,7 @@ const STR = {
       'Acesso completo liberado. O e-mail do Google Play sobre “registro” é padrão; o acesso já foi concedido.',
     postContinue: 'Continuar',
     fullAccessAllExercises: 'Acesso total • Todos os exercícios',
-
-    privacy: 'Política de Privacidade',
-    terms: 'Termos de Uso',
   },
-
   'አማርኛ': {
     startTrial: 'ነጻ ሙከራ ጀምር',
     subscribe: 'መመዝገብ',
@@ -396,11 +317,7 @@ const STR = {
     invalid: 'ኮድ ልክ አይደለም',
     playRedeem: 'የGoogle Play ኮድ',
     restore: 'መዳረሻ መመለስ',
-
     activateCode: 'ኮድ አንቃ',
-    appStoreRedeem: 'ኮድ አንቃ',
-    accessCodeLink: 'የመዳረሻ ኮድ ያስገቡ (ት/ቤት/ኮርስ)',
-
     redeemTitle: 'የመዳረሻ ኮድ አንቃ',
     redeemHint: 'ከት/ቤት፣ ከኮርስ ወይም ከመምህር ያገኙትን የመዳረሻ ኮድ ያስገቡ።',
     redeemPlaceholder: 'ACCESS-CODE',
@@ -412,7 +329,6 @@ const STR = {
     redeemSuccessBody: 'ኮድ ተነቅቷል። የPro መዳረሻ ለኮዱ የሚሰራበት ጊዜ ተነቅቷል።',
     redeemDataWarning:
       'አስፈላጊ፡ መተግበሪያውን አትሰርዙ እና ውሂቡን አታጥፉ — የመዳረሻ ኮዶች ከዚህ መሣሪያ ጋር ተያይዘዋል። ውሂቡን ካጠፉ የPro መዳረሻን ሊያጡ ይችላሉ።',
-
     choosePlan: 'እቅድ ይምረጡ',
     headerTrialEmph: '5 ቀን ነጻ ሙከራ (ለአዲስ ተመዝጋቢዎች)',
     headerTrialTail:
@@ -430,11 +346,7 @@ const STR = {
       'ሙሉ መዳረሻ ተከፍቷል። የ Google Play “ምዝገባ” ኢሜይል መደበኛ ነው፤ መዳረሻ አስቀድሞ ተሰጥቷል።',
     postContinue: 'ቀጥል',
     fullAccessAllExercises: 'ሙሉ መዳረሻ • ሁሉም ልምምዶች',
-
-    privacy: 'የግላዊነት ፖሊሲ',
-    terms: 'የአጠቃቀም መመሪያዎች',
   },
-
   العربية: {
     startTrial: 'بدء الفترة التجريبية',
     subscribe: 'اشْتَرِك',
@@ -447,11 +359,7 @@ const STR = {
     invalid: 'الرمز غير صالح',
     playRedeem: 'رمز Google Play',
     restore: 'استعادة الوصول',
-
     activateCode: 'تفعيل الرمز',
-    appStoreRedeem: 'تفعيل الرمز',
-    accessCodeLink: 'إدخال رمز الوصول (مدرسة/دورة)',
-
     redeemTitle: 'تفعيل رمز الوصول',
     redeemHint: 'أدخل رمز الوصول الذي تلقيته من مدرسة أو دورة أو معلّم.',
     redeemPlaceholder: 'ACCESS-CODE',
@@ -463,7 +371,6 @@ const STR = {
     redeemSuccessBody: 'تم تفعيل الرمز. تم تفعيل وصول Pro طوال مدة صلاحية الرمز.',
     redeemDataWarning:
       'مهم: لا تقم بحذف التطبيق أو مسح بياناته — رموز الوصول مرتبطة بهذا الجهاز. عند حذف البيانات قد تفقد الوصول إلى Pro.',
-
     choosePlan: 'اختر خطة',
     headerTrialEmph: 'فترة تجريبية مجانية لمدة 5 أيام (للمشتركين الجدد)',
     headerTrialTail:
@@ -481,9 +388,6 @@ const STR = {
       'تم فتح الوصول الكامل. رسالة “التسجيل لدى المطوّر” من Google Play إجراء قياسي؛ تم منح الوصول.',
     postContinue: 'متابعة',
     fullAccessAllExercises: 'وصول كامل • جميع التمارين',
-
-    privacy: 'سياسة الخصوصية',
-    terms: 'شروط الاستخدام',
   },
 };
 
@@ -491,20 +395,13 @@ const RTL_LANGS = new Set(['العربية']);
 
 function periodLabel(langKey, which) {
   switch (langKey) {
-    case 'русский':
-      return which === 'monthly' ? 'в месяц' : 'в год';
-    case 'français':
-      return which === 'monthly' ? 'par mois' : 'par an';
-    case 'español':
-      return which === 'monthly' ? 'al mes' : 'al año';
-    case 'português':
-      return which === 'monthly' ? 'por mês' : 'por ano';
-    case 'العربية':
-      return which === 'monthly' ? 'شهريًا' : 'سنويًا';
-    case 'አማርኛ':
-      return which === 'monthly' ? 'በወር' : 'በዓመት';
-    default:
-      return which === 'monthly' ? 'per month' : 'per year';
+    case 'русский':   return which === 'monthly' ? 'в месяц'   : 'в год';
+    case 'français':  return which === 'monthly' ? 'par mois'  : 'par an';
+    case 'español':   return which === 'monthly' ? 'al mes'    : 'al año';
+    case 'português': return which === 'monthly' ? 'por mês'   : 'por ano';
+    case 'العربية':   return which === 'monthly' ? 'شهريًا'    : 'سنويًا';
+    case 'አማርኛ':    return which === 'monthly' ? 'በወር'      : 'በዓመት';
+    default:          return which === 'monthly' ? 'per month' : 'per year';
   }
 }
 function samePrice(a, b) {
@@ -513,65 +410,45 @@ function samePrice(a, b) {
 }
 function menuRouteByLang(lang) {
   switch (lang) {
-    case 'english':
-      return 'MenuEn';
-    case 'русский':
-      return 'Menu';
-    case 'français':
-      return 'MenuFr';
-    case 'español':
-      return 'MenuEs';
-    case 'português':
-      return 'MenuPt';
-    case 'العربية':
-      return 'MenuAr';
-    case 'አማርኛ':
-      return 'MenuAm';
-    default:
-      return 'Menu';
+    case 'english': return 'MenuEn';
+    case 'русский': return 'Menu';
+    case 'français': return 'MenuFr';
+    case 'español': return 'MenuEs';
+    case 'português': return 'MenuPt';
+    case 'العربية': return 'MenuAr';
+    case 'አማርኛ': return 'MenuAm';
+    default: return 'Menu';
   }
 }
+
 function welcomeRouteByLang(lang) {
   switch (lang) {
-    case 'english':
-      return 'WelcomePageEn';
-    case 'русский':
-      return 'WelcomePage';
-    case 'français':
-      return 'WelcomePageFr';
-    case 'español':
-      return 'WelcomePageEs';
-    case 'português':
-      return 'WelcomePagePt';
-    case 'العربية':
-      return 'WelcomePageAr';
-    case 'አማርኛ':
-      return 'WelcomePageAm';
-    default:
-      return 'WelcomePageEn';
+    case 'english':   return 'WelcomePageEn';
+    case 'русский':   return 'WelcomePage';
+    case 'français':  return 'WelcomePageFr';
+    case 'español':   return 'WelcomePageEs';
+    case 'português': return 'WelcomePagePt';
+    case 'العربية':   return 'WelcomePageAr';
+    case 'አማርኛ':    return 'WelcomePageAm';
+    default:          return 'WelcomePageEn';
   }
 }
+
 function deepResetTo(nav, name, params) {
   nav.dispatch(CommonActions.reset({ index: 0, routes: [{ name, params }] }));
 }
 
 export default function Paywall({ navigation }) {
   const {
-    available,
-    ready,
-    buyMonthly,
-    buyAnnual,
-    hasPro,
-    restore,
-    displayPrices,
-    shouldShowPost,
-    markPostShown,
-    applyPromoCode,
-    probePostPurchase,
+    available, ready, buyMonthly, buyAnnual,
+    hasPro, restore, displayPrices,
+    shouldShowPost, markPostShown,
+    applyPromoCode, probePostPurchase,
     syncCodeEntitlementFromServer,
     applyCodeEntitlementLocal,
-    // openRedeem, // (не используем здесь; iOS redeem делаем через RNIap.presentCodeRedemptionSheetIOS)
     __devGrantPro,
+    // ✅ если в твоём IapProvider уже есть userId — отлично.
+    // Если называется иначе — замени строку userIdForCodes ниже.
     userId,
   } = useIap();
 
@@ -581,61 +458,33 @@ export default function Paywall({ navigation }) {
   const [promoMsg, setPromoMsg] = useState('');
   const [promoOK, setPromoOK] = useState(false);
 
-  // ✅ Модалка “Код доступа (школа/курс)”
+  // ✅ Модалка “Активировать код”
   const [redeemModalVisible, setRedeemModalVisible] = useState(false);
   const [redeemInput, setRedeemInput] = useState('');
   const [redeemMsg, setRedeemMsg] = useState('');
   const [redeemOK, setRedeemOK] = useState(false);
   const [redeemLoading, setRedeemLoading] = useState(false);
-
-  const [trialEverUsed, setTrialEverUsed] = useState(false);
-  const [trialFlagReady, setTrialFlagReady] = useState(false);
+const [trialEverUsed, setTrialEverUsed] = useState(false);
+const [trialFlagReady, setTrialFlagReady] = useState(false);
 
   const isRTL = RTL_LANGS.has(langKey);
   const S = STR[langKey] || STR.english;
   const showTrial = !trialFlagReady ? true : !trialEverUsed;
 
+
   const navigatedRef = useRef(false);
   const appStateRef = useRef(AppState.currentState);
 
+  // ✅ Защита: restore() может вызывать системный запрос аккаунта/пароля на Android.
+  // Поэтому делаем троттлинг + блокировку повторных вызовов (даже если restore пересоздается в провайдере).
   const restoreFnRef = useRef(restore);
   const showPostRef = useRef(false);
   const redeemVisibleRef = useRef(false);
   const restoreLockRef = useRef({ inFlight: false, lastAt: 0 });
 
-  // ✅ iOS: Открыть системный экран ввода промо-кода App Store (скидка/промо)
-  // Важно: НЕ используем itms-apps:// (у тебя он падал), используем RNIap-present sheet
-  const openAppStoreRedeem = async () => {
-    try {
-      if (Platform.OS === 'ios') {
-        if (typeof RNIap.presentCodeRedemptionSheetIOS === 'function') {
-          await RNIap.presentCodeRedemptionSheetIOS();
-          return;
-        }
-        // fallback на старые версии
-        if (typeof RNIap.presentCodeRedemptionSheet === 'function') {
-          await RNIap.presentCodeRedemptionSheet();
-          return;
-        }
-      }
-      // fallback: веб
-      await Linking.openURL('https://apps.apple.com/redeem');
-    } catch (e) {
-      try {
-        await Linking.openURL('https://apps.apple.com/redeem');
-      } catch {}
-    }
-  };
-
-  useEffect(() => {
-    restoreFnRef.current = restore;
-  }, [restore]);
-  useEffect(() => {
-    showPostRef.current = !!(hasPro && !!shouldShowPost);
-  }, [hasPro, shouldShowPost]);
-  useEffect(() => {
-    redeemVisibleRef.current = !!redeemModalVisible;
-  }, [redeemModalVisible]);
+  useEffect(() => { restoreFnRef.current = restore; }, [restore]);
+  useEffect(() => { showPostRef.current = !!(hasPro && !!shouldShowPost); }, [hasPro, shouldShowPost]);
+  useEffect(() => { redeemVisibleRef.current = !!redeemModalVisible; }, [redeemModalVisible]);
 
   const maybeRestoreSafe = useCallback(async (reason) => {
     try {
@@ -658,8 +507,10 @@ export default function Paywall({ navigation }) {
     }
   }, []);
 
+  // Если пользователь снова попал на Paywall (например, после повторной активации/навигации),
+  // разрешаем повторный auto-redirect в Pro.
   useFocusEffect(
-    useCallback(() => {
+    React.useCallback(() => {
       if (!hasPro) navigatedRef.current = false;
       return () => {};
     }, [hasPro])
@@ -670,7 +521,7 @@ export default function Paywall({ navigation }) {
   const [postChecked, setPostChecked] = useState(false);
   const showPost = hasPro && !!shouldShowPost;
 
-  // language load
+  /* language load */
   useEffect(() => {
     (async () => {
       const saved = await AsyncStorage.getItem('language');
@@ -678,7 +529,7 @@ export default function Paywall({ navigation }) {
     })();
   }, []);
 
-  // trial flag
+  /* trial flag (hide free-trial messaging after any previous Pro on this device) */
   useEffect(() => {
     (async () => {
       try {
@@ -694,64 +545,53 @@ export default function Paywall({ navigation }) {
     })();
   }, []);
 
-  // dev autoskip — выключен
-  useEffect(() => {
-    if (DEV_SKIP) {
-      /* noop */
-    }
-  }, []);
 
-  // отметим момент первого hasPro
+  /* dev autoskip — выключен */
+  useEffect(() => { if (DEV_SKIP) {/* noop */} }, []);
+
+  /* отметим момент первого hasPro */
   useEffect(() => {
     if (!ready) return;
     if (hasPro && firstHasProAt.current == null) firstHasProAt.current = Date.now();
   }, [ready, hasPro]);
 
-  // при появлении hasPro — подтянем пост-состояние
+  /* при появлении hasPro — подтянем пост-состояние */
   useEffect(() => {
     if (!hasPro) return;
-    (async () => {
-      try {
-        await probePostPurchase();
-      } catch {}
-    })();
+    (async () => { try { await probePostPurchase(); } catch {} })();
   }, [hasPro, probePostPurchase]);
 
-  // первый запуск: проверим pending
+  /* первый запуск: проверим pending и проставим флаг */
   useEffect(() => {
     (async () => {
-      try {
-        await probePostPurchase();
-      } catch {}
+      try { await probePostPurchase(); } catch {}
       setPostChecked(true);
     })();
   }, [probePostPurchase]);
 
-  // при фокусе — мягко restore (с троттлингом)
-  useFocusEffect(
-    useCallback(() => {
-      let canceled = false;
-      (async () => {
-        if (canceled) return;
-        await maybeRestoreSafe('focus');
-      })();
-      return () => {
-        canceled = true;
-      };
-    }, [maybeRestoreSafe])
-  );
+  /* при фокусе — мягко попробуем восстановить доступ (с троттлингом) */
+useFocusEffect(
+  useCallback(() => {
+    let canceled = false;
+    (async () => {
+      if (canceled) return;
+      await maybeRestoreSafe('focus');
+    })();
+    return () => { canceled = true; };
+  }, [maybeRestoreSafe]),
+);
 
-  // AppState → active: restore
-  useEffect(() => {
-    const sub = AppState.addEventListener('change', async (state) => {
-      const prev = appStateRef.current;
-      appStateRef.current = state;
-      if ((prev === 'background' || prev === 'inactive') && state === 'active') {
-        await maybeRestoreSafe('resume');
-      }
-    });
-    return () => sub.remove();
-  }, [maybeRestoreSafe]);
+  /* AppState → active: мягко попробуем восстановить доступ (с троттлингом) */
+useEffect(() => {
+  const sub = AppState.addEventListener('change', async (state) => {
+    const prev = appStateRef.current;
+    appStateRef.current = state;
+    if ((prev === 'background' || prev === 'inactive') && state === 'active') {
+      await maybeRestoreSafe('resume');
+    }
+  });
+  return () => sub.remove();
+}, [maybeRestoreSafe]);
 
   /* бесплатный превью-режим */
   const goMenuFreePreview = async () => {
@@ -784,9 +624,8 @@ export default function Paywall({ navigation }) {
   const onPrimaryCta = async () => {
     try {
       if (!ready) return Alert.alert('Not Ready', 'Store is not ready yet.');
-      if (!plan) return Alert.alert('Select Plan', 'Please select a subscription plan.');
-      if (plan === 'annual') await buyAnnual();
-      else await buyMonthly();
+      if (!plan)  return Alert.alert('Select Plan', 'Please select a subscription plan.');
+      if (plan === 'annual') await buyAnnual(); else await buyMonthly();
     } catch (e) {
       Alert.alert('Error', 'Failed to start purchase: ' + (e?.message || String(e)));
     }
@@ -795,141 +634,146 @@ export default function Paywall({ navigation }) {
   /* DEV: локальный анлок всех упражнений */
   const devUnlockAll = async () => {
     if (!__DEV__ || !__devGrantPro) return;
-    try {
-      await AsyncStorage.removeItem('freePreview');
-    } catch {}
+    try { await AsyncStorage.removeItem('freePreview'); } catch {}
     await __devGrantPro();
-    try {
-      await writeGateSnooze(60000);
-    } catch {}
-    try {
-      restoreLockRef.current.lastAt = Date.now();
-    } catch {}
+    // ✅ после DEV-анлока не дергаем restore какое-то время — иначе может сбросить hasPro обратно
+    try { await writeGateSnooze(60000); } catch {}
+    try { restoreLockRef.current.lastAt = Date.now(); } catch {}
     const saved = (await AsyncStorage.getItem('language')) || 'english';
     deepResetTo(navigation, menuRouteByLang(saved), {});
   };
 
-  // ✅ Партнёрский код (школа/курс) — модалка (iOS/Android)
-  const submitRedeemCode = async () => {
-    if (redeemLoading) return;
+// ✅ Реальная активация кода (UI готов, сервер подключён)
+// После успеха: reset на Welcome (если язык выбран) или на SelectLanguage (если нет)
+const submitRedeemCode = async () => {
+  if (redeemLoading) return;
 
-    const normalized = normalizeAccessCode(redeemInput);
-    if (!looksLikeAccessCode(normalized)) {
+  const normalized = normalizeAccessCode(redeemInput);
+  if (!looksLikeAccessCode(normalized)) {
+    setRedeemOK(false);
+    setRedeemMsg(S.redeemInvalid);
+    return;
+  }
+
+  // ✅ userId обязателен для /redeem/code
+  const userIdForCodes =
+    userId ||
+    (await AsyncStorage.getItem('iap:deviceUserId')) ||
+    null;
+
+  if (!userIdForCodes) {
+    setRedeemOK(false);
+    setRedeemMsg('userId is missing on device.');
+    return;
+  }
+
+  setRedeemLoading(true);
+  setRedeemMsg('');
+  setRedeemOK(false);
+
+  try {
+    const r = await redeemPartnerCodeOnServer({
+      code: normalized,
+      userId: String(userIdForCodes),
+    });
+
+    if (!r.ok) {
       setRedeemOK(false);
-      setRedeemMsg(S.redeemInvalid);
+      setRedeemMsg(r.message || S.invalid);
       return;
     }
 
-    const userIdForCodes = userId || (await AsyncStorage.getItem('iap:deviceUserId')) || null;
-    if (!userIdForCodes) {
-      setRedeemOK(false);
-      setRedeemMsg('userId is missing on device.');
-      return;
-    }
+    // ✅ Успех
+    setRedeemOK(true);
+    setRedeemMsg(S.redeemSuccessBody);
 
-    setRedeemLoading(true);
-    setRedeemMsg('');
-    setRedeemOK(false);
-
+    // ✅ 1) Убираем "режим 2 упражнений", если пользователь заходил через free-preview
     try {
-      const r = await redeemPartnerCodeOnServer({
-        code: normalized,
-        userId: String(userIdForCodes),
-      });
-
-      if (!r.ok) {
-        setRedeemOK(false);
-        setRedeemMsg(r.message || S.invalid);
-        return;
-      }
-
-      setRedeemOK(true);
-      setRedeemMsg(S.redeemSuccessBody);
-
-      try {
-        await AsyncStorage.removeItem('freePreview');
-      } catch {}
-
-      if (r?.accessUntil) {
-        try {
-          await applyCodeEntitlementLocal(String(r.accessUntil));
-        } catch (e0) {
-          console.warn('[PAYWALL] applyCodeEntitlementLocal failed:', e0?.message || e0);
-        }
-      }
-
-      try {
-        await syncCodeEntitlementFromServer(String(userIdForCodes));
-      } catch (e2) {
-        console.warn('[PAYWALL] syncCodeEntitlementFromServer failed:', e2?.message || e2);
-      }
-
-      try {
-        await writeGateSnooze();
-      } catch {}
-      try {
-        restoreLockRef.current.lastAt = Date.now();
-      } catch {}
-
-      await new Promise((res) => setTimeout(res, 0));
-
-      setRedeemModalVisible(false);
-
-      try {
-        const savedLang = await AsyncStorage.getItem('language');
-        if (!savedLang) {
-          deepResetTo(navigation, 'SelectLanguage', { from: 'redeem' });
-        } else {
-          deepResetTo(navigation, welcomeRouteByLang(savedLang), {
-            language: savedLang,
-            from: 'redeem',
-          });
-        }
-      } catch (e3) {
-        console.warn('[PAYWALL] redirect after redeem failed:', e3?.message || e3);
-      }
-
-      try {
-        probePostPurchase?.();
-      } catch {}
-    } catch (e) {
-      setRedeemOK(false);
-      setRedeemMsg(e?.message || 'Failed');
-    } finally {
-      setRedeemLoading(false);
-    }
-  };
-
-  const openRedeemModal = () => {
-    setRedeemInput('');
-    setRedeemMsg('');
-    setRedeemOK(false);
-    setRedeemLoading(false);
-    setRedeemModalVisible(true);
-  };
-
-  const openUrlSafe = async (url) => {
-    try {
-      if (!url) return;
-      const can = await Linking.canOpenURL(url);
-      if (!can) return;
-      await Linking.openURL(url);
+      await AsyncStorage.removeItem('freePreview');
     } catch {}
-  };
+
+    // ✅ 1.5) МГНОВЕННО включаем Pro локально по accessUntil (без ожидания /entitlements и без 15s anti-spam)
+    if (r?.accessUntil) {
+      try {
+        await applyCodeEntitlementLocal(String(r.accessUntil));
+      } catch (e0) {
+        console.warn('[PAYWALL] applyCodeEntitlementLocal failed:', e0?.message || e0);
+      }
+    }
+
+    // ✅ 2) Сразу синхронизируем entitlements по коду (это выставит hasPro в IapProvider)
+    try {
+      await syncCodeEntitlementFromServer(String(userIdForCodes));
+    } catch (e2) {
+      console.warn(
+        '[PAYWALL] syncCodeEntitlementFromServer failed:',
+        e2?.message || e2
+      );
+    }
+
+    // ✅ 2.5) Коридор, чтобы restore не закинул обратно на Paywall (anti-loop)
+    try {
+      await writeGateSnooze();
+    } catch {}
+    try { restoreLockRef.current.lastAt = Date.now(); } catch {}
+
+    // ✅ (микротик, чтобы стейт успел примениться до навигации)
+    await new Promise((res) => setTimeout(res, 0));
+
+    // ✅ 3) Закрываем модалку
+    setRedeemModalVisible(false);
+
+    // ✅ 4) Reset на Welcome или SelectLanguage
+    try {
+      const savedLang = await AsyncStorage.getItem('language');
+
+      if (!savedLang) {
+        // язык ещё не выбран
+        deepResetTo(navigation, 'SelectLanguage', { from: 'redeem' });
+      } else {
+        // язык выбран — ведём на Welcome по языку
+        deepResetTo(navigation, welcomeRouteByLang(savedLang), { language: savedLang, from: 'redeem' });
+      }
+    } catch (e3) {
+      console.warn('[PAYWALL] redirect after redeem failed:', e3?.message || e3);
+    }
+
+    // ✅ на всякий случай (если внутри probePostPurchase есть доп. логика)
+    try {
+      probePostPurchase?.();
+    } catch {}
+} catch (e) {
+    setRedeemOK(false);
+    setRedeemMsg(e?.message || 'Failed');
+  } finally {
+    setRedeemLoading(false);
+  }
+};
+
+
+
+const openRedeemModal = () => {
+  setRedeemInput('');
+  setRedeemMsg('');
+  setRedeemOK(false);
+  setRedeemLoading(false);
+  setRedeemModalVisible(true);
+};
+
 
   // Цены
   const baseMonthlyAmt = displayPrices.baseMonthly;
-  const baseAnnualAmt = displayPrices.baseAnnual;
-  const segMonthlyAmt = displayPrices.promoMonthly;
-  const segAnnualAmt = displayPrices.promoAnnual;
+  const baseAnnualAmt  = displayPrices.baseAnnual;
+  const segMonthlyAmt  = displayPrices.promoMonthly;
+  const segAnnualAmt   = displayPrices.promoAnnual;
 
   const monthlyPeriodLabel = periodLabel(langKey, 'monthly');
-  const annualPeriodLabel = periodLabel(langKey, 'annual');
+  const annualPeriodLabel  = periodLabel(langKey, 'annual');
 
   const useStrikeMonthly =
     promoOK && segMonthlyAmt && baseMonthlyAmt && !samePrice(segMonthlyAmt, baseMonthlyAmt);
-  const useStrikeAnnual =
-    promoOK && segAnnualAmt && baseAnnualAmt && !samePrice(segAnnualAmt, baseAnnualAmt);
+  const useStrikeAnnual  =
+    promoOK && segAnnualAmt  && baseAnnualAmt  && !samePrice(segAnnualAmt,  baseAnnualAmt);
 
   // Автонавигация после покупки (когда нет пост-модалки)
   useEffect(() => {
@@ -937,11 +781,9 @@ export default function Paywall({ navigation }) {
     (async () => {
       const now = Date.now();
       const born = firstHasProAt.current || now;
-      const remain = Math.max(0, 1200 - (now - born));
-      if (remain > 0) await new Promise((r) => setTimeout(r, remain));
-      try {
-        await probePostPurchase();
-      } catch {}
+      const remain = Math.max(0, 1200 - (now - born)); // ~1.2s окно
+      if (remain > 0) await new Promise(r => setTimeout(r, remain));
+      try { await probePostPurchase(); } catch {}
       if (!showPost && !navigatedRef.current) {
         navigatedRef.current = true;
         const saved = (await AsyncStorage.getItem('language')) || 'english';
@@ -950,19 +792,7 @@ export default function Paywall({ navigation }) {
     })();
   }, [ready, postChecked, hasPro, showPost, navigation, probePostPurchase]);
 
-  const UIButton = ({
-    label,
-    subLabel,
-    subLabel2,
-    subLabelStyle,
-    subLabel2Style,
-    subLabelAccent = false,
-    onPress,
-    disabled,
-    kind = 'outline',
-    big = false,
-    style,
-  }) => (
+  const UIButton = ({ label, subLabel, subLabel2, subLabelStyle, subLabel2Style, subLabelAccent = false, onPress, disabled, kind = 'outline', big = false, style }) => (
     <TouchableOpacity
       activeOpacity={0.8}
       onPress={onPress}
@@ -973,6 +803,7 @@ export default function Paywall({ navigation }) {
         big && styles.btnBig,
         disabled && styles.btnDisabled,
         style,
+        subLabelStyle,
       ]}
     >
       <Text maxFontSizeMultiplier={1.2}>
@@ -983,7 +814,6 @@ export default function Paywall({ navigation }) {
           {label}
         </Text>
       </Text>
-
       {!!subLabel && (
         <Text
           style={[
@@ -997,14 +827,9 @@ export default function Paywall({ navigation }) {
           {subLabel}
         </Text>
       )}
-
       {!!subLabel2 && (
         <Text
-          style={[
-            styles.btnSubText2,
-            kind === 'solid' ? styles.btnSubTextSolid : styles.btnSubTextOutline,
-            subLabel2Style,
-          ]}
+          style={[styles.btnSubText2, kind === 'solid' ? styles.btnSubTextSolid : styles.btnSubTextOutline, subLabel2Style,]}
           maxFontSizeMultiplier={1.2}
         >
           {subLabel2}
@@ -1041,10 +866,7 @@ export default function Paywall({ navigation }) {
                 {baseAmt}
               </Text>
               <Text
-                style={[
-                  styles.planPriceNew,
-                  selected ? styles.planSelectedText : styles.planIdleText,
-                ]}
+                style={[styles.planPriceNew, selected ? styles.planSelectedText : styles.planIdleText]}
                 numberOfLines={1}
                 adjustsFontSizeToFit
                 maxFontSizeMultiplier={1.2}
@@ -1054,10 +876,7 @@ export default function Paywall({ navigation }) {
             </>
           ) : (
             <Text
-              style={[
-                styles.planPriceBig,
-                selected ? styles.planSelectedText : styles.planIdleText,
-              ]}
+              style={[styles.planPriceBig, selected ? styles.planSelectedText : styles.planIdleText]}
               numberOfLines={1}
               adjustsFontSizeToFit
               maxFontSizeMultiplier={1.2}
@@ -1080,17 +899,10 @@ export default function Paywall({ navigation }) {
   // Если есть pro и пост-модалка не нужна — экран скрываем
   if (hasPro && !showPost) return null;
 
-  const isIOS = Platform.OS === 'ios';
-
   return (
     <View style={[styles.screen, isRTL && { direction: 'rtl' }]}>
       {/* Пост-модалка после покупки */}
-      <Modal
-        visible={!!showPost}
-        transparent={false}
-        animationType="fade"
-        presentationStyle="fullScreen"
-      >
+      <Modal visible={!!showPost} transparent={false} animationType="fade" presentationStyle="fullScreen">
         <View style={styles.modalWrap}>
           <Text style={styles.modalTitle} maxFontSizeMultiplier={1.2}>
             {S.postTitle}
@@ -1102,7 +914,7 @@ export default function Paywall({ navigation }) {
             style={[styles.btnBox, styles.btnSolid, { marginTop: 16, minWidth: 200 }]}
             onPress={async () => {
               await markPostShown();
-              await writeGateSnooze();
+              await writeGateSnooze(); // коридор 5с, чтобы restore не перекинул назад
               const saved = (await AsyncStorage.getItem('language')) || 'english';
               if (!hasPro) {
                 await AsyncStorage.setItem('freePreview', '1');
@@ -1113,56 +925,42 @@ export default function Paywall({ navigation }) {
             }}
             activeOpacity={0.85}
           >
-            <Text style={[styles.btnText, styles.btnTextSolid]} maxFontSizeMultiplier={1.2}>
+            <Text
+              style={[styles.btnText, styles.btnTextSolid]}
+              maxFontSizeMultiplier={1.2}
+            >
               {S.postContinue}
             </Text>
           </TouchableOpacity>
         </View>
       </Modal>
 
-      <KeyboardAvoidingView
-        style={{ flex: 1 }}
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-      >
-        <ScrollView
-          contentContainerStyle={styles.scrollContent}
-          keyboardShouldPersistTaps="handled"
-          bounces
-        >
+      <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+        <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled" bounces>
           {/* Верхний блок */}
           <View style={styles.headerBox}>
             <Text style={styles.headerTitle} maxFontSizeMultiplier={1.2}>
               <Text style={styles.headerEmph} maxFontSizeMultiplier={1.2}>
                 {showTrial ? S.headerTrialEmph : S.headerNoTrialEmph}
               </Text>
-              {!!S.headerTrialTail && (
-                <Text maxFontSizeMultiplier={1.2}>
-                  {' '}
-                  {showTrial ? S.headerTrialTail : S.headerNoTrialTail}
-                </Text>
+              {!!STR[langKey]?.headerTrialTail && (
+                <Text maxFontSizeMultiplier={1.2}> {showTrial ? S.headerTrialTail : S.headerNoTrialTail}</Text>
               )}
             </Text>
           </View>
 
-          {/* Промокод (везде — как было) */}
+          {/* Промокод */}
           <View style={styles.spacer} />
           <Text style={styles.label} maxFontSizeMultiplier={1.2}>
-            {S.promoLabel}
+            {STR[langKey]?.promoLabel}
           </Text>
           <View style={styles.promoRow}>
-            <View
-              style={[styles.inputWrap, styles.promoInputNarrow, promoOK ? styles.inputWrapOK : null]}
-            >
+            <View style={[styles.inputWrap, styles.promoInputNarrow, promoOK ? styles.inputWrapOK : null]}>
               <TextInput
                 style={[styles.input, promoOK ? styles.inputOK : null]}
-                placeholder={S.promoPlaceholder}
+                placeholder={STR[langKey]?.promoPlaceholder}
                 value={code}
-                onChangeText={(t) => {
-                  if (!promoOK) {
-                    setCode(t);
-                    if (!t) setPromoMsg('');
-                  }
-                }}
+                onChangeText={(t) => { if (!promoOK) { setCode(t); if (!t) setPromoMsg(''); } }}
                 editable={!promoOK}
                 selectTextOnFocus={!promoOK}
                 underlineColorAndroid="transparent"
@@ -1176,7 +974,7 @@ export default function Paywall({ navigation }) {
             </View>
             <View style={{ width: 8 }} />
             <UIButton
-              label={S.apply}
+              label={STR[langKey]?.apply}
               onPress={applyCodeLocal}
               disabled={promoOK || code.trim().length < 4}
               kind="solid"
@@ -1199,18 +997,18 @@ export default function Paywall({ navigation }) {
           {/* Выбор плана */}
           <View style={styles.spacer} />
           <Text style={styles.choosePlan} maxFontSizeMultiplier={1.2}>
-            {S.choosePlan}
+            {STR[langKey]?.choosePlan}
           </Text>
           <View style={styles.spacerSm} />
           <View style={styles.planRow}>
-            {planBtn('monthly', S.monthly, {
+           {planBtn('monthly', STR[langKey]?.monthly, {
               baseAmt: baseMonthlyAmt,
               segAmt: segMonthlyAmt,
               periodText: monthlyPeriodLabel,
               useStrike: useStrikeMonthly,
             })}
             <View style={{ width: 12 }} />
-            {planBtn('annual', S.annual, {
+            {planBtn('annual', STR[langKey]?.annual, {
               baseAmt: baseAnnualAmt,
               segAmt: segAnnualAmt,
               periodText: annualPeriodLabel,
@@ -1224,35 +1022,23 @@ export default function Paywall({ navigation }) {
             label={showTrial ? S.startTrial : S.subscribe}
             subLabel={S.fullAccessAllExercises}
             onPress={onPrimaryCta}
-            disabled={!ready || !plan}
+            disabled={!ready || !plan}    // активна только после ручного выбора плана
             kind="solid"
             big
           />
 
-          {/* ✅ iOS: кнопка под CTA → App Store Redeem (промо/скидка) */}
-          {isIOS && SHOW_REDEEM_BUTTON_UNDER_CTA && (
-            <>
-              <View style={styles.spacerSm} />
-              <UIButton
-                label={S.appStoreRedeem || S.activateCode}
-                onPress={openAppStoreRedeem}
-                disabled={!plan}
-                kind="outline"
-              />
-            </>
-          )}
-
           {/* Бесплатно */}
           <View style={styles.spacerSm} />
-          <UIButton
-            label={S.freePreview}
-            subLabel={S.freePreviewSubtitle}
-            subLabelAccent
-            subLabel2={`${S.limitedAccess} • ${S.exercises12}`}
-            onPress={goMenuFreePreview}
-            kind="outline"
-            subLabelStyle={{ fontSize: 16 }}
-          />
+      <UIButton
+  label={STR[langKey]?.freePreview}
+  subLabel={STR[langKey]?.freePreviewSubtitle}
+  subLabelAccent
+  subLabel2={`${S.limitedAccess} • ${S.exercises12}`}
+  onPress={goMenuFreePreview}
+  kind="outline"
+  subLabelStyle={{ fontSize: 16 }}   // ✅ больше только тут
+/>
+
 
           {/* DEV: локальный анлок */}
           {__DEV__ && __devGrantPro && !hasPro && (
@@ -1267,68 +1053,33 @@ export default function Paywall({ navigation }) {
             </>
           )}
 
-          <View style={{ height: 90 }} />
+          <View style={{ height: 80 }} />
         </ScrollView>
       </KeyboardAvoidingView>
 
-      {/* ===== НИЗ ===== */}
       <View style={styles.bottomArea}>
-        {/* Android: оставить как в текущем коде */}
-        {!isIOS && (
-          <>
-            {SHOW_PLAY_REDEEM && (
-              <TouchableOpacity onPress={() => {}} activeOpacity={0.8}>
-                <Text style={styles.footerLink} maxFontSizeMultiplier={1.2}>
-                  {S.playRedeem}
-                </Text>
-              </TouchableOpacity>
-            )}
-
-            <TouchableOpacity onPress={openRedeemModal} activeOpacity={0.8}>
-              <Text style={styles.footerLink} maxFontSizeMultiplier={1.2}>
-                {S.activateCode}
-              </Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity onPress={restore} activeOpacity={0.8}>
-              <Text style={styles.footerLink} maxFontSizeMultiplier={1.2}>
-                {S.restore}
-              </Text>
-            </TouchableOpacity>
-          </>
+        {SHOW_PLAY_REDEEM && (
+          <TouchableOpacity onPress={() => {}} activeOpacity={0.8}>
+            <Text style={styles.footerLink} maxFontSizeMultiplier={1.2}>
+              {STR[langKey]?.playRedeem}
+            </Text>
+          </TouchableOpacity>
         )}
 
-        {/* iOS: Privacy / Terms / Restore + partner-code отдельной ссылкой */}
-        {isIOS && (
-          <>
-            <TouchableOpacity onPress={() => openUrlSafe(PRIVACY_URL)} activeOpacity={0.8}>
-              <Text style={styles.footerLink} maxFontSizeMultiplier={1.2}>
-                {S.privacy}
-              </Text>
-            </TouchableOpacity>
+        <TouchableOpacity onPress={openRedeemModal} activeOpacity={0.8}>
+          <Text style={styles.footerLink} maxFontSizeMultiplier={1.2}>
+            {STR[langKey]?.activateCode}
+          </Text>
+        </TouchableOpacity>
 
-            <TouchableOpacity onPress={() => openUrlSafe(TERMS_URL)} activeOpacity={0.8}>
-              <Text style={styles.footerLink} maxFontSizeMultiplier={1.2}>
-                {S.terms}
-              </Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity onPress={restore} activeOpacity={0.8}>
-              <Text style={styles.footerLink} maxFontSizeMultiplier={1.2}>
-                {S.restore}
-              </Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity onPress={openRedeemModal} activeOpacity={0.8} style={{ marginTop: 6 }}>
-              <Text style={styles.footerLinkSmall} maxFontSizeMultiplier={1.2}>
-                {S.accessCodeLink}
-              </Text>
-            </TouchableOpacity>
-          </>
-        )}
+        <TouchableOpacity onPress={restore} activeOpacity={0.8}>
+          <Text style={styles.footerLink} maxFontSizeMultiplier={1.2}>
+            {STR[langKey]?.restore}
+          </Text>
+        </TouchableOpacity>
       </View>
 
-      {/* ✅ Модалка “Код доступа (школа/курс)” */}
+      {/* ✅ Модалка “Активировать код” — боевой UI */}
       <Modal
         visible={redeemModalVisible}
         transparent={true}
@@ -1371,16 +1122,19 @@ export default function Paywall({ navigation }) {
 
             {!!redeemMsg && (
               <Text
-                style={[styles.redeemMsg, redeemOK ? styles.redeemMsgOK : styles.redeemMsgErr]}
+                style={[
+                  styles.redeemMsg,
+                  redeemOK ? styles.redeemMsgOK : styles.redeemMsgErr,
+                ]}
                 maxFontSizeMultiplier={1.2}
               >
                 {redeemMsg}
               </Text>
             )}
-
             <Text style={styles.redeemWarn} maxFontSizeMultiplier={1.2}>
               {S.redeemDataWarning}
             </Text>
+
 
             <View style={styles.redeemBtnsRow}>
               <TouchableOpacity
@@ -1422,7 +1176,7 @@ export default function Paywall({ navigation }) {
                 activeOpacity={0.85}
               >
                 <Text style={styles.redeemRestoreQuickText} maxFontSizeMultiplier={1.2}>
-                  {S.restore}
+                  {STR[langKey]?.restore}
                 </Text>
               </TouchableOpacity>
             )}
@@ -1441,17 +1195,11 @@ const ACCENT = '#bd462a';
 const styles = StyleSheet.create({
   screen: { flex: 1, paddingHorizontal: 16, paddingTop: 12 },
   scrollContent: { paddingBottom: 12 },
-  spacer: { height: 14 },
-  spacerSm: { height: 8 },
-  spacerXs: { height: 6 },
+  spacer: { height: 14 }, spacerSm: { height: 8 }, spacerXs: { height: 6 },
 
   headerBox: {
-    padding: 12,
-    backgroundColor: '#F7FAFD',
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: '#E6EEF7',
-    marginBottom: 8,
+    padding: 12, backgroundColor: '#F7FAFD', borderRadius: 12,
+    borderWidth: 1, borderColor: '#E6EEF7', marginBottom: 8,
     alignItems: 'center',
   },
   headerTitle: { color: BRAND, fontWeight: '400', fontSize: 13.5, lineHeight: 18, textAlign: 'center' },
@@ -1463,30 +1211,18 @@ const styles = StyleSheet.create({
   promoInputNarrow: { flex: 0.55 },
   inputWrapOK: {},
   input: {
-    borderWidth: 2,
-    borderColor: '#9aa6b2',
-    borderRadius: 10,
-    paddingHorizontal: 12,
-    paddingVertical: 14,
-    fontWeight: '600',
-    backgroundColor: 'white',
+    borderWidth: 2, borderColor: '#9aa6b2', borderRadius: 10,
+    paddingHorizontal: 12, paddingVertical: 14, fontWeight: '600', backgroundColor: 'white',
   },
   inputOK: { borderColor: '#2e7d32', color: '#2e7d32', fontWeight: '800', backgroundColor: '#e8f5e9' },
   checkMark: { position: 'absolute', right: 10, top: 10, fontSize: 18, color: '#2e7d32', fontWeight: '900' },
   applyButtonWide: { flex: 0.45 },
-  helper: { fontSize: 12, opacity: 0.95 },
-  helperOK: { color: '#2e7d32' },
-  helperErr: { color: '#b00020' },
+  helper: { fontSize: 12, opacity: 0.95 }, helperOK: { color: '#2e7d32' }, helperErr: { color: '#b00020' },
 
   planRow: { flexDirection: 'row' },
   planButtonBox: {
-    flex: 1,
-    paddingVertical: 12,
-    borderRadius: 12,
-    borderWidth: 2,
-    alignItems: 'center',
-    justifyContent: 'center',
-    minHeight: 96,
+    flex: 1, paddingVertical: 12, borderRadius: 12, borderWidth: 2,
+    alignItems: 'center', justifyContent: 'center', minHeight: 96,
   },
   planIdleBox: { borderColor: BRAND, backgroundColor: 'transparent' },
   planSelectedBox: { borderColor: BRAND, backgroundColor: BRAND_BG },
@@ -1500,11 +1236,8 @@ const styles = StyleSheet.create({
   planSelectedText: { color: BRAND_TEXT },
 
   btnBox: {
-    paddingVertical: 14,
-    borderRadius: 12,
-    borderWidth: 2,
-    alignItems: 'center',
-    justifyContent: 'center',
+    paddingVertical: 14, borderRadius: 12, borderWidth: 2,
+    alignItems: 'center', justifyContent: 'center',
   },
   btnBig: { paddingVertical: 18 },
   btnOutline: { borderColor: BRAND, backgroundColor: 'transparent' },
@@ -1521,22 +1254,17 @@ const styles = StyleSheet.create({
 
   bottomArea: { paddingVertical: 8, alignItems: 'center' },
   footerLink: { fontSize: 14, textDecorationLine: 'underline', color: BRAND, opacity: 0.9 },
-  footerLinkSmall: { fontSize: 12.5, textDecorationLine: 'underline', color: BRAND, opacity: 0.85 },
 
   choosePlan: { fontWeight: '800', color: ACCENT, textAlign: 'center' },
 
   modalWrap: {
-    flex: 1,
-    paddingHorizontal: 20,
-    paddingTop: 32,
-    backgroundColor: 'white',
-    alignItems: 'center',
-    justifyContent: 'center',
+    flex: 1, paddingHorizontal: 20, paddingTop: 32,
+    backgroundColor: 'white', alignItems: 'center', justifyContent: 'center',
   },
   modalTitle: { fontSize: 20, fontWeight: '900', marginBottom: 10, textAlign: 'center' },
   modalText: { fontSize: 12, opacity: 0.9, textAlign: 'center' },
 
-  // Redeem modal styles
+  // ✅ Redeem modal styles
   redeemOverlay: {
     flex: 1,
     backgroundColor: 'rgba(0,0,0,0.45)',

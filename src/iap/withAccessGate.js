@@ -1,16 +1,32 @@
 // src/iap/withAccessGate.js
 import React, { useEffect, useMemo, useRef } from 'react';
+import { Platform } from 'react-native';
 import { useIap } from './IapProvider';
 
 // Экраны, которые всегда бесплатны (1 и 2 упражнение, все локали)
 export const FREE_ROUTES = new Set([
-  'Exercise1', 'Exercise1En', 'Exercise1Fr', 'Exercise1Es', 'Exercise1Pt', 'Exercise1Ar', 'Exercise1Am',
-  'Exercise2', 'Exercise2En', 'Exercise2Fr', 'Exercise2Es', 'Exercise2Pt', 'Exercise2Ar', 'Exercise2Am',
- 
+  'Exercise1',
+  'Exercise1En',
+  'Exercise1Fr',
+  'Exercise1Es',
+  'Exercise1Pt',
+  'Exercise1Ar',
+  'Exercise1Am',
+  'Exercise2',
+  'Exercise2En',
+  'Exercise2Fr',
+  'Exercise2Es',
+  'Exercise2Pt',
+  'Exercise2Ar',
+  'Exercise2Am',
 ]);
 
 function isFreeRoute(routeName) {
   return FREE_ROUTES.has(routeName);
+}
+
+function paywallRouteName() {
+  return Platform.OS === 'ios' ? 'PaywallIOS' : 'Paywall';
 }
 
 /**
@@ -32,12 +48,18 @@ export function withAccessGate(ScreenComponent) {
     useEffect(() => {
       if (!hasPro && !free && !redirectedRef.current) {
         redirectedRef.current = true;
-        // переносим в следующий тик, чтобы избежать гонки с рендером
+
         const id = setTimeout(() => {
           // replace — чтобы нельзя было вернуться «назад» в защищённый экран
-          navigation.replace('Paywall', { from: routeName });
+          navigation.replace(paywallRouteName(), { from: routeName });
         }, 0);
+
         return () => clearTimeout(id);
+      }
+
+      // если PRO появился — сбрасываем флаг (на случай возврата/ре-рендера)
+      if (hasPro && redirectedRef.current) {
+        redirectedRef.current = false;
       }
     }, [hasPro, free, navigation, routeName]);
 
@@ -58,9 +80,9 @@ export function withAccessGate(ScreenComponent) {
   }
 
   // Немного лучшее имя компонента в React DevTools
-  WrappedScreen.displayName = `withAccessGate(${ScreenComponent.displayName || ScreenComponent.name || 'Screen'})`;
+  WrappedScreen.displayName = `withAccessGate(${
+    ScreenComponent.displayName || ScreenComponent.name || 'Screen'
+  })`;
 
   return WrappedScreen;
 }
-
-

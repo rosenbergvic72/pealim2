@@ -138,6 +138,7 @@ import ChatBotModal from './api/ChatBotModal';
 import Constants from 'expo-constants';
 import { IapProvider, NoIapProvider } from './src/iap/IapProvider';
 import Paywall from './screens/Paywall';
+import PaywallIOS from './screens/PaywallIOS'; 
 import { withMenuGate } from './src/iap/withMenuGate';
 
 
@@ -792,8 +793,19 @@ useEffect(() => {
   component={Paywall}
   options={{
     ...createHeaderTitle('Paywall', true, 'Уведомления'),
+    headerRight: () => null,   // 🔥 убираем кнопку
     headerForceBack: true,
-    // headerBackTarget: 'Welcome',
+    cardStyle: { backgroundColor: '#F0F0F0' },
+  }}
+/>
+
+<Stack.Screen
+  name="PaywallIOS"
+  component={PaywallIOS}
+  options={{
+    ...createHeaderTitle('Paywall', true, 'Уведомления'),
+    headerRight: () => null,   // 🔥 убираем кнопку
+    headerForceBack: true,
     cardStyle: { backgroundColor: '#F0F0F0' },
   }}
 />
