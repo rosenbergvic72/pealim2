@@ -368,9 +368,16 @@ function CompactHeader({ navigation, options, back, route }) {
 /* ===== ВНЕШНИЙ компонент — провайдеры (IAP + SafeArea) ===== */
 export default function App() {
   const extra = Constants.expoConfig?.extra || {};
-  const isExpoGo = Constants.appOwnership === 'expo';
-  const USE_IAP = !isExpoGo && extra.store === 'gp' && !extra.disableIap;
-  const RootProvider = USE_IAP ? IapProvider : NoIapProvider;
+const isExpoGo = Constants.appOwnership === 'expo';
+
+const store = String(extra.store || '').toLowerCase();
+// допустимые значения под себя: 'gp' (android), 'ios'/'as' (ios)
+const isStoreBuild =
+  (Platform.OS === 'android' && store === 'gp') ||
+  (Platform.OS === 'ios' && (store === 'ios' || store === 'as' || store === 'appstore'));
+
+const USE_IAP = !isExpoGo && isStoreBuild && !extra.disableIap;
+const RootProvider = USE_IAP ? IapProvider : NoIapProvider;
 
 
   return (

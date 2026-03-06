@@ -14,6 +14,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import Constants from 'expo-constants';
 import * as Device from 'expo-device';
 
+const isSimulator = !Device.isDevice;
+
 /* ===================== Константы / настройки ===================== */
 // Android uses ONE subscription productId with base plans/offers.
 // iOS uses SEPARATE productIds per duration (monthly/annual).
@@ -832,11 +834,20 @@ export function IapProvider({ children, initialSegment = 'basic' }) {
 
     (async () => {
       const isIosSim = Platform.OS === 'ios' && !Device.isDevice;
-      if (isIosSim) {
-        setAvailable(false);
-        setReady(true);
-        return;
-      }
+     if (isIosSim) {
+  // ✅ MOCK prices только для Simulator (чтобы верстать paywall)
+  const mock = {
+    baseMonthly: '₪19.90',
+    baseAnnual: '₪159.90',
+    promoMonthly: '₪19.90',
+    promoAnnual: '₪159.90',
+  };
+  setDisplayPrices(mock);
+  setDebug((d) => ({ ...d, iosSim: true, displayPrices: mock }));
+  setAvailable(true); // чтобы paywall показывал trial header и не ругался "store unavailable"
+  setReady(true);
+  return;
+}
 
       try {
         await RNIap.initConnection();
