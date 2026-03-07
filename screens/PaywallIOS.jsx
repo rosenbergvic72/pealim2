@@ -1,5 +1,5 @@
 // screens/PaywallIOS.jsx
-import React, { useEffect, useRef, useState, useCallback, useMemo } from 'react';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
 import * as RNIap from 'react-native-iap';
 import {
   View,
@@ -34,7 +34,8 @@ const GATE_SNOOZE_KEY = 'iap:gateSnoozeUntil';
 const GATE_SNOOZE_MS = 5000;
 const RESTORE_THROTTLE_MS = 60000;
 
-const FORCE_PAYWALL = String(process.env.EXPO_PUBLIC_FORCE_PAYWALL) === '1';
+// const FORCE_PAYWALL = String(process.env.EXPO_PUBLIC_FORCE_PAYWALL) === '1';
+// const FORCE_PAYWALL = false;
 
 async function writeGateSnooze(ms = GATE_SNOOZE_MS) {
   try {
@@ -245,12 +246,8 @@ export default function PaywallIOS({ navigation }) {
   }, [maybeRestoreSafe]);
 
   // Если pro — выходим сразу (как было)
-  useEffect(() => {
+useEffect(() => {
   if (!hasPro) return;
-
-  // ✅ В TestFlight (preview-ios) оставляем paywall открытым,
-  // чтобы можно было видеть цены/верстку даже при Pro
-  if (FORCE_PAYWALL) return;
 
   (async () => {
     try {
