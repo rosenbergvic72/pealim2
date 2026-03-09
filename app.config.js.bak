@@ -71,7 +71,7 @@ function resolveGoogleServices({ isCI, isRu }) {
 /* ====================== Export ====================== */
 export default ({ config }) => {
   // ===== Входные env =====
-  const STORE = process.env.EXPO_PUBLIC_STORE ?? process.env.STORE ?? 'gp'; // 'gp' | 'rustore' | 'ios'
+  const STORE = process.env.EXPO_PUBLIC_STORE ?? process.env.STORE ?? 'gp'; // 'gp' | 'rustore'
   const isRu = STORE === 'rustore';
   const isCI = process.env.EAS_BUILD === 'true' || process.env.CI === 'true';
 
@@ -95,7 +95,7 @@ export default ({ config }) => {
     ? 'com.rosenbergvictor72.verbify.ru'
     : 'com.rosenbergvictor72.pealim2';
 
-  const appVersion = '1.1.6';
+  const appVersion = '1.1.4';
   const versionCode = isRu ? 1000010 : 2000900; // инкрементируйте при каждом релизе
   const runtimeVersion = `${appVersion}-${isRu ? 'ru' : 'gp'}`;
 
@@ -124,31 +124,6 @@ export default ({ config }) => {
     },
     runtimeVersion,
 
-    ios: {
-      ...config.ios,
-      bundleIdentifier: 'com.rosenbergvictor72.pealim2',
-      icon: './assets/images/icon512.png',
-      infoPlist: {
-        ...(config.ios?.infoPlist || {}),
-        ITSAppUsesNonExemptEncryption: false,
-        NSPhotoLibraryUsageDescription: '...',
-        NSPhotoLibraryAddUsageDescription: '...',
-        NSCameraUsageDescription: '...',
-        NSMicrophoneUsageDescription: '...',
-        CFBundleDevelopmentRegion: 'en',
-        CFBundleLocalizations: [
-          'en',
-          'ru',
-          'fr',
-          'es',
-          'pt-BR',
-          'ar',
-          'he',
-          'am',
-        ],
-      },
-    },
-
     android: {
       ...config.android,
       package: androidPackage,
@@ -161,7 +136,7 @@ export default ({ config }) => {
 
     extra: {
       ...config.extra,
-      store: STORE, // 'gp' | 'rustore' | 'ios'
+      store: STORE, // 'gp' | 'rustore'
       paymentsProvider: isRu ? 'rustore' : 'gp',
       disableIap, // отключить IAP на клиенте (UI/логика)
       proBypass, // (dev) принудительный Pro

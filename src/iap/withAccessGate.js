@@ -1,6 +1,6 @@
 // src/iap/withAccessGate.js
 import React, { useEffect, useMemo, useRef } from 'react';
-import { Platform } from 'react-native';
+import { Platform, View, ActivityIndicator } from 'react-native';
 import { useIap } from './IapProvider';
 
 // Экраны, которые всегда бесплатны (1 и 2 упражнение, все локали)
@@ -29,57 +29,66 @@ function paywallRouteName() {
   return Platform.OS === 'ios' ? 'PaywallIOS' : 'Paywall';
 }
 
-/**
- * HOC: даёт доступ к экрану только если hasPro ИЛИ это бесплатный экран.
- * Также скрывает headerRight (кнопку чат-бота) для бесплатных пользователей.
- */
 export function withAccessGate(ScreenComponent) {
   function WrappedScreen(props) {
-    const { hasPro } = useIap();
+    const { hasPro, accessState = 'checking' } = useIap();
     const { navigation, route } = props;
 
     const routeName = route?.name || '';
     const free = useMemo(() => isFreeRoute(routeName), [routeName]);
 
-    // Флаг, что мы уже инициировали редирект (чтобы не вызвать дважды)
     const redirectedRef = useRef(false);
 
-    // Если экран не бесплатный и нет PRO — уводим на Paywall
     useEffect(() => {
+      if (accessState === 'checking') return;
+
       if (!hasPro && !free && !redirectedRef.current) {
         redirectedRef.current = true;
 
         const id = setTimeout(() => {
-          // replace — чтобы нельзя было вернуться «назад» в защищённый экран
           navigation.replace(paywallRouteName(), { from: routeName });
         }, 0);
 
         return () => clearTimeout(id);
       }
 
-      // если PRO появился — сбрасываем флаг (на случай возврата/ре-рендера)
       if (hasPro && redirectedRef.current) {
         redirectedRef.current = false;
       }
-    }, [hasPro, free, navigation, routeName]);
+    }, [accessState, hasPro, free, navigation, routeName]);
 
-    // Скрываем кнопку ChatBot (headerRight) на free-пользователях
     useEffect(() => {
-      if (!hasPro) {
+      if (accessState !== 'checking' && !hasPro) {
         navigation.setOptions({ headerRight: () => null });
       }
-    }, [hasPro, navigation]);
+    }, [accessState, hasPro, navigation]);
 
-    // Если доступ запрещён — ничего не рисуем (редиректит эффект выше)
+    if (free) {
+      return <ScreenComponent {...props} isFreeUser={!hasPro} />;
+    }
+
+    if (accessState === 'checking') {
+      return (
+        <View
+          style={{
+            flex: 1,
+            backgroundColor: '#AFC1D0',
+            justifyContent: 'center',
+            alignItems: 'center',
+          }}
+        >
+          <ActivityIndicator size="large" color="#2D4769" />
+        </View>
+      );
+    }
+
     if (!hasPro && !free) return null;
 
-    // Можно передать в экран «isFreeUser» на всякий случай
     const isFreeUser = !hasPro;
 
     return <ScreenComponent {...props} isFreeUser={isFreeUser} />;
   }
 
-  // Немного лучшее имя компонента в React DevTools
   WrappedScreen.displayName = `withAccessGate(${
     ScreenComponent.displayName || ScreenComponent.name || 'Screen'
   })`;

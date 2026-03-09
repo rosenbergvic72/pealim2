@@ -181,6 +181,7 @@ const styles = StyleSheet.create({
     padding: wp('2%'),
     backgroundColor: '#FFFDEF',
   },
+
   cardShadow: {
     shadowColor: '#000',
     shadowOffset: { width: 0, height: hp('0.25%') },
@@ -188,11 +189,14 @@ const styles = StyleSheet.create({
     shadowRadius: wp('2%'),
     elevation: 5,
   },
+
   hebrewVerbContainer: {
     alignItems: 'center',
+    justifyContent: 'center',   // ✅ центрируем блок по вертикали
     position: 'relative',
-    paddingTop: 6,
-    minHeight: 170,
+    minHeight: 185,
+    paddingTop: 0,              // ✅ убираем лишний сдвиг вверх
+    paddingBottom: hp('1.2%'),  // ✅ небольшой запас снизу из-за аудио-кнопки
     zIndex: 1,
   },
 
@@ -203,38 +207,67 @@ const styles = StyleSheet.create({
     width: 32,
     height: 32,
   },
+
   hebrewVerb: {
     fontSize: 32,
     fontWeight: 'bold',
     color: '#333652',
+    borderRadius: wp('5%'),
+    paddingLeft: wp('2.5%'),
+    paddingRight: wp('2.5%'),
     textAlign: 'center',
-    marginTop: 6,
+    marginTop: 0,              // ✅ убрали дополнительный подъём вверх
+    maxWidth: '80%',
+    alignSelf: 'center',
   },
+
   translit: {
     fontSize: 18,
     fontWeight: 'bold',
     color: '#CE6857',
-    marginBottom: hp('1.5%'),
+    borderRadius: wp('5%'),
+    paddingLeft: wp('2.5%'),
+    paddingRight: wp('2.5%'),
+    marginBottom: hp('1.2%'),
+    maxWidth: '80%',
+    textAlign: 'center',
+    alignSelf: 'center',
   },
+
   root: {
     fontSize: 14,
     fontWeight: 'bold',
     color: '#4C7031',
+    borderRadius: wp('5%'),
+    paddingLeft: wp('2.5%'),
+    paddingRight: wp('2.5%'),
+    marginBottom: hp('0.3%'),
+    maxWidth: '80%',
+    textAlign: 'center',
+    alignSelf: 'center',
   },
+
   bin: {
     fontSize: 14,
     fontWeight: 'bold',
     color: '#003882',
-    marginBottom: hp('2%'),
+    borderRadius: wp('5%'),
+    paddingLeft: wp('2.5%'),
+    paddingRight: wp('2.5%'),
+    marginBottom: 0,
+    maxWidth: '80%',
+    textAlign: 'center',
+    alignSelf: 'center',
   },
 
   audioButton: {
     position: 'absolute',
-    right: wp('1.7%'),
-    bottom: wp('0.9%'),
+    right: wp('1.8%'),
+    bottom: hp('1.2%'),
     zIndex: 50,
     elevation: 50,
   },
+
   audioIcon: {
     width: wp('6.5%'),
     height: wp('6.5%'),
@@ -243,21 +276,24 @@ const styles = StyleSheet.create({
 
   sideButtonsColumn: {
     position: 'absolute',
-    right: wp('1.25%'),
-    bottom: wp('1.25%') + wp('9.5%') + 5,
+    right: wp('1.5%'),
+    top: hp('2%'),
+    bottom: hp('7%'),
+    justifyContent: 'center',
     alignItems: 'center',
-    gap: 8,
-
     zIndex: 60,
     elevation: 60,
   },
+
   smallIconBtn: {
-    width: wp('8%'),
-    height: wp('8%'),
+    width: wp('8.2%'),
+    height: wp('8.2%'),
     backgroundColor: 'transparent',
     justifyContent: 'center',
     alignItems: 'center',
+    marginVertical: 4,
   },
+
   smallIcon: {
     width: '100%',
     height: '100%',

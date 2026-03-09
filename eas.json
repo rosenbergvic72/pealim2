@@ -6,7 +6,7 @@
       "android": { "buildType": "app-bundle" },
       "distribution": "internal",
       "env": {
-        "STORE": "gp",
+        "EXPO_PUBLIC_STORE": "gp",
         "EXPO_PUBLIC_DISABLE_IAP": "1",
         "EXPO_PUBLIC_PRO_BYPASS": "1"
       },
@@ -18,30 +18,30 @@
       "distribution": "internal",
       "ios": {},
       "env": {
-        "STORE": "ios",
+        "EXPO_PUBLIC_STORE": "ios",
         "EXPO_PUBLIC_DISABLE_IAP": "0",
         "EXPO_PUBLIC_IAP_VERIFY_URL": "https://iap-server.onrender.com/iap/apple/subscription/verify"
       },
       "channel": "development-ios"
     },
 
- "preview-ios": {
-  "distribution": "store",
-  "ios": {},
-  "autoIncrement": true,
-  "env": {
-    "STORE": "ios",
-    "EXPO_PUBLIC_DISABLE_IAP": "0",
-    "EXPO_PUBLIC_IAP_VERIFY_URL": "https://iap-server.onrender.com/iap/apple/subscription/verify"
-  },
-  "channel": "preview-ios"
-},
+    "preview-ios": {
+      "distribution": "store",
+      "ios": {},
+      "autoIncrement": "buildNumber",
+      "env": {
+        "EXPO_PUBLIC_STORE": "ios",
+        "EXPO_PUBLIC_DISABLE_IAP": "0",
+        "EXPO_PUBLIC_IAP_VERIFY_URL": "https://iap-server.onrender.com/iap/apple/subscription/verify"
+      },
+      "channel": "preview-ios"
+    },
 
     "internal-noiap-apk": {
       "android": { "buildType": "apk" },
       "distribution": "internal",
       "env": {
-        "STORE": "gp",
+        "EXPO_PUBLIC_STORE": "gp",
         "EXPO_PUBLIC_DISABLE_IAP": "1",
         "EXPO_PUBLIC_PRO_BYPASS": "1"
       },
@@ -53,7 +53,7 @@
       "distribution": "internal",
       "android": { "buildType": "apk" },
       "env": {
-        "STORE": "gp",
+        "EXPO_PUBLIC_STORE": "gp",
         "EXPO_PUBLIC_DISABLE_IAP": "0",
         "EXPO_PUBLIC_IAP_VERIFY_URL": "https://iap-server.onrender.com/iap/google/subscription/verify"
       },
@@ -63,7 +63,7 @@
     "production-gp": {
       "android": { "buildType": "app-bundle" },
       "env": {
-        "STORE": "gp",
+        "EXPO_PUBLIC_STORE": "gp",
         "EAS_BUILD": "true",
         "EXPO_PUBLIC_DISABLE_IAP": "0",
         "EXPO_PUBLIC_IAP_VERIFY_URL": "https://iap-server.onrender.com/iap/google/subscription/verify"
@@ -75,7 +75,7 @@
       "android": { "buildType": "apk" },
       "distribution": "internal",
       "env": {
-        "STORE": "rustore",
+        "EXPO_PUBLIC_STORE": "rustore",
         "EXPO_PUBLIC_DISABLE_IAP": "1"
       },
       "channel": "rustore-apk"
@@ -84,7 +84,7 @@
     "production-rustore-aab": {
       "android": { "buildType": "app-bundle" },
       "env": {
-        "STORE": "rustore",
+        "EXPO_PUBLIC_STORE": "rustore",
         "GOOGLE_SERVICES_JSON_RU": "@project:GOOGLE_SERVICES_JSON_RU",
         "EAS_BUILD": "true",
         "EXPO_PUBLIC_DISABLE_IAP": "1"
