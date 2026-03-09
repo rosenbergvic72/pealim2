@@ -26,16 +26,13 @@ TextInput.defaultProps.maxFontSizeMultiplier = 1.2;
 /* ===================== iOS константы ===================== */
 const IOS_TRIAL_DAYS = 7;
 
-// iOS links (✅ должны быть рабочими и вести на конкретные страницы)
+// iOS links
 const PRIVACY_URL = 'https://verbifyapp.netlify.app/privacy';
 const TERMS_URL = 'https://www.apple.com/legal/internet-services/itunes/dev/stdeula/';
 
 const GATE_SNOOZE_KEY = 'iap:gateSnoozeUntil';
 const GATE_SNOOZE_MS = 5000;
 const RESTORE_THROTTLE_MS = 60000;
-
-// const FORCE_PAYWALL = String(process.env.EXPO_PUBLIC_FORCE_PAYWALL) === '1';
-// const FORCE_PAYWALL = false;
 
 async function writeGateSnooze(ms = GATE_SNOOZE_MS) {
   try {
@@ -63,7 +60,6 @@ const STR = {
     subscribe: 'SUBSCRIBE',
     fullAccessAll: 'Full access • All exercises',
 
-    // header
     headerTrial:
       'Pick a plan and tap SUBSCRIBE. Trial (if available) will be shown in the App Store sheet. You can cancel anytime in App Store, or tap CONTINUE FOR FREE.',
     headerTrialBadge: '7-DAY FREE TRIAL (for new subscribers).',
@@ -81,14 +77,12 @@ const STR = {
     privacy: 'Privacy Policy',
     terms: 'Terms of Use',
 
-    // Required subscription info block
     subInfoTitle: 'Subscription information',
     subInfoName: 'Subscription',
     subInfoLength: 'Length',
     subInfoPrice: 'Price',
     planCol: 'Plan',
 
-    // Errors / states
     loadingPrices: 'Loading prices…',
     selectPlanTitle: 'Select plan',
     selectPlanBody: 'Please select a subscription plan.',
@@ -144,24 +138,280 @@ const STR = {
     iosLegalText:
       'Оплата будет списана с вашего Apple ID после подтверждения покупки. Подписка продлевается автоматически, если автопродление не отключено минимум за 24 часа до конца текущего периода. Управлять подпиской и отменять её можно в настройках аккаунта App Store.',
   },
+
+  français: {
+    choosePlan: 'Choisissez un abonnement',
+    monthly: 'Mensuel',
+    annual: 'Annuel',
+    subscribe: "S'ABONNER",
+    fullAccessAll: 'Accès complet • Tous les exercices',
+
+    headerTrial:
+      "Choisissez un abonnement et appuyez sur S'ABONNER. L’essai gratuit (s’il est disponible) s’affichera dans la fenêtre App Store. Vous pouvez annuler à tout moment dans l’App Store, ou appuyer sur CONTINUER GRATUITEMENT.",
+    headerTrialBadge: '7 JOURS D’ESSAI GRATUIT (pour les nouveaux abonnés).',
+    headerNoTrial:
+      "Abonnement. Choisissez un abonnement et appuyez sur S'ABONNER. Vous pouvez annuler à tout moment dans l’App Store, ou appuyer sur CONTINUER GRATUITEMENT.",
+
+    freePreview: 'CONTINUER GRATUITEMENT',
+    freePreviewSubtitle: 'Entraînez 350 verbes hébreux',
+    limitedAccess: 'Accès limité',
+    exercises12: 'Exercices 1 et 2',
+
+    redeemUnderCta: 'Saisir un code promo App Store',
+    restore: "Restaurer l’accès",
+
+    privacy: 'Politique de confidentialité',
+    terms: "Conditions d’utilisation",
+
+    subInfoTitle: "Informations sur l’abonnement",
+    subInfoName: 'Abonnement',
+    subInfoLength: 'Durée',
+    subInfoPrice: 'Prix',
+    planCol: 'Formule',
+
+    loadingPrices: 'Chargement des prix…',
+    selectPlanTitle: 'Choisissez un abonnement',
+    selectPlanBody: "Veuillez sélectionner une formule d’abonnement.",
+    notReadyTitle: 'Pas encore prêt',
+    notReadyBody: "La boutique n’est pas encore prête.",
+    storeUnavailableTitle: 'Boutique indisponible',
+    storeUnavailableBody:
+      "Les abonnements ne sont pas chargés sur cet appareil. Réinstallez la build TestFlight et vérifiez que les achats intégrés sont attachés à la build dans App Store Connect.",
+
+    iosLegalText:
+      "Le paiement sera facturé à votre compte Apple ID lors de la confirmation de l’achat. L’abonnement se renouvelle automatiquement sauf si le renouvellement automatique est désactivé au moins 24 heures avant la fin de la période en cours. Vous pouvez gérer et annuler votre abonnement dans les réglages de votre compte App Store.",
+  },
+
+  español: {
+    choosePlan: 'Elige un plan',
+    monthly: 'Mensual',
+    annual: 'Anual',
+    subscribe: 'SUSCRIBIRSE',
+    fullAccessAll: 'Acceso completo • Todos los ejercicios',
+
+    headerTrial:
+      'Elige un plan y pulsa SUSCRIBIRSE. La prueba gratuita (si está disponible) aparecerá en la ventana del App Store. Puedes cancelarla en cualquier momento en el App Store o pulsar CONTINUAR GRATIS.',
+    headerTrialBadge: '7 DÍAS DE PRUEBA GRATIS (para nuevos suscriptores).',
+    headerNoTrial:
+      'Suscripción. Elige un plan y pulsa SUSCRIBIRSE. Puedes cancelarla en cualquier momento en el App Store o pulsar CONTINUAR GRATIS.',
+
+    freePreview: 'CONTINUAR GRATIS',
+    freePreviewSubtitle: 'Practica 350 verbos hebreos',
+    limitedAccess: 'Acceso limitado',
+    exercises12: 'Ejercicios 1 y 2',
+
+    redeemUnderCta: 'Introducir código promocional de App Store',
+    restore: 'Restaurar acceso',
+
+    privacy: 'Política de privacidad',
+    terms: 'Términos de uso',
+
+    subInfoTitle: 'Información de la suscripción',
+    subInfoName: 'Suscripción',
+    subInfoLength: 'Duración',
+    subInfoPrice: 'Precio',
+    planCol: 'Plan',
+
+    loadingPrices: 'Cargando precios…',
+    selectPlanTitle: 'Elige un plan',
+    selectPlanBody: 'Selecciona un plan de suscripción.',
+    notReadyTitle: 'Aún no está listo',
+    notReadyBody: 'La tienda aún no está lista.',
+    storeUnavailableTitle: 'Tienda no disponible',
+    storeUnavailableBody:
+      'Las suscripciones no se cargaron en este dispositivo. Reinstala la build de TestFlight y asegúrate de que las compras integradas estén asociadas a la build en App Store Connect.',
+
+    iosLegalText:
+      'El pago se cargará a tu cuenta de Apple ID al confirmar la compra. La suscripción se renueva automáticamente salvo que desactives la renovación automática al menos 24 horas antes del final del período actual. Puedes gestionar y cancelar tus suscripciones en los ajustes de tu cuenta del App Store.',
+  },
+
+  português: {
+    choosePlan: 'Escolha um plano',
+    monthly: 'Mensal',
+    annual: 'Anual',
+    subscribe: 'ASSINAR',
+    fullAccessAll: 'Acesso completo • Todos os exercícios',
+
+    headerTrial:
+      'Escolha um plano e toque em ASSINAR. O período de teste (se disponível) será mostrado na janela da App Store. Você pode cancelar a qualquer momento na App Store ou tocar em CONTINUAR GRÁTIS.',
+    headerTrialBadge: '7 DIAS DE TESTE GRÁTIS (para novos assinantes).',
+    headerNoTrial:
+      'Assinatura. Escolha um plano e toque em ASSINAR. Você pode cancelar a qualquer momento na App Store ou tocar em CONTINUAR GRÁTIS.',
+
+    freePreview: 'CONTINUAR GRÁTIS',
+    freePreviewSubtitle: 'Pratique 350 verbos em hebraico',
+    limitedAccess: 'Acesso limitado',
+    exercises12: 'Exercícios 1 e 2',
+
+    redeemUnderCta: 'Inserir código promocional da App Store',
+    restore: 'Restaurar acesso',
+
+    privacy: 'Política de privacidade',
+    terms: 'Termos de uso',
+
+    subInfoTitle: 'Informações da assinatura',
+    subInfoName: 'Assinatura',
+    subInfoLength: 'Duração',
+    subInfoPrice: 'Preço',
+    planCol: 'Plano',
+
+    loadingPrices: 'Carregando preços…',
+    selectPlanTitle: 'Escolha um plano',
+    selectPlanBody: 'Selecione um plano de assinatura.',
+    notReadyTitle: 'Ainda não está pronto',
+    notReadyBody: 'A loja ainda não está pronta.',
+    storeUnavailableTitle: 'Loja indisponível',
+    storeUnavailableBody:
+      'As assinaturas não foram carregadas neste dispositivo. Reinstale a build do TestFlight e verifique se as compras no app estão vinculadas à build no App Store Connect.',
+
+    iosLegalText:
+      'O pagamento será cobrado da sua conta Apple ID na confirmação da compra. A assinatura é renovada automaticamente, a menos que a renovação automática seja desativada pelo menos 24 horas antes do fim do período atual. Você pode gerenciar e cancelar a assinatura nas configurações da sua conta da App Store.',
+  },
+
+  العربية: {
+    choosePlan: 'اختر خطة',
+    monthly: 'شهري',
+    annual: 'سنوي',
+    subscribe: 'اشترك',
+    fullAccessAll: 'وصول كامل • جميع التمارين',
+
+    headerTrial:
+      'اختر خطة واضغط على اشترك. ستظهر الفترة التجريبية المجانية (إذا كانت متاحة) في نافذة App Store. يمكنك الإلغاء في أي وقت من App Store أو الضغط على المتابعة مجانًا.',
+    headerTrialBadge: '7 أيام تجريبية مجانية (للمشتركين الجدد).',
+    headerNoTrial:
+      'اشتراك. اختر خطة واضغط على اشترك. يمكنك الإلغاء في أي وقت من App Store أو الضغط على المتابعة مجانًا.',
+
+    freePreview: 'المتابعة مجانًا',
+    freePreviewSubtitle: 'تدرّب على 350 فعلًا عبريًا',
+    limitedAccess: 'وصول محدود',
+    exercises12: 'التمرينان 1 و2',
+
+    redeemUnderCta: 'إدخال رمز ترويجي من App Store',
+    restore: 'استعادة الوصول',
+
+    privacy: 'سياسة الخصوصية',
+    terms: 'شروط الاستخدام',
+
+    subInfoTitle: 'معلومات الاشتراك',
+    subInfoName: 'الاشتراك',
+    subInfoLength: 'المدة',
+    subInfoPrice: 'السعر',
+    planCol: 'الخطة',
+
+    loadingPrices: 'جارٍ تحميل الأسعار…',
+    selectPlanTitle: 'اختر خطة',
+    selectPlanBody: 'يرجى اختيار خطة اشتراك.',
+    notReadyTitle: 'ليس جاهزًا بعد',
+    notReadyBody: 'المتجر ليس جاهزًا بعد.',
+    storeUnavailableTitle: 'المتجر غير متاح',
+    storeUnavailableBody:
+      'لم يتم تحميل الاشتراكات على هذا الجهاز. أعد تثبيت نسخة TestFlight وتأكد من ربط المشتريات داخل التطبيق بالبناء في App Store Connect.',
+
+    iosLegalText:
+      'سيتم تحصيل الدفع من حساب Apple ID الخاص بك عند تأكيد الشراء. يتم تجديد الاشتراك تلقائيًا ما لم يتم إيقاف التجديد التلقائي قبل 24 ساعة على الأقل من نهاية الفترة الحالية. يمكنك إدارة اشتراكك وإلغاؤه من إعدادات حسابك في App Store.',
+  },
+
+  አማርኛ: {
+    choosePlan: 'እቅድ ይምረጡ',
+    monthly: 'ወርሃዊ',
+    annual: 'ዓመታዊ',
+    subscribe: 'ይመዝገቡ',
+    fullAccessAll: 'ሙሉ መዳረሻ • ሁሉም ልምምዶች',
+
+    headerTrial:
+      'እቅድ ይምረጡ እና ይመዝገቡን ይጫኑ። ነፃ የሙከራ ጊዜ (ካለ) በApp Store መስኮት ውስጥ ይታያል። በApp Store ውስጥ በማንኛውም ጊዜ ማቋረጥ ይችላሉ ወይም በነፃ ቀጥልን ይጫኑ።',
+    headerTrialBadge: '7 ቀናት ነፃ ሙከራ (ለአዲስ ተመዝጋቢዎች).',
+    headerNoTrial:
+      'ምዝገባ። እቅድ ይምረጡ እና ይመዝገቡን ይጫኑ። በApp Store ውስጥ በማንኛውም ጊዜ ማቋረጥ ይችላሉ ወይም በነፃ ቀጥልን ይጫኑ።',
+
+    freePreview: 'በነፃ ቀጥል',
+    freePreviewSubtitle: '350 የዕብራይስጥ ግሶችን ይለማመዱ',
+    limitedAccess: 'የተገደበ መዳረሻ',
+    exercises12: 'ልምምዶች 1 እና 2',
+
+    redeemUnderCta: 'የApp Store ፕሮሞ ኮድ ያስገቡ',
+    restore: 'መዳረሻን መመለስ',
+
+    privacy: 'የግላዊነት ፖሊሲ',
+    terms: 'የአጠቃቀም ውሎች',
+
+    subInfoTitle: 'የምዝገባ መረጃ',
+    subInfoName: 'ምዝገባ',
+    subInfoLength: 'ቆይታ',
+    subInfoPrice: 'ዋጋ',
+    planCol: 'እቅድ',
+
+    loadingPrices: 'ዋጋዎች በመጫን ላይ…',
+    selectPlanTitle: 'እቅድ ይምረጡ',
+    selectPlanBody: 'እባክዎ የምዝገባ እቅድ ይምረጡ።',
+    notReadyTitle: 'ገና ዝግጁ አይደለም',
+    notReadyBody: 'ማከማቻው ገና ዝግጁ አይደለም።',
+    storeUnavailableTitle: 'ማከማቻው አይገኝም',
+    storeUnavailableBody:
+      'ምዝገባዎች በዚህ መሣሪያ ላይ አልተጫኑም። የTestFlight build እንደገና ይጫኑ እና In-App Purchases በApp Store Connect ውስጥ ከbuild ጋር መያያዛቸውን ያረጋግጡ።',
+
+    iosLegalText:
+      'ክፍያው ግዢው ሲረጋገጥ ከApple ID መለያዎ ይቆረጣል። አውቶማቲክ እድሳት ከአሁኑ ጊዜ ወቅት መጨረሻ 24 ሰዓት በፊት ካልተጠፋ በስተቀር ምዝገባው በራስ-ሰር ይታደሳል። ምዝገባዎን በApp Store መለያ ቅንብሮች ውስጥ ማስተዳደር እና ማቋረጥ ይችላሉ።',
+  },
 };
 
 function periodLabel(langKey, which) {
-  if (langKey === 'русский') return which === 'monthly' ? 'в месяц' : 'в год';
-  return which === 'monthly' ? 'per month' : 'per year';
+  switch (langKey) {
+    case 'русский':
+      return which === 'monthly' ? 'в месяц' : 'в год';
+    case 'français':
+      return which === 'monthly' ? 'par mois' : 'par an';
+    case 'español':
+      return which === 'monthly' ? 'por mes' : 'por año';
+    case 'português':
+      return which === 'monthly' ? 'por mês' : 'por ano';
+    case 'العربية':
+      return which === 'monthly' ? 'شهريًا' : 'سنويًا';
+    case 'አማርኛ':
+      return which === 'monthly' ? 'በወር' : 'በዓመት';
+    default:
+      return which === 'monthly' ? 'per month' : 'per year';
+  }
 }
+
 function lengthLabel(langKey, which) {
-  if (langKey === 'русский') return which === 'monthly' ? '1 месяц' : '1 год';
-  return which === 'monthly' ? '1 month' : '1 year';
+  switch (langKey) {
+    case 'русский':
+      return which === 'monthly' ? '1 месяц' : '1 год';
+    case 'français':
+      return which === 'monthly' ? '1 mois' : '1 an';
+    case 'español':
+      return which === 'monthly' ? '1 mes' : '1 año';
+    case 'português':
+      return which === 'monthly' ? '1 mês' : '1 ano';
+    case 'العربية':
+      return which === 'monthly' ? 'شهر واحد' : 'سنة واحدة';
+    case 'አማርኛ':
+      return which === 'monthly' ? '1 ወር' : '1 ዓመት';
+    default:
+      return which === 'monthly' ? '1 month' : '1 year';
+  }
 }
+
 function menuRouteByLang(lang) {
   switch (lang) {
     case 'русский':
       return 'Menu';
+    case 'français':
+      return 'MenuFr';
+    case 'español':
+      return 'MenuEs';
+    case 'português':
+      return 'MenuPt';
+    case 'العربية':
+      return 'MenuAr';
+    case 'አማርኛ':
+      return 'MenuAm';
     default:
       return 'MenuEn';
   }
 }
+
 function deepResetTo(nav, name, params) {
   nav.dispatch(CommonActions.reset({ index: 0, routes: [{ name, params }] }));
 }
@@ -245,18 +495,17 @@ export default function PaywallIOS({ navigation }) {
     return () => sub.remove();
   }, [maybeRestoreSafe]);
 
-  // Если pro — выходим сразу (как было)
-useEffect(() => {
-  if (!hasPro) return;
+  useEffect(() => {
+    if (!hasPro) return;
 
-  (async () => {
-    try {
-      await writeGateSnooze(1200);
-    } catch {}
-    const saved = (await AsyncStorage.getItem('language')) || 'english';
-    deepResetTo(navigation, menuRouteByLang(saved), {});
-  })();
-}, [hasPro, navigation]);
+    (async () => {
+      try {
+        await writeGateSnooze(1200);
+      } catch {}
+      const saved = (await AsyncStorage.getItem('language')) || 'english';
+      deepResetTo(navigation, menuRouteByLang(saved), {});
+    })();
+  }, [hasPro, navigation]);
 
   const openUrlSafe = async (url) => {
     try {
@@ -315,7 +564,6 @@ useEffect(() => {
   const baseMonthlyAmt = displayPrices?.baseMonthly || '';
   const baseAnnualAmt = displayPrices?.baseAnnual || '';
 
-  // ✅ Trial текст показываем только когда store реально доступен
   const showTrialHeader = available && IOS_TRIAL_DAYS > 0;
 
   const PlanCard = ({ which, title, amount, period }) => {
@@ -351,16 +599,16 @@ useEffect(() => {
     <View style={styles.screen}>
       <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding">
         <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
-          {/* Header */}
           <View style={styles.headerBox}>
-            <Text style={styles.headerTitle}>{showTrialHeader ? S.headerTrial : S.headerNoTrial}</Text>
+            <Text style={styles.headerTitle}>
+              {showTrialHeader ? S.headerTrial : S.headerNoTrial}
+            </Text>
 
             {showTrialHeader && (
               <Text style={[styles.headerTitle, styles.headerEmph]}>{S.headerTrialBadge}</Text>
             )}
           </View>
 
-          {/* Plan */}
           <Text style={styles.choosePlan}>{S.choosePlan}</Text>
 
           <View style={styles.planRow}>
@@ -379,7 +627,6 @@ useEffect(() => {
             />
           </View>
 
-          {/* ✅ REQUIRED subscription info block (compact) */}
           <View style={styles.subInfoBox}>
             <Text style={styles.subInfoTitle}>{S.subInfoTitle}</Text>
 
@@ -437,7 +684,6 @@ useEffect(() => {
             </View>
           </View>
 
-          {/* Subscribe */}
           <TouchableOpacity
             style={[styles.btnBox, styles.btnSolid, (!ready || !plan) && styles.btnDisabled]}
             onPress={onSubscribe}
@@ -448,13 +694,19 @@ useEffect(() => {
             <Text style={[styles.btnSubText, styles.btnSubTextSolid]}>{S.fullAccessAll}</Text>
           </TouchableOpacity>
 
-          {/* Redeem (App Store) under CTA */}
-          <TouchableOpacity style={[styles.btnBox, styles.btnOutline]} onPress={openAppStoreRedeem} activeOpacity={0.85}>
+          <TouchableOpacity
+            style={[styles.btnBox, styles.btnOutline]}
+            onPress={openAppStoreRedeem}
+            activeOpacity={0.85}
+          >
             <Text style={[styles.btnText, styles.btnTextOutline]}>{S.redeemUnderCta}</Text>
           </TouchableOpacity>
 
-          {/* Continue for free */}
-          <TouchableOpacity style={[styles.btnBox, styles.btnOutline]} onPress={goMenuFreePreview} activeOpacity={0.85}>
+          <TouchableOpacity
+            style={[styles.btnBox, styles.btnOutline]}
+            onPress={goMenuFreePreview}
+            activeOpacity={0.85}
+          >
             <Text style={[styles.btnText, styles.btnTextOutline]}>{S.freePreview}</Text>
             <Text style={[styles.btnSubText, styles.btnSubTextOutline, styles.subAccent]}>
               {S.freePreviewSubtitle}
@@ -464,14 +716,12 @@ useEffect(() => {
             </Text>
           </TouchableOpacity>
 
-          {/* iOS legal text */}
           <Text style={styles.iosLegal}>{S.iosLegalText}</Text>
 
           <View style={{ height: 90 }} />
         </ScrollView>
       </KeyboardAvoidingView>
 
-      {/* Bottom links */}
       <View style={styles.bottomArea}>
         <TouchableOpacity onPress={() => openUrlSafe(PRIVACY_URL)} activeOpacity={0.8}>
           <Text style={styles.footerLink}>{S.privacy}</Text>
@@ -537,7 +787,6 @@ const styles = StyleSheet.create({
   planIdleText: { color: BRAND },
   planSelectedText: { color: BRAND_TEXT },
 
-  // ✅ compact subscription info
   subInfoBox: {
     padding: 10,
     backgroundColor: '#F7FAFD',
@@ -546,10 +795,22 @@ const styles = StyleSheet.create({
     borderColor: '#E6EEF7',
     marginBottom: 12,
   },
-  subInfoTitle: { fontWeight: '900', color: BRAND, marginBottom: 6, textAlign: 'center', fontSize: 13.5 },
+  subInfoTitle: {
+    fontWeight: '900',
+    color: BRAND,
+    marginBottom: 6,
+    textAlign: 'center',
+    fontSize: 13.5,
+  },
   subInfoRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 6 },
   subInfoLabel: { fontSize: 12, color: BRAND, opacity: 0.8, fontWeight: '700' },
-  subInfoValue: { fontSize: 12, color: BRAND, fontWeight: '900', textAlign: 'right', maxWidth: '62%' },
+  subInfoValue: {
+    fontSize: 12,
+    color: BRAND,
+    fontWeight: '900',
+    textAlign: 'right',
+    maxWidth: '62%',
+  },
 
   subTable: {
     marginTop: 6,

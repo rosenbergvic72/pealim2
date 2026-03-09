@@ -1,16 +1,30 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image, Animated, BackHandler, KeyboardAvoidingView, Platform, ScrollView  } from 'react-native';
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
+  Image,
+  Animated,
+  BackHandler,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import LottieView from 'lottie-react-native';
 import { useFocusEffect } from '@react-navigation/native';
-import AppDescriptionModal from './AppDescriptionModal'; // Подключаем модальное окно
-import AppInfoModal from './AppInfoModal'; // Подключаем модальное окно
-import Constants from 'expo-constants';
+import AppDescriptionModal from './AppDescriptionModal';
+import AppInfoModal from './AppInfoModal';
+import { useIap } from './src/iap/IapProvider';
 
 export default function WelcomePage({ navigation, route }) {
   const [name, setName] = useState('');
-  const language = route.params?.language || 'русский'; // Фикс: если language undefined, используем 'english'
+  const language = route.params?.language || 'русский';
   const [animationFinished, setAnimationFinished] = useState(false);
+
+  const { accessState = 'checking', hasPro } = useIap();
 
   const imageOpacity = useRef(new Animated.Value(0)).current;
   const imageTranslateX = useRef(new Animated.Value(-100)).current;
@@ -23,12 +37,12 @@ export default function WelcomePage({ navigation, route }) {
   const buttonBackgroundColor = useRef(new Animated.Value(0)).current;
   const picOpacity = useRef(new Animated.Value(0)).current;
   const picTranslateX = useRef(new Animated.Value(-100)).current;
-   const buttX = useRef(new Animated.Value(-100)).current;
-  const [shadowVisible, setShadowVisible] = useState(false);
-   const [isModalVisible, setIsModalVisible] = useState(false); // Состояние для модального окна
-    const [isInfoModalVisible, setIsInfoModalVisible] = useState(false);
+  const buttX = useRef(new Animated.Value(-100)).current;
 
-  // Загружаем имя при каждом возврате на экран и перезапускаем анимацию
+  const [shadowVisible, setShadowVisible] = useState(false);
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [isInfoModalVisible, setIsInfoModalVisible] = useState(false);
+
   useFocusEffect(
     useCallback(() => {
       const fetchName = async () => {
@@ -43,11 +57,12 @@ export default function WelcomePage({ navigation, route }) {
           console.error('Ошибка при загрузке имени:', error);
         }
       };
+
       fetchName();
 
       const onBackPress = () => {
-        navigation.replace('LanguageSelectionPage'); // Возвращаемся на экран выбора языка
-        return true; // Перехватываем стандартное поведение
+        navigation.replace('LanguageSelectionPage');
+        return true;
       };
 
       const backHandler = BackHandler.addEventListener(
@@ -60,12 +75,11 @@ export default function WelcomePage({ navigation, route }) {
   );
 
   useEffect(() => {
-      navigation.setOptions({
-        headerLeft: () => null, // Убирает кнопку "Назад" в заголовке
-      });
-    }, [navigation]);
+    navigation.setOptions({
+      headerLeft: () => null,
+    });
+  }, [navigation]);
 
-  // Загружаем сохранённое имя при запуске
   useEffect(() => {
     const getNameAndAnimate = async () => {
       const storedName = await AsyncStorage.getItem('name');
@@ -79,7 +93,6 @@ export default function WelcomePage({ navigation, route }) {
     getNameAndAnimate();
   }, [animationFinished]);
 
-  // Сохраняем имя при каждом изменении
   const handleNameChange = async (text) => {
     setName(text);
     await AsyncStorage.setItem('name', text);
@@ -162,36 +175,28 @@ export default function WelcomePage({ navigation, route }) {
     });
   };
 
-  // Обработка нажатия кнопки "Далее"
-const handleNextPress = async () => {
-  if (!name.trim()) return;
+  const handleNextPress = async () => {
+    if (!name.trim()) return;
 
-  try {
-    await AsyncStorage.setItem('name', name.trim());
-    await AsyncStorage.setItem('language', language);
+    try {
+      await AsyncStorage.setItem('name', name.trim());
+      await AsyncStorage.setItem('language', language);
 
-    const extra = Constants.expoConfig?.extra || {};
-    const disableIap = !!extra.disableIap;
+      // Пока идёт проверка доступа — остаёмся на Welcome
+      if (accessState === 'checking') return;
 
-    // ✅ Android: IAP только если store === 'gp'
-    // ✅ iOS: IAP, если не отключён флагом (store может быть не "gp")
-    const useIap = !disableIap && (Platform.OS === 'android' ? extra.store === 'gp' : true);
+      if (hasPro) {
+        navigation.replace('Menu', { name: name.trim() });
+        return;
+      }
 
-    if (useIap) {
-      // ✅ ведём на нужный paywall по телефону
       navigation.replace(Platform.OS === 'ios' ? 'PaywallIOS' : 'Paywall', {
         from: 'WelcomePage',
       });
-      return;
+    } catch (e) {
+      console.error('Ошибка при переходе:', e);
     }
-
-    // ✅ как сейчас: RU Welcome всегда ведёт в RU Menu
-    navigation.replace('Menu', { name: name.trim() });
-  } catch (e) {
-    console.error('Ошибка при переходе:', e);
-  }
-};
-
+  };
 
   const interpolatedBackgroundColor = buttonBackgroundColor.interpolate({
     inputRange: [0, 1],
@@ -219,15 +224,31 @@ const handleNextPress = async () => {
     >
       <ScrollView contentContainerStyle={{ flexGrow: 1 }} keyboardShouldPersistTaps="handled">
         <View style={styles.container}>
-          <Animated.View style={[styles.imageContainer, { opacity: imageOpacity, transform: [{ translateX: imageTranslateX }] }]}>
+          <Animated.View
+            style={[
+              styles.imageContainer,
+              { opacity: imageOpacity, transform: [{ translateX: imageTranslateX }] },
+            ]}
+          >
             <Image source={require('./VERBIFY.png')} style={styles.image} />
           </Animated.View>
-  
-          <Animated.Text style={[styles.title, { opacity: titleOpacity, transform: [{ translateX: titleTranslateX }] }]} maxFontSizeMultiplier={1.2}>
+
+          <Animated.Text
+            style={[
+              styles.title,
+              { opacity: titleOpacity, transform: [{ translateX: titleTranslateX }] },
+            ]}
+            maxFontSizeMultiplier={1.2}
+          >
             Введите своё имя
           </Animated.Text>
-  
-          <Animated.View style={[styles.inputContainer, { opacity: inputOpacity, transform: [{ translateX: inputTranslateX }] }]}>
+
+          <Animated.View
+            style={[
+              styles.inputContainer,
+              { opacity: inputOpacity, transform: [{ translateX: inputTranslateX }] },
+            ]}
+          >
             <TextInput
               style={styles.input}
               placeholder="ваше имя"
@@ -237,65 +258,66 @@ const handleNextPress = async () => {
               maxFontSizeMultiplier={1.2}
             />
           </Animated.View>
-  
-          <Animated.View style={[styles.buttonContainer, { opacity: buttonOpacity, transform: [{ translateX: buttonTranslateX }] }]}>
+
+          <Animated.View
+            style={[
+              styles.buttonContainer,
+              { opacity: buttonOpacity, transform: [{ translateX: buttonTranslateX }] },
+            ]}
+          >
             <TouchableOpacity
               style={[
                 styles.button,
                 { backgroundColor: interpolatedBackgroundColor },
                 shadowVisible && styles.shadow,
-                 name.trim().length === 0 && styles.buttonDisabled,
+                (name.trim().length === 0 || accessState === 'checking') && styles.buttonDisabled,
               ]}
               onPress={handleNextPress}
-              disabled={name.length === 0}
+              disabled={name.trim().length === 0 || accessState === 'checking'}
             >
-              <Text style={styles.buttonText} maxFontSizeMultiplier={1.2}>ДАЛЕЕ</Text>
+              <Text style={styles.buttonText} maxFontSizeMultiplier={1.2}>
+                {accessState === 'checking' ? 'ПРОВЕРКА...' : 'ДАЛЕЕ'}
+              </Text>
             </TouchableOpacity>
           </Animated.View>
-  
-          <Animated.View style={[styles.picContainer, { opacity: picOpacity, transform: [{ translateX: picTranslateX }] }]}>
+
+          <Animated.View
+            style={[
+              styles.picContainer,
+              { opacity: picOpacity, transform: [{ translateX: picTranslateX }] },
+            ]}
+          >
             <Image source={require('./PICRU.png')} style={styles.picImage} />
           </Animated.View>
 
+          <Animated.View
+            style={[
+              styles.topIconsContainer,
+              { opacity: picOpacity, transform: [{ translateX: buttX }] },
+            ]}
+          >
+            <TouchableOpacity onPress={() => setIsModalVisible(true)}>
+              <Image source={require('./question1.png')} style={styles.topIcon} />
+            </TouchableOpacity>
 
-     
+            <TouchableOpacity onPress={() => setIsInfoModalVisible(true)}>
+              <Image source={require('./about3.png')} style={styles.topIcon} />
+            </TouchableOpacity>
+          </Animated.View>
 
+          <AppDescriptionModal
+            visible={isModalVisible}
+            onToggle={() => setIsModalVisible(false)}
+          />
 
-
-
-       
-
-      
-  {/* МОДАЛЬНОЕ ОКНО */}
-
-<Animated.View style={[styles.topIconsContainer, { opacity: picOpacity, transform: [{ translateX: buttX }] }]}>
-      {/* <View style={styles.topIconsContainer}> */}
-  <TouchableOpacity onPress={() => setIsModalVisible(true)}>
-    <Image source={require('./question1.png')} style={styles.topIcon} />
-  </TouchableOpacity>
-
-  <TouchableOpacity onPress={() => setIsInfoModalVisible(true)}>
-    <Image source={require('./about3.png')} style={styles.topIcon} />
-  </TouchableOpacity>
-</Animated.View>
-
-<AppDescriptionModal
-  visible={isModalVisible}
-  onToggle={() => setIsModalVisible(false)}
-/>
-
-<AppInfoModal
-  visible={isInfoModalVisible}
-  onToggle={() => setIsInfoModalVisible(false)}
-/>
-
- </View>
+          <AppInfoModal
+            visible={isInfoModalVisible}
+            onToggle={() => setIsInfoModalVisible(false)}
+          />
+        </View>
       </ScrollView>
-
-
     </KeyboardAvoidingView>
   );
-  
 }
 
 const styles = StyleSheet.create({
@@ -312,9 +334,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: '#AFC1D0',
   },
-  imageContainer: {
-    // marginBottom: 20,
-  },
+  imageContainer: {},
   title: {
     marginBottom: 20,
     fontSize: 24,
@@ -325,37 +345,30 @@ const styles = StyleSheet.create({
     width: '80%',
     marginBottom: 20,
   },
-input: {
-  height: 50,
-  borderColor: '#2D4769',
-  borderWidth: 1,
-  paddingHorizontal: 8,
-  borderRadius: 10,
-  fontWeight: 'bold',
-  fontSize: 20,
-  color: '#2D4769',
-  textAlign: 'center',
-
-  // ✅ центрирование по вертикали на Android
-  textAlignVertical: 'center',
-
-  // ✅ iOS обычно становится ровно, если убрать lineHeight
-  lineHeight: undefined,
-
-  // ✅ лёгкая компенсация iOS (если нужно)
-  paddingVertical: Platform.OS === 'ios' ? 0 : 8,
-},
-
+  input: {
+    height: 50,
+    borderColor: '#2D4769',
+    borderWidth: 1,
+    paddingHorizontal: 8,
+    borderRadius: 10,
+    fontWeight: 'bold',
+    fontSize: 20,
+    color: '#2D4769',
+    textAlign: 'center',
+    textAlignVertical: 'center',
+    lineHeight: undefined,
+    paddingVertical: Platform.OS === 'ios' ? 0 : 8,
+  },
   buttonContainer: {
     width: '80%',
     marginBottom: 30,
-
   },
   button: {
     borderRadius: 10,
     padding: 10,
     justifyContent: 'center',
     alignItems: 'center',
+    minHeight: 48,
   },
   shadow: {
     shadowColor: '#000',
@@ -376,37 +389,27 @@ input: {
     width: 140,
     height: 140,
   },
-
   picImage: {
-    width: 230, // адаптивный размер
+    width: 230,
     height: 230,
-    // resizeMode: 'contain',
   },
-
   lottie: {
     width: 300,
     height: 300,
   },
-
-  
-
   topIconsContainer: {
-  position: 'absolute',
-  top: Platform.OS === 'ios' ? 50 : 20, // учитываем статусбар на iOS
-  right: 20,
-  flexDirection: 'row',
-  zIndex: 10,
-},
-
-topIcon: {
- width: 36,
-  height: 36,
-  marginLeft: 15,
-},
-
-buttonDisabled: {
-  opacity: 0.4, // затемнение
-},
+    position: 'absolute',
+    top: Platform.OS === 'ios' ? 50 : 20,
+    right: 20,
+    flexDirection: 'row',
+    zIndex: 10,
+  },
+  topIcon: {
+    width: 36,
+    height: 36,
+    marginLeft: 15,
+  },
+  buttonDisabled: {
+    opacity: 0.4,
+  },
 });
-
-

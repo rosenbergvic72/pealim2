@@ -1,6 +1,6 @@
 // src/iap/withMenuGate.js
 import React, { useEffect, useRef, useState } from 'react';
-import { Platform } from 'react-native';
+import { Platform, View, ActivityIndicator } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { CommonActions } from '@react-navigation/native';
 import { useIap } from './IapProvider';
@@ -13,7 +13,7 @@ function paywallRouteName() {
 
 export function withMenuGate(ScreenComponent, _featureKey) {
   function WithGate(props) {
-    const { hasPro } = useIap();
+    const { hasPro, accessState = 'checking' } = useIap();
     const [freePreview, setFreePreview] = useState(null); // null = ещё читаем
     const redirectedRef = useRef(false);
 
@@ -46,8 +46,10 @@ export function withMenuGate(ScreenComponent, _featureKey) {
       };
     }, [props?.route?.params?.freePreview]);
 
-    // Если нет PRO и нет freePreview — отправляем на Paywall
+    // Если нет PRO и нет freePreview — отправляем на Paywall,
+    // но только когда проверка доступа уже закончена
     useEffect(() => {
+      if (accessState === 'checking') return;
       if (freePreview === null) return;
 
       // если PRO появился — сбрасываем флаг редиректа
@@ -66,16 +68,35 @@ export function withMenuGate(ScreenComponent, _featureKey) {
           })
         );
       }
-    }, [hasPro, freePreview, props.navigation]);
+    }, [accessState, hasPro, freePreview, props.navigation]);
 
-    // Пока не знаем — не рендерим (чтобы не мигало меню)
+    // Пока идёт проверка доступа — ничего не редиректим и не показываем paywall
+    // Можно оставить null, но лучше нейтральную заглушку
+    if (accessState === 'checking') {
+      return (
+        <View
+          style={{
+            flex: 1,
+            backgroundColor: '#F0F0F0',
+            justifyContent: 'center',
+            alignItems: 'center',
+          }}
+        >
+          <ActivityIndicator size="large" color="#2D4769" />
+        </View>
+      );
+    }
+
+    // Пока freePreview ещё читается, меню не рисуем, чтобы не было лишнего мигания
     if (freePreview === null && !hasPro) return null;
 
-    // Пробросим флаг в сам экран (меню может подсветить/заблокировать кнопки 3+)
+    // Пробросим флаг в сам экран
     return <ScreenComponent {...props} freePreview={!!freePreview && !hasPro} />;
   }
 
-  WithGate.displayName = `withMenuGate(${ScreenComponent.displayName || ScreenComponent.name || 'Screen'})`;
+  WithGate.displayName = `withMenuGate(${
+    ScreenComponent.displayName || ScreenComponent.name || 'Screen'
+  })`;
 
   return WithGate;
 }
