@@ -23,6 +23,7 @@ export default function WelcomePage({ navigation, route }) {
   const [name, setName] = useState('');
   const language = route.params?.language || 'português';
   const [animationFinished, setAnimationFinished] = useState(false);
+  const [shadowVisible, setShadowVisible] = useState(false);
 
   const { accessState = 'checking', hasPro } = useIap();
 
@@ -34,27 +35,65 @@ export default function WelcomePage({ navigation, route }) {
   const inputTranslateX = useRef(new Animated.Value(-100)).current;
   const buttonOpacity = useRef(new Animated.Value(0)).current;
   const buttonTranslateX = useRef(new Animated.Value(-100)).current;
-  const buttonBackgroundColor = useRef(new Animated.Value(0)).current;
-  const [shadowVisible, setShadowVisible] = useState(false);
   const picOpacity = useRef(new Animated.Value(0)).current;
   const picTranslateX = useRef(new Animated.Value(-100)).current;
+
+  const animationsStartedRef = useRef(false);
+
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isInfoModalVisible, setIsInfoModalVisible] = useState(false);
 
+  const resetAnimations = useCallback(() => {
+    imageOpacity.setValue(0);
+    imageTranslateX.setValue(-100);
+
+    titleOpacity.setValue(0);
+    titleTranslateX.setValue(-100);
+
+    inputOpacity.setValue(0);
+    inputTranslateX.setValue(-100);
+
+    buttonOpacity.setValue(0);
+    buttonTranslateX.setValue(-100);
+
+    picOpacity.setValue(0);
+    picTranslateX.setValue(-100);
+
+    setShadowVisible(false);
+    animationsStartedRef.current = false;
+  }, [
+    imageOpacity,
+    imageTranslateX,
+    titleOpacity,
+    titleTranslateX,
+    inputOpacity,
+    inputTranslateX,
+    buttonOpacity,
+    buttonTranslateX,
+    picOpacity,
+    picTranslateX,
+  ]);
+
   useFocusEffect(
     useCallback(() => {
+      let isActive = true;
+
       const fetchName = async () => {
         try {
           const storedName = await AsyncStorage.getItem('name');
-          if (storedName) {
+          if (isActive && storedName) {
             setName(storedName);
           }
-          setAnimationFinished(false);
-          setTimeout(() => setAnimationFinished(true), 100);
+
+          if (isActive) {
+            resetAnimations();
+            setAnimationFinished(false);
+          }
         } catch (error) {
           console.error('Ошибка при загрузке имени:', error);
         }
       };
+
       fetchName();
 
       const onBackPress = () => {
@@ -67,8 +106,11 @@ export default function WelcomePage({ navigation, route }) {
         onBackPress
       );
 
-      return () => backHandler.remove();
-    }, [navigation])
+      return () => {
+        isActive = false;
+        backHandler.remove();
+      };
+    }, [navigation, resetAnimations])
   );
 
   useEffect(() => {
@@ -78,16 +120,10 @@ export default function WelcomePage({ navigation, route }) {
   }, [navigation]);
 
   useEffect(() => {
-    const getNameAndAnimate = async () => {
-      const storedName = await AsyncStorage.getItem('name');
-      if (storedName) {
-        setName(storedName);
-      }
-      if (animationFinished) {
-        startAnimations();
-      }
-    };
-    getNameAndAnimate();
+    if (animationFinished && !animationsStartedRef.current) {
+      animationsStartedRef.current = true;
+      startAnimations();
+    }
   }, [animationFinished]);
 
   const handleNameChange = async (text) => {
@@ -144,11 +180,6 @@ export default function WelcomePage({ navigation, route }) {
           duration: 500,
           useNativeDriver: true,
         }),
-        Animated.timing(buttonBackgroundColor, {
-          toValue: 1,
-          duration: 1000,
-          useNativeDriver: false,
-        }),
       ]),
       Animated.parallel([
         Animated.timing(picOpacity, {
@@ -188,11 +219,6 @@ export default function WelcomePage({ navigation, route }) {
       console.error('Ошибка при переходе:', e);
     }
   };
-
-  const interpolatedBackgroundColor = buttonBackgroundColor.interpolate({
-    inputRange: [0, 1],
-    outputRange: ['#6C8EBB', '#4A6491'],
-  });
 
   if (!animationFinished) {
     return (
@@ -259,7 +285,7 @@ export default function WelcomePage({ navigation, route }) {
             <TouchableOpacity
               style={[
                 styles.button,
-                { backgroundColor: interpolatedBackgroundColor },
+                styles.buttonEnabled,
                 shadowVisible && styles.shadow,
                 (name.trim().length === 0 || accessState === 'checking') && styles.buttonDisabled,
               ]}
@@ -267,7 +293,7 @@ export default function WelcomePage({ navigation, route }) {
               disabled={name.trim().length === 0 || accessState === 'checking'}
             >
               <Text style={styles.buttonText} maxFontSizeMultiplier={1.2}>
-                {accessState === 'checking' ? 'VERIFICANDO...' : 'PRÓXIMO'}
+                {accessState === 'checking' ? 'CARREGANDO...' : 'PRÓXIMO'}
               </Text>
             </TouchableOpacity>
           </Animated.View>
@@ -360,6 +386,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     minHeight: 48,
+  },
+  buttonEnabled: {
+    backgroundColor: '#4A6491',
   },
   shadow: {
     shadowColor: '#000',

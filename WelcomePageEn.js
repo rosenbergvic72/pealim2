@@ -26,8 +26,10 @@ export default function WelcomePage({ navigation, route }) {
 
   const language = route.params?.language || 'english';
   const { accessState = 'checking', hasPro } = useIap();
+  useEffect(() => {
+  console.log('Welcome EN accessState:', accessState, 'hasPro:', hasPro);
+}, [accessState, hasPro]);
 
-  // Анимации
   const imageOpacity = useRef(new Animated.Value(0)).current;
   const imageTranslateX = useRef(new Animated.Value(-100)).current;
   const titleOpacity = useRef(new Animated.Value(0)).current;
@@ -36,23 +38,60 @@ export default function WelcomePage({ navigation, route }) {
   const inputTranslateX = useRef(new Animated.Value(-100)).current;
   const buttonOpacity = useRef(new Animated.Value(0)).current;
   const buttonTranslateX = useRef(new Animated.Value(-100)).current;
-  const buttonBackgroundColor = useRef(new Animated.Value(0)).current;
   const picOpacity = useRef(new Animated.Value(0)).current;
   const picTranslateX = useRef(new Animated.Value(-100)).current;
+
+  const animationsStartedRef = useRef(false);
 
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isInfoModalVisible, setIsInfoModalVisible] = useState(false);
 
+  const resetAnimations = useCallback(() => {
+    imageOpacity.setValue(0);
+    imageTranslateX.setValue(-100);
+
+    titleOpacity.setValue(0);
+    titleTranslateX.setValue(-100);
+
+    inputOpacity.setValue(0);
+    inputTranslateX.setValue(-100);
+
+    buttonOpacity.setValue(0);
+    buttonTranslateX.setValue(-100);
+
+    picOpacity.setValue(0);
+    picTranslateX.setValue(-100);
+
+    setShadowVisible(false);
+    animationsStartedRef.current = false;
+  }, [
+    imageOpacity,
+    imageTranslateX,
+    titleOpacity,
+    titleTranslateX,
+    inputOpacity,
+    inputTranslateX,
+    buttonOpacity,
+    buttonTranslateX,
+    picOpacity,
+    picTranslateX,
+  ]);
+
   useFocusEffect(
     useCallback(() => {
+      let isActive = true;
+
       const fetchName = async () => {
         try {
           const storedName = await AsyncStorage.getItem('name');
-          if (storedName) {
+          if (isActive && storedName) {
             setName(storedName);
           }
-          setAnimationFinished(false);
-          setTimeout(() => setAnimationFinished(true), 100);
+
+          if (isActive) {
+            resetAnimations();
+            setAnimationFinished(false);
+          }
         } catch (error) {
           console.error('Error loading name:', error);
         }
@@ -70,8 +109,11 @@ export default function WelcomePage({ navigation, route }) {
         onBackPress
       );
 
-      return () => backHandler.remove();
-    }, [navigation])
+      return () => {
+        isActive = false;
+        backHandler.remove();
+      };
+    }, [navigation, resetAnimations])
   );
 
   useEffect(() => {
@@ -81,7 +123,8 @@ export default function WelcomePage({ navigation, route }) {
   }, [navigation]);
 
   useEffect(() => {
-    if (animationFinished) {
+    if (animationFinished && !animationsStartedRef.current) {
+      animationsStartedRef.current = true;
       startAnimations();
     }
   }, [animationFinished]);
@@ -140,11 +183,6 @@ export default function WelcomePage({ navigation, route }) {
           duration: 500,
           useNativeDriver: true,
         }),
-        Animated.timing(buttonBackgroundColor, {
-          toValue: 1,
-          duration: 1000,
-          useNativeDriver: false,
-        }),
       ]),
       Animated.parallel([
         Animated.timing(picOpacity, {
@@ -170,7 +208,6 @@ export default function WelcomePage({ navigation, route }) {
       await AsyncStorage.setItem('name', name.trim());
       await AsyncStorage.setItem('language', language);
 
-      // Пока идёт проверка доступа — остаёмся на Welcome
       if (accessState === 'checking') return;
 
       if (hasPro) {
@@ -186,11 +223,6 @@ export default function WelcomePage({ navigation, route }) {
     }
   };
 
-  const interpolatedBackgroundColor = buttonBackgroundColor.interpolate({
-    inputRange: [0, 1],
-    outputRange: ['#6C8EBB', '#4A6491'],
-  });
-
   if (!animationFinished) {
     return (
       <View style={styles.animationContainer}>
@@ -198,7 +230,9 @@ export default function WelcomePage({ navigation, route }) {
           source={require('./assets/Animation - 1718360283264.json')}
           autoPlay
           loop={false}
-          onAnimationFinish={() => setAnimationFinished(true)}
+          onAnimationFinish={() => {
+            setAnimationFinished(true);
+          }}
           style={styles.lottie}
         />
       </View>
@@ -256,7 +290,7 @@ export default function WelcomePage({ navigation, route }) {
             <TouchableOpacity
               style={[
                 styles.button,
-                { backgroundColor: interpolatedBackgroundColor },
+                styles.buttonEnabled,
                 shadowVisible && styles.shadow,
                 (name.trim().length === 0 || accessState === 'checking') && styles.buttonDisabled,
               ]}
@@ -264,7 +298,7 @@ export default function WelcomePage({ navigation, route }) {
               disabled={name.trim().length === 0 || accessState === 'checking'}
             >
               <Text style={styles.buttonText} maxFontSizeMultiplier={1.2}>
-                {accessState === 'checking' ? 'CHECKING...' : 'NEXT'}
+                {accessState === 'checking' ? 'LOADING...' : 'NEXT'}
               </Text>
             </TouchableOpacity>
           </Animated.View>
@@ -357,6 +391,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     minHeight: 48,
+  },
+  buttonEnabled: {
+    backgroundColor: '#4A6491',
   },
   shadow: {
     shadowColor: '#000',
