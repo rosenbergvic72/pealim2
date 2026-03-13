@@ -196,7 +196,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',   // ✅ центрируем блок по вертикали
     position: 'relative',
-    minHeight: 185,
+    minHeight: 175,
     paddingTop: 0,              // ✅ убираем лишний сдвиг вверх
     paddingBottom: hp('1.2%'),  // ✅ небольшой запас снизу из-за аудио-кнопки
     zIndex: 1,
