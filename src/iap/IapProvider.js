@@ -39,13 +39,13 @@ const VERIFY_URL =
   '';
 
 const ENTITLEMENTS_URL =
-  (Constants?.expoConfig?.extra?.IAP_ENTITLEMENTS_URL ||
-    process.env.EXPO_PUBLIC_IAP_ENTITLEMENTS_URL ||
-    process.env.IAP_ENTITLEMENTS_URL ||
-    (VERIFY_URL
-      ? VERIFY_URL.replace(/\/iap\/google\/subscription\/verify\/?$/, '/entitlements')
-      : '') ||
-    '');
+  Constants?.expoConfig?.extra?.IAP_ENTITLEMENTS_URL ||
+  process.env.EXPO_PUBLIC_IAP_ENTITLEMENTS_URL ||
+  process.env.IAP_ENTITLEMENTS_URL ||
+  (VERIFY_URL
+    ? VERIFY_URL.replace(/\/iap\/(google|apple)\/subscription\/verify\/?$/, '/entitlements')
+    : '') ||
+  '';
 
 /** Таймаут запроса к верификатору (мс) */
 const IAP_VERIFY_TIMEOUT_MS = Number(process.env.EXPO_PUBLIC_IAP_VERIFY_TIMEOUT_MS || 4000);
@@ -791,17 +791,31 @@ export function IapProvider({ children, initialSegment = 'basic' }) {
           await AsyncStorage.setItem(LAST_TOKEN_KEY, tokenOrReceipt);
 
           const v = await verifyOnServer(tokenOrReceipt, match.productId);
+
           if (v?.offline) {
             const ok = await tryOfflineEntitlement();
             syncAccessStateRespectingCode(ok);
             return ok;
           }
+
           if (v?.pro === true) {
             syncAccessStateRespectingCode(true);
             setTrialEverUsed(true);
             AsyncStorage.setItem(TRIAL_EVER_USED_KEY, 'true').catch(() => {});
             return true;
           }
+
+          if (v?.pro === false) {
+            syncAccessStateRespectingCode(false);
+            return false;
+          }
+
+          // Для iOS: если сервер не подтвердил PRO явно, считаем доступ неактивным
+          if (Platform.OS === 'ios') {
+            syncAccessStateRespectingCode(false);
+            return false;
+          }
+
           if (v !== null) {
             syncAccessStateRespectingCode(false);
             return false;
@@ -813,17 +827,31 @@ export function IapProvider({ children, initialSegment = 'basic' }) {
       const saved = await AsyncStorage.getItem(LAST_TOKEN_KEY);
       if (saved) {
         const v = await verifyOnServer(saved, Platform.OS === 'ios' ? SKU_MONTHLY : SKU);
+
         if (v?.offline) {
           const ok = await tryOfflineEntitlement();
           syncAccessStateRespectingCode(ok);
           return ok;
         }
-        if (v?.pro) {
+
+        if (v?.pro === true) {
           syncAccessStateRespectingCode(true);
           setTrialEverUsed(true);
           AsyncStorage.setItem(TRIAL_EVER_USED_KEY, 'true').catch(() => {});
           return true;
         }
+
+        if (v?.pro === false) {
+          syncAccessStateRespectingCode(false);
+          return false;
+        }
+
+        // Для iOS: если saved receipt тоже не дал подтверждения PRO — снимаем доступ
+        if (Platform.OS === 'ios') {
+          syncAccessStateRespectingCode(false);
+          return false;
+        }
+
         if (v !== null) {
           syncAccessStateRespectingCode(false);
           return false;
