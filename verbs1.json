@@ -171,7 +171,7 @@
 "translationOptionsEs": ["traer", "comprar", "ver", "probar"],
 "translationOptionsPt": ["trazer", "comprar", "ver", "experimentar"],
 "translationOptionsAr": ["إحضار", "أن تشتري", "أن ترى", "أن تحاول"],
-"translationOptionsAm": ["መምጣት", "መግዛት", "ማየት", "መሞከር"],
+"translationOptionsAm": ["ማምጣት", "መግዛት", "ማየት", "መሞከር"],
 
       "correctTranslationIndex": 0
   },
@@ -291,7 +291,7 @@
           "Пропускать",
           "Терять"
       ],
-      "translationOptionsEn": ["to lose", "to win", "to miss", "to write"],
+      "translationOptionsEn": ["to lose (a game)", "to win", "to miss", "to write"],
 "translationOptionsFr": ["perdre", "gagner", "manquer", "perdre"],
 "translationOptionsEs": ["perder", "ganar", "perder", "perder"],
 "translationOptionsPt": ["perder", "vencer", "perder", "perder"],
@@ -399,7 +399,7 @@
           "Пинать",
           "Звать"
       ],
-      "translationOptionsEn": ["to tell", "to be silent", "to kick", "to call"],
+      "translationOptionsEn": ["to say", "to be silent", "to kick", "to call"],
 "translationOptionsFr": ["raconter", "se taire", "porter", "appeler"],
 "translationOptionsEs": ["contar", "callar", "patear", "llamar"],
 "translationOptionsPt": ["contar", "calar", "chutar", "chamar"],
@@ -672,12 +672,12 @@
           "Одевать",
           "Надевать"
       ],
-      "translationOptionsEn": ["to ride", "to observe", "to dress", "to put on"],
-"translationOptionsFr": ["monter", "observer", "habiller", "mettre"],
-"translationOptionsEs": ["montar", "observar", "vestir", "ponerse"],
-"translationOptionsPt": ["montar", "observar", "vestir", "colocar"],
+      "translationOptionsEn": ["to travel", "to observe", "to dress", "to put on"],
+"translationOptionsFr": ["voyager", "observer", "habiller", "mettre"],
+"translationOptionsEs": ["viajar", "observar", "vestir", "ponerse"],
+"translationOptionsPt": ["viajar", "observar", "vestir", "colocar"],
 "translationOptionsAr": ["أن يركب", "أن يلاحظ", "أن يلبس", "أن يرتدي"],
-"translationOptionsAm": ["መጋደም", "ማስተዋል", "መልበስ", "መልበስ"],
+"translationOptionsAm": ["መጓዝ", "ማስተዋል", "መልበስ", "መልበስ"],
 
 
       "correctTranslationIndex": 0
@@ -823,7 +823,7 @@
           "Работать",
           "Начинать"
       ],
-      "translationOptionsEn": ["to act", "to enter", "to work", "to start"],
+      "translationOptionsEn": ["to operate", "to enter", "to work", "to start"],
 "translationOptionsFr": ["agir", "entrer", "travailler", "commencer"],
 "translationOptionsEs": ["actuar", "entrar", "trabajar", "empezar"],
 "translationOptionsPt": ["agir", "entrar", "trabalhar", "começar"],
@@ -5441,7 +5441,7 @@
                         "correctTranslationIndex": 0
                       },
                       {
-                        "hebrewVerb": "לוכל (***)",
+                        "hebrewVerb": "!!** לוכל **!!",
                         "root": "י-כ-ל",
                         "binyan": "PA'AL",
                         "transliteration": "luchal",
@@ -6909,7 +6909,6 @@
     ],
     "correctTranslationIndex": 0
   },
-  [
   {
     "hebrewVerb": "לנעול",
     "root": "נ-ע-ל",
@@ -7210,7 +7209,7 @@
     ],
     "correctTranslationIndex": 0
   }
-],
+,
   {
     "hebrewVerb": "לסלק",
     "root": "ס-ל-ק",

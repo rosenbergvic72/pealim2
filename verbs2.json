@@ -266,7 +266,7 @@
 "verbSpanish": "traer",
 "verbPortuguese": "trazer",
 "verbArabic": "يحضر",
-"verbAmharic": "መምጣት",
+"verbAmharic": "ማምጣት",
 
     "audioFile": "lehavi.mp3",
     "verbHebrewOptions": [
@@ -349,7 +349,7 @@
 "verbSpanish": "pedir",
 "verbPortuguese": "encomendar",
 "verbArabic": "يطلب",
-"verbAmharic": "እንደ ትዕዛዝ",
+"verbAmharic": "መዘዝ",
 
       "audioFile": "lehazmin.mp3",
       "verbHebrewOptions": [
@@ -480,7 +480,7 @@
     },
   {
   "verbRussian": "Сказать",
-  "verbEnglish": "to tell",
+  "verbEnglish": "to say",
 "verbFrench": "raconter",
 "verbSpanish": "contar",
 "verbPortuguese": "contar",
@@ -700,12 +700,12 @@
   },
   {
     "verbRussian": "Ехать",
-    "verbEnglish": "to ride",
-"verbFrench": "monter",
-"verbSpanish": "montar",
-"verbPortuguese": "montar",
+    "verbEnglish": "to travel",
+"verbFrench": "voyager",
+"verbSpanish": "viajar",
+"verbPortuguese": "viajar",
 "verbArabic": "أن يركب",
-"verbAmharic": "መጋደም",
+"verbAmharic": "መጓዝ",
 
     "audioFile": "linsoa.mp3",
     "verbHebrewOptions": [
@@ -739,7 +739,7 @@
 "verbSpanish": "perdonar",
 "verbPortuguese": "perdoar",
 "verbArabic": "أن يغفر",
-"verbAmharic": "መስረጠት",
+"verbAmharic": "መታገስ",
 
     "audioFile": "lisloach.mp3",
     "verbHebrewOptions": [
@@ -790,7 +790,7 @@
 "verbSpanish": "responder",
 "verbPortuguese": "responder",
 "verbArabic": "أن يجيب",
-"verbAmharic": "መለስ",
+"verbAmharic": "መመለስ",
 
         "audioFile": "laanot.mp3",
         "verbHebrewOptions": [
@@ -1282,7 +1282,7 @@
   "verbSpanish": "aconsejar",
   "verbPortuguese": "aconselhar",
   "verbArabic": "أن ينصح",
-  "verbAmharic": "መካሄድ",
+  "verbAmharic": "መምከር",
         "audioFile": "leyaetz.mp3",
         "verbHebrewOptions": [
           { "text": "לייעץ", "transliteration": "leya'etz", "isCorrect": true },
@@ -1332,7 +1332,7 @@
 "verbSpanish": "encender",
 "verbPortuguese": "ligar",
 "verbArabic": "أن يشغل",
-"verbAmharic": "መነሳት",
+"verbAmharic": "ማብራት",
  
         "audioFile": "lehadlik.mp3",
         "verbHebrewOptions": [
@@ -4522,7 +4522,7 @@
 
         "audioFile": "luchal.mp3",
         "verbHebrewOptions": [
-          { "text":  "לוכל (***)", "transliteration": "luchal", "isCorrect": true },
+          { "text":  "!!** לוכל **!!", "transliteration": "luchal", "isCorrect": true },
           { "text": "להפחית", "transliteration": "lehafchit", "isCorrect": false },
           { "text": "לנשק", "transliteration": "lenashek", "isCorrect": false },
           { "text": "להתנשק", "transliteration": "lehitnashek", "isCorrect": false }
@@ -5623,7 +5623,6 @@
       }
     ]
   },
-  [
   {
     "verbRussian": "Надевать обувь",
     "verbEnglish": "to put on shoes",
@@ -5720,7 +5719,7 @@
       { "text": "להעניש", "transliteration": "lehanish", "isCorrect": false }
     ]
   }
-],
+,
   {
     "verbRussian": "Устранять",
     "verbEnglish": "to remove",
