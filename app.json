@@ -34,7 +34,7 @@
     "ios": {
       "bundleIdentifier": "com.rosenbergvictor72.pealim2",
       "buildNumber": "27",
-      "icon": "./assets/images/icon512.png",
+      "icon": "./assets/images/icon1024.png",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false,
         "NSPhotoLibraryUsageDescription": "...",

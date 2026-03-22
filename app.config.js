@@ -118,6 +118,17 @@ export default ({ config }) => {
     version: appVersion,
     orientation: 'portrait',
 
+    locales: {
+    en: { name: 'Verbify' },
+    ru: { name: 'Verbify' },
+    he: { name: 'Verbify' },
+    fr: { name: 'Verbify' },
+    es: { name: 'Verbify' },
+    'pt-BR': { name: 'Verbify' },
+    ar: { name: 'Verbify' },
+    am: { name: 'Verbify' },
+  },
+
     // OTA-обновления (Expo Updates)
     updates: {
       url: 'https://u.expo.dev/1c3fbe10-9608-4dd7-a477-f0ae7c294b5e',
@@ -127,7 +138,7 @@ export default ({ config }) => {
     ios: {
       ...config.ios,
       bundleIdentifier: 'com.rosenbergvictor72.pealim2',
-      icon: './assets/images/icon512.png',
+      icon: './assets/images/icon1024.png',
       infoPlist: {
         ...(config.ios?.infoPlist || {}),
         ITSAppUsesNonExemptEncryption: false,
@@ -136,6 +147,7 @@ export default ({ config }) => {
         NSCameraUsageDescription: '...',
         NSMicrophoneUsageDescription: '...',
         CFBundleDevelopmentRegion: 'en',
+        CFBundleAllowMixedLocalizations: true,
         CFBundleLocalizations: [
           'en',
           'ru',

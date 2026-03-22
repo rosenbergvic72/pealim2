@@ -3148,7 +3148,7 @@
         ]
       },
       {
-        "verbRussian": "Напиваться",
+        "verbRussian": "Пьянеть",
         "verbEnglish": "to get drunk",
 "verbFrench": "se saouler",
 "verbSpanish": "emborracharse",
@@ -3620,7 +3620,7 @@
 
         "audioFile": "lishchot.mp3",
         "verbHebrewOptions": [
-          { "text": "לשחות", "transliteration": "lishchot", "isCorrect": true },
+          { "text": "לשחות", "transliteration": "lischot", "isCorrect": true },
           { "text": "להתחבא", "transliteration": "lehitchabe", "isCorrect": false },
           { "text": "להילחם", "transliteration": "lehilachem", "isCorrect": false },
           { "text": "להיעדר", "transliteration": "lehe'ader", "isCorrect": false }
@@ -4522,7 +4522,7 @@
 
         "audioFile": "luchal.mp3",
         "verbHebrewOptions": [
-          { "text": "לוכל", "transliteration": "luchal", "isCorrect": true },
+          { "text":  "לוכל (***)", "transliteration": "luchal", "isCorrect": true },
           { "text": "להפחית", "transliteration": "lehafchit", "isCorrect": false },
           { "text": "לנשק", "transliteration": "lenashek", "isCorrect": false },
           { "text": "להתנשק", "transliteration": "lehitnashek", "isCorrect": false }
@@ -5623,198 +5623,104 @@
       }
     ]
   },
+  [
   {
-    "verbRussian": "Носить обувь",
-    "verbEnglish": "to wear shoes",
-    "verbFrench": "porter des chaussures",
-    "verbSpanish": "llevar zapatos",
-    "verbPortuguese": "usar sapatos",
-    "verbArabic": "يرتدي حذاء",
+    "verbRussian": "Надевать обувь",
+    "verbEnglish": "to put on shoes",
+    "verbFrench": "mettre des chaussures",
+    "verbSpanish": "ponerse zapatos",
+    "verbPortuguese": "calçar sapatos",
+    "verbArabic": "أن ينتعل حذاء",
     "verbAmharic": "ጫማ መልበስ",
     "audioFile": "linol.mp3",
     "verbHebrewOptions": [
-      {
-        "text": "לנעול",
-        "transliteration": "lin'ol",
-        "isCorrect": true
-      },
-      {
-        "text": "ללבוש",
-        "transliteration": "lilbosh",
-        "isCorrect": false
-      },
-      {
-        "text": "לחלוץ",
-        "transliteration": "lachalots",
-        "isCorrect": false
-      },
-      {
-        "text": "לקנות",
-        "transliteration": "liknot",
-        "isCorrect": false
-      }
+      { "text": "לנעול", "transliteration": "lin'ol", "isCorrect": true },
+      { "text": "ללבוש", "transliteration": "lilbosh", "isCorrect": false },
+      { "text": "לחלוץ", "transliteration": "lachalots", "isCorrect": false },
+      { "text": "לקנות", "transliteration": "liknot", "isCorrect": false }
     ]
   },
   {
-    "verbRussian": "Носить шапку",
-    "verbEnglish": "to wear a hat",
-    "verbFrench": "porter un chapeau",
-    "verbSpanish": "llevar un sombrero",
-    "verbPortuguese": "usar chapéu",
-    "verbArabic": "يرتدي قبعة",
+    "verbRussian": "Надевать шапку",
+    "verbEnglish": "to put on a hat",
+    "verbFrench": "mettre un chapeau",
+    "verbSpanish": "ponerse un sombrero",
+    "verbPortuguese": "colocar um chapéu",
+    "verbArabic": "أن يضع قبعة",
     "verbAmharic": "ኮፍያ መልበስ",
     "audioFile": "lachavosh.mp3",
     "verbHebrewOptions": [
-      {
-        "text": "לחבוש",
-        "transliteration": "lachavosh",
-        "isCorrect": true
-      },
-      {
-        "text": "ללבוש",
-        "transliteration": "lilbosh",
-        "isCorrect": false
-      },
-      {
-        "text": "לנעול",
-        "transliteration": "lin'ol",
-        "isCorrect": false
-      },
-      {
-        "text": "לקרוא",
-        "transliteration": "likro",
-        "isCorrect": false
-      }
+      { "text": "לחבוש", "transliteration": "lachavosh", "isCorrect": true },
+      { "text": "ללבוש", "transliteration": "lilbosh", "isCorrect": false },
+      { "text": "לנעול", "transliteration": "lin'ol", "isCorrect": false },
+      { "text": "לקרוא", "transliteration": "likro", "isCorrect": false }
     ]
   },
   {
-    "verbRussian": "Носить украшения",
-    "verbEnglish": "to wear jewelry",
-    "verbFrench": "porter des bijoux",
-    "verbSpanish": "llevar joyas",
-    "verbPortuguese": "usar joias",
-    "verbArabic": "يرتدي مجوهرات",
+    "verbRussian": "Надевать украшения",
+    "verbEnglish": "to put on jewelry",
+    "verbFrench": "mettre des bijoux",
+    "verbSpanish": "ponerse joyas",
+    "verbPortuguese": "colocar joias",
+    "verbArabic": "أن يرتدي مجوهرات",
     "verbAmharic": "ጌጣጌጥ መልበስ",
     "audioFile": "laanod.mp3",
     "verbHebrewOptions": [
-      {
-        "text": "לענוד",
-        "transliteration": "la'anod",
-        "isCorrect": true
-      },
-      {
-        "text": "ללבוש",
-        "transliteration": "lilbosh",
-        "isCorrect": false
-      },
-      {
-        "text": "לנעול",
-        "transliteration": "lin'ol",
-        "isCorrect": false
-      },
-      {
-        "text": "לקרוא",
-        "transliteration": "likro",
-        "isCorrect": false
-      }
+      { "text": "לענוד", "transliteration": "la'anod", "isCorrect": true },
+      { "text": "ללבוש", "transliteration": "lilbosh", "isCorrect": false },
+      { "text": "לנעול", "transliteration": "lin'ol", "isCorrect": false },
+      { "text": "לקרוא", "transliteration": "likro", "isCorrect": false }
     ]
   },
   {
-    "verbRussian": "Носить очки",
-    "verbEnglish": "to wear glasses",
-    "verbFrench": "porter des lunettes",
-    "verbSpanish": "llevar gafas",
-    "verbPortuguese": "usar óculos",
-    "verbArabic": "يرتدي نظارات",
+    "verbRussian": "Надевать очки",
+    "verbEnglish": "to put on glasses",
+    "verbFrench": "mettre des lunettes",
+    "verbSpanish": "ponerse gafas",
+    "verbPortuguese": "colocar óculos",
+    "verbArabic": "أن يضع نظارات",
     "verbAmharic": "መነጽር መልበስ",
     "audioFile": "leharkiv.mp3",
     "verbHebrewOptions": [
-      {
-        "text": "להרכיב",
-        "transliteration": "leharkiv",
-        "isCorrect": true
-      },
-      {
-        "text": "ללבוש",
-        "transliteration": "lilbosh",
-        "isCorrect": false
-      },
-      {
-        "text": "לנעול",
-        "transliteration": "lin'ol",
-        "isCorrect": false
-      },
-      {
-        "text": "לקרוא",
-        "transliteration": "likro",
-        "isCorrect": false
-      }
+      { "text": "להרכיב", "transliteration": "leharkiv", "isCorrect": true },
+      { "text": "ללבוש", "transliteration": "lilbosh", "isCorrect": false },
+      { "text": "לנעול", "transliteration": "lin'ol", "isCorrect": false },
+      { "text": "לקרוא", "transliteration": "likro", "isCorrect": false }
     ]
   },
   {
-    "verbRussian": "Носить ремень",
-    "verbEnglish": "to wear a belt",
-    "verbFrench": "porter une ceinture",
-    "verbSpanish": "llevar cinturón",
-    "verbPortuguese": "usar cinto",
-    "verbArabic": "يرتدي حزامًا",
+    "verbRussian": "Надевать ремень",
+    "verbEnglish": "to put on a belt",
+    "verbFrench": "mettre une ceinture",
+    "verbSpanish": "ponerse un cinturón",
+    "verbPortuguese": "colocar um cinto",
+    "verbArabic": "أن يضع حزامًا",
     "verbAmharic": "ቀበቶ መልበስ",
     "audioFile": "lachgor.mp3",
     "verbHebrewOptions": [
-      {
-        "text": "לחגור",
-        "transliteration": "lachgor",
-        "isCorrect": true
-      },
-      {
-        "text": "לשבש",
-        "transliteration": "leshabesh",
-        "isCorrect": false
-      },
-      {
-        "text": "להגיב",
-        "transliteration": "lehagiv",
-        "isCorrect": false
-      },
-      {
-        "text": "לגזור",
-        "transliteration": "ligzor",
-        "isCorrect": false
-      }
+      { "text": "לחגור", "transliteration": "lachgor", "isCorrect": true },
+      { "text": "לשבש", "transliteration": "leshabesh", "isCorrect": false },
+      { "text": "להגיב", "transliteration": "lehagiv", "isCorrect": false },
+      { "text": "לגזור", "transliteration": "ligzor", "isCorrect": false }
     ]
   },
   {
-    "verbRussian": "Носить носки",
-    "verbEnglish": "to wear socks",
-    "verbFrench": "porter des chaussettes",
-    "verbSpanish": "llevar calcetines",
-    "verbPortuguese": "usar meias",
-    "verbArabic": "يرتدي جوارب",
+    "verbRussian": "Надевать носки",
+    "verbEnglish": "to put on socks",
+    "verbFrench": "mettre des chaussettes",
+    "verbSpanish": "ponerse calcetines",
+    "verbPortuguese": "colocar meias",
+    "verbArabic": "أن يرتدي جوارب",
     "verbAmharic": "ካልሲ መልበስ",
     "audioFile": "ligrov.mp3",
     "verbHebrewOptions": [
-      {
-        "text": "לגרוב",
-        "transliteration": "ligrov",
-        "isCorrect": true
-      },
-      {
-        "text": "לאמת",
-        "transliteration": "le'amet",
-        "isCorrect": false
-      },
-      {
-        "text": "לשמור",
-        "transliteration": "lishmor",
-        "isCorrect": false
-      },
-      {
-        "text": "להעניש",
-        "transliteration": "lehanish",
-        "isCorrect": false
-      }
+      { "text": "לגרוב", "transliteration": "ligrov", "isCorrect": true },
+      { "text": "לאמת", "transliteration": "le'amet", "isCorrect": false },
+      { "text": "לשמור", "transliteration": "lishmor", "isCorrect": false },
+      { "text": "להעניש", "transliteration": "lehanish", "isCorrect": false }
     ]
-  },
+  }
+],
   {
     "verbRussian": "Устранять",
     "verbEnglish": "to remove",

@@ -1779,26 +1779,25 @@
       "correctTranslationIndex": 0
   },
   {
-      "hebrewVerb": "ללבוש",
-      "root": "ל-ב-שׁ",
-      "binyan": "PA'AL",
-      "transliteration": "lilbosh",
-      "audioFile": "lilbosh.mp3",
-      "translationOptions": [
-          "Носить (одежду)",
-          "Желать",
-          "Плавать",
-          "Сидеть"
-      ],
-      "translationOptionsEn": ["to wear", "to desire", "to swim", "to sit"],
-"translationOptionsFr": ["porter", "désirer", "nager", "s'asseoir"],
-"translationOptionsEs": ["llevar", "desear", "nadar", "sentarse"],
-"translationOptionsPt": ["vestir", "desejar", "nadar", "sentar-se"],
-"translationOptionsAr": ["أن يرتدي", "أن ترغب", "أن تسبح", "أن تجلس"],
-"translationOptionsAm": ["መልበስ", "መመኘት", "መዋኘት", "መቀመጥ"],
-
-      "correctTranslationIndex": 0
-  },
+  "hebrewVerb": "ללבוש",
+  "root": "ל-ב-שׁ",
+  "binyan": "PA'AL",
+  "transliteration": "lilbosh",
+  "audioFile": "lilbosh.mp3",
+  "translationOptions": [
+    "Носить (одежду)",
+    "Желать",
+    "Плавать",
+    "Сидеть"
+  ],
+  "translationOptionsEn": ["to wear", "to desire", "to swim", "to sit"],
+  "translationOptionsFr": ["porter", "désirer", "nager", "s'asseoir"],
+  "translationOptionsEs": ["llevar", "desear", "nadar", "sentarse"],
+  "translationOptionsPt": ["usar roupas", "desejar", "nadar", "sentar-se"],
+  "translationOptionsAr": ["أن يرتدي", "أن يرغب", "أن يسبح", "أن يجلس"],
+  "translationOptionsAm": ["መልበስ", "መመኘት", "መዋኘት", "መቀመጥ"],
+  "correctTranslationIndex": 0
+},
   {
       "hebrewVerb": "לטוס",
       "root": "ט-ו-ס",
@@ -3701,26 +3700,55 @@
     "correctTranslationIndex": 0
     },
     {
-    "hebrewVerb": "להשתכר",
-    "root": "ש-כ-ר",
-    "binyan": "HITPA'EL",
-    "transliteration": "lehishtaker",
-    "audioFile": "lehistaker.mp3",
-    "translationOptions": [
-    "Напиваться",
+  "hebrewVerb": "להשתכר",
+  "root": "ש-כ-ר",
+  "binyan": "HITPA'EL",
+  "transliteration": "lehishtaker",
+  "audioFile": "lehistaker.mp3",
+  "translationOptions": [
+    "Пьянеть",
     "Улыбаться",
     "Смеяться",
     "Отдыхать"
-    ],
-    "translationOptionsEn": ["to get drunk", "to smile", "to laugh", "to rest"],
-"translationOptionsFr": ["se saouler", "sourire", "rire", "se reposer"],
-"translationOptionsEs": ["emborracharse", "sonreír", "reír", "descansar"],
-"translationOptionsPt": ["embriagar-se", "sorrir", "rir", "descansar"],
-"translationOptionsAr": ["أن يسكر", "أن ينظر", "أن يغتسل", "أن يطفئ"],
-"translationOptionsAm": ["መጠጣት", "መስማት", "መሣለት", "መውደቅ"],
-
-    "correctTranslationIndex": 0
-    },
+  ],
+  "translationOptionsEn": [
+    "to get drunk",
+    "to smile",
+    "to laugh",
+    "to rest"
+  ],
+  "translationOptionsFr": [
+    "devenir ivre",
+    "sourire",
+    "rire",
+    "se reposer"
+  ],
+  "translationOptionsEs": [
+    "emborracharse",
+    "sonreír",
+    "reír",
+    "descansar"
+  ],
+  "translationOptionsPt": [
+    "ficar bêbado",
+    "sorrir",
+    "rir",
+    "descansar"
+  ],
+  "translationOptionsAr": [
+    "أن يصبح ثملًا",
+    "أن يبتسم",
+    "أن يضحك",
+    "أن يستريح"
+  ],
+  "translationOptionsAm": [
+    "መሰከር",
+    "መሳቅ",
+    "መሳለቅ",
+    "መዝናናት"
+  ],
+  "correctTranslationIndex": 0
+},
     {
     "hebrewVerb": "לצייר",
     "root": "צ-י-ר",
@@ -4292,7 +4320,7 @@
         "hebrewVerb": "לשחות",
         "root": "שׁ-ח-ה",
         "binyan": "PA'AL",
-        "transliteration": "lishchot",
+        "transliteration": "lischot",
         "audioFile": "lishchot.mp3",
         "translationOptions": [
         "Плавать",
@@ -5413,7 +5441,7 @@
                         "correctTranslationIndex": 0
                       },
                       {
-                        "hebrewVerb": "לוכל",
+                        "hebrewVerb": "לוכל (***)",
                         "root": "י-כ-ל",
                         "binyan": "PA'AL",
                         "transliteration": "luchal",
@@ -6881,6 +6909,7 @@
     ],
     "correctTranslationIndex": 0
   },
+  [
   {
     "hebrewVerb": "לנעול",
     "root": "נ-ע-ל",
@@ -6888,37 +6917,37 @@
     "transliteration": "lin'ol",
     "audioFile": "linol.mp3",
     "translationOptions": [
-      "Носить обувь",
+      "Надевать обувь",
       "Готовить",
       "Читать",
       "Рисовать"
     ],
     "translationOptionsEn": [
-      "to wear shoes",
+      "to put on shoes",
       "to cook",
       "to read",
       "to draw"
     ],
     "translationOptionsFr": [
-      "porter des chaussures",
+      "mettre des chaussures",
       "cuisiner",
       "lire",
       "dessiner"
     ],
     "translationOptionsEs": [
-      "llevar zapatos",
+      "ponerse zapatos",
       "cocinar",
       "leer",
       "dibujar"
     ],
     "translationOptionsPt": [
-      "usar sapatos",
+      "calçar sapatos",
       "cozinhar",
       "ler",
       "desenhar"
     ],
     "translationOptionsAr": [
-      "يرتدي حذاء",
+      "أن ينتعل حذاء",
       "يطبخ",
       "يقرأ",
       "يرسم"
@@ -6938,37 +6967,37 @@
     "transliteration": "lachavosh",
     "audioFile": "lachavosh.mp3",
     "translationOptions": [
-      "Носить шапку",
+      "Надевать шапку",
       "Готовить",
       "Читать",
       "Плавать"
     ],
     "translationOptionsEn": [
-      "to wear a hat",
+      "to put on a hat",
       "to cook",
       "to read",
       "to swim"
     ],
     "translationOptionsFr": [
-      "porter un chapeau",
+      "mettre un chapeau",
       "cuisiner",
       "lire",
       "nager"
     ],
     "translationOptionsEs": [
-      "llevar un sombrero",
+      "ponerse un sombrero",
       "cocinar",
       "leer",
       "nadar"
     ],
     "translationOptionsPt": [
-      "usar chapéu",
+      "colocar um chapéu",
       "cozinhar",
       "ler",
       "nadar"
     ],
     "translationOptionsAr": [
-      "يرتدي قبعة",
+      "أن يضع قبعة",
       "يطبخ",
       "يقرأ",
       "يسبح"
@@ -6988,37 +7017,37 @@
     "transliteration": "la'anod",
     "audioFile": "laanod.mp3",
     "translationOptions": [
-      "Носить украшения",
+      "Надевать украшения",
       "Согласовывать",
       "Откладывать",
       "Поддерживать"
     ],
     "translationOptionsEn": [
-      "to wear jewelry",
+      "to put on jewelry",
       "to coordinate",
       "to postpone",
       "to support"
     ],
     "translationOptionsFr": [
-      "porter des bijoux",
+      "mettre des bijoux",
       "coordonner",
       "reporter",
       "soutenir"
     ],
     "translationOptionsEs": [
-      "llevar joyas",
+      "ponerse joyas",
       "coordinar",
       "posponer",
       "apoyar"
     ],
     "translationOptionsPt": [
-      "usar joias",
+      "colocar joias",
       "coordenar",
       "adiar",
       "apoiar"
     ],
     "translationOptionsAr": [
-      "يرتدي مجوهرات",
+      "أن يرتدي مجوهرات",
       "ينسق",
       "يؤجل",
       "يدعم"
@@ -7038,37 +7067,37 @@
     "transliteration": "leharkiv",
     "audioFile": "leharkiv.mp3",
     "translationOptions": [
-      "Носить очки",
+      "Надевать очки",
       "Согласовывать",
       "Ограничивать",
       "Предполагать"
     ],
     "translationOptionsEn": [
-      "to wear glasses",
+      "to put on glasses",
       "to coordinate",
       "to restrict",
       "to assume"
     ],
     "translationOptionsFr": [
-      "porter des lunettes",
+      "mettre des lunettes",
       "coordonner",
       "restreindre",
       "supposer"
     ],
     "translationOptionsEs": [
-      "llevar gafas",
+      "ponerse gafas",
       "coordinar",
       "restringir",
       "suponer"
     ],
     "translationOptionsPt": [
-      "usar óculos",
+      "colocar óculos",
       "coordenar",
       "restringir",
       "supor"
     ],
     "translationOptionsAr": [
-      "يرتدي نظارات",
+      "أن يضع نظارات",
       "ينسق",
       "يقيّد",
       "يفترض"
@@ -7088,37 +7117,37 @@
     "transliteration": "lachgor",
     "audioFile": "lachgor.mp3",
     "translationOptions": [
-      "Носить ремень",
+      "Надевать ремень",
       "Согласовывать",
       "Ограничивать",
       "Предполагать"
     ],
     "translationOptionsEn": [
-      "to wear a belt",
+      "to put on a belt",
       "to coordinate",
       "to restrict",
       "to assume"
     ],
     "translationOptionsFr": [
-      "porter une ceinture",
+      "mettre une ceinture",
       "coordonner",
       "restreindre",
       "supposer"
     ],
     "translationOptionsEs": [
-      "llevar cinturón",
+      "ponerse un cinturón",
       "coordinar",
       "restringir",
       "suponer"
     ],
     "translationOptionsPt": [
-      "usar cinto",
+      "colocar um cinto",
       "coordenar",
       "restringir",
       "supor"
     ],
     "translationOptionsAr": [
-      "يرتدي حزامًا",
+      "أن يضع حزامًا",
       "ينسق",
       "يقيّد",
       "يفترض"
@@ -7138,37 +7167,37 @@
     "transliteration": "ligrov",
     "audioFile": "ligrov.mp3",
     "translationOptions": [
-      "Носить носки",
+      "Надевать носки",
       "Предполагать",
       "Ограничивать",
       "Согласовывать"
     ],
     "translationOptionsEn": [
-      "to wear socks",
+      "to put on socks",
       "to assume",
       "to restrict",
       "to coordinate"
     ],
     "translationOptionsFr": [
-      "porter des chaussettes",
+      "mettre des chaussettes",
       "supposer",
       "restreindre",
       "coordonner"
     ],
     "translationOptionsEs": [
-      "llevar calcetines",
+      "ponerse calcetines",
       "suponer",
       "restringir",
       "coordinar"
     ],
     "translationOptionsPt": [
-      "usar meias",
+      "colocar meias",
       "supor",
       "restringir",
       "coordenar"
     ],
     "translationOptionsAr": [
-      "يرتدي جوارب",
+      "أن يرتدي جوارب",
       "يفترض",
       "يقيّد",
       "ينسق"
@@ -7180,7 +7209,8 @@
       "መዋጮ"
     ],
     "correctTranslationIndex": 0
-  },
+  }
+],
   {
     "hebrewVerb": "לסלק",
     "root": "ס-ל-ק",
