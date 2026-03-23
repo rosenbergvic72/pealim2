@@ -95,7 +95,7 @@ export default ({ config }) => {
     ? 'com.rosenbergvictor72.verbify.ru'
     : 'com.rosenbergvictor72.pealim2';
 
-  const appVersion = '1.1.8';
+  const appVersion = '1.1.12';
   const versionCode = isRu ? 1000010 : 2000900; // инкрементируйте при каждом релизе
   const runtimeVersion = `${appVersion}-${isRu ? 'ru' : 'gp'}`;
 
