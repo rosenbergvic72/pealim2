@@ -66,10 +66,11 @@ const RESTORE_ON_LAUNCH =
   String(process.env.EXPO_PUBLIC_IAP_RESTORE_ON_LAUNCH || '1') === '1';
 
 /**
- * Временный доступ после НОВОЙ успешной транзакции, если verify ещё не успел.
+ * Временный доступ после НОВОЙ покупки, если verify ещё не успел.
+ * Умышленно короткое окно.
  */
 const TEMP_PURCHASE_ACCESS_MS = Number(
-  process.env.EXPO_PUBLIC_IAP_TEMP_PURCHASE_ACCESS_MS || 15 * 60 * 1000
+  process.env.EXPO_PUBLIC_IAP_TEMP_PURCHASE_ACCESS_MS || 2 * 60 * 1000
 );
 
 /** Определение packageName для сервера */
@@ -385,6 +386,23 @@ function extractTokenOrReceipt(purchase) {
   );
 }
 
+function isRecentPurchase(purchase, maxAgeMs = 10 * 60 * 1000) {
+  const raw =
+    purchase?.transactionDate ||
+    purchase?.transactionTimestamp ||
+    purchase?.purchaseTime;
+
+  if (!raw) return false;
+
+  let ts = Number(raw);
+  if (!Number.isFinite(ts)) {
+    ts = Date.parse(String(raw));
+  }
+  if (!Number.isFinite(ts)) return false;
+
+  return Math.abs(Date.now() - ts) <= maxAgeMs;
+}
+
 function isBoolean(v) {
   return typeof v === 'boolean';
 }
@@ -475,15 +493,6 @@ export function IapProvider({ children, initialSegment = 'basic' }) {
       await AsyncStorage.setItem(TEMP_ACCESS_UNTIL_KEY, until);
     } catch {}
   }, []);
-
-  const hasValidTempPurchaseAccess = useCallback(async () => {
-    try {
-      const until = await AsyncStorage.getItem(TEMP_ACCESS_UNTIL_KEY);
-      return isIsoActiveNow(until);
-    } catch {
-      return false;
-    }
-  }, [isIsoActiveNow]);
 
   const applyCodeEntitlementLocal = useCallback(
     async (untilIso) => {
@@ -967,13 +976,6 @@ export function IapProvider({ children, initialSegment = 'basic' }) {
         return true;
       }
 
-      const tempOk = await hasValidTempPurchaseAccess();
-      if (tempOk) {
-        console.log('[IAP] restore -> temporary purchase access granted');
-        syncAccessStateRespectingCode(true);
-        return true;
-      }
-
       await clearTempPurchaseAccess();
       syncAccessStateRespectingCode(false);
       return false;
@@ -982,12 +984,6 @@ export function IapProvider({ children, initialSegment = 'basic' }) {
 
       const offlineOk = await tryOfflineEntitlement();
       if (offlineOk) return true;
-
-      const tempOk = await hasValidTempPurchaseAccess();
-      if (tempOk) {
-        syncAccessStateRespectingCode(true);
-        return true;
-      }
 
       await clearTempPurchaseAccess();
       syncAccessStateRespectingCode(false);
@@ -1002,7 +998,6 @@ export function IapProvider({ children, initialSegment = 'basic' }) {
     tryOfflineEntitlement,
     syncAccessStateRespectingCode,
     resolveVerifyResult,
-    hasValidTempPurchaseAccess,
     clearTempPurchaseAccess,
   ]);
 
@@ -1187,26 +1182,28 @@ export function IapProvider({ children, initialSegment = 'basic' }) {
               }
             }
 
-            console.log('[IAP] purchase verify unclear -> granting short temporary access');
-            await setTempPurchaseAccess();
-            syncAccessStateRespectingCode(true);
-            setJustPurchased(true);
-            setShouldShowPost(true);
-            try {
-              await AsyncStorage.multiSet([
-                [POST_STATE_KEY, 'pending'],
-                [LAST_PURCHASE_AT_KEY, String(Date.now())],
-              ]);
-            } catch {}
+            const canGrantTemp =
+              purchasingRef.current === true && isRecentPurchase(purchase);
 
-            let restored = false;
-            try {
-              restored = await restoreActiveSubscription();
-            } catch {}
+            if (canGrantTemp) {
+              console.log('[IAP] purchase verify unclear -> granting short temporary access for fresh purchase only');
+              await setTempPurchaseAccess();
+              syncAccessStateRespectingCode(true);
+              setJustPurchased(true);
+              setShouldShowPost(true);
 
-            if (!restored) {
-              console.log('[IAP] purchase unclear -> waiting on temporary access window');
+              try {
+                await AsyncStorage.multiSet([
+                  [POST_STATE_KEY, 'pending'],
+                  [LAST_PURCHASE_AT_KEY, String(Date.now())],
+                ]);
+              } catch {}
+
+              return;
             }
+
+            console.log('[IAP] purchase verify unclear for non-fresh transaction -> denying temp access');
+            await applyFailState();
           } finally {
             purchasingRef.current = false;
           }
@@ -1287,22 +1284,10 @@ export function IapProvider({ children, initialSegment = 'basic' }) {
       try {
         const monthlyProd = productRef.current;
         const annualProd = productRefAnnual.current;
-        const prodForIos = kind === 'annual' ? annualProd : monthlyProd;
-        const prod = Platform.OS === 'ios' ? prodForIos : monthlyProd;
 
         console.log('[IAP] requestBuy kind=', kind);
         console.log('[IAP] requestBuy monthly loaded=', monthlyProd?.productId);
         console.log('[IAP] requestBuy annual loaded=', annualProd?.productId);
-
-        if (!prod) {
-          Alert.alert(
-            'Store unavailable',
-            kind === 'annual'
-              ? 'Annual subscription details are not loaded yet.'
-              : 'Monthly subscription details are not loaded yet.'
-          );
-          return;
-        }
 
         const selectedSku =
           Platform.OS === 'ios'
@@ -1313,29 +1298,45 @@ export function IapProvider({ children, initialSegment = 'basic' }) {
 
         console.log('[IAP] requestBuy selectedSku=', selectedSku);
 
-        const baseParams = {
+        // iOS: покупаем напрямую по SKU, не блокируемся из-за того,
+        // что product мог не загрузиться в getSubscriptions().
+        if (Platform.OS === 'ios') {
+          purchasingRef.current = true;
+
+          await RNIap.requestSubscription({
+            sku: selectedSku,
+            andDangerouslyFinishTransactionAutomatically: false,
+          });
+
+          return;
+        }
+
+        // Android: здесь product/offers нужны
+        const prod = monthlyProd;
+        if (!prod) {
+          Alert.alert(
+            'Store unavailable',
+            kind === 'annual'
+              ? 'Annual subscription details are not loaded yet.'
+              : 'Monthly subscription details are not loaded yet.'
+          );
+          return;
+        }
+
+        const offerToken = findOfferToken(kind);
+        console.log('[IAP] requestBuy android offerToken=', offerToken);
+
+        if (!offerToken) {
+          Alert.alert('Plan not available', 'Selected plan is currently unavailable.');
+          return;
+        }
+
+        purchasingRef.current = true;
+        await RNIap.requestSubscription({
           sku: selectedSku,
           andDangerouslyFinishTransactionAutomatically: false,
-        };
-
-        if (Platform.OS === 'android') {
-          const offerToken = findOfferToken(kind);
-          console.log('[IAP] requestBuy android offerToken=', offerToken);
-
-          if (!offerToken) {
-            Alert.alert('Plan not available', 'Selected plan is currently unavailable.');
-            return;
-          }
-
-          purchasingRef.current = true;
-          await RNIap.requestSubscription({
-            ...baseParams,
-            subscriptionOffers: [{ sku: selectedSku, offerToken }],
-          });
-        } else {
-          purchasingRef.current = true;
-          await RNIap.requestSubscription(baseParams);
-        }
+          subscriptionOffers: [{ sku: selectedSku, offerToken }],
+        });
       } catch (e) {
         console.log('[IAP] requestBuy error=', e);
         Alert.alert(
@@ -1393,20 +1394,13 @@ export function IapProvider({ children, initialSegment = 'basic' }) {
       return await restoreActiveSubscription();
     } catch {
       const offlineOk = await tryOfflineEntitlement();
-      if (offlineOk) {
-        syncAccessStateRespectingCode(true);
-        return true;
-      }
-
-      const tempOk = await hasValidTempPurchaseAccess();
-      syncAccessStateRespectingCode(tempOk);
-      return tempOk;
+      syncAccessStateRespectingCode(offlineOk);
+      return offlineOk;
     }
   }, [
     restoreActiveSubscription,
     tryOfflineEntitlement,
     syncAccessStateRespectingCode,
-    hasValidTempPurchaseAccess,
   ]);
 
   const markPostShown = useCallback(async () => {
