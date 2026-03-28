@@ -25,7 +25,7 @@ const SKU_MONTHLY = Platform.select({
 });
 
 const SKU_ANNUAL = Platform.select({
-  android: 'monthly_ils_10', // Android: один productId, различие в base plan / offer
+  android: 'monthly_ils_10',
   ios: 'annual_ils_80',
 });
 
@@ -65,14 +65,6 @@ const ENTITLE_OFFLINE_WHILE_NOT_EXPIRED =
 const RESTORE_ON_LAUNCH =
   String(process.env.EXPO_PUBLIC_IAP_RESTORE_ON_LAUNCH || '1') === '1';
 
-/**
- * Временный доступ после НОВОЙ покупки, если verify ещё не успел.
- * Умышленно короткое окно.
- */
-const TEMP_PURCHASE_ACCESS_MS = Number(
-  process.env.EXPO_PUBLIC_IAP_TEMP_PURCHASE_ACCESS_MS || 2 * 60 * 1000
-);
-
 /** Определение packageName для сервера */
 const PKG =
   Constants?.expoConfig?.android?.package ||
@@ -84,6 +76,13 @@ const API_KEY_HEADER =
   Constants?.expoConfig?.extra?.IAP_API_KEY ||
   process.env.EXPO_PUBLIC_IAP_API_KEY ||
   '';
+
+/**
+ * Если хочешь ОДИН РАЗ сбросить старые IAP-ключи на устройстве,
+ * поставь EXPO_PUBLIC_IAP_CLEAR_OLD_CACHE=1 и после одного теста верни в 0.
+ */
+const CLEAR_OLD_IAP_CACHE_ON_START =
+  String(process.env.EXPO_PUBLIC_IAP_CLEAR_OLD_CACHE || '0') === '1';
 
 /* ===================== Ключи хранения ===================== */
 const LAST_TOKEN_KEY = 'iap:lastPurchaseToken';
@@ -104,9 +103,6 @@ const IAP_LAST_GOOD_PRO_AT = 'iap:lastGoodProAt';
 const DEVICE_USER_ID_KEY = 'iap:deviceUserId';
 const TRIAL_EVER_USED_KEY = 'iap:trialEverUsed';
 
-/** Временный доступ после новой покупки, пока verify догоняет */
-const TEMP_ACCESS_UNTIL_KEY = 'iap:tempAccessUntil';
-
 /* ===== DEV флаги ===== */
 const devSessionAllowed =
   __DEV__ ||
@@ -118,9 +114,6 @@ const devSessionAllowed =
 
 const OPT_DEV_PRO =
   __DEV__ || String(process.env.EXPO_PUBLIC_PRO_BYPASS || '0') === '1';
-
-const DEV_STICKY_PRO =
-  String(process.env.EXPO_PUBLIC_DEV_STICKY_PRO || '0') === '1';
 
 /**
  * Теги офферов (Google Play Subscription Offers).
@@ -386,21 +379,17 @@ function extractTokenOrReceipt(purchase) {
   );
 }
 
-function isRecentPurchase(purchase, maxAgeMs = 10 * 60 * 1000) {
-  const raw =
-    purchase?.transactionDate ||
-    purchase?.transactionTimestamp ||
-    purchase?.purchaseTime;
+async function getIosReceiptSafe(purchase) {
+  if (purchase?.transactionReceipt) return purchase.transactionReceipt;
 
-  if (!raw) return false;
-
-  let ts = Number(raw);
-  if (!Number.isFinite(ts)) {
-    ts = Date.parse(String(raw));
+  try {
+    const receipt = await RNIap.getReceiptIOS({ forceRefresh: true });
+    if (receipt) return receipt;
+  } catch (e) {
+    console.log('[IAP][iOS] getReceiptIOS failed=', e?.message || String(e));
   }
-  if (!Number.isFinite(ts)) return false;
 
-  return Math.abs(Date.now() - ts) <= maxAgeMs;
+  return '';
 }
 
 function isBoolean(v) {
@@ -481,19 +470,6 @@ export function IapProvider({ children, initialSegment = 'basic' }) {
     } catch {}
   }, []);
 
-  const clearTempPurchaseAccess = useCallback(async () => {
-    try {
-      await AsyncStorage.removeItem(TEMP_ACCESS_UNTIL_KEY);
-    } catch {}
-  }, []);
-
-  const setTempPurchaseAccess = useCallback(async () => {
-    try {
-      const until = new Date(Date.now() + TEMP_PURCHASE_ACCESS_MS).toISOString();
-      await AsyncStorage.setItem(TEMP_ACCESS_UNTIL_KEY, until);
-    } catch {}
-  }, []);
-
   const applyCodeEntitlementLocal = useCallback(
     async (untilIso) => {
       const until = untilIso ? String(untilIso) : null;
@@ -527,6 +503,30 @@ export function IapProvider({ children, initialSegment = 'basic' }) {
       codeLoadedRef.current = true;
     }
   }, [isIsoActiveNow, syncAccessStateRespectingCode]);
+
+  const clearOldIapCacheIfRequested = useCallback(async () => {
+    if (!CLEAR_OLD_IAP_CACHE_ON_START) return;
+    try {
+      await AsyncStorage.multiRemove([
+        LAST_TOKEN_KEY,
+        LAST_PRODUCT_ID_KEY,
+        IAP_LAST_VERIFY_JSON,
+        IAP_LAST_VERIFY_AT,
+        IAP_LAST_EXPIRES_AT,
+        IAP_LAST_PRO,
+        IAP_LAST_GOOD_PRO_AT,
+        TRIAL_EVER_USED_KEY,
+        CODE_ACCESS_UNTIL_KEY,
+        CODE_LAST_SYNC_AT_KEY,
+        POST_STATE_KEY,
+        LAST_PURCHASE_AT_KEY,
+        DEVICE_USER_ID_KEY,
+      ]);
+      console.log('[IAP] cleared old IAP cache by env flag');
+    } catch (e) {
+      console.log('[IAP] clear old cache failed=', e?.message || String(e));
+    }
+  }, []);
 
   const fetchCodeEntitlement = useCallback(async (uid) => {
     if (!ENTITLEMENTS_URL) return null;
@@ -647,22 +647,25 @@ export function IapProvider({ children, initialSegment = 'basic' }) {
     if (!url || !purchaseTokenOrReceipt) return null;
 
     const uid = await getUserId();
-    const payload =
-      Platform.OS === 'ios'
-        ? {
-            userId: uid,
-            platform: Platform.OS,
-            productId: productId || SKU,
-            receipt: purchaseTokenOrReceipt,
-          }
-        : {
-            userId: uid,
-            deviceId: uid,
-            platform: Platform.OS,
-            productId: productId || SKU,
-            packageName: PKG,
-            purchaseToken: purchaseTokenOrReceipt,
-          };
+
+    let payload;
+    if (Platform.OS === 'ios') {
+      payload = {
+        userId: uid,
+        platform: Platform.OS,
+        productId: productId || SKU,
+        receipt: purchaseTokenOrReceipt,
+      };
+    } else {
+      payload = {
+        userId: uid,
+        deviceId: uid,
+        platform: Platform.OS,
+        productId: productId || SKU,
+        packageName: PKG,
+        purchaseToken: purchaseTokenOrReceipt,
+      };
+    }
 
     const ctrl = new AbortController();
     const to = setTimeout(() => ctrl.abort(), IAP_VERIFY_TIMEOUT_MS);
@@ -826,7 +829,6 @@ export function IapProvider({ children, initialSegment = 'basic' }) {
     const effectiveExpiresAt = expiresAt || json?.expiresAt || '';
 
     if (json?.pro === true && effectiveExpiresAt && notExpiredBy(effectiveExpiresAt)) {
-      console.log('[IAP] offline entitlement granted by cached non-expired expiresAt');
       syncAccessStateRespectingCode(true);
       return true;
     }
@@ -836,27 +838,21 @@ export function IapProvider({ children, initialSegment = 'basic' }) {
 
   const resolveVerifyResult = useCallback(async (v) => {
     if (v?.pro === true) {
-      return { decided: true, pro: true, reason: 'verified_true' };
+      return { decided: true, pro: true };
     }
 
     if (v?.pro === false) {
-      return { decided: true, pro: false, reason: 'verified_false' };
+      return { decided: true, pro: false };
     }
 
-    if (v?.offline) {
-      return { decided: false, pro: null, reason: 'offline_unknown' };
-    }
-
-    return { decided: false, pro: null, reason: 'unknown' };
+    return { decided: false, pro: null };
   }, []);
 
   const restoreActiveSubscription = useCallback(async () => {
     try {
-      setAccessState('checking');
       await ensureCodeLoaded();
 
       if (isIsoActiveNow(codeAccessUntilRef.current)) {
-        console.log('[IAP] restore -> code entitlement active');
         syncAccessStateRespectingCode(true);
         setTrialEverUsed(true);
         AsyncStorage.setItem(TRIAL_EVER_USED_KEY, 'true').catch(() => {});
@@ -867,125 +863,82 @@ export function IapProvider({ children, initialSegment = 'basic' }) {
       if (uidForCode) {
         const synced = await syncCodeEntitlementFromServer(uidForCode);
         if (synced?.pro && isIsoActiveNow(codeAccessUntilRef.current)) {
-          console.log('[IAP] restore -> code entitlement synced');
           syncAccessStateRespectingCode(true);
           return true;
         }
       }
 
+      if (Platform.OS === 'ios') {
+        const receipt = await getIosReceiptSafe(null);
+
+        if (receipt) {
+          try {
+            await AsyncStorage.multiSet([
+              [LAST_TOKEN_KEY, receipt],
+              [LAST_PRODUCT_ID_KEY, 'ios_receipt'],
+            ]);
+          } catch {}
+
+          let v = await verifyOnServer(receipt, SKU_ANNUAL);
+          let decision = await resolveVerifyResult(v);
+
+          if (!(decision.decided && decision.pro === true)) {
+            v = await verifyOnServer(receipt, SKU_MONTHLY);
+            decision = await resolveVerifyResult(v);
+          }
+
+          if (decision.decided && decision.pro === true) {
+            syncAccessStateRespectingCode(true);
+            setTrialEverUsed(true);
+            AsyncStorage.setItem(TRIAL_EVER_USED_KEY, 'true').catch(() => {});
+            return true;
+          }
+        }
+
+        const offlineOk = await tryOfflineEntitlement();
+        if (offlineOk) return true;
+
+        syncAccessStateRespectingCode(false);
+        return false;
+      }
+
       const purchases = await RNIap.getAvailablePurchases();
 
-      console.log(
-        '[IAP] restore purchases =',
-        purchases?.map((p) => ({
-          productId: p?.productId,
-          transactionId: p?.transactionId,
-          hasReceipt: !!p?.transactionReceipt,
-          hasToken: !!p?.purchaseToken,
-        }))
-      );
+      const relevantPurchases = (purchases || []).filter((p) => p.productId === SKU);
 
-      const match = purchases?.find((p) => {
-        if (Platform.OS === 'ios') {
-          return p.productId === SKU_MONTHLY || p.productId === SKU_ANNUAL;
-        }
-        return p.productId === SKU;
-      });
-
-      if (match) {
-        console.log('[IAP] restore match productId=', match?.productId);
-
+      for (const match of relevantPurchases) {
         try {
           await RNIap.finishTransaction(match, false);
         } catch {}
 
         const tokenOrReceipt = extractTokenOrReceipt(match);
-        if (tokenOrReceipt) {
-          await AsyncStorage.multiSet([
-            [LAST_TOKEN_KEY, tokenOrReceipt],
-            [LAST_PRODUCT_ID_KEY, String(match.productId || '')],
-          ]);
+        if (!tokenOrReceipt) continue;
 
-          const v = await verifyOnServer(tokenOrReceipt, match.productId);
-          console.log('[IAP] restore verify result=', v);
+        await AsyncStorage.multiSet([
+          [LAST_TOKEN_KEY, tokenOrReceipt],
+          [LAST_PRODUCT_ID_KEY, String(match.productId || '')],
+        ]);
 
-          const decision = await resolveVerifyResult(v);
-
-          if (decision.decided) {
-            if (decision.pro === true) {
-              console.log('[IAP] restore -> verified pro true');
-              syncAccessStateRespectingCode(true);
-              setTrialEverUsed(true);
-              await clearTempPurchaseAccess();
-              AsyncStorage.setItem(TRIAL_EVER_USED_KEY, 'true').catch(() => {});
-              return true;
-            }
-
-            if (decision.pro === false) {
-              console.log('[IAP] restore -> verified pro false');
-              await clearTempPurchaseAccess();
-              syncAccessStateRespectingCode(false);
-              return false;
-            }
-          }
-        }
-      }
-
-      const savedPairs = await AsyncStorage.multiGet([
-        LAST_TOKEN_KEY,
-        LAST_PRODUCT_ID_KEY,
-      ]);
-
-      const saved = savedPairs.find(([k]) => k === LAST_TOKEN_KEY)?.[1];
-      const savedProductIdRaw = savedPairs.find(
-        ([k]) => k === LAST_PRODUCT_ID_KEY
-      )?.[1];
-
-      if (saved) {
-        const savedProductId =
-          Platform.OS === 'ios' ? savedProductIdRaw || SKU_MONTHLY : SKU;
-
-        console.log('[IAP] restore fallback savedProductId=', savedProductId);
-
-        const v = await verifyOnServer(saved, savedProductId);
-        console.log('[IAP] restore fallback verify result=', v);
-
+        const v = await verifyOnServer(tokenOrReceipt, match.productId);
         const decision = await resolveVerifyResult(v);
 
-        if (decision.decided) {
-          if (decision.pro === true) {
-            console.log('[IAP] restore fallback -> verified pro true');
-            syncAccessStateRespectingCode(true);
-            setTrialEverUsed(true);
-            await clearTempPurchaseAccess();
-            AsyncStorage.setItem(TRIAL_EVER_USED_KEY, 'true').catch(() => {});
-            return true;
-          }
-
-          if (decision.pro === false) {
-            console.log('[IAP] restore fallback -> verified pro false');
-            await clearTempPurchaseAccess();
-            syncAccessStateRespectingCode(false);
-            return false;
-          }
+        if (decision.decided && decision.pro === true) {
+          syncAccessStateRespectingCode(true);
+          setTrialEverUsed(true);
+          AsyncStorage.setItem(TRIAL_EVER_USED_KEY, 'true').catch(() => {});
+          return true;
         }
       }
-
-      const offlineOk = await tryOfflineEntitlement();
-      if (offlineOk) {
-        return true;
-      }
-
-      await clearTempPurchaseAccess();
-      syncAccessStateRespectingCode(false);
-      return false;
-    } catch (e) {
-      console.log('[IAP] restoreActiveSubscription error=', e?.message || String(e));
 
       const offlineOk = await tryOfflineEntitlement();
       if (offlineOk) return true;
 
-      await clearTempPurchaseAccess();
+      syncAccessStateRespectingCode(false);
+      return false;
+    } catch (e) {
+      console.log('[IAP] restoreActiveSubscription error=', e?.message || String(e));
+      const offlineOk = await tryOfflineEntitlement();
+      if (offlineOk) return true;
       syncAccessStateRespectingCode(false);
       return false;
     }
@@ -998,12 +951,12 @@ export function IapProvider({ children, initialSegment = 'basic' }) {
     tryOfflineEntitlement,
     syncAccessStateRespectingCode,
     resolveVerifyResult,
-    clearTempPurchaseAccess,
   ]);
 
   useEffect(() => {
     let subUpdated;
     let subError;
+    let cancelled = false;
 
     (async () => {
       const isIosSim = Platform.OS === 'ios' && !Device.isDevice;
@@ -1014,8 +967,8 @@ export function IapProvider({ children, initialSegment = 'basic' }) {
           promoMonthly: '₪19.90',
           promoAnnual: '₪159.90',
         };
+        if (cancelled) return;
         setDisplayPrices(mock);
-        setDebug((d) => ({ ...d, iosSim: true, displayPrices: mock }));
         setAvailable(true);
         setAccessState('free');
         setReady(true);
@@ -1023,6 +976,9 @@ export function IapProvider({ children, initialSegment = 'basic' }) {
       }
 
       try {
+        setAccessState('checking');
+
+        await clearOldIapCacheIfRequested();
         await RNIap.initConnection();
 
         if (Platform.OS === 'android') {
@@ -1033,23 +989,9 @@ export function IapProvider({ children, initialSegment = 'basic' }) {
 
         const subs = await getSubsSafe();
 
-        console.log(
-          '[IAP] loaded subs =',
-          subs?.map((p) => ({
-            productId: p?.productId,
-            title: p?.title,
-            localizedPrice: p?.localizedPrice,
-            price: p?.price,
-            currency: p?.currency || p?.currencyCode,
-          }))
-        );
-
         const prodMonthly = subs?.find((p) => p.productId === SKU_MONTHLY) || null;
         const prodAnnual = subs?.find((p) => p.productId === SKU_ANNUAL) || null;
         const prodAndroid = Platform.OS === 'android' ? subs?.[0] || null : null;
-
-        console.log('[IAP] prodMonthly =', prodMonthly);
-        console.log('[IAP] prodAnnual =', prodAnnual);
 
         productRef.current = Platform.OS === 'android' ? prodAndroid : prodMonthly;
         productRefAnnual.current = Platform.OS === 'ios' ? prodAnnual : null;
@@ -1057,21 +999,20 @@ export function IapProvider({ children, initialSegment = 'basic' }) {
         const okAvailable =
           Platform.OS === 'ios' ? !!prodMonthly || !!prodAnnual : !!prodAndroid;
 
+        if (cancelled) return;
+
         setAvailable(okAvailable);
-
-        setDebug((d) => ({
-          ...d,
-          subsCount: subs?.length || 0,
-          loadedMonthly: !!prodMonthly,
-          loadedAnnual: !!prodAnnual,
-          loadedAndroid: !!prodAndroid,
-        }));
-
         if (okAvailable) recalcPrices('product-loaded');
 
+        let restored = false;
         if (RESTORE_ON_LAUNCH) {
-          await restoreActiveSubscription();
-        } else {
+          restored = await restoreActiveSubscription();
+        }
+
+        if (cancelled) return;
+
+        setReady(true);
+        if (!restored && !hasPro) {
           setAccessState('free');
         }
 
@@ -1084,17 +1025,21 @@ export function IapProvider({ children, initialSegment = 'basic' }) {
         }
 
         subUpdated = RNIap.purchaseUpdatedListener(async (purchase) => {
+
+  console.log('🔥 [IAP][PURCHASE UPDATED]', {
+    productId: purchase?.productId,
+    transactionId: purchase?.transactionId,
+    hasReceipt: !!purchase?.transactionReceipt,
+    receiptLength: purchase?.transactionReceipt?.length || 0,
+  });
+
+  console.log('🔥 [IAP][FULL PURCHASE]', purchase);
+
+
           try {
             if (!purchase) return;
 
             const { productId, transactionId } = purchase;
-
-            console.log('[IAP] purchaseUpdatedListener purchase=', {
-              productId,
-              transactionId,
-              hasReceipt: !!purchase?.transactionReceipt,
-              hasToken: !!purchase?.purchaseToken,
-            });
 
             if (Platform.OS === 'ios') {
               if (productId !== SKU_MONTHLY && productId !== SKU_ANNUAL) return;
@@ -1103,6 +1048,88 @@ export function IapProvider({ children, initialSegment = 'basic' }) {
             }
 
             if (!isPurchaseCompleted(purchase)) return;
+
+            if (Platform.OS === 'ios') {
+              const receipt = await getIosReceiptSafe(purchase);
+              const dedupeKey = receipt || transactionId;
+              if (!dedupeKey) return;
+              if (processed.current.has(dedupeKey)) return;
+              processed.current.add(dedupeKey);
+
+              if (receipt) {
+                try {
+                  await AsyncStorage.multiSet([
+                    [LAST_TOKEN_KEY, receipt],
+                    [LAST_PRODUCT_ID_KEY, String(productId || '')],
+                  ]);
+                } catch {}
+              }
+
+              const applySuccessState = async () => {
+                syncAccessStateRespectingCode(true);
+                setTrialEverUsed(true);
+                setJustPurchased(true);
+                setShouldShowPost(true);
+
+                try {
+                  await AsyncStorage.multiSet([
+                    [IAP_LAST_PRO, 'true'],
+                    [IAP_LAST_GOOD_PRO_AT, String(Date.now())],
+                    [TRIAL_EVER_USED_KEY, 'true'],
+                    [POST_STATE_KEY, 'pending'],
+                    [LAST_PURCHASE_AT_KEY, String(Date.now())],
+                  ]);
+                } catch {}
+              };
+
+              const applyFailState = async () => {
+                syncAccessStateRespectingCode(false);
+                setJustPurchased(false);
+                setShouldShowPost(false);
+
+                try {
+                  await AsyncStorage.setItem(IAP_LAST_PRO, 'false');
+                } catch {}
+              };
+
+              if (OPT_DEV_PRO) {
+                try {
+                  await RNIap.finishTransaction(purchase, false);
+                } catch {}
+                await applySuccessState();
+                return;
+              }
+
+              let verified = null;
+              if (receipt) {
+                verified = await verifyOnServer(receipt, productId);
+              }
+
+              const decision = await resolveVerifyResult(verified);
+
+              if (decision.decided) {
+                if (decision.pro === true) {
+                  try {
+                    await RNIap.finishTransaction(purchase, false);
+                  } catch {}
+                  await applySuccessState();
+                  return;
+                }
+                if (decision.pro === false) {
+                  await applyFailState();
+                  return;
+                }
+              }
+
+              if (verified?.offline) {
+                const ok = await tryOfflineEntitlement();
+                syncAccessStateRespectingCode(ok);
+                return;
+              }
+
+              console.log('[IAP][iOS] verify undecided → keep current state');
+              return;
+            }
 
             const tokenOrReceipt = extractTokenOrReceipt(purchase);
             const dedupeKey = tokenOrReceipt || transactionId;
@@ -1124,7 +1151,6 @@ export function IapProvider({ children, initialSegment = 'basic' }) {
             }
 
             const applySuccessState = async () => {
-              console.log('[IAP] purchase -> verified success, granting PRO');
               syncAccessStateRespectingCode(true);
               setTrialEverUsed(true);
               setJustPurchased(true);
@@ -1139,12 +1165,9 @@ export function IapProvider({ children, initialSegment = 'basic' }) {
                   [LAST_PURCHASE_AT_KEY, String(Date.now())],
                 ]);
               } catch {}
-
-              await clearTempPurchaseAccess();
             };
 
             const applyFailState = async () => {
-              console.log('[IAP] purchase -> verified false, removing PRO');
               syncAccessStateRespectingCode(false);
               setJustPurchased(false);
               setShouldShowPost(false);
@@ -1152,8 +1175,6 @@ export function IapProvider({ children, initialSegment = 'basic' }) {
               try {
                 await AsyncStorage.setItem(IAP_LAST_PRO, 'false');
               } catch {}
-
-              await clearTempPurchaseAccess();
             };
 
             if (OPT_DEV_PRO) {
@@ -1166,8 +1187,6 @@ export function IapProvider({ children, initialSegment = 'basic' }) {
               verified = await verifyOnServer(tokenOrReceipt, productId);
             }
 
-            console.log('[IAP] purchase verify result=', verified);
-
             const decision = await resolveVerifyResult(verified);
 
             if (decision.decided) {
@@ -1175,49 +1194,39 @@ export function IapProvider({ children, initialSegment = 'basic' }) {
                 await applySuccessState();
                 return;
               }
-
               if (decision.pro === false) {
                 await applyFailState();
                 return;
               }
             }
 
-            const canGrantTemp =
-              purchasingRef.current === true && isRecentPurchase(purchase);
-
-            if (canGrantTemp) {
-              console.log('[IAP] purchase verify unclear -> granting short temporary access for fresh purchase only');
-              await setTempPurchaseAccess();
-              syncAccessStateRespectingCode(true);
-              setJustPurchased(true);
-              setShouldShowPost(true);
-
-              try {
-                await AsyncStorage.multiSet([
-                  [POST_STATE_KEY, 'pending'],
-                  [LAST_PURCHASE_AT_KEY, String(Date.now())],
-                ]);
-              } catch {}
-
+            if (verified?.offline) {
+              const ok = await tryOfflineEntitlement();
+              syncAccessStateRespectingCode(ok);
               return;
             }
 
-            console.log('[IAP] purchase verify unclear for non-fresh transaction -> denying temp access');
-            await applyFailState();
+            console.log('[IAP] verify undecided → keep current state');
+            return;
           } finally {
             purchasingRef.current = false;
           }
         });
 
-        subError = RNIap.purchaseErrorListener((err) => {
-          console.log('[IAP] purchaseErrorListener err=', err);
-          purchasingRef.current = false;
-        });
+      subError = RNIap.purchaseErrorListener((err) => {
+  console.log('[IAP][ERROR]', {
+    code: err?.code || null,
+    message: err?.message || null,
+    debugMessage: err?.debugMessage || null,
+    productId: err?.productId || null,
+  });
 
-        setReady(true);
+  purchasingRef.current = false;
+});
+
       } catch (e) {
         console.log('[IAP] init error=', e);
-        setDebug((d) => ({ ...d, initError: e?.message || String(e) }));
+        if (cancelled) return;
         setAvailable(false);
         setAccessState('free');
         setReady(true);
@@ -1225,6 +1234,7 @@ export function IapProvider({ children, initialSegment = 'basic' }) {
     })();
 
     return () => {
+      cancelled = true;
       try {
         subUpdated?.remove();
       } catch {}
@@ -1236,13 +1246,14 @@ export function IapProvider({ children, initialSegment = 'basic' }) {
       } catch {}
     };
   }, [
+    clearOldIapCacheIfRequested,
     recalcPrices,
-    restoreActiveSubscription,
-    verifyOnServer,
     resolveVerifyResult,
+    restoreActiveSubscription,
     syncAccessStateRespectingCode,
-    setTempPurchaseAccess,
-    clearTempPurchaseAccess,
+    tryOfflineEntitlement,
+    verifyOnServer,
+    hasPro,
   ]);
 
   useEffect(() => {
@@ -1279,75 +1290,68 @@ export function IapProvider({ children, initialSegment = 'basic' }) {
     [segment, promoActive, trialEverUsed]
   );
 
-  const requestBuy = useCallback(
-    async (kind) => {
-      try {
-        const monthlyProd = productRef.current;
-        const annualProd = productRefAnnual.current;
+const requestBuy = useCallback(
+  async (kind) => {
+    try {
+      const selectedSku =
+        Platform.OS === 'ios'
+          ? kind === 'annual'
+            ? SKU_ANNUAL
+            : SKU_MONTHLY
+          : SKU;
 
-        console.log('[IAP] requestBuy kind=', kind);
-        console.log('[IAP] requestBuy monthly loaded=', monthlyProd?.productId);
-        console.log('[IAP] requestBuy annual loaded=', annualProd?.productId);
+      const baseParams = {
+        sku: selectedSku,
+        andDangerouslyFinishTransactionAutomatically: false,
+      };
 
-        const selectedSku =
-          Platform.OS === 'ios'
-            ? kind === 'annual'
-              ? SKU_ANNUAL
-              : SKU_MONTHLY
-            : SKU;
+      if (Platform.OS === 'ios') {
+        const targetProd =
+          kind === 'annual' ? productRefAnnual.current : productRef.current;
 
-        console.log('[IAP] requestBuy selectedSku=', selectedSku);
-
-        // iOS: покупаем напрямую по SKU, не блокируемся из-за того,
-        // что product мог не загрузиться в getSubscriptions().
-        if (Platform.OS === 'ios') {
-          purchasingRef.current = true;
-
-          await RNIap.requestSubscription({
-            sku: selectedSku,
-            andDangerouslyFinishTransactionAutomatically: false,
-          });
-
-          return;
-        }
-
-        // Android: здесь product/offers нужны
-        const prod = monthlyProd;
-        if (!prod) {
-          Alert.alert(
-            'Store unavailable',
-            kind === 'annual'
-              ? 'Annual subscription details are not loaded yet.'
-              : 'Monthly subscription details are not loaded yet.'
-          );
-          return;
-        }
-
-        const offerToken = findOfferToken(kind);
-        console.log('[IAP] requestBuy android offerToken=', offerToken);
-
-        if (!offerToken) {
-          Alert.alert('Plan not available', 'Selected plan is currently unavailable.');
+        if (!targetProd) {
+          console.log('[IAP] product not loaded', kind);
           return;
         }
 
         purchasingRef.current = true;
-        await RNIap.requestSubscription({
-          sku: selectedSku,
-          andDangerouslyFinishTransactionAutomatically: false,
-          subscriptionOffers: [{ sku: selectedSku, offerToken }],
-        });
-      } catch (e) {
-        console.log('[IAP] requestBuy error=', e);
-        Alert.alert(
-          'Purchase Error',
-          e?.message || 'Failed to start purchase process'
-        );
-        purchasingRef.current = false;
+
+        await RNIap.requestSubscription(baseParams);
+        return;
       }
-    },
-    [findOfferToken]
-  );
+
+      const prod = productRef.current;
+
+      if (!prod) {
+        console.log('[IAP] product not loaded Android');
+        return;
+      }
+
+      const offerToken = findOfferToken(kind);
+      if (!offerToken) {
+        console.log('[IAP] no offerToken for', kind);
+        return;
+      }
+
+      purchasingRef.current = true;
+
+      await RNIap.requestSubscription({
+        ...baseParams,
+        subscriptionOffers: [{ sku: selectedSku, offerToken }],
+      });
+    } catch (e) {
+
+  console.log('[IAP][BUY ERROR]', {
+    code: e?.code || null,
+    message: e?.message || null,
+    debugMessage: e?.debugMessage || null,
+  });
+
+  purchasingRef.current = false;
+}
+  },
+  [findOfferToken]
+);
 
   const buyMonthly = useCallback(async () => requestBuy('monthly'), [requestBuy]);
   const buyAnnual = useCallback(async () => requestBuy('annual'), [requestBuy]);

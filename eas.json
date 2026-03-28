@@ -32,7 +32,8 @@
       "env": {
         "EXPO_PUBLIC_STORE": "ios",
         "EXPO_PUBLIC_DISABLE_IAP": "0",
-        "EXPO_PUBLIC_IAP_VERIFY_URL": "https://iap-server.onrender.com/iap/apple/subscription/verify"
+         "EXPO_PUBLIC_IAP_VERIFY_BASE_URL": "https://iap-server.onrender.com",
+        "EXPO_PUBLIC_IAP_CLEAR_OLD_CACHE": "1"
       },
       "channel": "preview-ios"
     },
