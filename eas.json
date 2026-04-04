@@ -50,27 +50,26 @@
     },
 
     "development-gp": {
-      "developmentClient": true,
-      "distribution": "internal",
-      "android": { "buildType": "apk" },
-      "env": {
-        "EXPO_PUBLIC_STORE": "gp",
-        "EXPO_PUBLIC_DISABLE_IAP": "0",
-        "EXPO_PUBLIC_IAP_VERIFY_URL": "https://iap-server.onrender.com/iap/google/subscription/verify"
-      },
-      "channel": "development"
-    },
-
-    "production-gp": {
-      "android": { "buildType": "app-bundle" },
-      "env": {
-        "EXPO_PUBLIC_STORE": "gp",
-        "EAS_BUILD": "true",
-        "EXPO_PUBLIC_DISABLE_IAP": "0",
-        "EXPO_PUBLIC_IAP_VERIFY_URL": "https://iap-server.onrender.com/iap/google/subscription/verify"
-      },
-      "channel": "gp"
-    },
+  "developmentClient": true,
+  "distribution": "internal",
+  "android": { "buildType": "apk" },
+  "env": {
+    "EXPO_PUBLIC_STORE": "gp",
+    "EXPO_PUBLIC_DISABLE_IAP": "0",
+    "EXPO_PUBLIC_IAP_VERIFY_BASE_URL": "https://iap-server.onrender.com"
+  },
+  "channel": "development"
+},
+"production-gp": {
+  "android": { "buildType": "app-bundle" },
+  "env": {
+    "EXPO_PUBLIC_STORE": "gp",
+    "EAS_BUILD": "true",
+    "EXPO_PUBLIC_DISABLE_IAP": "0",
+    "EXPO_PUBLIC_IAP_VERIFY_BASE_URL": "https://iap-server.onrender.com"
+  },
+  "channel": "gp"
+},
 
     "internal-rustore-apk": {
       "android": { "buildType": "apk" },
