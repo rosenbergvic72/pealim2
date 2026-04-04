@@ -23,6 +23,7 @@ import { ensureMarkedToday } from './serverPush';
 import { useIap } from './src/iap/IapProvider'; // ⬅️ PRO
 import StatsReportModalMulti from './StatsReportModalMulti';
 import Constants from 'expo-constants';
+import UpgradeBanner from './UpgradeBanner';
 
 const FONT_REG = 'mt-regular';
 const FONT_MED = 'mt-medium';
@@ -89,7 +90,7 @@ export default function MenuPage({ route }) {
 
   useEffect(() => {
     const onBackPress = () => {
-      navigation.reset({ index: 0, routes: [{ name: 'Welcome' }] });
+      navigation.reset({ index: 0, routes: [{ name: 'LanguageSelectionPage' }] });
       return true;
     };
     const backHandler = BackHandler.addEventListener('hardwareBackPress', onBackPress);
@@ -634,6 +635,16 @@ export default function MenuPage({ route }) {
               </View>
             </TouchableOpacity>
           </Animated.View>
+
+          <UpgradeBanner
+  hasPro={hasPro}
+  navigation={navigation}
+  language="ru"
+  animatedStyle={{
+    opacity: button3Opacity,
+    transform: [{ translateY: button3TranslateY }],
+  }}
+/>
 
           {/* 3 (lock если freePreview) */}
           <Animated.View

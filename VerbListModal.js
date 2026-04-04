@@ -48,6 +48,17 @@ const closeTexts = {
   he: 'סגור',
 };
 
+const countLabelTexts = {
+  ru: 'Количество глаголов',
+  en: 'Number of verbs',
+  fr: 'Nombre de verbes',
+  es: 'Número de verbos',
+  pt: 'Número de verbos',
+  ar: 'عدد الأفعال',
+  am: 'የግሶች ብዛት',
+  he: 'מספר פעלים',
+};
+
 const isRTL = (lang) => ['ar', 'am', 'he'].includes(lang);
 
 const languageMap = {
@@ -96,12 +107,16 @@ async function playForItem(item) {
 
     sound.setOnPlaybackStatusUpdate(async (st) => {
       if (st.didJustFinish) {
-        try { await sound.unloadAsync(); } catch {}
+        try {
+          await sound.unloadAsync();
+        } catch {}
         delete cachedListSounds[cacheKey];
       }
     });
   } catch {}
 }
+
+const COUNT_OPTIONS = [8, 12, 18, 24];
 
 const VerbListModal = ({
   visible,
@@ -110,6 +125,8 @@ const VerbListModal = ({
   verbs = [],
   language,
   pinnedIds = [],
+  selectedCount = 12,
+  onSelectCount,
 }) => {
   if (!visible) return null;
 
@@ -120,6 +137,7 @@ const VerbListModal = ({
   const title = titles[langKey] || titles[fallbackLang];
   const buttonText = buttonTexts[langKey] || buttonTexts[fallbackLang];
   const closeText = closeTexts[langKey] || closeTexts[fallbackLang];
+  const countLabel = countLabelTexts[langKey] || countLabelTexts[fallbackLang];
 
   useEffect(() => {
     Vibration.vibrate(100);
@@ -139,6 +157,32 @@ const VerbListModal = ({
             {title}
           </Text>
 
+          <View style={styles.countBlock}>
+            <Text
+              style={[styles.countLabel, isRTL(langKey) && { textAlign: 'right' }]}
+              maxFontSizeMultiplier={1.2}
+            >
+              {countLabel}
+            </Text>
+
+            <View style={styles.countButtonsRow}>
+              {COUNT_OPTIONS.map((count) => {
+                const active = selectedCount === count;
+                return (
+                  <TouchableOpacity
+                    key={count}
+                    style={[styles.countButton, active && styles.countButtonActive]}
+                    onPress={() => onSelectCount?.(count)}
+                  >
+                    <Text style={[styles.countButtonText, active && styles.countButtonTextActive]}>
+                      {count}
+                    </Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+          </View>
+
           <FlatList
             data={verbs}
             keyExtractor={(item, idx) =>
@@ -149,7 +193,6 @@ const VerbListModal = ({
 
               return (
                 <View style={styles.bubble}>
-                  {/* ЛЕВАЯ ЧАСТЬ — перевод + иконка */}
                   <View style={styles.verbLeft}>
                     <Text style={styles.entext} maxFontSizeMultiplier={1.2}>
                       {item?.entext}
@@ -163,7 +206,6 @@ const VerbListModal = ({
                     )}
                   </View>
 
-                  {/* ПРАВАЯ ЧАСТЬ — иврит + звук */}
                   <View style={styles.verbRight}>
                     <TouchableOpacity onPress={() => playForItem(item)} style={styles.speakerButton}>
                       <Image source={require('./speaker6.png')} style={styles.speakerIcon} />
@@ -222,6 +264,49 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     color: '#003366',
     padding: 12,
+  },
+
+  countBlock: {
+    marginBottom: 14,
+  },
+
+  countLabel: {
+    fontSize: 15,
+    fontWeight: 'bold',
+    color: '#2F4766',
+    textAlign: 'center',
+    marginBottom: 8,
+  },
+
+  countButtonsRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    gap: 8,
+  },
+
+  countButton: {
+    flex: 1,
+    backgroundColor: '#E7EDF5',
+    borderRadius: 10,
+    paddingVertical: 10,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#C7D3E0',
+  },
+
+  countButtonActive: {
+    backgroundColor: '#4A6491',
+    borderColor: '#4A6491',
+  },
+
+  countButtonText: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#35506F',
+  },
+
+  countButtonTextActive: {
+    color: '#fff',
   },
 
   bubble: {
@@ -300,7 +385,7 @@ const styles = StyleSheet.create({
   },
 
   closeLink: {
-    marginTop: 6,
+    marginTop: 10,
     alignSelf: 'center',
   },
   closeText: {

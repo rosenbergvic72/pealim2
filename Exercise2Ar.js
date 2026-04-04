@@ -1,5 +1,4 @@
-// Exercise2Am.js
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import {
   ScrollView,
   View,
@@ -31,40 +30,115 @@ import animation from './assets/Animation - 1723020554284.json';
 import VerbListModal from './VerbListModal';
 import ExcludedVerbsModal2 from './ExcludedVerbsModal2';
 
-/* ===================== pinned / excluded (shared Exercise2 logic) ===================== */
+const EXERCISE2_COUNT_KEY = 'exercise2_selected_count';
+const DEFAULT_EXERCISE_COUNT = 12;
+const ALLOWED_EXERCISE_COUNTS = [8, 12, 18, 24];
+
 const EXCLUDED_KEY = 'exercise2_excluded_verbs';
 const PINNED_KEY = 'exercise2_pinned_verbs';
 
 const getHebrewIdEx2 = (verb) => {
   const correctOption = (verb?.verbHebrewOptions || []).find((opt) => opt?.isCorrect);
-  const id =
-    correctOption?.text ||
-    verb?.hebrewVerb ||
-    verb?.infinitive ||
-    '';
+  const id = correctOption?.text || verb?.hebrewVerb || verb?.infinitive || '';
   return String(id).trim();
 };
 
 const getTranslitEx2 = (verb) => {
   const correctOption = (verb?.verbHebrewOptions || []).find((opt) => opt?.isCorrect);
-  const tr =
-    correctOption?.transliteration ||
-    verb?.transliteration ||
-    '';
+  const tr = correctOption?.transliteration || verb?.transliteration || '';
   return String(tr).trim();
 };
 
-// Find a matching conjugation row in verbs11RU.json for the current infinitive (Exercise2* data).
-// We use a few robust fallbacks because different datasets may name fields differently.
+const shuffleArray = (array) => {
+  const shuffledArray = array.slice();
+  for (let i = shuffledArray.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffledArray[i], shuffledArray[j]] = [shuffledArray[j], shuffledArray[i]];
+  }
+  return shuffledArray.slice(0, 18);
+};
+
+const shuffleAll = (array) => {
+  const shuffledArray = array.slice();
+  for (let i = shuffledArray.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffledArray[i], shuffledArray[j]] = [shuffledArray[j], shuffledArray[i]];
+  }
+  return shuffledArray;
+};
+
+const normalize = (v) => String(v || '').trim().toLowerCase();
+const normAudio = (v) => normalize(String(v || '').replace(/\.mp3$/i, ''));
+
+const buildDeck = (
+  allVerbs,
+  excludedIds = [],
+  pinnedIds = [],
+  deckSize = DEFAULT_EXERCISE_COUNT
+) => {
+  const safeDeckSize = ALLOWED_EXERCISE_COUNTS.includes(deckSize)
+    ? deckSize
+    : DEFAULT_EXERCISE_COUNT;
+
+  const excludedSet = new Set(
+    (excludedIds || []).map((x) => String(x || '').trim()).filter(Boolean)
+  );
+  const pinnedSet = new Set(
+    (pinnedIds || []).map((x) => String(x || '').trim()).filter(Boolean)
+  );
+
+  const idOf = (v) => getHebrewIdEx2(v);
+
+  const pool = (allVerbs || []).filter((v) => {
+    const id = idOf(v);
+    return id && !excludedSet.has(id);
+  });
+
+  if (pool.length <= safeDeckSize) {
+    return shuffleAll(pool);
+  }
+
+  const pinnedPool = pool.filter((v) => pinnedSet.has(idOf(v)));
+  const restPool = pool.filter((v) => !pinnedSet.has(idOf(v)));
+
+  let pinnedSoftCap = Math.floor(safeDeckSize / 2);
+  pinnedSoftCap = Math.min(pinnedSoftCap, pinnedPool.length, safeDeckSize);
+
+  const pinnedChosen = shuffleAll(pinnedPool).slice(0, pinnedSoftCap);
+  const needFromRest = Math.max(0, safeDeckSize - pinnedChosen.length);
+  const restChosen = shuffleAll(restPool).slice(0, needFromRest);
+
+  const stillNeed = safeDeckSize - (pinnedChosen.length + restChosen.length);
+
+  if (stillNeed > 0) {
+    const chosenIds = new Set(pinnedChosen.map((v) => idOf(v)));
+    const extraPinned = shuffleAll(pinnedPool).filter((v) => !chosenIds.has(idOf(v)));
+    return shuffleAll([...pinnedChosen, ...restChosen, ...extraPinned.slice(0, stillNeed)]);
+  }
+
+  return shuffleAll([...pinnedChosen, ...restChosen]);
+};
+
+const getGrade = (percentage) => {
+  if (percentage === 100) return 'ممتاز! نتيجة كاملة بدون أي أخطاء!';
+  if (percentage >= 90) return 'رائع جدًا! استمر على هذا المستوى!';
+  if (percentage >= 80) return 'جيد جدًا! تقدم ممتاز.';
+  if (percentage >= 70) return 'جيد! يمكنك التحسن أكثر.';
+  if (percentage >= 60) return 'مقبول. حاول مراجعة الكلمات أكثر.';
+  if (percentage >= 50) return 'ليس سيئًا، لكن تحتاج إلى تدريب إضافي.';
+  if (percentage >= 40) return 'ضعيف. حاول إعادة التمرين والتركيز على الأخطاء.';
+  if (percentage >= 30) return 'ضعيف جدًا. خذ وقتك وكرر التمرين.';
+  if (percentage >= 20) return 'يحتاج إلى الكثير من العمل. لا تستسلم!';
+  if (percentage >= 10) return 'صعب الآن، لكن مع التدريب ستتحسن.';
+  return 'لنبدأ من جديد خطوة بخطوة. أنت قادر!';
+};
+
 const findVerbMatchForExercise2 = (exerciseVerb) => {
   if (!exerciseVerb || !Array.isArray(verbs1RU)) return null;
 
   const correctOption = (exerciseVerb?.verbHebrewOptions || []).find((opt) => opt?.isCorrect);
   const hebInf = String(
-    correctOption?.text ||
-    exerciseVerb?.hebrewVerb ||
-    exerciseVerb?.infinitive ||
-    ''
+    correctOption?.text || exerciseVerb?.hebrewVerb || exerciseVerb?.infinitive || ''
   ).trim();
 
   const audioInf = String(exerciseVerb?.audioFile || '').trim();
@@ -83,19 +157,16 @@ const findVerbMatchForExercise2 = (exerciseVerb) => {
   const targetPt = norm(exerciseVerb?.verbPortuguese || exerciseVerb?.verbPortu || '');
   const targetAr = norm(exerciseVerb?.verbArabic || '');
 
-  // 1) Best: match by infinitive audioFile (if verbs11RU carries it)
   let found =
     verbs1RU.find((row) => String(row?.audioFile || '').trim() === audioInf) ||
     verbs1RU.find((row) => String(row?.infinitiveAudio || '').trim() === audioInf);
 
-  // 2) Match by Hebrew infinitive
   if (!found && hebInf) {
     found =
       verbs1RU.find((row) => String(row?.infinitive || '').trim() === hebInf) ||
       verbs1RU.find((row) => String(row?.hebrewVerb || '').trim() === hebInf);
   }
 
-  // 3) If still not found, match by translations (loose)
   if (!found) {
     found = verbs1RU.find((row) => {
       const ru = norm(row?.russian || row?.translation || row?.verbRussian || '');
@@ -105,7 +176,6 @@ const findVerbMatchForExercise2 = (exerciseVerb) => {
       const pt = norm(row?.portu || row?.portuguese || row?.verbPortuguese || '');
       const ar = norm(row?.arabic || row?.verbArabic || '');
 
-      // Prefer Russian match if available, otherwise try other languages.
       if (targetRu && ru && targetRu === ru) return true;
       if (targetEn && en && targetEn === en) return true;
       if (targetFr && fr && targetFr === fr) return true;
@@ -119,116 +189,6 @@ const findVerbMatchForExercise2 = (exerciseVerb) => {
   return found || null;
 };
 
-
-
-const shuffleAll = (array) => {
-  const shuffledArray = array.slice();
-  for (let i = shuffledArray.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [shuffledArray[i], shuffledArray[j]] = [shuffledArray[j], shuffledArray[i]];
-  }
-  return shuffledArray;
-};
-
-// Build a deck: pinned first, then random, filtering excluded; fallback if too many excluded/pinned.
-// Build a deck: dynamic pinned limit + fallback if user pinned almost everything
-const buildDeck = (
-  allVerbs,
-  excludedIds = [],
-  pinnedIds = [],
-  deckSize = 18
-) => {
-  const excludedSet = new Set(
-    (excludedIds || []).map(x => String(x || '').trim()).filter(Boolean)
-  );
-  const pinnedSet = new Set(
-    (pinnedIds || []).map(x => String(x || '').trim()).filter(Boolean)
-  );
-
-  const idOf = (v) => getHebrewIdEx2(v);
-
-  // 1) база без исключённых
-  const pool = (allVerbs || []).filter((v) => {
-    const id = idOf(v);
-    return id && !excludedSet.has(id);
-  });
-
-  // 2) pinned / rest
-  const pinnedPool = pool.filter(v => pinnedSet.has(idOf(v)));
-  const restPool   = pool.filter(v => !pinnedSet.has(idOf(v)));
-
-  // 3) динамический лимит pinned
-  const pinnedCount = pinnedPool.length;
-  let pinnedSoftCap = 6; // базово для колоды 18
-
-  if (pinnedCount >= 54) pinnedSoftCap = 9;
-  else if (pinnedCount >= 36) pinnedSoftCap = 8;
-  else if (pinnedCount >= 18)  pinnedSoftCap = 7;
-
-  pinnedSoftCap = Math.min(pinnedSoftCap, deckSize);
-
-  // 4) подстраховка:
-  // если rest слишком мало — разрешаем взять pinned больше лимита
-  let pinnedCap = pinnedSoftCap;
-  if (restPool.length < deckSize - pinnedCap) {
-    pinnedCap = Math.min(deckSize, deckSize - restPool.length);
-  }
-
-  pinnedCap = Math.min(pinnedCap, pinnedPool.length);
-
-  // 5) выбираем pinned и rest
-  const pinnedChosen = shuffleAll(pinnedPool).slice(0, pinnedCap);
-  const needFromRest = Math.max(0, deckSize - pinnedChosen.length);
-  const restChosen   = shuffleAll(restPool).slice(0, needFromRest);
-
-  // 6) финальная колода — всегда перемешиваем
-  const deck = shuffleAll([...pinnedChosen, ...restChosen]);
-
-  // deck может быть < deckSize, если pool маленький — это допустимо
-  return deck;
-};
-/* ===================== end pinned / excluded helpers ===================== */
-
-
-const shuffleArray = (array) => {
-  const shuffledArray = array.slice();
-  for (let i = shuffledArray.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [shuffledArray[i], shuffledArray[j]] = [shuffledArray[j], shuffledArray[i]];
-  }
-  return shuffledArray.slice(0, 18);
-};
-
-// Arabic grading text
-const getGrade = (percentage) => {
-  if (percentage === 100) {
-    return 'ممتاز! نتيجة كاملة بدون أي أخطاء!';
-  } else if (percentage >= 90) {
-    return 'رائع جدًا! استمر على هذا المستوى!';
-  } else if (percentage >= 80) {
-    return 'جيد جدًا! تقدم ممتاز.';
-  } else if (percentage >= 70) {
-    return 'جيد! يمكنك التحسن أكثر.';
-  } else if (percentage >= 60) {
-    return 'مقبول. حاول مراجعة الكلمات أكثر.';
-  } else if (percentage >= 50) {
-    return 'ليس سيئًا، لكن تحتاج إلى تدريب إضافي.';
-  } else if (percentage >= 40) {
-    return 'ضعيف. حاول إعادة التمرين والتركيز على الأخطاء.';
-  } else if (percentage >= 30) {
-    return 'ضعيف جدًا. خذ وقتك وكرر التمرين.';
-  } else if (percentage >= 20) {
-    return 'يحتاج إلى الكثير من العمل. لا تستسلم!';
-  } else if (percentage >= 10) {
-    return 'صعب الآن، لكن مع التدريب ستتحسن.';
-  } else {
-    return 'لنبدأ من جديد خطوة بخطوة. أنت قادر!';
-  }
-};
-
-const normalize = (v) => String(v || '').trim().toLowerCase();
-const normAudio = (v) => normalize(String(v || '').replace(/\.mp3$/i, ''));
-
 const VerbDetailsContainer2 = ({
   verbDetails,
   handleSpeakerPress,
@@ -236,6 +196,7 @@ const VerbDetailsContainer2 = ({
   animateRight,
   isAnswered,
   canShowSpeaker,
+  showTranslit,
 }) => {
   const leftFillAnim = useRef(new Animated.Value(0)).current;
   const rightFillAnim = useRef(new Animated.Value(0)).current;
@@ -258,11 +219,11 @@ const VerbDetailsContainer2 = ({
       animationRef.current.reset();
       animationRef.current.play();
     }
-  }, [currentIndex]);
+  }, [currentIndex, leftFillAnim]);
 
   useEffect(() => {
     rightFillAnim.setValue(0);
-  }, [currentIndex]);
+  }, [currentIndex, rightFillAnim]);
 
   useEffect(() => {
     if (isAnswered && animationRef.current) {
@@ -286,7 +247,7 @@ const VerbDetailsContainer2 = ({
         }).start();
       }, 500);
     }
-  }, [animateRight]);
+  }, [animateRight, rightFillAnim]);
 
   const leftWidth = leftFillAnim.interpolate({
     inputRange: [0, 1],
@@ -304,7 +265,6 @@ const VerbDetailsContainer2 = ({
       <Animated.View style={[styles.verbDetailsHalf, styles.verbDetailsRight, { width: rightWidth }]} />
       <View style={styles.verbDetailsContent}>
         <View style={styles.verbDetailsLeftContent}>
-          {/* ВАЖНО: для амхарского используем amtext (entext оставляем как fallback), как в EN, а не amtext — VerbListModal тоже его ждёт */}
           <Text style={styles.verbDetailsRussian} maxFontSizeMultiplier={1.2}>
             {verbDetails.artext || verbDetails.entext}
           </Text>
@@ -315,7 +275,7 @@ const VerbDetailsContainer2 = ({
               <Text style={styles.verbDetailsHebrew} maxFontSizeMultiplier={1.2}>
                 {verbDetails.hebrewtext}
               </Text>
-              {verbDetails.translit ? (
+              {showTranslit && verbDetails.translit ? (
                 <Text style={styles.verbDetailsTranslit} maxFontSizeMultiplier={1.2}>
                   {verbDetails.translit}
                 </Text>
@@ -339,6 +299,8 @@ const VerbDetailsContainer2 = ({
 };
 
 const Exercise2Ar = () => {
+  const navigation = useNavigation();
+
   const [currentIndex, setCurrentIndex] = useState(0);
   const [optionsOrder, setOptionsOrder] = useState([]);
   const [exitConfirmationVisible, setExitConfirmationVisible] = useState(false);
@@ -348,21 +310,23 @@ const Exercise2Ar = () => {
   const [incorrectAnswers, setIncorrectAnswers] = useState(0);
   const [progress, setProgress] = useState(0);
   const [showNextButton, setShowNextButton] = useState(false);
-  const [currentGrade, setCurrentGrade] = useState('');
 
   const [correctSound, setCorrectSound] = useState();
   const [incorrectSound, setIncorrectSound] = useState();
 
   const backgroundColorAnim = useRef(new Animated.Value(0)).current;
   const optionsAnim = useRef(new Animated.Value(-500)).current;
+  const fadeAnim = useRef(new Animated.Value(0)).current;
 
   const [isDescriptionModalVisible, setDescriptionModalVisible] = useState(false);
   const [soundEnabled, setSoundEnabled] = useState(true);
   const [autoPlayEnabled, setAutoPlayEnabled] = useState(true);
 
-  // ✅ translit toggle (added)
   const [showTranslit, setShowTranslit] = useState(true);
   const handleTranslitToggle = () => setShowTranslit((prev) => !prev);
+
+  const animationRef = useRef(null);
+  const [isPlayingLottieOnSpeaker, setIsPlayingLottieOnSpeaker] = useState(false);
 
   const [verbDetails, setVerbDetails] = useState({
     hebrewtext: '',
@@ -374,8 +338,6 @@ const Exercise2Ar = () => {
 
   const [isSecondSoundFinished, setIsSecondSoundFinished] = useState(false);
   const [canShowSpeaker, setCanShowSpeaker] = useState(false);
-  const [isSoundPlaying, setIsSoundPlaying] = useState(false);
-  const [isPlayingLottieOnSpeaker, setIsPlayingLottieOnSpeaker] = useState(false);
 
   const [isVerbListVisible, setIsVerbListVisible] = useState(true);
   const [verbListForModal, setVerbListForModal] = useState([]);
@@ -387,17 +349,26 @@ const Exercise2Ar = () => {
   const [dontShowAgain2, setDontShowAgain2] = useState(false);
   const [languageLoaded, setLanguageLoaded] = useState(false);
 
-  // --- pinned / excluded state (persisted) ---
   const [isExcludedVerbsModalVisible, setExcludedVerbsModalVisible] = useState(false);
-
   const [excludedVerbs, setExcludedVerbs] = useState([]);
   const [pinnedVerbs, setPinnedVerbs] = useState([]);
-
   const excludedRef = useRef([]);
   const pinnedRef = useRef([]);
 
-  // Deduplicate by Hebrew infinitive (fixes duplicate keys)
-  const uniqueVerbsData = React.useMemo(() => {
+  const [isGenderMan, setIsGenderMan] = useState(true);
+
+  const [selectedOptionIndex, setSelectedOptionIndex] = useState(null);
+  const [animateRight, setAnimateRight] = useState(false);
+  const [isAnswered, setIsAnswered] = useState(false);
+  const [soundObject2, setSoundObject2] = useState(null);
+
+  const [statistics, setStatistics] = useState(null);
+  const [isStatModalVisible, setIsStatModalVisible] = useState(false);
+  const [statisticsUpdated, setStatisticsUpdated] = useState(false);
+
+  const [selectedExerciseCount, setSelectedExerciseCount] = useState(DEFAULT_EXERCISE_COUNT);
+
+  const uniqueVerbsData = useMemo(() => {
     const seen = new Set();
     const out = [];
     for (const v of verbsData || []) {
@@ -410,8 +381,7 @@ const Exercise2Ar = () => {
     return out;
   }, []);
 
-  // Minimal shape for ExcludedVerbsModal2
-  const manageVerbsData = React.useMemo(() => {
+  const manageVerbsData = useMemo(() => {
     return (uniqueVerbsData || []).map((v) => ({
       hebrewVerb: getHebrewIdEx2(v),
       transliteration: getTranslitEx2(v),
@@ -443,7 +413,7 @@ const Exercise2Ar = () => {
       excludedRef.current = exArr;
       pinnedRef.current = pinArr;
     } catch (e) {
-      console.log('[Exercise2Am] loadExcludedAndPinned error:', e);
+      console.log('[Exercise2Ar] loadExcludedAndPinned error:', e);
       setExcludedVerbs([]);
       setPinnedVerbs([]);
       excludedRef.current = [];
@@ -451,9 +421,22 @@ const Exercise2Ar = () => {
     }
   }, []);
 
-  useEffect(() => {
-    loadExcludedAndPinned();
-  }, [loadExcludedAndPinned]);
+  const loadExerciseCount = useCallback(async () => {
+    try {
+      const raw = await AsyncStorage.getItem(EXERCISE2_COUNT_KEY);
+      const parsed = Number(raw);
+      const safeCount = ALLOWED_EXERCISE_COUNTS.includes(parsed)
+        ? parsed
+        : DEFAULT_EXERCISE_COUNT;
+
+      setSelectedExerciseCount(safeCount);
+      return safeCount;
+    } catch (e) {
+      console.log('[Exercise2Ar] loadExerciseCount error:', e);
+      setSelectedExerciseCount(DEFAULT_EXERCISE_COUNT);
+      return DEFAULT_EXERCISE_COUNT;
+    }
+  }, []);
 
   const persistExcludedAndPinned = useCallback(async (nextExcluded, nextPinned) => {
     try {
@@ -462,8 +445,17 @@ const Exercise2Ar = () => {
         AsyncStorage.setItem(PINNED_KEY, JSON.stringify(nextPinned)),
       ]);
     } catch (e) {
-      console.log('[Exercise2Am] persistExcludedAndPinned error:', e);
+      console.log('[Exercise2Ar] persistExcludedAndPinned error:', e);
     }
+  }, []);
+
+  const saveExerciseCount = useCallback(async (count) => {
+    const safeCount = ALLOWED_EXERCISE_COUNTS.includes(count)
+      ? count
+      : DEFAULT_EXERCISE_COUNT;
+
+    setSelectedExerciseCount(safeCount);
+    await AsyncStorage.setItem(EXERCISE2_COUNT_KEY, String(safeCount));
   }, []);
 
   const handleToggleExcludedVerb = useCallback(
@@ -476,8 +468,6 @@ const Exercise2Ar = () => {
 
       const isExcluded = prevExcluded.includes(id);
       const nextExcluded = isExcluded ? prevExcluded.filter((v) => v !== id) : [...prevExcluded, id];
-
-      // If excluded -> remove from pinned
       const nextPinned = isExcluded ? prevPinned : prevPinned.filter((v) => v !== id);
 
       setExcludedVerbs(nextExcluded);
@@ -491,117 +481,55 @@ const Exercise2Ar = () => {
     [persistExcludedAndPinned]
   );
 
+  const handleRestoreExcludedVerb = useCallback(
+    async (hebrewVerb) => {
+      const id = String(hebrewVerb || '').trim();
+      if (!id) return;
+
+      const prevExcluded = excludedRef.current || [];
+      const prevPinned = pinnedRef.current || [];
+
+      if (!prevExcluded.includes(id)) return;
+
+      const nextExcluded = prevExcluded.filter((v) => v !== id);
+
+      setExcludedVerbs(nextExcluded);
+      excludedRef.current = nextExcluded;
+
+      await persistExcludedAndPinned(nextExcluded, prevPinned);
+    },
+    [persistExcludedAndPinned]
+  );
+
   const handleTogglePinnedVerb = useCallback(
     async (hebrewVerb) => {
       const id = String(hebrewVerb || '').trim();
       if (!id) return;
 
       const prevExcluded = excludedRef.current || [];
-      if (prevExcluded.includes(id)) return; // can't pin excluded
-
       const prevPinned = pinnedRef.current || [];
+
       const isPinned = prevPinned.includes(id);
       const nextPinned = isPinned ? prevPinned.filter((v) => v !== id) : [...prevPinned, id];
+      const nextExcluded = isPinned ? prevExcluded : prevExcluded.filter((v) => v !== id);
 
       setPinnedVerbs(nextPinned);
-      pinnedRef.current = nextPinned;
+      setExcludedVerbs(nextExcluded);
 
-      await persistExcludedAndPinned(prevExcluded, nextPinned);
+      pinnedRef.current = nextPinned;
+      excludedRef.current = nextExcluded;
+
+      await persistExcludedAndPinned(nextExcluded, nextPinned);
     },
     [persistExcludedAndPinned]
   );
 
+  const initializeVerbList = useCallback((lang, setShuffledVerbsFn, setVerbListForModalFn, deckSize = selectedExerciseCount) => {
+    const safeDeckSize = ALLOWED_EXERCISE_COUNTS.includes(deckSize)
+      ? deckSize
+      : selectedExerciseCount || DEFAULT_EXERCISE_COUNT;
 
-  const [isGenderMan, setIsGenderMan] = useState(true);
-
-  const [selectedOptionIndex, setSelectedOptionIndex] = useState(null);
-  const [animateRight, setAnimateRight] = useState(false);
-  const [isAnswered, setIsAnswered] = useState(false);
-  const [soundObject2, setSoundObject2] = useState(null);
-
-  const [resizeMode, setResizeMode] = useState('contain');
-
-  const [statistics, setStatistics] = useState(null);
-  const [isStatModalVisible, setIsStatModalVisible] = useState(false);
-  const [statisticsUpdated, setStatisticsUpdated] = useState(false);
-
-  const navigation = useNavigation();
-
-  const fadeAnim = useRef(new Animated.Value(0)).current;
-
-  const fadeIn = () => {
-    Animated.timing(fadeAnim, {
-      toValue: 1,
-      duration: 1200,
-      useNativeDriver: true,
-    }).start();
-  };
-
-  const animateOptions = () => {
-    Animated.timing(optionsAnim, {
-      toValue: 0,
-      duration: 500,
-      useNativeDriver: true,
-    }).start();
-  };
-
-  const changeBackgroundColor = (isCorrect) => {
-    backgroundColorAnim.setValue(isCorrect ? 1 : 2);
-
-    Animated.timing(backgroundColorAnim, {
-      toValue: isCorrect ? 1 : 2,
-      duration: 300,
-      useNativeDriver: false,
-    }).start(() => {
-      setTimeout(() => {
-        Animated.timing(backgroundColorAnim, {
-          toValue: 0,
-          duration: 100,
-          useNativeDriver: false,
-        }).start();
-      }, 100);
-    });
-  };
-
-  const backgroundColor = backgroundColorAnim.interpolate({
-    inputRange: [0, 1, 2],
-    outputRange: ['#83A3CD', '#AFFFCA', '#FFBCBC'],
-  });
-
-  const goToMenu = () => {
-    allowLeaveRef.current = true;
-    setExitConfirmationVisible(false);
-    navigation.dispatch(
-      CommonActions.reset({
-        index: 0,
-        routes: [{ name: 'MenuAr' }],
-      }),
-    );
-  };
-
-  const handleConfirmExit = () => {
-    goToMenu();
-  };
-
-  const handleCancelExit = () => {
-    setExitConfirmationVisible(false);
-  };
-
-  const handleResizeModeChange = (mode) => {
-    setResizeMode(mode);
-  };
-
-  const calculateScore = () => {
-    const totalAttempts = correctAnswers + incorrectAnswers;
-    if (totalAttempts === 0) return 0;
-    return Number(((correctAnswers / totalAttempts) * 100).toFixed(2));
-  };
-
-  const percent = calculateScore();
-  const grade = getGrade(percent);
-
-const initializeVerbList = (lang, setShuffledVerbsFn, setVerbListForModalFn) => {
-    const selected = buildDeck(uniqueVerbsData, excludedRef.current, pinnedRef.current, 18);
+    const selected = buildDeck(uniqueVerbsData, excludedRef.current, pinnedRef.current, safeDeckSize);
     setShuffledVerbsFn(selected);
 
     const sorted = selected.slice().sort((a, b) =>
@@ -610,7 +538,6 @@ const initializeVerbList = (lang, setShuffledVerbsFn, setVerbListForModalFn) => 
 
     const verbList = sorted.map((verb) => {
       const correctOption = (verb.verbHebrewOptions || []).find((opt) => opt?.isCorrect);
-
       const match = findVerbMatchForExercise2(verb);
 
       const mp3Inf = String(verb.audioFile || '').replace(/\.mp3$/i, '').trim();
@@ -620,23 +547,16 @@ const initializeVerbList = (lang, setShuffledVerbsFn, setVerbListForModalFn) => 
         hebrewtext: correctOption?.text || '—',
         translit: correctOption?.transliteration || '',
         entext: verb.verbArabic || verb.verbamharic || verb.verbRussian || '—',
-
-                artext: verb.verbArabic || verb.verbarabic || verb.verbRussian || '—',
-mp3: mp3Inf,
+        artext: verb.verbArabic || verb.verbarabic || verb.verbRussian || '—',
+        mp3: mp3Inf,
         mp3Inf,
         mp3Conj,
         gender: match?.gender || undefined,
       };
     });
 
-    console.log('[initializeVerbList] selected:', selected.length);
-    console.log('[initializeVerbList] verbListForModal:', verbList.length);
-    if (verbList.length) {
-      console.log('[initializeVerbList] sample item:', verbList[0]);
-    }
-
     setVerbListForModalFn(verbList);
-  };
+  }, [selectedExerciseCount, uniqueVerbsData]);
 
   const toggleDescriptionModal = () => {
     setDescriptionModalVisible((prev) => !prev);
@@ -650,27 +570,28 @@ mp3: mp3Inf,
     const newValue = !dontShowAgain2;
     setDontShowAgain2(newValue);
     await AsyncStorage.setItem('exercise2_description_hidden', newValue ? 'true' : '');
-    console.log('📌 Checkbox click. Was:', dontShowAgain2, 'Will be:', !dontShowAgain2);
   };
 
   const handleGenderToggle = () => {
     setIsGenderMan((prev) => !prev);
   };
 
-  /* ================== эффекты ================== */
-
   useEffect(() => {
-    fadeIn();
-  }, []);
-
-  useEffect(() => {
-    animateOptions();
-  }, []);
+    Animated.timing(fadeAnim, {
+      toValue: 1,
+      duration: 1200,
+      useNativeDriver: true,
+    }).start();
+  }, [fadeAnim]);
 
   useEffect(() => {
     optionsAnim.setValue(-500);
-    animateOptions();
-  }, [currentIndex]);
+    Animated.timing(optionsAnim, {
+      toValue: 0,
+      duration: 500,
+      useNativeDriver: true,
+    }).start();
+  }, [currentIndex, optionsAnim]);
 
   useEffect(() => {
     const initialize = async () => {
@@ -678,18 +599,23 @@ mp3: mp3Inf,
       const hidden = await AsyncStorage.getItem('exercise2_description_hidden');
 
       await loadExcludedAndPinned();
+      const savedCount = await loadExerciseCount();
 
       const usedLang = lang || 'ar';
       setLanguage(usedLang);
-      initializeVerbList(usedLang, setShuffledVerbs, setVerbListForModal);
+      initializeVerbList(usedLang, setShuffledVerbs, setVerbListForModal, savedCount);
 
-      
       setDontShowAgain2(hidden === 'true');
       setLanguageLoaded(true);
     };
 
     initialize();
-  }, []);
+  }, [loadExcludedAndPinned, loadExerciseCount, initializeVerbList]);
+
+  useEffect(() => {
+    if (!language) return;
+    initializeVerbList(language, setShuffledVerbs, setVerbListForModal, selectedExerciseCount);
+  }, [language, selectedExerciseCount, initializeVerbList]);
 
   useEffect(() => {
     async function loadSounds() {
@@ -741,35 +667,35 @@ mp3: mp3Inf,
     }
   };
 
-const updateVerbDetails2 = (currentVerb, showHebrewText = false) => {
+  const updateVerbDetails2 = (currentVerb, showHebrewText = false) => {
     if (!currentVerb) return;
-  
-    // ✅ 1) Находим "базовую" запись по audioFile (инфинитив)
+
     const baseMatch = findVerbMatchForExercise2(currentVerb);
-  
+
     if (!baseMatch) {
       setVerbDetails({
         hebrewtext: '',
         translit: '',
         artext: 'لم يتم العثور على الفعل',
+        entext: '',
         mp3: '',
       });
       return;
     }
-  
-    // ✅ 2) Теперь выбираем правильный gender ВНУТРИ найденного инфинитива
+
     const baseAudio = normAudio(baseMatch.audioFile);
     const sameInfinitive = (verbs1RU || []).filter(v => normAudio(v.audioFile) === baseAudio);
-  
+
     const genderWanted = isGenderMan ? 'man' : 'woman';
     const selectedVerb =
       sameInfinitive.find(v => v.gender === genderWanted) ||
-      baseMatch; // fallback, если вдруг gender не найден
-  
+      baseMatch;
+
     setVerbDetails({
       hebrewtext: showHebrewText ? selectedVerb.hebrewtext : '',
       translit: showHebrewText ? selectedVerb.translit : '',
       artext: selectedVerb.artext,
+      entext: selectedVerb.entext,
       mp3: selectedVerb.mp3,
     });
   };
@@ -778,7 +704,7 @@ const updateVerbDetails2 = (currentVerb, showHebrewText = false) => {
     if (shuffledVerbs.length > 0) {
       updateVerbDetails2(shuffledVerbs[currentIndex], showNextButton);
     }
-  }, [isGenderMan, currentIndex, shuffledVerbs]);
+  }, [isGenderMan, currentIndex, shuffledVerbs, showNextButton]);
 
   useEffect(() => {
     if (shuffledVerbs.length > 0) {
@@ -794,13 +720,10 @@ const updateVerbDetails2 = (currentVerb, showHebrewText = false) => {
 
   useEffect(() => {
     if (exerciseCompleted) {
-      const newGrade = getGrade(percent);
-      setCurrentGrade(newGrade);
       handleExerciseCompletion();
     }
-  }, [exerciseCompleted, correctAnswers, incorrectAnswers]);
+  }, [exerciseCompleted]);
 
-  // пока открыт список — «Назад» уходит в меню без подтверждения
   useFocusEffect(
     useCallback(() => {
       if (!isVerbListVisible) return;
@@ -816,7 +739,6 @@ const updateVerbDetails2 = (currentVerb, showHebrewText = false) => {
     }, [isVerbListVisible, navigation]),
   );
 
-  // когда упражнение активно — показываем подтверждение выхода
   useFocusEffect(
     useCallback(() => {
       if (isVerbListVisible) return;
@@ -853,8 +775,6 @@ const updateVerbDetails2 = (currentVerb, showHebrewText = false) => {
     });
   }, [navigation]);
 
-  /* ================== звук ================== */
-
   const handleSpeakerPress = async (audioFile) => {
     if (!audioFile) {
       console.error('Audio file is undefined.');
@@ -869,20 +789,16 @@ const updateVerbDetails2 = (currentVerb, showHebrewText = false) => {
 
     const soundObject = new Audio.Sound();
     try {
-      setIsSoundPlaying(true);
-
       await soundObject.loadAsync(soundFile);
       await soundObject.playAsync();
       soundObject.setOnPlaybackStatusUpdate(async (status) => {
         if (status.didJustFinish) {
           await soundObject.unloadAsync();
-          setIsSoundPlaying(false);
         }
       });
     } catch (error) {
       console.log('Error playing sound:', error);
       await soundObject.unloadAsync();
-      setIsSoundPlaying(false);
     }
   };
 
@@ -932,12 +848,9 @@ const updateVerbDetails2 = (currentVerb, showHebrewText = false) => {
 
       const snd2 = new Audio.Sound();
       setSoundObject2(snd2);
-      console.log('Loading second sound...');
       await snd2.loadAsync(secondSoundFile);
-      console.log('Playing second sound...');
 
       if (!soundEnabled) {
-        console.log('Sound is muted, stopping second sound.');
         await snd2.stopAsync();
         await snd2.unloadAsync();
         setSoundObject2(null);
@@ -948,7 +861,6 @@ const updateVerbDetails2 = (currentVerb, showHebrewText = false) => {
 
       snd2.setOnPlaybackStatusUpdate(async (status) => {
         if (status.didJustFinish) {
-          console.log('Second sound finished, unloading...');
           await snd2.unloadAsync();
           setSoundObject2(null);
         }
@@ -958,35 +870,22 @@ const updateVerbDetails2 = (currentVerb, showHebrewText = false) => {
     }
   };
 
-  /* ================== логика ответов ================== */
-
   const generateOptions = (verbData) => {
     const correctAnswerIndex = verbData.verbHebrewOptions.findIndex((option) => option.isCorrect);
     const correctTranslation = verbData.verbHebrewOptions[correctAnswerIndex]?.text;
     const transliteration = verbData.verbHebrewOptions[correctAnswerIndex]?.transliteration;
 
-    if (!correctTranslation) {
-      console.log(`Error: verb "${verbData.verbRussian}" has no correct translation.`);
-    }
-
     const incorrectOptions = verbData.verbHebrewOptions.filter((_, index) => index !== correctAnswerIndex);
 
     const shuffledOptions = shuffleArray(
-      incorrectOptions.map((option, index) => {
-        if (!option.text) {
-          console.log(
-            `Error: verb "${verbData.verbRussian}" has option without text.`,
-          );
-        }
-        return {
-          text: option.text,
-          transliteration: option.transliteration,
-          isCorrect: false,
-          isSelected: false,
-          isHighlighted: false,
-          index,
-        };
-      }),
+      incorrectOptions.map((option, index) => ({
+        text: option.text,
+        transliteration: option.transliteration,
+        isCorrect: false,
+        isSelected: false,
+        isHighlighted: false,
+        index,
+      })),
     );
 
     shuffledOptions.splice(Math.floor(Math.random() * (shuffledOptions.length + 1)), 0, {
@@ -1009,6 +908,30 @@ const updateVerbDetails2 = (currentVerb, showHebrewText = false) => {
     setIsSecondSoundFinished(false);
     setCanShowSpeaker(false);
   };
+
+
+  const changeBackgroundColor = (isCorrect) => {
+  backgroundColorAnim.setValue(isCorrect ? 1 : 2);
+
+  Animated.timing(backgroundColorAnim, {
+    toValue: isCorrect ? 1 : 2,
+    duration: 300,
+    useNativeDriver: false,
+  }).start(() => {
+    setTimeout(() => {
+      Animated.timing(backgroundColorAnim, {
+        toValue: 0,
+        duration: 100,
+        useNativeDriver: false,
+      }).start();
+    }, 100);
+  });
+};
+
+const backgroundColor = backgroundColorAnim.interpolate({
+  inputRange: [0, 1, 2],
+  outputRange: ['#83A3CD', '#AFFFCA', '#FFBCBC'],
+});
 
   const handleAnswer = async (selectedOptionIdx) => {
     setSelectedOptionIndex(selectedOptionIdx);
@@ -1086,7 +1009,14 @@ const updateVerbDetails2 = (currentVerb, showHebrewText = false) => {
     updateVerbDetails2(shuffledVerbs[next], false);
   };
 
-  /* ================== статистика / рестарт ================== */
+  const calculateScore = () => {
+    const totalAttempts = correctAnswers + incorrectAnswers;
+    if (totalAttempts === 0) return 0;
+    return Number(((correctAnswers / totalAttempts) * 100).toFixed(2));
+  };
+
+  const percent = calculateScore();
+  const grade = getGrade(percent);
 
   const handleExerciseCompletion = async () => {
     if (!statisticsUpdated) {
@@ -1103,7 +1033,7 @@ const updateVerbDetails2 = (currentVerb, showHebrewText = false) => {
     }
   };
 
-  const resetExercise = () => {
+  const resetExercise = async () => {
     setCorrectAnswers(0);
     setIncorrectAnswers(0);
     setProgress(0);
@@ -1123,10 +1053,10 @@ const updateVerbDetails2 = (currentVerb, showHebrewText = false) => {
 
     setIsVerbListVisible(true);
 
-    initializeVerbList(language || 'ar', setShuffledVerbs, setVerbListForModal);
+    await loadExcludedAndPinned();
+    initializeVerbList(language || 'ar', setShuffledVerbs, setVerbListForModal, selectedExerciseCount);
 
     setCurrentIndex(0);
-    console.log('Exercise AM has been reset and restarted.');
   };
 
   const handleButton3Press = async () => {
@@ -1142,7 +1072,47 @@ const updateVerbDetails2 = (currentVerb, showHebrewText = false) => {
     }
   };
 
-  /* ================== рендер ================== */
+  const handleSelectExerciseCount = async (count) => {
+    if (!ALLOWED_EXERCISE_COUNTS.includes(count)) return;
+    if (count === selectedExerciseCount) return;
+
+    await saveExerciseCount(count);
+
+    setCorrectAnswers(0);
+    setIncorrectAnswers(0);
+    setProgress(0);
+    setShowNextButton(false);
+    setExerciseCompleted(false);
+    setStatisticsUpdated(false);
+
+    resetLocalQuestionState();
+    setCurrentIndex(0);
+
+    initializeVerbList(language || 'ar', setShuffledVerbs, setVerbListForModal, count);
+  };
+
+  const goToMenu = () => {
+    allowLeaveRef.current = true;
+    setExitConfirmationVisible(false);
+    navigation.dispatch(
+      CommonActions.reset({
+        index: 0,
+        routes: [{ name: 'MenuAr' }],
+      }),
+    );
+  };
+
+  const handleConfirmExit = () => {
+    goToMenu();
+  };
+
+  const handleCancelExit = () => {
+    setExitConfirmationVisible(false);
+  };
+
+  if (!languageLoaded) {
+    return null;
+  }
 
   return (
     <>
@@ -1152,6 +1122,8 @@ const updateVerbDetails2 = (currentVerb, showHebrewText = false) => {
           language={language}
           verbs={verbListForModal}
           pinnedIds={pinnedVerbs}
+          selectedCount={selectedExerciseCount}
+          onSelectCount={handleSelectExerciseCount}
           onStartExercise={() => {
             modalCloseReasonRef.current = 'start';
 
@@ -1171,14 +1143,9 @@ const updateVerbDetails2 = (currentVerb, showHebrewText = false) => {
             }
           }}
           onClose={() => {
-  modalCloseReasonRef.current = 'menu';
-
-  // ❗️НЕ закрываем модалку стейтом.
-  // Иначе экран упражнения успеет смонтироваться и запустить эффекты/анимации,
-  // а потом мы делаем reset в меню -> warning.
-  goToMenu();
-}}
-
+            modalCloseReasonRef.current = 'menu';
+            goToMenu();
+          }}
         />
       )}
 
@@ -1198,7 +1165,6 @@ const updateVerbDetails2 = (currentVerb, showHebrewText = false) => {
                   />
                 </TouchableOpacity>
 
-                {/* ✅ translit button between Sound and Stat (added) */}
                 <TouchableOpacity onPress={handleTranslitToggle}>
                   <Animated.Image
                     source={showTranslit ? require('./translit1.png') : require('./translit2.png')}
@@ -1229,9 +1195,7 @@ const updateVerbDetails2 = (currentVerb, showHebrewText = false) => {
               </View>
             </View>
 
-            <Animated.View
-              style={[styles.progressContainer, { resizeMode }, { opacity: fadeAnim }]}
-            >
+            <Animated.View style={[styles.progressContainer, { opacity: fadeAnim }]}>
               <View style={styles.textContainer}>
                 <Text style={styles.prtext} maxFontSizeMultiplier={1.2}>
                   صحيح: {correctAnswers}
@@ -1279,93 +1243,93 @@ const updateVerbDetails2 = (currentVerb, showHebrewText = false) => {
             )}
 
             {!exerciseCompleted && (
-            <VerbDetailsContainer2
-              verbDetails={verbDetails}
-              handleSpeakerPress={handleSpeakerPress}
-              currentIndex={currentIndex}
-              animateRight={animateRight}
-              isAnswered={isAnswered}
-              canShowSpeaker={canShowSpeaker}
-            />
+              <VerbDetailsContainer2
+                verbDetails={verbDetails}
+                handleSpeakerPress={handleSpeakerPress}
+                currentIndex={currentIndex}
+                animateRight={animateRight}
+                isAnswered={isAnswered}
+                canShowSpeaker={canShowSpeaker}
+                showTranslit={showTranslit}
+              />
             )}
 
             {!exerciseCompleted && (
-            <Animated.View
-              style={[
-                styles.optionsContainer,
-                {
-                  transform: [{ translateX: optionsAnim }],
-                },
-              ]}
-            >
-              {optionsOrder.map((option, index) => (
-                <TouchableOpacity
-                  key={index}
-                  style={[
-                    styles.optionButton,
-                    option.isSelected
-                      ? option.isCorrect
+              <Animated.View
+                style={[
+                  styles.optionsContainer,
+                  {
+                    transform: [{ translateX: optionsAnim }],
+                  },
+                ]}
+              >
+                {optionsOrder.map((option, index) => (
+                  <TouchableOpacity
+                    key={index}
+                    style={[
+                      styles.optionButton,
+                      option.isSelected
+                        ? option.isCorrect
+                          ? styles.correctOption
+                          : styles.incorrectOption
+                        : selectedOptionIndex !== null && option.isCorrect
                         ? styles.correctOption
-                        : styles.incorrectOption
-                      : selectedOptionIndex !== null && option.isCorrect
-                      ? styles.correctOption
-                      : null,
-                  ]}
-                  onPress={() => handleAnswer(index)}
-                  disabled={showNextButton || option.disabled}
-                >
-                  <View style={styles.optionContent}>
-                    <Text style={styles.optionText} maxFontSizeMultiplier={1.2}>
-                      {option.text}
-                    </Text>
-
-                    {/* ✅ show/hide transliteration (added) */}
-                    {showTranslit && (
-                      <Text style={styles.transliterationText} maxFontSizeMultiplier={1.2}>
-                        {option.transliteration}
+                        : null,
+                    ]}
+                    onPress={() => handleAnswer(index)}
+                    disabled={showNextButton || option.disabled}
+                  >
+                    <View style={styles.optionContent}>
+                      <Text style={styles.optionText} maxFontSizeMultiplier={1.2}>
+                        {option.text}
                       </Text>
-                    )}
 
-                    {option.isCorrect && isPlayingLottieOnSpeaker && (
-                      <View style={styles.lottieContainer}>
-                        <LottieView
-                          source={require('./assets/Animation - 1718430107767.json')}
-                          autoPlay
-                          loop={false}
-                          style={styles.lottie}
-                        />
-                      </View>
-                    )}
+                      {showTranslit && (
+                        <Text style={styles.transliterationText} maxFontSizeMultiplier={1.2}>
+                          {option.transliteration}
+                        </Text>
+                      )}
 
-                    {showNextButton && option.isCorrect && (
-                      <TouchableOpacity
-                        style={styles.speakerIconContainer}
-                        onPress={() =>
-                          playSound(shuffledVerbs[currentIndex].audioFile, true)
-                        }
-                      >
-                        <Image source={require('./speaker6.png')} style={styles.speakerIcon} />
-                      </TouchableOpacity>
-                    )}
-                  </View>
-                </TouchableOpacity>
-              ))}
-            </Animated.View>
+                      {option.isCorrect && isPlayingLottieOnSpeaker && (
+                        <View style={styles.lottieContainer}>
+                          <LottieView
+                            source={require('./assets/Animation - 1718430107767.json')}
+                            autoPlay
+                            loop={false}
+                            style={styles.lottie}
+                          />
+                        </View>
+                      )}
+
+                      {showNextButton && option.isCorrect && (
+                        <TouchableOpacity
+                          style={styles.speakerIconContainer}
+                          onPress={() =>
+                            playSound(shuffledVerbs[currentIndex].audioFile, true)
+                          }
+                        >
+                          <Image source={require('./speaker6.png')} style={styles.speakerIcon} />
+                        </TouchableOpacity>
+                      )}
+                    </View>
+                  </TouchableOpacity>
+                ))}
+              </Animated.View>
             )}
 
             {!exerciseCompleted && (
-            <TouchableOpacity
-              style={[
-                styles.nextButton,
-                showNextButton ? styles.activeButton : styles.inactiveButton,
-              ]}
-              onPress={handleNextCard}
-              disabled={!showNextButton}
-            >
-              <Text style={styles.nextButtonText} maxFontSizeMultiplier={1.2}>
-                الفعل التالي
-              </Text>
-            </TouchableOpacity>
+              <TouchableOpacity
+                style={[
+                  styles.nextButton,
+                  showNextButton ? styles.activeButton : styles.inactiveButton,
+                ]}
+                onPress={handleNextCard}
+                disabled={!showNextButton}
+              >
+                <Text style={styles.nextButtonText} maxFontSizeMultiplier={1.2}>
+                  الفعل التالي
+                </Text>
+              </TouchableOpacity>
             )}
 
             {exerciseCompleted && (
@@ -1380,26 +1344,25 @@ const updateVerbDetails2 = (currentVerb, showHebrewText = false) => {
               />
             )}
 
-              <ExitConfirmationModal
-                visible={exitConfirmationVisible}
-                onCancel={handleCancelExit}
-                onConfirm={handleConfirmExit}
-              />
+            <ExitConfirmationModal
+              visible={exitConfirmationVisible}
+              onCancel={handleCancelExit}
+              onConfirm={handleConfirmExit}
+            />
           </View>
         </ScrollView>
       )}
 
       <ExcludedVerbsModal2
-  visible={isExcludedVerbsModalVisible}
-  onClose={() => setExcludedVerbsModalVisible(false)}
-  excludedIds={excludedVerbs}
-  pinnedIds={pinnedVerbs}
-  verbsData={manageVerbsData}
-  onRestoreVerb={handleToggleExcludedVerb}
-  onTogglePinnedVerb={handleTogglePinnedVerb}
-  lang={'ar'}
-/>
-
+        visible={isExcludedVerbsModalVisible}
+        onClose={() => setExcludedVerbsModalVisible(false)}
+        excludedIds={excludedVerbs}
+        pinnedIds={pinnedVerbs}
+        verbsData={manageVerbsData}
+        onRestoreVerb={handleRestoreExcludedVerb}
+        onTogglePinnedVerb={handleTogglePinnedVerb}
+        lang={'ar'}
+      />
 
       <StatModal2Ar
         visible={isStatModalVisible}
@@ -1407,16 +1370,15 @@ const updateVerbDetails2 = (currentVerb, showHebrewText = false) => {
         statistics={statistics}
       />
 
-    {isDescriptionModalVisible && (
-  <TaskDescriptionModal6
-    visible={true}
-    onToggle={toggleDescriptionModal}
-    language={language}
-    dontShowAgain2={dontShowAgain2}
-    onToggleDontShowAgain={handleToggleDontShowAgain2}
-  />
-)}
-
+      {isDescriptionModalVisible && (
+        <TaskDescriptionModal6
+          visible={true}
+          onToggle={toggleDescriptionModal}
+          language={language}
+          dontShowAgain2={dontShowAgain2}
+          onToggleDontShowAgain={handleToggleDontShowAgain2}
+        />
+      )}
     </>
   );
 };

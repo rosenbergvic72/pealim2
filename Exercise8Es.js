@@ -566,44 +566,73 @@ const [verbListForModal, setVerbListForModal] = useState([]);
     console.log('📌 Клик по чекбоксу. Было:', dontShowAgain8, 'Станет:', !dontShowAgain8);
   };
 
-  const initializeExercise = (selectedVerb) => {
-    let selectedVerbs;
-    if (selectedVerb) {
-      selectedVerbs = shuffleArray(verbsData.filter(verb => verb.infinitive === selectedVerb.infinitive).map((v, i) => ({ ...v, hebrewFormIndex: i + 1 })));
-    } else {
-      if (verbsData && verbsData.length > 0) {
-        const groupedByInfinitive = verbsData.reduce((acc, verb) => {
-          const { infinitive } = verb;
-          if (!acc[infinitive]) {
-            acc[infinitive] = [];
-          }
-          acc[infinitive].push(verb);
-          return acc;
-        }, {});
-  
-        const infinitives = Object.keys(groupedByInfinitive);
-        const randomInfinitive = infinitives[Math.floor(Math.random() * infinitives.length)];
-        selectedVerbs = shuffleArray(groupedByInfinitive[randomInfinitive].map((v, i) => ({ ...v, hebrewFormIndex: i + 1 })));
+const initializeExercise = ({ selectedVerb = null, forms = null, totalForms = null } = {}) => {
+  let selectedVerbs = [];
+
+  if (Array.isArray(forms) && forms.length > 0) {
+    // Берём уже отфильтрованные формы из VerbListModal2
+    // и СОХРАНЯЕМ их исходную позицию в полной таблице
+    selectedVerbs = shuffleArray(
+      forms.map((v, i) => ({
+        ...v,
+        hebrewFormIndex:
+          typeof v._originalIndex === 'number'
+            ? v._originalIndex + 1
+            : typeof v.hebrewFormIndex === 'number'
+            ? v.hebrewFormIndex
+            : i + 1,
+      }))
+    );
+  } else if (selectedVerb) {
+    selectedVerbs = shuffleArray(
+      verbsData
+        .filter((verb) => verb.infinitive === selectedVerb.infinitive)
+        .map((v, i) => ({
+          ...v,
+          hebrewFormIndex: i + 1,
+        }))
+    );
+  } else if (verbsData && verbsData.length > 0) {
+    const groupedByInfinitive = verbsData.reduce((acc, verb) => {
+      const { infinitive } = verb;
+      if (!acc[infinitive]) {
+        acc[infinitive] = [];
       }
-    }
-  
-    setTotalConjugations(selectedVerbs[0].infinitive === 'להיות' ? 24 : 36);
-    setVerbs(selectedVerbs);
-    setProgress(0);
-    setCorrectCount(0);
-    setIncorrectCount(0);
-    setCorrectAnswers(new Set());
-    setInactiveButtons(new Set());
-    setSelectedAnswer(null);
-    setIsCorrectAnswerSelected(false);
-    setNextButtonEnabled(false);
-    setCompletionMessageVisible(false);
-    setExerciseCompleted(false);
-    setCurrentIndex(0);
-    setShowInfinitive(false);
-    setShowTranslation(false);
-    setCurrentAudioFile(null);
-  };
+      acc[infinitive].push(verb);
+      return acc;
+    }, {});
+
+    const infinitives = Object.keys(groupedByInfinitive);
+    const randomInfinitive =
+      infinitives[Math.floor(Math.random() * infinitives.length)];
+
+    selectedVerbs = shuffleArray(
+      groupedByInfinitive[randomInfinitive].map((v, i) => ({
+        ...v,
+        hebrewFormIndex: i + 1,
+      }))
+    );
+  }
+
+  if (!selectedVerbs.length) return;
+
+  setTotalConjugations(totalForms || selectedVerbs.length);
+  setVerbs(selectedVerbs);
+  setProgress(0);
+  setCorrectCount(0);
+  setIncorrectCount(0);
+  setCorrectAnswers(new Set());
+  setInactiveButtons(new Set());
+  setSelectedAnswer(null);
+  setIsCorrectAnswerSelected(false);
+  setNextButtonEnabled(false);
+  setCompletionMessageVisible(false);
+  setExerciseCompleted(false);
+  setCurrentIndex(0);
+  setShowInfinitive(false);
+  setShowTranslation(false);
+  setCurrentAudioFile(null);
+};
 
   // useEffect(() => {
   //   initializeExercise();
@@ -1161,15 +1190,26 @@ const handleSelectVerb = (verb) => {
 
 
 
-const handleStartExercise = () => {
+const handleStartExercise = (payload = {}) => {
   const chosenVerb = pendingVerb || mainVerb;
   if (!chosenVerb) return;
-  modalCloseReasonRef.current = 'start'; // ← хотим звук
-  initializeExercise(chosenVerb);
+
+  const selectedForms = Array.isArray(payload.forms) ? payload.forms : null;
+  const totalForms =
+    typeof payload.totalForms === 'number' ? payload.totalForms : null;
+
+  setMainVerb(chosenVerb);
+  modalCloseReasonRef.current = 'start';
+
+  initializeExercise({
+    selectedVerb: chosenVerb,
+    forms: selectedForms,
+    totalForms,
+  });
+
   setIsVerbListVisible(false);
   setPendingVerb(null);
 };
-
 
 
 

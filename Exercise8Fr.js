@@ -407,6 +407,7 @@ const Exercise8Fr = () => {
   const [progress, setProgress] = useState(0);
   const [totalConjugations, setTotalConjugations] = useState(36);
   const modalCloseReasonRef = useRef(null); // 'start' | 'menu' | null
+  const [showInfinitive, setShowInfinitive] = useState(false);
 
   const [language, setLanguage] = useState('fr');
 
@@ -544,52 +545,73 @@ useEffect(() => {
   }, [startInfinitive]);
 
   // IMPORTANT: keep hebrewFormIndex BEFORE shuffle (same as RU)
-  const initializeExercise = (selectedVerb) => {
-    let selectedVerbs = [];
+const initializeExercise = ({ selectedVerb = null, forms = null, totalForms = null } = {}) => {
+  let selectedVerbs = [];
 
-    if (selectedVerb) {
-      const base = verbsData
+  if (Array.isArray(forms) && forms.length > 0) {
+    // Берём уже отфильтрованные формы из VerbListModal2
+    // и СОХРАНЯЕМ их исходную позицию в полной таблице
+    selectedVerbs = shuffleArray(
+      forms.map((v, i) => ({
+        ...v,
+        hebrewFormIndex:
+          typeof v._originalIndex === 'number'
+            ? v._originalIndex + 1
+            : typeof v.hebrewFormIndex === 'number'
+            ? v.hebrewFormIndex
+            : i + 1,
+      }))
+    );
+  } else if (selectedVerb) {
+    selectedVerbs = shuffleArray(
+      verbsData
         .filter((verb) => verb.infinitive === selectedVerb.infinitive)
-        .map((v, i) => ({ ...v, hebrewFormIndex: i + 1 }));
-      selectedVerbs = shuffleArray(base);
-    } else {
-      if (verbsData && verbsData.length > 0) {
-        const groupedByInfinitive = verbsData.reduce((acc, verb) => {
-          const { infinitive } = verb;
-          if (!acc[infinitive]) acc[infinitive] = [];
-          acc[infinitive].push(verb);
-          return acc;
-        }, {});
-
-        const infinitives = Object.keys(groupedByInfinitive);
-        const randomInfinitive = infinitives[Math.floor(Math.random() * infinitives.length)];
-
-        const base = (groupedByInfinitive[randomInfinitive] || []).map((v, i) => ({
+        .map((v, i) => ({
           ...v,
           hebrewFormIndex: i + 1,
-        }));
-        selectedVerbs = shuffleArray(base);
+        }))
+    );
+  } else if (verbsData && verbsData.length > 0) {
+    const groupedByInfinitive = verbsData.reduce((acc, verb) => {
+      const { infinitive } = verb;
+      if (!acc[infinitive]) {
+        acc[infinitive] = [];
       }
-    }
+      acc[infinitive].push(verb);
+      return acc;
+    }, {});
 
-    if (!selectedVerbs || selectedVerbs.length === 0) return;
+    const infinitives = Object.keys(groupedByInfinitive);
+    const randomInfinitive =
+      infinitives[Math.floor(Math.random() * infinitives.length)];
 
-    setTotalConjugations(selectedVerbs[0].infinitive === 'להיות' ? 24 : 36);
-    setVerbs(selectedVerbs);
-    setProgress(0);
-    setCorrectCount(0);
-    setIncorrectCount(0);
-    setCorrectAnswers(new Set());
-    setInactiveButtons(new Set());
-    setSelectedAnswer(null);
-    setIsCorrectAnswerSelected(false);
-    setNextButtonEnabled(false);
-    setCompletionMessageVisible(false);
-    setExerciseCompleted(false);
-    setCurrentIndex(0);
-    setShowTranslation(false);
-    setCurrentAudioFile(null);
-  };
+    selectedVerbs = shuffleArray(
+      groupedByInfinitive[randomInfinitive].map((v, i) => ({
+        ...v,
+        hebrewFormIndex: i + 1,
+      }))
+    );
+  }
+
+  if (!selectedVerbs.length) return;
+
+  setTotalConjugations(totalForms || selectedVerbs.length);
+  setVerbs(selectedVerbs);
+  setProgress(0);
+  setCorrectCount(0);
+  setIncorrectCount(0);
+  setCorrectAnswers(new Set());
+  setInactiveButtons(new Set());
+  setSelectedAnswer(null);
+  setIsCorrectAnswerSelected(false);
+  setNextButtonEnabled(false);
+  setCompletionMessageVisible(false);
+  setExerciseCompleted(false);
+  setCurrentIndex(0);
+  setShowInfinitive(false);
+  setShowTranslation(false);
+  setCurrentAudioFile(null);
+};
 
   // build answer options
   useEffect(() => {
@@ -1044,14 +1066,26 @@ useEffect(() => {
     setIsSearchModalVisible(false);
   };
 
-  const handleStartExercise = () => {
-    const chosenVerb = pendingVerb || mainVerb;
-    if (!chosenVerb) return;
-    modalCloseReasonRef.current = 'start';
-    initializeExercise(chosenVerb);
-    setIsVerbListVisible(false);
-    setPendingVerb(null);
-  };
+const handleStartExercise = (payload = {}) => {
+  const chosenVerb = pendingVerb || mainVerb;
+  if (!chosenVerb) return;
+
+  const selectedForms = Array.isArray(payload.forms) ? payload.forms : null;
+  const totalForms =
+    typeof payload.totalForms === 'number' ? payload.totalForms : null;
+
+  setMainVerb(chosenVerb);
+  modalCloseReasonRef.current = 'start';
+
+  initializeExercise({
+    selectedVerb: chosenVerb,
+    forms: selectedForms,
+    totalForms,
+  });
+
+  setIsVerbListVisible(false);
+  setPendingVerb(null);
+};
 
   return (
     <>

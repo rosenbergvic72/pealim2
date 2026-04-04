@@ -548,51 +548,73 @@ const isNifalForCurrentVerb = useMemo(() => {
     console.log('📌 Клик по чекбоксу. Было:', dontShowAgain8, 'Станет:', !dontShowAgain8);
   };
 
-  const initializeExercise = (selectedVerb) => {
-    let selectedVerbs;
- if (selectedVerb) {
-  const base = verbsData
-    .filter(verb => verb.infinitive === selectedVerb.infinitive)
-    .map((v, i) => ({ ...v, hebrewFormIndex: i + 1 })); // ✅ индекс ДО shuffle
+const initializeExercise = ({ selectedVerb = null, forms = null, totalForms = null } = {}) => {
+  let selectedVerbs = [];
 
-  selectedVerbs = shuffleArray(base);
-} else {
-  if (verbsData && verbsData.length > 0) {
+  if (Array.isArray(forms) && forms.length > 0) {
+    // Берём уже отфильтрованные формы из VerbListModal2
+    // и СОХРАНЯЕМ их исходную позицию в полной таблице
+    selectedVerbs = shuffleArray(
+      forms.map((v, i) => ({
+        ...v,
+        hebrewFormIndex:
+          typeof v._originalIndex === 'number'
+            ? v._originalIndex + 1
+            : typeof v.hebrewFormIndex === 'number'
+            ? v.hebrewFormIndex
+            : i + 1,
+      }))
+    );
+  } else if (selectedVerb) {
+    selectedVerbs = shuffleArray(
+      verbsData
+        .filter((verb) => verb.infinitive === selectedVerb.infinitive)
+        .map((v, i) => ({
+          ...v,
+          hebrewFormIndex: i + 1,
+        }))
+    );
+  } else if (verbsData && verbsData.length > 0) {
     const groupedByInfinitive = verbsData.reduce((acc, verb) => {
       const { infinitive } = verb;
-      if (!acc[infinitive]) acc[infinitive] = [];
+      if (!acc[infinitive]) {
+        acc[infinitive] = [];
+      }
       acc[infinitive].push(verb);
       return acc;
     }, {});
 
     const infinitives = Object.keys(groupedByInfinitive);
-    const randomInfinitive = infinitives[Math.floor(Math.random() * infinitives.length)];
+    const randomInfinitive =
+      infinitives[Math.floor(Math.random() * infinitives.length)];
 
-    const base = (groupedByInfinitive[randomInfinitive] || [])
-      .map((v, i) => ({ ...v, hebrewFormIndex: i + 1 })); // ✅ индекс ДО shuffle
-
-    selectedVerbs = shuffleArray(base);
+    selectedVerbs = shuffleArray(
+      groupedByInfinitive[randomInfinitive].map((v, i) => ({
+        ...v,
+        hebrewFormIndex: i + 1,
+      }))
+    );
   }
-}
 
-  
-    setTotalConjugations(selectedVerbs[0].infinitive === 'להיות' ? 24 : 36);
-    setVerbs(selectedVerbs);
-    setProgress(0);
-    setCorrectCount(0);
-    setIncorrectCount(0);
-    setCorrectAnswers(new Set());
-    setInactiveButtons(new Set());
-    setSelectedAnswer(null);
-    setIsCorrectAnswerSelected(false);
-    setNextButtonEnabled(false);
-    setCompletionMessageVisible(false);
-    setExerciseCompleted(false);
-    setCurrentIndex(0);
-    setShowInfinitive(false);
-    setShowTranslation(false);
-    setCurrentAudioFile(null);
-  };
+  if (!selectedVerbs.length) return;
+
+  setTotalConjugations(totalForms || selectedVerbs.length);
+  setVerbs(selectedVerbs);
+  setProgress(0);
+  setCorrectCount(0);
+  setIncorrectCount(0);
+  setCorrectAnswers(new Set());
+  setInactiveButtons(new Set());
+  setSelectedAnswer(null);
+  setIsCorrectAnswerSelected(false);
+  setNextButtonEnabled(false);
+  setCompletionMessageVisible(false);
+  setExerciseCompleted(false);
+  setCurrentIndex(0);
+  setShowInfinitive(false);
+  setShowTranslation(false);
+  setCurrentAudioFile(null);
+};
 
   // useEffect(() => {
   //   initializeExercise();
@@ -724,38 +746,46 @@ useEffect(() => {
     }
   };
 
-  const handleCorrectAnswer = (index, audioFile) => {
-    setCorrectCount((prev) => {
-      const newCount = prev + 1;
-      if (newCount >= totalConjugations) {
-        handleExerciseCompletion();
-        setExerciseCompleted(true);
-        setCompletionMessageVisible(true);
-        Animated.timing(completionMessageOpacity, {
-          toValue: 1,
-          duration: 500,
-          useNativeDriver: true,
-        }).start();
-      }
-      setProgress((newCount / totalConjugations) * 100);
-      return newCount;
-    });
+const handleCorrectAnswer = async (index, audioFile) => {
+  if (exerciseCompleted) return;
 
-    setCorrectAnswers((prev) => new Set(prev).add(selectedAnswer));
-    setIsCorrectAnswerSelected(true);
-    setSelectedAnswer(index);
-    playCorrectAnswerSound(audioFile).then(() => {
-      if (soundEnabled) {
-        setIsAnimationVisible(true);
-      }
-    });
-    changeBackgroundColor(true);
+  const newCorrectCount = correctCount + 1;
+  const isLastAnswer = newCorrectCount >= totalConjugations;
 
-    const pauseDuration = soundEnabled ? 1000 : 200;
+  setCorrectCount(newCorrectCount);
+  setProgress((newCorrectCount / totalConjugations) * 100);
+
+  setCorrectAnswers((prev) => new Set(prev).add(index));
+  setIsCorrectAnswerSelected(true);
+  setSelectedAnswer(index);
+  changeBackgroundColor(true);
+
+  if (soundEnabled) {
+    await playCorrectAnswerSound(audioFile);
+  }
+
+  if (isLastAnswer) {
+    await handleExerciseCompletion();
+
+    const finalPause = soundEnabled ? 450 : 150;
+
     setTimeout(() => {
-      setNextButtonEnabled(true);
-    }, pauseDuration);
-  };
+      setCompletionMessageVisible(true);
+      Animated.timing(completionMessageOpacity, {
+        toValue: 1,
+        duration: 500,
+        useNativeDriver: true,
+      }).start();
+    }, finalPause);
+
+    return;
+  }
+
+  const pauseDuration = soundEnabled ? 250 : 120;
+  setTimeout(() => {
+    setNextButtonEnabled(true);
+  }, pauseDuration);
+};
 
   const handleIncorrectAnswer = (index) => {
     if (exerciseCompleted) return;
@@ -1077,21 +1107,13 @@ useFocusEffect(
         setExitConfirmationVisible(false);
       };
 
-  const handleExerciseCompletion = async () => {
-    const exerciseId = 'exercise8';
-    const currentScore = parseFloat(progressPercent.toFixed(2));
-    await updateStatistics(exerciseId, currentScore);
+const handleExerciseCompletion = async () => {
+  const exerciseId = 'exercise8En';
+  const currentScore = parseFloat(progressPercent.toFixed(2));
+  await updateStatistics(exerciseId, currentScore);
 
-    setExerciseCompleted(true);
-    setTimeout(() => {
-      setCompletionMessageVisible(true);
-      Animated.timing(completionMessageOpacity, {
-        toValue: 1,
-        duration: 500,
-        useNativeDriver: true,
-      }).start();
-    }, 600);
-  };
+  setExerciseCompleted(true);
+};
 
 const resetExercise = () => {
   setCorrectCount(0);
@@ -1134,12 +1156,9 @@ const resetExercise = () => {
   };
 
   const handleContinue = async () => {
-    if (!exerciseCompleted) {
-      await handleExerciseCompletion();
-    }
-    setCompletionMessageVisible(false);
-    resetExercise();
-  };
+  setCompletionMessageVisible(false);
+  resetExercise();
+};
 
   const handleSearchToggle = () => {
     setIsSearchModalVisible((prev) => !prev);
@@ -1161,17 +1180,26 @@ const handleSelectVerb = (verb) => {
 
 
 
-const handleStartExercise = () => {
+const handleStartExercise = (payload = {}) => {
   const chosenVerb = pendingVerb || mainVerb;
   if (!chosenVerb) return;
-  // важно: фиксируем текущий глагол для вычисления isNifalForCurrentVerb
+
+  const selectedForms = Array.isArray(payload.forms) ? payload.forms : null;
+  const totalForms =
+    typeof payload.totalForms === 'number' ? payload.totalForms : null;
+
   setMainVerb(chosenVerb);
-  modalCloseReasonRef.current = 'start'; // ← хотим звук
-  initializeExercise(chosenVerb);
+  modalCloseReasonRef.current = 'start';
+
+  initializeExercise({
+    selectedVerb: chosenVerb,
+    forms: selectedForms,
+    totalForms,
+  });
+
   setIsVerbListVisible(false);
   setPendingVerb(null);
 };
-
 
 
 

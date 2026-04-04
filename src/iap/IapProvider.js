@@ -9,7 +9,7 @@ import React, {
   useState,
 } from 'react';
 import * as RNIap from 'react-native-iap';
-import { Platform, Linking, Alert } from 'react-native';
+import { Platform, Linking } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Constants from 'expo-constants';
 import * as Device from 'expo-device';
@@ -594,7 +594,6 @@ export function IapProvider({ children, initialSegment = 'basic' }) {
 
       if (!isIsoActiveNow(codeAccessUntilRef.current)) {
         await saveCodeAccessUntil(null);
-        syncAccessStateRespectingCode(false);
       }
 
       return { ok: true, pro: false, accessUntil: null };
@@ -822,6 +821,12 @@ export function IapProvider({ children, initialSegment = 'basic' }) {
     [segment, promoActive, trialEverUsed]
   );
 
+  const hasLocalActiveEntitlement = useCallback(async () => {
+    const { json, expiresAt } = await readVerifyCache();
+    const effectiveExpiresAt = expiresAt || json?.expiresAt || '';
+    return !!(json?.pro === true && effectiveExpiresAt && notExpiredBy(effectiveExpiresAt));
+  }, []);
+
   const tryOfflineEntitlement = useCallback(async () => {
     if (!ENTITLE_OFFLINE_WHILE_NOT_EXPIRED) return false;
 
@@ -954,6 +959,72 @@ export function IapProvider({ children, initialSegment = 'basic' }) {
   ]);
 
   useEffect(() => {
+    let cancelled = false;
+
+    (async () => {
+      try {
+        setAccessState('checking');
+
+        await ensureCodeLoaded();
+
+        if (isIsoActiveNow(codeAccessUntilRef.current)) {
+          if (!cancelled) {
+            syncAccessStateRespectingCode(true);
+            setReady(true);
+          }
+          return;
+        }
+
+        const localActive = await hasLocalActiveEntitlement();
+        if (localActive && !cancelled) {
+          syncAccessStateRespectingCode(true);
+        }
+
+        const restored = RESTORE_ON_LAUNCH ? await restoreActiveSubscription() : false;
+        if (restored) {
+          if (!cancelled) {
+            syncAccessStateRespectingCode(true);
+            setReady(true);
+          }
+          return;
+        }
+
+        const offlineOk = await tryOfflineEntitlement();
+        if (offlineOk) {
+          if (!cancelled) {
+            syncAccessStateRespectingCode(true);
+            setReady(true);
+          }
+          return;
+        }
+
+        if (!cancelled) {
+          syncAccessStateRespectingCode(false);
+          setReady(true);
+        }
+      } catch (e) {
+        console.log('[IAP] bootstrap access error=', e?.message || String(e));
+        const offlineOk = await tryOfflineEntitlement();
+        if (!cancelled) {
+          syncAccessStateRespectingCode(offlineOk);
+          setReady(true);
+        }
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [
+    ensureCodeLoaded,
+    hasLocalActiveEntitlement,
+    isIsoActiveNow,
+    restoreActiveSubscription,
+    syncAccessStateRespectingCode,
+    tryOfflineEntitlement,
+  ]);
+
+  useEffect(() => {
     let subUpdated;
     let subError;
     let cancelled = false;
@@ -970,14 +1041,12 @@ export function IapProvider({ children, initialSegment = 'basic' }) {
         if (cancelled) return;
         setDisplayPrices(mock);
         setAvailable(true);
-        setAccessState('free');
+        if (accessState !== 'pro') setAccessState('free');
         setReady(true);
         return;
       }
 
       try {
-        setAccessState('checking');
-
         await clearOldIapCacheIfRequested();
         await RNIap.initConnection();
 
@@ -1004,18 +1073,6 @@ export function IapProvider({ children, initialSegment = 'basic' }) {
         setAvailable(okAvailable);
         if (okAvailable) recalcPrices('product-loaded');
 
-        let restored = false;
-        if (RESTORE_ON_LAUNCH) {
-          restored = await restoreActiveSubscription();
-        }
-
-        if (cancelled) return;
-
-        setReady(true);
-        if (!restored && !hasPro) {
-          setAccessState('free');
-        }
-
         function isPurchaseCompleted(p) {
           if (Platform.OS === 'android') {
             const state = Number(p?.purchaseStateAndroid ?? 0);
@@ -1025,16 +1082,14 @@ export function IapProvider({ children, initialSegment = 'basic' }) {
         }
 
         subUpdated = RNIap.purchaseUpdatedListener(async (purchase) => {
+          console.log('🔥 [IAP][PURCHASE UPDATED]', {
+            productId: purchase?.productId,
+            transactionId: purchase?.transactionId,
+            hasReceipt: !!purchase?.transactionReceipt,
+            receiptLength: purchase?.transactionReceipt?.length || 0,
+          });
 
-  console.log('🔥 [IAP][PURCHASE UPDATED]', {
-    productId: purchase?.productId,
-    transactionId: purchase?.transactionId,
-    hasReceipt: !!purchase?.transactionReceipt,
-    receiptLength: purchase?.transactionReceipt?.length || 0,
-  });
-
-  console.log('🔥 [IAP][FULL PURCHASE]', purchase);
-
+          console.log('🔥 [IAP][FULL PURCHASE]', purchase);
 
           try {
             if (!purchase) return;
@@ -1083,12 +1138,13 @@ export function IapProvider({ children, initialSegment = 'basic' }) {
               };
 
               const applyFailState = async () => {
-                syncAccessStateRespectingCode(false);
+                const offlineOk = await tryOfflineEntitlement();
+                syncAccessStateRespectingCode(offlineOk);
                 setJustPurchased(false);
                 setShouldShowPost(false);
 
                 try {
-                  await AsyncStorage.setItem(IAP_LAST_PRO, 'false');
+                  await AsyncStorage.setItem(IAP_LAST_PRO, String(offlineOk));
                 } catch {}
               };
 
@@ -1168,12 +1224,13 @@ export function IapProvider({ children, initialSegment = 'basic' }) {
             };
 
             const applyFailState = async () => {
-              syncAccessStateRespectingCode(false);
+              const offlineOk = await tryOfflineEntitlement();
+              syncAccessStateRespectingCode(offlineOk);
               setJustPurchased(false);
               setShouldShowPost(false);
 
               try {
-                await AsyncStorage.setItem(IAP_LAST_PRO, 'false');
+                await AsyncStorage.setItem(IAP_LAST_PRO, String(offlineOk));
               } catch {}
             };
 
@@ -1213,22 +1270,23 @@ export function IapProvider({ children, initialSegment = 'basic' }) {
           }
         });
 
-      subError = RNIap.purchaseErrorListener((err) => {
-  console.log('[IAP][ERROR]', {
-    code: err?.code || null,
-    message: err?.message || null,
-    debugMessage: err?.debugMessage || null,
-    productId: err?.productId || null,
-  });
+        subError = RNIap.purchaseErrorListener((err) => {
+          console.log('[IAP][ERROR]', {
+            code: err?.code || null,
+            message: err?.message || null,
+            debugMessage: err?.debugMessage || null,
+            productId: err?.productId || null,
+          });
 
-  purchasingRef.current = false;
-});
-
+          purchasingRef.current = false;
+        });
       } catch (e) {
         console.log('[IAP] init error=', e);
         if (cancelled) return;
         setAvailable(false);
-        setAccessState('free');
+
+        const offlineOk = await tryOfflineEntitlement();
+        syncAccessStateRespectingCode(offlineOk);
         setReady(true);
       }
     })();
@@ -1246,14 +1304,13 @@ export function IapProvider({ children, initialSegment = 'basic' }) {
       } catch {}
     };
   }, [
+    accessState,
     clearOldIapCacheIfRequested,
     recalcPrices,
     resolveVerifyResult,
-    restoreActiveSubscription,
     syncAccessStateRespectingCode,
     tryOfflineEntitlement,
     verifyOnServer,
-    hasPro,
   ]);
 
   useEffect(() => {
@@ -1290,68 +1347,67 @@ export function IapProvider({ children, initialSegment = 'basic' }) {
     [segment, promoActive, trialEverUsed]
   );
 
-const requestBuy = useCallback(
-  async (kind) => {
-    try {
-      const selectedSku =
-        Platform.OS === 'ios'
-          ? kind === 'annual'
-            ? SKU_ANNUAL
-            : SKU_MONTHLY
-          : SKU;
+  const requestBuy = useCallback(
+    async (kind) => {
+      try {
+        const selectedSku =
+          Platform.OS === 'ios'
+            ? kind === 'annual'
+              ? SKU_ANNUAL
+              : SKU_MONTHLY
+            : SKU;
 
-      const baseParams = {
-        sku: selectedSku,
-        andDangerouslyFinishTransactionAutomatically: false,
-      };
+        const baseParams = {
+          sku: selectedSku,
+          andDangerouslyFinishTransactionAutomatically: false,
+        };
 
-      if (Platform.OS === 'ios') {
-        const targetProd =
-          kind === 'annual' ? productRefAnnual.current : productRef.current;
+        if (Platform.OS === 'ios') {
+          const targetProd =
+            kind === 'annual' ? productRefAnnual.current : productRef.current;
 
-        if (!targetProd) {
-          console.log('[IAP] product not loaded', kind);
+          if (!targetProd) {
+            console.log('[IAP] product not loaded', kind);
+            return;
+          }
+
+          purchasingRef.current = true;
+
+          await RNIap.requestSubscription(baseParams);
+          return;
+        }
+
+        const prod = productRef.current;
+
+        if (!prod) {
+          console.log('[IAP] product not loaded Android');
+          return;
+        }
+
+        const offerToken = findOfferToken(kind);
+        if (!offerToken) {
+          console.log('[IAP] no offerToken for', kind);
           return;
         }
 
         purchasingRef.current = true;
 
-        await RNIap.requestSubscription(baseParams);
-        return;
+        await RNIap.requestSubscription({
+          ...baseParams,
+          subscriptionOffers: [{ sku: selectedSku, offerToken }],
+        });
+      } catch (e) {
+        console.log('[IAP][BUY ERROR]', {
+          code: e?.code || null,
+          message: e?.message || null,
+          debugMessage: e?.debugMessage || null,
+        });
+
+        purchasingRef.current = false;
       }
-
-      const prod = productRef.current;
-
-      if (!prod) {
-        console.log('[IAP] product not loaded Android');
-        return;
-      }
-
-      const offerToken = findOfferToken(kind);
-      if (!offerToken) {
-        console.log('[IAP] no offerToken for', kind);
-        return;
-      }
-
-      purchasingRef.current = true;
-
-      await RNIap.requestSubscription({
-        ...baseParams,
-        subscriptionOffers: [{ sku: selectedSku, offerToken }],
-      });
-    } catch (e) {
-
-  console.log('[IAP][BUY ERROR]', {
-    code: e?.code || null,
-    message: e?.message || null,
-    debugMessage: e?.debugMessage || null,
-  });
-
-  purchasingRef.current = false;
-}
-  },
-  [findOfferToken]
-);
+    },
+    [findOfferToken]
+  );
 
   const buyMonthly = useCallback(async () => requestBuy('monthly'), [requestBuy]);
   const buyAnnual = useCallback(async () => requestBuy('annual'), [requestBuy]);
@@ -1395,16 +1451,50 @@ const requestBuy = useCallback(
 
   const restore = useCallback(async () => {
     try {
-      return await restoreActiveSubscription();
-    } catch {
+      await ensureCodeLoaded();
+
+      if (isIsoActiveNow(codeAccessUntilRef.current)) {
+        syncAccessStateRespectingCode(true);
+        return true;
+      }
+
       const offlineOk = await tryOfflineEntitlement();
-      syncAccessStateRespectingCode(offlineOk);
-      return offlineOk;
+      if (offlineOk) {
+        syncAccessStateRespectingCode(true);
+      }
+
+      const restored = await restoreActiveSubscription();
+      if (restored) {
+        syncAccessStateRespectingCode(true);
+        return true;
+      }
+
+      const offlineAgain = await tryOfflineEntitlement();
+      if (offlineAgain) {
+        syncAccessStateRespectingCode(true);
+        return true;
+      }
+
+      syncAccessStateRespectingCode(false);
+      return false;
+    } catch (e) {
+      console.log('[IAP] restore failed=', e?.message || String(e));
+
+      const offlineOk = await tryOfflineEntitlement();
+      if (offlineOk) {
+        syncAccessStateRespectingCode(true);
+        return true;
+      }
+
+      syncAccessStateRespectingCode(false);
+      return false;
     }
   }, [
+    ensureCodeLoaded,
+    isIsoActiveNow,
     restoreActiveSubscription,
-    tryOfflineEntitlement,
     syncAccessStateRespectingCode,
+    tryOfflineEntitlement,
   ]);
 
   const markPostShown = useCallback(async () => {
@@ -1571,7 +1661,6 @@ export function NoIapProvider({ children }) {
 
       __devGrantPro,
       __devRevokePro,
-      
 
       displayPrices: {
         baseMonthly: undefined,

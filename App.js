@@ -7,6 +7,7 @@ import './animatedTimingPatch';
 import './debugAnimatedTiming';
 import './debugAnimated';
 import { Audio } from 'expo-av';
+import StartupGate from './StartupGate';
 
 import React, { useEffect, useRef, useState } from 'react';
 
@@ -253,38 +254,55 @@ function CompactHeader({ navigation, options, back, route }) {
   const rtl = options.headerRtl === true;
 
   const resolveMenuRoute = (routeName) => {
-    if (routeName.endsWith('En')) return 'MenuEn';
-    if (routeName.endsWith('Fr')) return 'MenuFr';
-    if (routeName.endsWith('Es')) return 'MenuEs';
-    if (routeName.endsWith('Pt')) return 'MenuPt';
-    if (routeName.endsWith('Ar')) return 'MenuAr';
-    if (routeName.endsWith('Am')) return 'MenuAm';
+    if (routeName?.endsWith('En')) return 'MenuEn';
+    if (routeName?.endsWith('Fr')) return 'MenuFr';
+    if (routeName?.endsWith('Es')) return 'MenuEs';
+    if (routeName?.endsWith('Pt')) return 'MenuPt';
+    if (routeName?.endsWith('Ar')) return 'MenuAr';
+    if (routeName?.endsWith('Am')) return 'MenuAm';
     return 'Menu';
   };
 
   const isExerciseScreen = /^Exercise\d+/.test(route?.name || '');
+  const isMenuScreen =
+    route?.name === 'Menu' ||
+    route?.name === 'MenuEn' ||
+    route?.name === 'MenuFr' ||
+    route?.name === 'MenuEs' ||
+    route?.name === 'MenuPt' ||
+    route?.name === 'MenuAr' ||
+    route?.name === 'MenuAm';
 
-  // ✅ учитываем твой флаг
   const forceBack = options.headerForceBack === true;
   const backTarget = options.headerBackTarget;
-
-  // ✅ теперь кнопка будет даже когда `back` не пришёл
   const shouldShowBack = forceBack || !!back || isExerciseScreen;
 
   const onBackPress = () => {
-    // ✅ если задан явный экран-цель — идём туда
     if (backTarget) {
-      navigation.navigate(backTarget);
+      // Для меню пересобираем стек, чтобы было ровно:
+      // LanguageSelectionPage -> WelcomeXx
+      // и не оставались старые Welcome / Paywall в истории.
+      if (isMenuScreen) {
+        navigation.reset({
+          index: 1,
+          routes: [
+            { name: 'LanguageSelectionPage' },
+            { name: backTarget },
+          ],
+        });
+        return;
+      }
+
+      // Для остальных экранов простой replace достаточно
+      navigation.replace(backTarget);
       return;
     }
 
-    // обычный back
     if (navigation.canGoBack && navigation.canGoBack()) {
       navigation.goBack();
       return;
     }
 
-    // если "назад" некуда — уходим в меню языка
     navigation.navigate(resolveMenuRoute(route?.name || ''));
   };
 
@@ -781,7 +799,7 @@ useEffect(() => {
         {/* ✅ Safe-area по низу: цвет зависит от текущего route */}
         <SafeAreaView style={{ flex: 1, backgroundColor: bottomBg }} edges={['bottom']}>
           <Stack.Navigator
-            initialRouteName="LanguageSelectionPage"
+            initialRouteName="StartupGate"
             detachInactiveScreens={false}
             screenOptions={{
               unmountOnBlur: false,
@@ -818,6 +836,15 @@ useEffect(() => {
 />
 
 
+<Stack.Screen
+  name="StartupGate"
+  component={StartupGate}
+  options={{
+    headerShown: false,
+    cardStyle: { backgroundColor: '#F0F0F0' },
+  }}
+/>
+            
             <Stack.Screen
               name="LanguageSelectionPage"
               component={LanguageSelectionPage}

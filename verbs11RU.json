@@ -107755,10 +107755,6 @@
     "mp3": "animitnandedet"
   },
   
-  
-  
-  
-  
   {
   "infinitive": "להשקות",
   "russian": "Поливать",
@@ -108143,35 +108139,105 @@
   "translit": "ani somekhet",
   "mp3": "anisomekhet"
 },
+ 
+{
+  "infinitive": "לגרוב",
+  "russian": "Надевать носки",
+  "english": "to put on socks",
+  "french": "mettre des chaussettes",
+  "spanish": "ponerse calcetines",
+  "portu": "calçar meias",
+  "arabic": "أن يرتدي جوارب",
+  "amharic": "ካልሲ መልበስ",
+  "transliteration": "ligrov",
+  "audioFile": "ligrov.mp3",
+  "russiantext": "Я надеваю носки",
+  "engtext": "I put on socks",
+  "entext": "I put on socks",
+  "frtext": "Je mets des chaussettes",
+  "estext": "Me pongo calcetines",
+  "pttext": "Calço meias",
+  "artext": "أنا أرتدي جوارب",
+  "amtext": "ካልሲ እለብሳለሁ",
+  "gender": "man",
+  "hebrewtext": "אני גורב",
+  "translit": "ani gorev",
+  "mp3": "anigorev"
+},
+{
+  "infinitive": "לגרוב",
+  "russian": "Надевать носки",
+  "english": "to put on socks",
+  "french": "mettre des chaussettes",
+  "spanish": "ponerse calcetines",
+  "portu": "calçar meias",
+  "arabic": "أن يرتدي جوارب",
+  "amharic": "ካልሲ መልበስ",
+  "transliteration": "ligrov",
+  "audioFile": "ligrov.mp3",
+  "russiantext": "Я надеваю носки",
+  "engtext": "I put on socks",
+  "entext": "I put on socks",
+  "frtext": "Je mets des chaussettes",
+  "estext": "Me pongo calcetines",
+  "pttext": "Calço meias",
+  "artext": "أنا أرتدي جوارب",
+  "amtext": "ካልሲ እለብሳለሁ",
+  "gender": "woman",
+  "hebrewtext": "אני גורבת",
+  "translit": "ani gorevet",
+  "mp3": "anigorevet"
+},
 
+{
+  "infinitive": "לחגור",
+  "russian": "Надевать ремень",
+  "english": "to put on a belt",
+  "french": "mettre une ceinture",
+  "spanish": "ponerse un cinturón",
+  "portu": "colocar um cinto",
+  "arabic": "أن يضع حزامًا",
+  "amharic": "ቀበቶ መልበስ",
+  "transliteration": "lachgor",
+  "audioFile": "lachgor.mp3",
+  "russiantext": "Я надеваю ремень",
+  "engtext": "I put on a belt",
+  "entext": "I put on a belt",
+  "frtext": "Je mets une ceinture",
+  "estext": "Me pongo un cinturón",
+  "pttext": "Coloco um cinto",
+  "artext": "أنا أضع حزامًا",
+  "amtext": "ቀበቶ እለብሳለሁ",
+  "gender": "man",
+  "hebrewtext": "אני חוגר",
+  "translit": "ani choger",
+  "mp3": "anichoger"
+},
+{
+  "infinitive": "לחגור",
+  "russian": "Надевать ремень",
+  "english": "to put on a belt",
+  "french": "mettre une ceinture",
+  "spanish": "ponerse un cinturón",
+  "portu": "colocar um cinto",
+  "arabic": "أن يضع حزامًا",
+  "amharic": "ቀበቶ መልበስ",
+  "transliteration": "lachgor",
+  "audioFile": "lachgor.mp3",
+  "russiantext": "Я надеваю ремень",
+  "engtext": "I put on a belt",
+  "entext": "I put on a belt",
+  "frtext": "Je mets une ceinture",
+  "estext": "Me pongo un cinturón",
+  "pttext": "Coloco um cinto",
+  "artext": "أنا أضع حزامًا",
+  "amtext": "ቀበቶ እለብሳለሁ",
+  "gender": "woman",
+  "hebrewtext": "אני חוגרת",
+  "translit": "ani chogeret",
+  "mp3": "anichogeret"
+}
 
-
-
-
-  {
-    "infinitive": "להיעצר",
-    "russian": "Останавливаться",
-    "english": "to stop",
-    "french": "s'arrêter",
-    "spanish": "detenerse",
-    "portu": "parar",
-    "arabic": "أن يتوقف",
-    "amharic": "መቆም",
-    "transliteration": "lehe'atzer",
-    "audioFile": "leheatzer.mp3",
-    "russiantext": "Я останавливаюсь",
-    "engtext": "I stop",
-    "entext": "I stop",
-    "frtext": "Je m’arrête",
-    "estext": "Me detengo",
-    "pttext": "Eu paro",
-    "artext": "أنا أتوقف",
-    "amtext": "እቆማለሁ",
-    "gender": "man",
-    "hebrewtext": "אני נעצר",
-    "translit": "ani ne’etzar",
-    "mp3": "anineetzar"
-  }
 
 
 

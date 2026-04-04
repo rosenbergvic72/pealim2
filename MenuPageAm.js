@@ -23,6 +23,7 @@ import { ensureMarkedToday } from './serverPush';
 import { useIap } from './src/iap/IapProvider';
 import StatsReportModalMulti from './StatsReportModalMulti';
 import Constants from 'expo-constants';
+import UpgradeBanner from './UpgradeBanner';
 
 // Бесплатные экраны для AM
 const FREE_ROUTES_AM = new Set(['Exercise1Am', 'Exercise2Am']);
@@ -93,7 +94,7 @@ export default function MenuPage({ route }) {
 
   useEffect(() => {
     const onBackPress = () => {
-      navigation.reset({ index: 0, routes: [{ name: 'WelcomeAm' }] });
+      navigation.reset({ index: 0, routes: [{ name: 'LanguageSelectionPage' }] });
       return true;
     };
     const backHandler = BackHandler.addEventListener('hardwareBackPress', onBackPress);
@@ -603,6 +604,16 @@ const handleReportBug = useCallback(async () => {
               </View>
             </TouchableOpacity>
           </Animated.View>
+
+          <UpgradeBanner
+  hasPro={hasPro}
+  navigation={navigation}
+  language="am"
+  animatedStyle={{
+    opacity: button3Opacity,
+    transform: [{ translateY: button3TranslateY }],
+  }}
+/>
 
           {/* 3 — LOCKED if !PRO */}
           <Animated.View

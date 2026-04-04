@@ -1,4 +1,3 @@
-// Exercise6Am.jsx
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, StyleSheet, Image, BackHandler, Platform } from 'react-native';
 import verbsData from './verbs6RU.json';
@@ -18,13 +17,7 @@ import { widthPercentageToDP as wp } from 'react-native-responsive-screen';
 import { Dimensions } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import VerbListModal2 from './VerbListModal2';
-import shuffleArray from './utils/shuffleArray';
 import verbs1Data from './verbs1.json';
-
-const FONT_REG = 'mt-regular';
-const FONT_MED = 'mt-medium';
-const FONT_BOLD = 'mt-bold';
-const FONT_SEMIBOLD = 'mt-semibold';
 
 const HEBREW_FONT = Platform.OS === 'android' ? 'mt-semibold' : 'mt-bold';
 const HEBREW_FS = Platform.OS === 'android' ? 18 : 22;
@@ -47,7 +40,7 @@ const Exercise6Am = () => {
   const navigation = useNavigation();
   const [exerciseCompleted, setExerciseCompleted] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const allowExitRef = useRef(false);
+  const completionTriggeredRef = useRef(false);
 
   const [exitConfirmationVisible, setExitConfirmationVisible] = useState(false);
 
@@ -57,19 +50,17 @@ const Exercise6Am = () => {
 
   const [soundEnabled, setSoundEnabled] = useState(true);
 
-// ✅ 3-state translit:
-// 0 — translit1: highlight ON + translit ON
-// 1 — translit2: highlight ON + translit OFF
-// 2 — translit3: highlight OFF + translit OFF
-const [translitMode, setTranslitMode] = useState(0);
+  // 0 — translit1: highlight ON + translit ON
+  // 1 — translit2: highlight ON + translit OFF
+  // 2 — translit3: highlight OFF + translit OFF
+  const [translitMode, setTranslitMode] = useState(0);
 
-const handleTranslitToggle = () => {
-  setTranslitMode(prev => (prev === 0 ? 1 : prev === 1 ? 2 : 0));
-};
+  const handleTranslitToggle = () => {
+    setTranslitMode(prev => (prev === 0 ? 1 : prev === 1 ? 2 : 0));
+  };
 
-const showTranslit = translitMode === 0;
-const highlightEnabled = translitMode !== 2;
-
+  const showTranslit = translitMode === 0;
+  const highlightEnabled = translitMode !== 2;
 
   const totalAnswers = correctCount + incorrectCount;
   const [currentVerb, setCurrentVerb] = useState({
@@ -79,59 +70,53 @@ const highlightEnabled = translitMode !== 2;
   });
 
   const [language, setLanguage] = useState('am');
-
   const [mainVerb, setMainVerb] = useState(null);
   const [verbListForModal, setVerbListForModal] = useState([]);
   const [isVerbListVisible, setIsVerbListVisible] = useState(true);
-
- 
-useEffect(() => {
-  const initialize = async () => {
-    const lang = await AsyncStorage.getItem('language');
-    const hidden = await AsyncStorage.getItem('exercise6_description_hidden');
-
-    setLanguage(lang || 'en');
-    setDontShowAgain6(hidden === 'true');
-    setLanguageLoaded(true);
-
-    // ❌ больше НЕ показываем автоматически
-  };
-
-  initialize();
-}, []);
-
+  const [selectedTenses, setSelectedTenses] = useState({
+    present: true,
+    past: true,
+    future: true,
+  });
 
   const [isDescriptionModalVisible, setDescriptionModalVisible] = useState(false);
   const [dontShowAgain6, setDontShowAgain6] = useState(false);
   const [languageLoaded, setLanguageLoaded] = useState(false);
 
- useEffect(() => {
-  const checkFlagAndLang = async () => {
-    const hidden = await AsyncStorage.getItem('exercise6_description_hidden');
-    const lang = await AsyncStorage.getItem('language');
+  useEffect(() => {
+    const initialize = async () => {
+      const lang = await AsyncStorage.getItem('language');
+      const hidden = await AsyncStorage.getItem('exercise6_description_hidden');
 
-    if (lang) {
-      setLanguage(lang);
+      setLanguage(lang || 'am');
       setDontShowAgain6(hidden === 'true');
       setLanguageLoaded(true);
+    };
 
-      // if (hidden !== 'true') {
-      //   setTimeout(() => setDescriptionModalVisible(true), 100);
-      // }
-    }
+    initialize();
+  }, []);
 
-    setDontShowAgain6(hidden === 'true');
-  };
+  useEffect(() => {
+    const checkFlagAndLang = async () => {
+      const hidden = await AsyncStorage.getItem('exercise6_description_hidden');
+      const lang = await AsyncStorage.getItem('language');
 
-  checkFlagAndLang();
-}, []);
+      if (lang) {
+        setLanguage(lang);
+        setDontShowAgain6(hidden === 'true');
+        setLanguageLoaded(true);
+      }
 
+      setDontShowAgain6(hidden === 'true');
+    };
+
+    checkFlagAndLang();
+  }, []);
 
   const handleToggleDontShowAgain6 = async () => {
     const newValue = !dontShowAgain6;
     setDontShowAgain6(newValue);
     await AsyncStorage.setItem('exercise6_description_hidden', newValue ? 'true' : '');
-    console.log('📌 Клик по чекбоксу. Было:', dontShowAgain6, 'Станет:', !dontShowAgain6);
   };
 
   const getGrade = (percentage) => {
@@ -150,6 +135,10 @@ useEffect(() => {
 
   const progressPercent = totalAnswers > 0 ? (correctCount / totalAnswers) * 100 : 0;
   const grade = getGrade(progressPercent);
+
+  const [failureSound, setFailureSound] = useState(null);
+  const [sound, setSound] = useState(null);
+  const [correctSound, setCorrectSound] = useState(null);
 
   const handleSoundToggle = () => {
     setSoundEnabled(!soundEnabled);
@@ -193,21 +182,24 @@ useEffect(() => {
 
     setCurrentIndex(prevIndex => {
       const newIndex = prevIndex + 1;
-      handleProgressUpdate();
+      handleProgressUpdate(newIndex);
       return newIndex;
     });
   };
 
-  const handleProgressUpdate = () => {
-    setProgress(currentIndex / totalExercises * 100);
+  const handleProgressUpdate = (nextIndex = currentIndex) => {
+    setProgress(totalExercises > 0 ? nextIndex : 0);
   };
 
-  useEffect(() => {
-    if (currentIndex >= totalExercises && totalExercises > 0) {
+  const finishExerciseWithDelay = useCallback(() => {
+    if (completionTriggeredRef.current) return;
+    completionTriggeredRef.current = true;
+
+    setTimeout(() => {
       setExerciseCompleted(true);
       handleExerciseCompletion();
-    }
-  }, [currentIndex, totalExercises]);
+    }, 1400);
+  }, []);
 
   const changeBackgroundColor = (isCorrect) => {
     backgroundColorAnim.setValue(isCorrect ? 1 : 2);
@@ -241,400 +233,39 @@ useEffect(() => {
     return newArray;
   };
 
-  // ✅ init random verb: add formIndex
-  useEffect(() => {
-    if (verbsData && verbsData.length > 0) {
-      const uniqueVerbs = [...new Set(verbsData.map(item => item.infinitive))];
-      const selectedVerb = uniqueVerbs[Math.floor(Math.random() * uniqueVerbs.length)];
-
-      const allForms = verbsData
-        .filter(verb => verb.infinitive === selectedVerb)
-        .map((v, i) => ({ ...v, formIndex: i + 1 }));
-
-      setMainVerb(allForms[0]);
-      setVerbListForModal(allForms);
-
-      const shuffledForms = shuffleArrayLocal([...allForms]);
-      setPairs(shuffledForms);
-      setRemainingPairs(allForms.length);
-      setTotalExercises(allForms.length);
-
-      setIsVerbListVisible(true);
-      setPendingVerb(null);
-    }
-  }, [verbsData]);
-
-  // ✅ displayPairs: shuffle hebrew WITH formIndex, pass as hebrewFormIndex
-  useEffect(() => {
-    const start = page * 6;
-    const end = start + 6;
-    const currentPairs = pairs.slice(start, end);
-
-    const hebrewItems = shuffleArrayLocal(
-      currentPairs.map(pair => ({
-        text: pair.hebrewtext,
-        translit: pair.translit,
-        formIndex: pair.formIndex,
-      }))
-    );
-
-    const mixedPairs = currentPairs.map((pair, index) => ({
-      ...pair,
-      amtext: pair.amtext,
-
-      hebrewtext: hebrewItems[index].text,
-      translit: hebrewItems[index].translit,
-
-      hebrewFormIndex: hebrewItems[index].formIndex,
-      correct: pair.hebrewtext,
-    }));
-
-    setDisplayPairs(mixedPairs);
-    setHebrewActive(false);
-    setSelectedRussian(null);
-    setSelectedHebrew(null);
-  }, [page, pairs]);
-
-  const [isUpdating, setIsUpdating] = useState(false);
-
-  useEffect(() => {
-    if (resolvedPairsCount === 6 && !isUpdating) {
-      setIsUpdating(true);
-      setTimeout(() => {
-        if ((page + 1) * 6 < pairs.length) setPage(prev => prev + 1);
-        else setPage(0);
-
-        setCorrectAnswers(new Set());
-        setSelectedRussian(null);
-        setSelectedHebrew(null);
-        setHebrewActive(false);
-        setResolvedPairsCount(0);
-        setIsUpdating(false);
-      }, 1200);
-    }
-  }, [resolvedPairsCount, page, pairs.length, isUpdating]);
-
-  useEffect(() => {
-    if (page === 0) setResolvedPairsCount(0);
-  }, [page]);
-
-  const handleSelectRussian = (index) => {
-    setSelectedRussian(index);
-    setSelectedHebrew(null);
-    setHebrewActive(true);
-  };
-
-  const handleSelectHebrew = (index) => {
-    setSelectedHebrew(index);
-    const selectedPair = displayPairs[index];
-    const isCorrect =
-      selectedRussian !== null &&
-      selectedPair.hebrewtext === displayPairs[selectedRussian].correct;
-
-    if (isCorrect) {
-      handleAnswer(isCorrect);
-      setCorrectAnswers(prev => new Set(prev).add(selectedRussian));
-      setResolvedPairsCount(prev => prev + 1);
-      setRemainingPairs(prev => prev - 1);
-      setCorrectCount(prev => prev + 1);
-
-      playCorrectAnswerSound(displayPairs[selectedRussian].mp3);
-      changeBackgroundColor(isCorrect);
-    } else {
-      setIncorrectCount(prev => prev + 1);
-      playFailureSound();
-      changeBackgroundColor(isCorrect);
-    }
-  };
-
-  const getButtonStyle = (index, type) => {
-    let style = [styles.button, type === 'hebrew' ? styles.hebrewButton : {}];
-    if (correctAnswers.has(index) && type === 'am') style.push(styles.deactivatedButton);
-    if (type === 'am' && index === selectedRussian) style.push(styles.selectedButton);
-    if (type === 'hebrew' && index === selectedHebrew) {
-      style.push(
-        displayPairs[selectedRussian]?.correct === displayPairs[index].hebrewtext
-          ? styles.correctButton
-          : styles.wrongButton
-      );
-    }
-    return style;
-  };
-
-  const getImageForGender = (gender) => {
-    switch (gender) {
-      case 'man': return require('./man1.png');
-      case 'woman': return require('./woman1.png');
-      case 'men': return require('./men1.png');
-      case 'women': return require('./women1.png');
-      default: return null;
-    }
-  };
-
-  const [failureSound, setFailureSound] = useState(null);
-  const [sound, setSound] = useState(null);
-  const [correctSound, setCorrectSound] = useState(null);
-
-  useEffect(() => {
-    loadFailureSound();
-    return () => {
-      failureSound?.unloadAsync();
-    };
+  const buildVerbForms = useCallback((infinitive) => {
+    return verbsData
+      .filter(verb => verb.infinitive === infinitive)
+      .map((v, i) => ({ ...v, formIndex: i + 1 }));
   }, []);
 
-  useEffect(() => {
-    return () => {
-      correctSound?.unloadAsync();
-    };
-  }, [correctSound]);
-
-  const playCorrectAnswerSound = async (audioKey) => {
-    if (!soundEnabled) return;
-    try {
-      const audioFile = soundsconj[audioKey];
-      if (!audioFile) {
-        console.error(`Audio file for key ${audioKey} not found.`);
-        return;
-      }
-      if (correctSound) await correctSound.unloadAsync();
-      const { sound: newSound } = await Audio.Sound.createAsync(audioFile);
-      setCorrectSound(newSound);
-      await newSound.playAsync();
-    } catch (error) {
-      console.error('Error loading sound:', error);
-    }
-  };
-
-  const loadFailureSound = async () => {
-    try {
-      const { sound } = await Audio.Sound.createAsync(
-        require('./assets/sounds/failure.mp3')
-      );
-      setFailureSound(sound);
-    } catch (error) {
-      console.error("Couldn't load failure sound:", error);
-    }
-  };
-
-  const playAudio = async (audioFileName) => {
-    try {
-      const fileNameKey = audioFileName.replace('.mp3', '');
-      const audioFile = sounds[fileNameKey];
-      if (!audioFile) {
-        console.error(`Audio file ${audioFileName} not found.`);
-        return;
-      }
-      if (sound && typeof sound.unloadAsync === 'function') {
-        await sound.unloadAsync();
-      }
-      const { sound: newSound } = await Audio.Sound.createAsync(audioFile);
-      setSound(newSound);
-      await newSound.playAsync();
-    } catch (error) {
-      console.error('Error loading sound', error);
-    }
-  };
-
-  const playFailureSound = async () => {
-    if (!soundEnabled) return;
-    try {
-      await failureSound.replayAsync();
-    } catch (error) {
-      console.error('Error playing the failure sound', error);
-    }
-  };
-
-  const [statistics, setStatistics] = useState(null);
-  const [isStatModalVisible, setIsStatModalVisible] = useState(false);
-
-  const handleButton3Press = async () => {
-    const exerciseId = "exercise6Am";
-    try {
-      const stats = await getStatistics(exerciseId);
-      setStatistics(stats);
-      setIsStatModalVisible(true);
-    } catch (error) {
-      console.error("Failed to fetch statistics:", error);
-      setStatistics(null);
-      setIsStatModalVisible(false);
-    }
-  };
-
-  useEffect(() => {
-    if (currentIndex > 0 && currentIndex >= totalExercises) setExerciseCompleted(true);
-  }, [currentIndex, totalExercises]);
-
-  useEffect(() => {
-    if (totalExercises > 0) {
-      const newProgress = (correctCount / totalExercises) * 100;
-      setProgress(newProgress);
-    }
-  }, [correctCount, totalExercises]);
-
-  useFocusEffect(
-    useCallback(() => {
-      if (!isVerbListVisible) return;
-
-      const onBackPress = () => {
-        if (navigation.canGoBack()) navigation.goBack();
-        else navigation.navigate('MenuAm');
-        return true;
-      };
-
-      const bh = BackHandler.addEventListener('hardwareBackPress', onBackPress);
-      return () => bh.remove();
-    }, [isVerbListVisible, navigation])
-  );
-
-  useFocusEffect(
-    useCallback(() => {
-      if (isVerbListVisible) return;
-
-      const onBackPress = () => {
-        if (exitConfirmationVisible) return false;
-        setExitConfirmationVisible(true);
-        return true;
-      };
-
-      const bh = BackHandler.addEventListener('hardwareBackPress', onBackPress);
-      const unsubscribe = navigation.addListener('beforeRemove', (e) => {
-        if (exitConfirmationVisible) return;
-        e.preventDefault();
-        setExitConfirmationVisible(true);
-      });
-
-      return () => {
-        bh.remove();
-        unsubscribe();
-      };
-    }, [isVerbListVisible, exitConfirmationVisible, navigation])
-  );
-
-  useEffect(() => {
-    navigation.setOptions({ headerLeft: () => null });
-  }, [navigation]);
-
-  const handleConfirmExit = () => {
-    navigation.reset({
-      index: 0,
-      routes: [{ name: 'MenuAm' }],
-    });
-  };
-
-  const handleCancelExit = () => {
-    setExitConfirmationVisible(false);
-  };
-
-  const handleExerciseCompletion = async () => {
-    const exerciseId = 'exercise6Am';
-    const currentScore = parseFloat(progressPercent.toFixed(2));
-    await updateStatistics(exerciseId, currentScore);
-  };
-
-  // ✅ reset: add formIndex
-  const resetExercise = () => {
-    setCorrectCount(0);
-    setIncorrectCount(0);
-    setProgress(0);
-    setExerciseCompleted(false);
-    setCurrentIndex(0);
-    setResolvedPairsCount(0);
-    setCorrectAnswers(new Set());
-
-    const shuffledData = shuffleArrayLocal(verbsData);
-    const uniqueVerbs = [...new Set(shuffledData.map(item => item.infinitive))];
+  const chooseRandomVerb = useCallback(() => {
+    if (!verbsData || verbsData.length === 0) return null;
+    const uniqueVerbs = [...new Set(verbsData.map(item => item.infinitive))];
     const selectedVerb = uniqueVerbs[Math.floor(Math.random() * uniqueVerbs.length)];
-
-    const verbConjugations = shuffledData
-      .filter(verb => verb.infinitive === selectedVerb)
-      .map((v, i) => ({ ...v, formIndex: i + 1 }));
-
-    setCurrentVerb(verbConjugations[0]);
-    setMainVerb(verbConjugations[0]);
-    setPairs(verbConjugations);
-    setTotalExercises(verbConjugations.length);
-    setRemainingPairs(verbConjugations.length);
-    setPendingVerb(null);
-    setVerbListForModal(verbConjugations);
-
-    setTimeout(() => {
-      setIsVerbListVisible(true);
-    }, 10);
-  };
-
-  const [isSearchModalVisible, setSearchModalVisible] = useState(false);
-  const handleSearchButtonPress = () => setSearchModalVisible(true);
-
-  const [pendingVerb, setPendingVerb] = useState(null);
-
-  // ✅ select verb: add formIndex
-  const handleSelectVerb = (verb) => {
-    setPendingVerb(verb);
-    const allForms = verbsData
-      .filter(item => item.infinitive === verb.infinitive)
-      .map((v, i) => ({ ...v, formIndex: i + 1 }));
-
-    setVerbListForModal(allForms);
-    setIsVerbListVisible(true);
-    setSearchModalVisible(false);
-  };
-
-  // ✅ start: add formIndex
-  const handleStartExercise = () => {
-    const chosenVerb = pendingVerb || mainVerb;
-    if (!chosenVerb) return;
-
-    const verbConjugations = shuffleArrayLocal(
-      verbsData
-        .filter(item => item.infinitive === chosenVerb.infinitive)
-        .map((v, i) => ({ ...v, formIndex: i + 1 }))
-    );
-
-    if (verbConjugations.length > 0) {
-      setCurrentVerb(verbConjugations[0]);
-      setMainVerb(verbConjugations[0]);
-      setPairs(verbConjugations);
-      setRemainingPairs(verbConjugations.length);
-      setTotalExercises(verbConjugations.length);
-      setCurrentIndex(0);
-      setCorrectCount(0);
-      setIncorrectCount(0);
-      setProgress(0);
-      setCorrectAnswers(new Set());
-      setResolvedPairsCount(0);
-      setPage(0);
-      setExerciseCompleted(false);
-      setIsVerbListVisible(false);
-      setPendingVerb(null);
-    }
-  };
-
-  const { width: screenWidth } = Dimensions.get('screen');
-  console.log('Physical Screen Width:', screenWidth);
+    return selectedVerb;
+  }, []);
 
   const normalize = (s) => String(s || '').trim().toLowerCase();
-const normalizeBinyan = (s) => normalize(s).replace(/[\s’']/g, ''); // NIF'AL -> nifal
+  const normalizeBinyan = (s) => normalize(s).replace(/[\s’']/g, '');
 
-const isNifalForCurrentVerb = useMemo(() => {
-  if (!mainVerb?.infinitive) return false;
+  const isNifalForCurrentVerb = useMemo(() => {
+    if (!mainVerb?.infinitive) return false;
 
-  const inf = String(mainVerb.infinitive || '').trim();
-  const tr = normalize(mainVerb.transliteration);
-  const af = normalize(mainVerb.audioFile);
+    const inf = String(mainVerb.infinitive || '').trim();
+    const tr = normalize(mainVerb.transliteration);
+    const af = normalize(mainVerb.audioFile);
 
-  let found = Array.isArray(verbs1Data)
-    ? verbs1Data.find(v => String(v?.hebrewVerb || '').trim() === inf)
-    : null;
+    let found = Array.isArray(verbs1Data)
+      ? verbs1Data.find(v => String(v?.hebrewVerb || '').trim() === inf)
+      : null;
 
-  if (!found && tr) found = verbs1Data.find(v => normalize(v?.transliteration) === tr);
-  if (!found && af) found = verbs1Data.find(v => normalize(v?.audioFile) === af);
+    if (!found && tr) found = verbs1Data.find(v => normalize(v?.transliteration) === tr);
+    if (!found && af) found = verbs1Data.find(v => normalize(v?.audioFile) === af);
 
-  const b = normalizeBinyan(found?.binyan);
-  return b === 'nifal';
-}, [mainVerb?.infinitive, mainVerb?.transliteration, mainVerb?.audioFile]);
-
-
-  /* ===================== ПОДСВЕТКА (как в русской/английской версии) ===================== */
+    const b = normalizeBinyan(found?.binyan);
+    return b === 'nifal';
+  }, [mainVerb?.infinitive, mainVerb?.transliteration, mainVerb?.audioFile]);
 
   const PRESENT_SUFFIXES = ['ות', 'ים', 'ה', 'ת'];
 
@@ -726,37 +357,34 @@ const isNifalForCurrentVerb = useMemo(() => {
     });
   };
 
- const renderHebrewText = (hebrewtext, formIndex) => {
-  const raw = String(hebrewtext || '');   // ✅ сначала объявляем
-  if (!highlightEnabled) return raw;      // ✅ в translit3 показываем без подсветки
+  const renderHebrewText = (hebrewtext, formIndex) => {
+    const raw = String(hebrewtext || '');
+    if (!highlightEnabled) return raw;
 
-  const pos = Number(formIndex || 0);
-  if (!pos) return raw;
+    const pos = Number(formIndex || 0);
+    if (!pos) return raw;
 
-  const isBeVerb = String(mainVerb?.infinitive || '') === 'להיות';
-  const virtualPos = isBeVerb ? pos + 12 : pos;
-
+    const isBeVerb = String(mainVerb?.infinitive || '') === 'להיות';
+    const virtualPos = isBeVerb ? pos + 12 : pos;
 
     const applyNifalNun = isNifalForCurrentVerb && virtualPos >= 1 && virtualPos <= 24;
 
-const withOptionalNifalNun = (word, renderFn) => {
-  const w = String(word || '');
-  if (!w) return '';
+    const withOptionalNifalNun = (word, renderFn) => {
+      const w = String(word || '');
+      if (!w) return '';
 
-  // если nifal и слово начинается с נ — подсвечиваем первую букву
-  if (applyNifalNun && w.startsWith('נ')) {
-    const rest = w.slice(1);
-    return (
-      <>
-        {yellow('נ', 'nifal-nun')}
-        {renderFn ? renderFn(rest) : rest}
-      </>
-    );
-  }
+      if (applyNifalNun && w.startsWith('נ')) {
+        const rest = w.slice(1);
+        return (
+          <>
+            {yellow('נ', 'nifal-nun')}
+            {renderFn ? renderFn(rest) : rest}
+          </>
+        );
+      }
 
-  return renderFn ? renderFn(w) : w;
-};
-
+      return renderFn ? renderFn(w) : w;
+    };
 
     const applyToVerbWord = (text, renderWordFn) => {
       const parts = String(text || '').split(' ').filter(Boolean);
@@ -772,72 +400,66 @@ const withOptionalNifalNun = (word, renderFn) => {
       );
     };
 
-   // 1–12 настоящее (если не "быть")  ✅ + NIFAL נ
-if (!isBeVerb && virtualPos >= 1 && virtualPos <= 12) {
-  const parts = raw.split(' ');
+    if (!isBeVerb && virtualPos >= 1 && virtualPos <= 12) {
+      const parts = raw.split(' ');
 
-  // если строка вдруг без пробела — это само слово-глагол
-  if (parts.length < 2) {
-    return withOptionalNifalNun(parts[0] || '', (rest) => renderPresentVerbWord(rest));
-  }
+      if (parts.length < 2) {
+        return withOptionalNifalNun(parts[0] || '', (rest) => renderPresentVerbWord(rest));
+      }
 
-  const first = parts[0];
-  const verb = parts[1];
-  const tail = parts.slice(2).join(' ');
+      const first = parts[0];
+      const verb = parts[1];
+      const tail = parts.slice(2).join(' ');
 
-  return (
-    <>
-      {first}
-      {' '}
-      {withOptionalNifalNun(verb, (rest) => renderPresentVerbWord(rest))}
-      {tail ? ` ${tail}` : ''}
-    </>
-  );
-}
+      return (
+        <>
+          {first}
+          {' '}
+          {withOptionalNifalNun(verb, (rest) => renderPresentVerbWord(rest))}
+          {tail ? ` ${tail}` : ''}
+        </>
+      );
+    }
 
+    if (virtualPos === 13 || virtualPos === 14)
+      return applyToVerbWord(raw, (w) =>
+        withOptionalNifalNun(w, (rest) => renderPastWithHitpaelPrefixAndSuffix(rest, 'תי'))
+      );
 
-   // 13–24 прошедшее (подсветка первой ה если есть) + ✅ NIFAL נ + ✅ позиция 17
-if (virtualPos === 13 || virtualPos === 14)
-  return applyToVerbWord(raw, (w) =>
-    withOptionalNifalNun(w, (rest) => renderPastWithHitpaelPrefixAndSuffix(rest, 'תי'))
-  );
+    if (virtualPos === 15 || virtualPos === 16)
+      return applyToVerbWord(raw, (w) =>
+        withOptionalNifalNun(w, (rest) => renderPastWithHitpaelPrefixAndSuffix(rest, 'ת'))
+      );
 
-if (virtualPos === 15 || virtualPos === 16)
-  return applyToVerbWord(raw, (w) =>
-    withOptionalNifalNun(w, (rest) => renderPastWithHitpaelPrefixAndSuffix(rest, 'ת'))
-  );
+    if (virtualPos === 17)
+      return applyToVerbWord(raw, (w) =>
+        withOptionalNifalNun(w, (rest) => renderPastWithHitpaelPrefixAndSuffix(rest, ''))
+      );
 
-// ✅ 17: past 3ms — без суффикса (иначе нун не подсветится)
-if (virtualPos === 17)
-  return applyToVerbWord(raw, (w) =>
-    withOptionalNifalNun(w, (rest) => renderPastWithHitpaelPrefixAndSuffix(rest, ''))
-  );
+    if (virtualPos === 18)
+      return applyToVerbWord(raw, (w) =>
+        withOptionalNifalNun(w, (rest) => renderPastWithHitpaelPrefixAndSuffix(rest, 'ה'))
+      );
 
-if (virtualPos === 18)
-  return applyToVerbWord(raw, (w) =>
-    withOptionalNifalNun(w, (rest) => renderPastWithHitpaelPrefixAndSuffix(rest, 'ה'))
-  );
+    if (virtualPos === 19 || virtualPos === 20)
+      return applyToVerbWord(raw, (w) =>
+        withOptionalNifalNun(w, (rest) => renderPastWithHitpaelPrefixAndSuffix(rest, 'נו'))
+      );
 
-if (virtualPos === 19 || virtualPos === 20)
-  return applyToVerbWord(raw, (w) =>
-    withOptionalNifalNun(w, (rest) => renderPastWithHitpaelPrefixAndSuffix(rest, 'נו'))
-  );
+    if (virtualPos === 21)
+      return applyToVerbWord(raw, (w) =>
+        withOptionalNifalNun(w, (rest) => renderPastWithHitpaelPrefixAndSuffix(rest, 'תם'))
+      );
 
-if (virtualPos === 21)
-  return applyToVerbWord(raw, (w) =>
-    withOptionalNifalNun(w, (rest) => renderPastWithHitpaelPrefixAndSuffix(rest, 'תם'))
-  );
+    if (virtualPos === 22)
+      return applyToVerbWord(raw, (w) =>
+        withOptionalNifalNun(w, (rest) => renderPastWithHitpaelPrefixAndSuffix(rest, 'תן'))
+      );
 
-if (virtualPos === 22)
-  return applyToVerbWord(raw, (w) =>
-    withOptionalNifalNun(w, (rest) => renderPastWithHitpaelPrefixAndSuffix(rest, 'תן'))
-  );
-
-if (virtualPos === 23 || virtualPos === 24)
-  return applyToVerbWord(raw, (w) =>
-    withOptionalNifalNun(w, (rest) => renderPastWithHitpaelPrefixAndSuffix(rest, 'ו'))
-  );
-
+    if (virtualPos === 23 || virtualPos === 24)
+      return applyToVerbWord(raw, (w) =>
+        withOptionalNifalNun(w, (rest) => renderPastWithHitpaelPrefixAndSuffix(rest, 'ו'))
+      );
 
     if (virtualPos === 25 || virtualPos === 26)
       return applyToVerbWord(raw, w => renderWithColorRules(w, { prefix: 'א' }));
@@ -866,6 +488,396 @@ if (virtualPos === 23 || virtualPos === 24)
     return raw;
   };
 
+  useEffect(() => {
+    if (verbsData && verbsData.length > 0) {
+      const selectedVerb = chooseRandomVerb();
+      if (!selectedVerb) return;
+
+      const allForms = buildVerbForms(selectedVerb);
+
+      setMainVerb(allForms[0]);
+      setVerbListForModal(allForms);
+
+      const shuffledForms = shuffleArrayLocal([...allForms]);
+      setPairs(shuffledForms);
+      setRemainingPairs(allForms.length);
+      setTotalExercises(allForms.length);
+
+      setIsVerbListVisible(true);
+      setPendingVerb(null);
+
+      setCurrentVerb({
+        infinitive: allForms[0]?.infinitive || '',
+        transliteration: allForms[0]?.transliteration || '',
+        amharic: allForms[0]?.amharic || '',
+        audioFile: allForms[0]?.audioFile || '',
+      });
+    }
+  }, [buildVerbForms, chooseRandomVerb]);
+
+  useEffect(() => {
+    const start = page * 6;
+    const end = start + 6;
+    const currentPairs = pairs.slice(start, end);
+
+    const hebrewItems = shuffleArrayLocal(
+      currentPairs.map(pair => ({
+        text: pair.hebrewtext,
+        translit: pair.translit,
+        formIndex: pair.formIndex,
+      }))
+    );
+
+    const mixedPairs = currentPairs.map((pair, index) => ({
+      ...pair,
+      amtext: pair.amtext,
+      hebrewtext: hebrewItems[index].text,
+      translit: hebrewItems[index].translit,
+      hebrewFormIndex: hebrewItems[index].formIndex,
+      correct: pair.hebrewtext,
+    }));
+
+    setDisplayPairs(mixedPairs);
+    setHebrewActive(false);
+    setSelectedRussian(null);
+    setSelectedHebrew(null);
+  }, [page, pairs]);
+
+  const [isUpdating, setIsUpdating] = useState(false);
+
+  useEffect(() => {
+    if (resolvedPairsCount === 6 && !isUpdating) {
+      setIsUpdating(true);
+      setTimeout(() => {
+        if ((page + 1) * 6 < pairs.length) setPage(prev => prev + 1);
+        else setPage(0);
+
+        setCorrectAnswers(new Set());
+        setSelectedRussian(null);
+        setSelectedHebrew(null);
+        setHebrewActive(false);
+        setResolvedPairsCount(0);
+        setIsUpdating(false);
+      }, 1200);
+    }
+  }, [resolvedPairsCount, page, pairs.length, isUpdating]);
+
+  useEffect(() => {
+    if (page === 0) setResolvedPairsCount(0);
+  }, [page]);
+
+  const handleSelectRussian = (index) => {
+    setSelectedRussian(index);
+    setSelectedHebrew(null);
+    setHebrewActive(true);
+  };
+
+  const handleSelectHebrew = (index) => {
+    setSelectedHebrew(index);
+    const selectedPair = displayPairs[index];
+    const isCorrect =
+      selectedRussian !== null &&
+      selectedPair.hebrewtext === displayPairs[selectedRussian].correct;
+
+    if (isCorrect) {
+      handleAnswer(isCorrect);
+      setCorrectAnswers(prev => new Set(prev).add(selectedRussian));
+      setResolvedPairsCount(prev => prev + 1);
+
+      setRemainingPairs(prev => {
+        const nextRemaining = prev - 1;
+
+        if (nextRemaining === 0) {
+          finishExerciseWithDelay();
+        }
+
+        return nextRemaining;
+      });
+
+      playCorrectAnswerSound(displayPairs[selectedRussian].mp3);
+      changeBackgroundColor(isCorrect);
+    } else {
+      setIncorrectCount(prev => prev + 1);
+      playFailureSound();
+      changeBackgroundColor(isCorrect);
+    }
+  };
+
+  const getButtonStyle = (index, type) => {
+    let style = [styles.button, type === 'hebrew' ? styles.hebrewButton : {}];
+    if (correctAnswers.has(index) && type === 'am') style.push(styles.deactivatedButton);
+    if (type === 'am' && index === selectedRussian) style.push(styles.selectedButton);
+    if (type === 'hebrew' && index === selectedHebrew) {
+      style.push(
+        displayPairs[selectedRussian]?.correct === displayPairs[index].hebrewtext
+          ? styles.correctButton
+          : styles.wrongButton
+      );
+    }
+    return style;
+  };
+
+  const getImageForGender = (gender) => {
+    switch (gender) {
+      case 'man': return require('./man1.png');
+      case 'woman': return require('./woman1.png');
+      case 'men': return require('./men1.png');
+      case 'women': return require('./women1.png');
+      default: return null;
+    }
+  };
+
+  useEffect(() => {
+    loadFailureSound();
+    return () => {
+      failureSound?.unloadAsync();
+    };
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      correctSound?.unloadAsync();
+    };
+  }, [correctSound]);
+
+  const playCorrectAnswerSound = async (audioKey) => {
+    if (!soundEnabled) return;
+    try {
+      const audioFile = soundsconj[audioKey];
+      if (!audioFile) {
+        console.error(`Audio file for key ${audioKey} not found.`);
+        return;
+      }
+      if (correctSound) await correctSound.unloadAsync();
+      const { sound: newSound } = await Audio.Sound.createAsync(audioFile);
+      setCorrectSound(newSound);
+      await newSound.playAsync();
+    } catch (error) {
+      console.error('Error loading sound:', error);
+    }
+  };
+
+  const loadFailureSound = async () => {
+    try {
+      const { sound } = await Audio.Sound.createAsync(
+        require('./assets/sounds/failure.mp3')
+      );
+      setFailureSound(sound);
+    } catch (error) {
+      console.error("Couldn't load failure sound:", error);
+    }
+  };
+
+  const playAudio = async (audioFileName) => {
+    try {
+      const fileNameKey = audioFileName.replace('.mp3', '');
+      const audioFile = sounds[fileNameKey];
+      if (!audioFile) {
+        console.error(`Audio file ${audioFileName} not found.`);
+        return;
+      }
+      if (sound && typeof sound.unloadAsync === 'function') {
+        await sound.unloadAsync();
+      }
+      const { sound: newSound } = await Audio.Sound.createAsync(audioFile);
+      setSound(newSound);
+      await newSound.playAsync();
+    } catch (error) {
+      console.error('Error loading sound', error);
+    }
+  };
+
+  const playFailureSound = async () => {
+    if (!soundEnabled) return;
+    try {
+      await failureSound.replayAsync();
+    } catch (error) {
+      console.error('Error playing the failure sound', error);
+    }
+  };
+
+  const [statistics, setStatistics] = useState(null);
+  const [isStatModalVisible, setIsStatModalVisible] = useState(false);
+
+  const handleButton3Press = async () => {
+    const exerciseId = "exercise6Am";
+    try {
+      const stats = await getStatistics(exerciseId);
+      setStatistics(stats);
+      setIsStatModalVisible(true);
+    } catch (error) {
+      console.error("Failed to fetch statistics:", error);
+      setStatistics(null);
+      setIsStatModalVisible(false);
+    }
+  };
+
+  useFocusEffect(
+    useCallback(() => {
+      if (!isVerbListVisible) return;
+
+      const onBackPress = () => {
+        if (navigation.canGoBack()) navigation.goBack();
+        else navigation.navigate('MenuAm');
+        return true;
+      };
+
+      const bh = BackHandler.addEventListener('hardwareBackPress', onBackPress);
+      return () => bh.remove();
+    }, [isVerbListVisible, navigation])
+  );
+
+  useFocusEffect(
+    useCallback(() => {
+      if (isVerbListVisible) return;
+
+      const onBackPress = () => {
+        if (exitConfirmationVisible) return false;
+        setExitConfirmationVisible(true);
+        return true;
+      };
+
+      const bh = BackHandler.addEventListener('hardwareBackPress', onBackPress);
+      const unsubscribe = navigation.addListener('beforeRemove', (e) => {
+        if (exitConfirmationVisible) return;
+        e.preventDefault();
+        setExitConfirmationVisible(true);
+      });
+
+      return () => {
+        bh.remove();
+        unsubscribe();
+      };
+    }, [isVerbListVisible, exitConfirmationVisible, navigation])
+  );
+
+  useEffect(() => {
+    navigation.setOptions({ headerLeft: () => null });
+  }, [navigation]);
+
+  const handleConfirmExit = () => {
+    navigation.reset({
+      index: 0,
+      routes: [{ name: 'MenuAm' }],
+    });
+  };
+
+  const handleCancelExit = () => {
+    setExitConfirmationVisible(false);
+  };
+
+  const handleExerciseCompletion = async () => {
+    const exerciseId = 'exercise6Am';
+    const currentScore = parseFloat(progressPercent.toFixed(2));
+    await updateStatistics(exerciseId, currentScore);
+  };
+
+  const resetExercise = () => {
+    completionTriggeredRef.current = false;
+    setCorrectCount(0);
+    setIncorrectCount(0);
+    setProgress(0);
+    setExerciseCompleted(false);
+    setCurrentIndex(0);
+    setResolvedPairsCount(0);
+    setCorrectAnswers(new Set());
+    setSelectedRussian(null);
+    setSelectedHebrew(null);
+    setHebrewActive(true);
+    setPage(0);
+
+    const selectedVerb = chooseRandomVerb();
+    if (!selectedVerb) return;
+
+    const verbConjugations = buildVerbForms(selectedVerb);
+
+    setCurrentVerb({
+      infinitive: verbConjugations[0]?.infinitive || '',
+      transliteration: verbConjugations[0]?.transliteration || '',
+      amharic: verbConjugations[0]?.amharic || '',
+      audioFile: verbConjugations[0]?.audioFile || '',
+    });
+
+    setMainVerb(verbConjugations[0] || null);
+    setPairs([]);
+    setTotalExercises(verbConjugations.length);
+    setRemainingPairs(verbConjugations.length);
+    setPendingVerb(null);
+    setVerbListForModal(verbConjugations);
+
+    setTimeout(() => {
+      setIsVerbListVisible(true);
+    }, 10);
+  };
+
+  const [isSearchModalVisible, setSearchModalVisible] = useState(false);
+  const handleSearchButtonPress = () => setSearchModalVisible(true);
+
+  const [pendingVerb, setPendingVerb] = useState(null);
+
+  const handleSelectVerb = (verb) => {
+    setPendingVerb(verb);
+    const allForms = buildVerbForms(verb.infinitive);
+
+    setVerbListForModal(allForms);
+    setIsVerbListVisible(true);
+    setSearchModalVisible(false);
+
+    setCurrentVerb({
+      infinitive: allForms[0]?.infinitive || '',
+      transliteration: allForms[0]?.transliteration || '',
+      amharic: allForms[0]?.amharic || '',
+      audioFile: allForms[0]?.audioFile || '',
+    });
+  };
+
+  const handleStartExercise = ({ selectedTenses: nextSelectedTenses, forms, totalForms } = {}) => {
+    const chosenVerb = pendingVerb || mainVerb;
+    if (!chosenVerb) return;
+
+    const chosenForms = Array.isArray(forms) && forms.length > 0
+      ? forms.map((v, i) => ({
+          ...v,
+          formIndex: Number(v.formIndex) || (i + 1),
+        }))
+      : buildVerbForms(chosenVerb.infinitive);
+
+    const verbConjugations = shuffleArrayLocal([...chosenForms]);
+
+    if (verbConjugations.length > 0) {
+      completionTriggeredRef.current = false;
+      setSelectedTenses(nextSelectedTenses || { present: true, past: true, future: true });
+
+      setCurrentVerb({
+        infinitive: chosenForms[0]?.infinitive || '',
+        transliteration: chosenForms[0]?.transliteration || '',
+        amharic: chosenForms[0]?.amharic || '',
+        audioFile: chosenForms[0]?.audioFile || '',
+      });
+
+      setMainVerb(chosenForms[0]);
+      setPairs(verbConjugations);
+      setRemainingPairs(chosenForms.length);
+      setTotalExercises(chosenForms.length);
+      setCurrentIndex(0);
+      setCorrectCount(0);
+      setIncorrectCount(0);
+      setProgress(0);
+      setCorrectAnswers(new Set());
+      setResolvedPairsCount(0);
+      setPage(0);
+      setExerciseCompleted(false);
+      setIsVerbListVisible(false);
+      setPendingVerb(null);
+      setSelectedRussian(null);
+      setSelectedHebrew(null);
+      setHebrewActive(true);
+    }
+  };
+
+  const { width: screenWidth } = Dimensions.get('screen');
+  console.log('Physical Screen Width:', screenWidth);
+
   return (
     <>
       {isVerbListVisible && (
@@ -875,7 +887,6 @@ if (virtualPos === 23 || virtualPos === 24)
           verbs={verbListForModal}
           onStartExercise={handleStartExercise}
           onClose={() => {
-            allowExitRef.current = true;
             setIsVerbListVisible(false);
             if (navigation.canGoBack()) navigation.goBack();
             else navigation.navigate('MenuAm');
@@ -901,19 +912,18 @@ if (virtualPos === 23 || virtualPos === 24)
                   />
                 </TouchableOpacity>
 
-               <TouchableOpacity onPress={handleTranslitToggle}>
-  <Animated.Image
-    source={
-      translitMode === 0
-        ? require('./translit1.png')
-        : translitMode === 1
-        ? require('./translit2.png')
-        : require('./translit3.png')
-    }
-    style={[styles.buttonImage, { opacity: fadeAnim }]}
-  />
-</TouchableOpacity>
-
+                <TouchableOpacity onPress={handleTranslitToggle}>
+                  <Animated.Image
+                    source={
+                      translitMode === 0
+                        ? require('./translit1.png')
+                        : translitMode === 1
+                        ? require('./translit2.png')
+                        : require('./translit3.png')
+                    }
+                    style={[styles.buttonImage, { opacity: fadeAnim }]}
+                  />
+                </TouchableOpacity>
 
                 <TouchableOpacity onPress={handleButton3Press}>
                   <Animated.Image
@@ -968,7 +978,7 @@ if (virtualPos === 23 || virtualPos === 24)
             </Animated.View>
 
             <Animated.View style={[styles.ProgressBarcontainer, { opacity: fadeAnim }]}>
-              <ProgressBar progress={progress / 2} totalExercises={100} />
+              <ProgressBar progress={progress} totalExercises={totalExercises} />
             </Animated.View>
 
             <Animated.Text style={[styles.title, { opacity: fadeAnim }]} maxFontSizeMultiplier={1.2}>
@@ -1013,21 +1023,22 @@ if (virtualPos === 23 || virtualPos === 24)
                   >
                     <Text
                       style={[
-                        // styles.text,
                         styles.hebrewText,
                         !showTranslit && styles.hebrewCenterWhenNoTranslit,
                       ]}
                       maxFontSizeMultiplier={1.2}
                     >
-                      {renderHebrewText(pair.hebrewtext, pair.hebrewFormIndex)}
+                      {translitMode === 2
+                        ? pair.hebrewtext
+                        : renderHebrewText(pair.hebrewtext, pair.hebrewFormIndex)}
                     </Text>
 
-                   <Text
-  style={[styles.translitText, !showTranslit && styles.translitHidden]}
-  maxFontSizeMultiplier={1.2}
->
-  {pair.translit}
-</Text>
+                    <Text
+                      style={[styles.translitText, !showTranslit && styles.translitHidden]}
+                      maxFontSizeMultiplier={1.2}
+                    >
+                      {pair.translit}
+                    </Text>
 
                   </TouchableOpacity>
                 </View>
@@ -1079,11 +1090,17 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
 
- container: { flex: 1, justifyContent: 'center', alignItems: 'center',
-paddingHorizontal: 10,
-paddingBottom: 5,
-paddingTop: 0,   // ← важно
-backgroundColor: '#AFC1D0', height: '100%', width: '100%' },
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 10,
+    paddingBottom: 5,
+    paddingTop: 0,
+    backgroundColor: '#AFC1D0',
+    height: '100%',
+    width: '100%'
+  },
 
   topBar: {
     flexDirection: 'row',
@@ -1254,12 +1271,12 @@ backgroundColor: '#AFC1D0', height: '100%', width: '100%' },
     elevation: 5,
   },
 
- hebrewButton: {
-  flexDirection: 'column',
-  alignItems: 'center',
-  justifyContent: 'center',
-  paddingVertical: 2,   // регулируй 0..4
-},
+  hebrewButton: {
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 2,
+  },
 
   text: {
     fontSize: 15,
@@ -1273,31 +1290,31 @@ backgroundColor: '#AFC1D0', height: '100%', width: '100%' },
     color: '#152039',
   },
 
-hebrewText: {
-  fontSize: HEBREW_FS,
-  lineHeight: HEBREW_FS + 2,   // важно!
-  textAlign: 'center',
-  color: '#152039',
-  fontFamily: HEBREW_FONT,
-  marginTop: 2,                // убрать
-  paddingTop: 2,
-},
+  hebrewText: {
+    fontSize: HEBREW_FS,
+    lineHeight: HEBREW_FS + 2,
+    textAlign: 'center',
+    color: '#152039',
+    fontFamily: HEBREW_FONT,
+    marginTop: 2,
+    paddingTop: 2,
+  },
 
   hebrewCenterWhenNoTranslit: {
     transform: [{ translateY: 12 }],
   },
 
-translitText: {
-  fontSize: 15,
-  lineHeight: 16,              // важно!
-  textAlign: 'center',
-  color: '#FF5757',
-  fontWeight: 'bold',
-  marginTop: 2,                // убрать
-  paddingTop: 2,               // убрать
-  marginBottom: 2,
-  paddingBottom: 2,
-},
+  translitText: {
+    fontSize: 15,
+    lineHeight: 16,
+    textAlign: 'center',
+    color: '#FF5757',
+    fontWeight: 'bold',
+    marginTop: 2,
+    paddingTop: 2,
+    marginBottom: 2,
+    paddingBottom: 2,
+  },
 
   translitHidden: {
     opacity: 0,
@@ -1328,12 +1345,8 @@ translitText: {
     color: '#A0A0A0',
   },
 
-  // ✅ colors for highlighting parts of Hebrew verbs
   prefixYellow: { color: '#00a2ffff', fontFamily: HEBREW_FONT },
-suffixGreen: { color: '#ff3ab3ff', fontFamily: HEBREW_FONT },
-
-  translitHidden: { opacity: 0 },
-
+  suffixGreen: { color: '#ff3ab3ff', fontFamily: HEBREW_FONT },
 });
 
 export default Exercise6Am;

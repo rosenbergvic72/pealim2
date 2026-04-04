@@ -23,6 +23,7 @@ import { ensureMarkedToday } from './serverPush';
 import { useIap } from './src/iap/IapProvider';
 import StatsReportModalMulti from './StatsReportModalMulti';
 import Constants from 'expo-constants';
+import UpgradeBanner from './UpgradeBanner';
 
 // Бесплатные экраны во FR
 const FREE_ROUTES_FR = new Set(['Exercise1Fr', 'Exercise2Fr']);
@@ -97,7 +98,7 @@ export default function MenuPage({ route }) {
     const onBackPress = () => {
       navigation.reset({
         index: 0,
-        routes: [{ name: 'WelcomeFr' }],
+        routes: [{ name: 'LanguageSelectionPage' }],
       });
       return true;
     };
@@ -617,6 +618,16 @@ export default function MenuPage({ route }) {
               </View>
             </TouchableOpacity>
           </Animated.View>
+
+          <UpgradeBanner
+  hasPro={hasPro}
+  navigation={navigation}
+  language="fr"
+  animatedStyle={{
+    opacity: button3Opacity,
+    transform: [{ translateY: button3TranslateY }],
+  }}
+/>
 
           {/* 3 — LOCKED if !PRO */}
           <Animated.View

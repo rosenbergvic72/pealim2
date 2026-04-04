@@ -204,6 +204,7 @@ export default function WelcomePage({ navigation, route }) {
     try {
       await AsyncStorage.setItem('name', name.trim());
       await AsyncStorage.setItem('language', language);
+      await AsyncStorage.setItem('verbify_first_launch_completed', '1');
 
       if (accessState === 'checking') return;
 

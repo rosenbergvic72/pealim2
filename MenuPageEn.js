@@ -22,6 +22,7 @@ import { ensureMarkedToday } from './serverPush';
 import { useIap } from './src/iap/IapProvider';
 import StatsReportModalMulti from './StatsReportModalMulti';
 import Constants from 'expo-constants';
+import UpgradeBanner from './UpgradeBanner';
 
 // первые 2 упражнения — всегда бесплатны
 const FREE_ROUTES_EN = new Set(['Exercise1En', 'Exercise2En']);
@@ -92,7 +93,7 @@ export default function MenuPage({ route }) {
 
   useEffect(() => {
     const onBackPress = () => {
-      navigation.reset({ index: 0, routes: [{ name: 'WelcomeEn' }] });
+      navigation.reset({ index: 0, routes: [{ name: 'LanguageSelectionPage' }] });
       return true;
     };
     const backHandler = BackHandler.addEventListener('hardwareBackPress', onBackPress);
@@ -621,6 +622,16 @@ export default function MenuPage({ route }) {
               </View>
             </TouchableOpacity>
           </Animated.View>
+
+          <UpgradeBanner
+  hasPro={hasPro}
+  navigation={navigation}
+  language="en"
+  animatedStyle={{
+    opacity: button3Opacity,
+    transform: [{ translateY: button3TranslateY }],
+  }}
+/>
 
           {/* Exercise 3 — LOCKED if !PRO */}
           <Animated.View

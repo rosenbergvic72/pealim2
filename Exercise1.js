@@ -2,9 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { ScrollView, View, Text, TouchableOpacity, StyleSheet, BackHandler, Image, Animated } from 'react-native';
 import VerbCard1 from './VerbCard1';
 import verbsData from './verbs1.json';
-// import verbsData from './verbs1copy.json';
 import verbs1RU from './verbs11RU.json';
-// import verbs1RU from './verbs11RUcopy.json';
 import ProgressBar from './ProgressBar';
 import { useFocusEffect } from '@react-navigation/native';
 import CompletionMessage from './CompletionMessage';
@@ -22,6 +20,10 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import VerbListModal from './VerbListModal';
 import ExcludedVerbsModal1 from './ExcludedVerbsModal1';
 
+const EXERCISE1_COUNT_KEY = 'exercise1_selected_count';
+const DEFAULT_EXERCISE_COUNT = 12;
+const ALLOWED_EXERCISE_COUNTS = [8, 12, 18, 24];
+
 // Нормализация строк для сравнения переводов
 const normalize = (s = '') =>
   String(s)
@@ -30,8 +32,7 @@ const normalize = (s = '') =>
     .replace(/ё/g, 'е')
     .replace(/\s+/g, ' ');
 
-// ВАЖНО: тут shuffleArray уже ограничивает до 24 в исходнике.
-// Мы НЕ используем его для колоды, только для перемешивания опций (как раньше).
+// Только для опций ответа
 const shuffleArray = (array) => {
   const shuffled = array.slice();
   for (let i = shuffled.length - 1; i > 0; i--) {
@@ -41,7 +42,7 @@ const shuffleArray = (array) => {
   return shuffled.slice(0, 24);
 };
 
-// NEW: тасовка без slice (для добора колоды)
+// Для полной тасовки колоды
 const shuffleAll = (array) => {
   const shuffled = array.slice();
   for (let i = shuffled.length - 1; i > 0; i--) {
@@ -49,6 +50,50 @@ const shuffleAll = (array) => {
     [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
   }
   return shuffled;
+};
+
+// Колода с excluded + pinned
+// pinned максимум половина от размера упражнения
+const buildDeck = (
+  allVerbs,
+  excluded = [],
+  pinned = [],
+  deckSize = DEFAULT_EXERCISE_COUNT
+) => {
+  const safeDeckSize = ALLOWED_EXERCISE_COUNTS.includes(deckSize)
+    ? deckSize
+    : DEFAULT_EXERCISE_COUNT;
+
+  const excludedSet = new Set((excluded || []).map(String));
+  const pinnedSet = new Set((pinned || []).map(String));
+
+  const pool = (allVerbs || []).filter((v) => v && !excludedSet.has(String(v.hebrewVerb)));
+
+  if (pool.length <= safeDeckSize) {
+    return shuffleAll(pool);
+  }
+
+  const pinnedAll = pool.filter((v) => pinnedSet.has(String(v.hebrewVerb)));
+  const othersAll = pool.filter((v) => !pinnedSet.has(String(v.hebrewVerb)));
+
+  let pinnedSoftCap = Math.floor(safeDeckSize / 2);
+  pinnedSoftCap = Math.min(pinnedSoftCap, pinnedAll.length, safeDeckSize);
+
+  const pinnedShuffled = shuffleAll(pinnedAll);
+  let pinnedPicked = pinnedShuffled.slice(0, pinnedSoftCap);
+
+  const needFromOthers = safeDeckSize - pinnedPicked.length;
+  let othersPicked = shuffleAll(othersAll).slice(0, Math.min(needFromOthers, othersAll.length));
+
+  const stillNeed = safeDeckSize - (pinnedPicked.length + othersPicked.length);
+
+  if (stillNeed > 0) {
+    const alreadyPinned = new Set(pinnedPicked.map((v) => String(v.hebrewVerb)));
+    const extraPinned = pinnedShuffled.filter((v) => !alreadyPinned.has(String(v.hebrewVerb)));
+    pinnedPicked = pinnedPicked.concat(extraPinned.slice(0, stillNeed));
+  }
+
+  return shuffleAll([...pinnedPicked, ...othersPicked]);
 };
 
 const getGrade = (percentage) => {
@@ -65,12 +110,10 @@ const getGrade = (percentage) => {
   return 'Требуется серьезная работа! Важно не унывать и продолжать учиться.';
 };
 
-// Компонент деталей (как было)
 const VerbDetailsContainer = ({ verbDetails, showRussianText, handleSpeakerPress }) => {
   const leftFillAnim = useRef(new Animated.Value(0)).current;
   const rightFillAnim = useRef(new Animated.Value(0)).current;
   const [prevVerbDetails, setPrevVerbDetails] = useState(verbDetails);
-
   const animationRef = useRef(null);
 
   useEffect(() => {
@@ -193,7 +236,6 @@ const handleSpeakerPress = async (audioFile) => {
 };
 
 const Exercise1 = ({ navigation }) => {
-  // keys только для Exercise1
   const EXCLUDED_KEY = 'exercise1_excluded_verbs';
   const PINNED_KEY = 'exercise1_pinned_verbs';
 
@@ -201,8 +243,9 @@ const Exercise1 = ({ navigation }) => {
   const [pinnedIds, setPinnedIds] = useState([]);
   const excludedRef = useRef([]);
   const pinnedRef = useRef([]);
-
   const [isExcludedModalVisible, setIsExcludedModalVisible] = useState(false);
+
+  const [selectedExerciseCount, setSelectedExerciseCount] = useState(DEFAULT_EXERCISE_COUNT);
 
   const loadLists = useCallback(async () => {
     try {
@@ -228,6 +271,23 @@ const Exercise1 = ({ navigation }) => {
     }
   }, []);
 
+  const loadExerciseCount = useCallback(async () => {
+    try {
+      const raw = await AsyncStorage.getItem(EXERCISE1_COUNT_KEY);
+      const parsed = Number(raw);
+      const safeCount = ALLOWED_EXERCISE_COUNTS.includes(parsed)
+        ? parsed
+        : DEFAULT_EXERCISE_COUNT;
+
+      setSelectedExerciseCount(safeCount);
+      return safeCount;
+    } catch (e) {
+      console.warn('Failed to load exercise count', e);
+      setSelectedExerciseCount(DEFAULT_EXERCISE_COUNT);
+      return DEFAULT_EXERCISE_COUNT;
+    }
+  }, []);
+
   const saveExcluded = useCallback(async (next) => {
     const arr = Array.from(new Set(next));
     setExcludedIds(arr);
@@ -242,9 +302,21 @@ const Exercise1 = ({ navigation }) => {
     await AsyncStorage.setItem(PINNED_KEY, JSON.stringify(arr));
   }, []);
 
+  const saveExerciseCount = useCallback(async (count) => {
+    const safeCount = ALLOWED_EXERCISE_COUNTS.includes(count)
+      ? count
+      : DEFAULT_EXERCISE_COUNT;
+
+    setSelectedExerciseCount(safeCount);
+    await AsyncStorage.setItem(EXERCISE1_COUNT_KEY, String(safeCount));
+  }, []);
+
   useEffect(() => {
-    loadLists();
-  }, [loadLists]);
+    const bootstrap = async () => {
+      await Promise.all([loadLists(), loadExerciseCount()]);
+    };
+    bootstrap();
+  }, [loadLists, loadExerciseCount]);
 
   const [correctSound, setCorrectSound] = useState();
   const [incorrectSound, setIncorrectSound] = useState();
@@ -257,10 +329,10 @@ const Exercise1 = ({ navigation }) => {
   const [incorrectAnswers, setIncorrectAnswers] = useState(0);
   const [progress, setProgress] = useState(0);
   const [exerciseCompleted, setExerciseCompleted] = useState(false);
-  const grade = getGrade((correctAnswers / (correctAnswers + incorrectAnswers)) * 100);
+  const grade = getGrade((correctAnswers / Math.max(correctAnswers + incorrectAnswers, 1)) * 100);
 
   const backgroundColorAnim = useRef(new Animated.Value(0)).current;
-  const optionsContainerAnim = useRef(new Animated.Value(0)).current; // ✅ FIX: по умолчанию 0, не -500
+  const optionsContainerAnim = useRef(new Animated.Value(0)).current;
   const fadeAnim = useRef(new Animated.Value(0)).current;
 
   const [autoPlaySounds, setAutoPlaySounds] = useState(true);
@@ -378,59 +450,21 @@ const Exercise1 = ({ navigation }) => {
     navigation.setOptions({ headerLeft: () => null });
   }, [navigation]);
 
-  // ✅ NEW: сбор колоды с учётом excluded + pinned (24)
-  const buildDeck = (allVerbs, excluded = [], pinned = [], deckSize = 24) => {
-    const excludedSet = new Set((excluded || []).map(String));
-    const pinnedSet = new Set((pinned || []).map(String));
-
-    // 1️⃣ общий пул без исключённых
-    const pool = (allVerbs || []).filter((v) => v && !excludedSet.has(String(v.hebrewVerb)));
-
-    // если пула меньше размера упражнения — просто перемешиваем
-    if (pool.length <= deckSize) {
-      return shuffleAll(pool);
+  const initializeExercise = async (lang, deckSize = selectedExerciseCount) => {
+    if (!Array.isArray(excludedRef.current) || !Array.isArray(pinnedRef.current)) {
+      await loadLists();
     }
 
-    // 2️⃣ pinned и обычные
-    const pinnedAll = pool.filter((v) => pinnedSet.has(String(v.hebrewVerb)));
-    const othersAll = pool.filter((v) => !pinnedSet.has(String(v.hebrewVerb)));
+    const safeDeckSize = ALLOWED_EXERCISE_COUNTS.includes(deckSize)
+      ? deckSize
+      : DEFAULT_EXERCISE_COUNT;
 
-    // 3️⃣ динамический лимит pinned
-    const pinnedCount = pinnedAll.length;
-    let pinnedSoftCap = 8;
-
-    if (pinnedCount >= 96) pinnedSoftCap = 12;
-    else if (pinnedCount >= 72) pinnedSoftCap = 11;
-    else if (pinnedCount >= 48) pinnedSoftCap = 10;
-    else if (pinnedCount >= 24) pinnedSoftCap = 9;
-
-    pinnedSoftCap = Math.min(pinnedSoftCap, deckSize);
-
-    // 4️⃣ случайно берём pinned до softCap
-    const pinnedShuffled = shuffleAll(pinnedAll);
-    let pinnedPicked = pinnedShuffled.slice(0, Math.min(pinnedSoftCap, pinnedShuffled.length));
-
-    // 5️⃣ добираем обычные
-    const needFromOthers = deckSize - pinnedPicked.length;
-    let othersPicked = shuffleAll(othersAll).slice(0, Math.min(needFromOthers, othersAll.length));
-
-    // 6️⃣ если обычных не хватило — разрешаем взять pinned больше pinnedSoftCap
-    const stillNeed = deckSize - (pinnedPicked.length + othersPicked.length);
-
-    if (stillNeed > 0) {
-      const alreadyPinned = new Set(pinnedPicked.map((v) => String(v.hebrewVerb)));
-      const extraPinned = pinnedShuffled.filter((v) => !alreadyPinned.has(String(v.hebrewVerb)));
-      pinnedPicked = pinnedPicked.concat(extraPinned.slice(0, stillNeed));
-    }
-
-    // 7️⃣ финальное перемешивание — pinned НЕ идут первыми
-    return shuffleAll([...pinnedPicked, ...othersPicked]);
-  };
-
-  const initializeExercise = async (lang) => {
-    if (!excludedRef.current || !pinnedRef.current) await loadLists();
-
-    const newDeck = buildDeck(verbsData, excludedRef.current || [], pinnedRef.current || []);
+    const newDeck = buildDeck(
+      verbsData,
+      excludedRef.current || [],
+      pinnedRef.current || [],
+      safeDeckSize
+    );
     setShuffledVerbs(newDeck);
 
     const langMap = {
@@ -494,20 +528,16 @@ const Exercise1 = ({ navigation }) => {
     setIncorrectAnswers(0);
     setExerciseCompleted(false);
     setShowNextButton(false);
-
-    // ✅ важно: сбрасываем флаг сохранения статистики при новом старте
+    setOptionsOrder([]);
     setStatisticsUpdated(false);
-
-    // ✅ FIX: чтобы опции точно были на месте при старте
     optionsContainerAnim.setValue(0);
   };
 
   useEffect(() => {
-    if (language) initializeExercise(language);
+    if (language) initializeExercise(language, selectedExerciseCount);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [language]);
 
-  // ✅ FIX: анимация появления опций для каждого нового вопроса (включая самый первый)
   const animateOptionsIn = useCallback(() => {
     optionsContainerAnim.setValue(-500);
     Animated.timing(optionsContainerAnim, {
@@ -520,7 +550,9 @@ const Exercise1 = ({ navigation }) => {
   useEffect(() => {
     if (!isVerbListVisible && shuffledVerbs.length > 0 && !exerciseCompleted) {
       if (modalCloseReasonRef.current === 'menu') return;
-      const currentVerb = shuffledVerbs[currentIndex];
+
+      const safeIndex = Math.min(currentIndex, Math.max(shuffledVerbs.length - 1, 0));
+      const currentVerb = shuffledVerbs[safeIndex];
       const opts = generateOptions(currentVerb);
       setOptionsOrder(opts);
       updateVerbDetails(currentVerb, isGenderMan, false);
@@ -585,7 +617,7 @@ const Exercise1 = ({ navigation }) => {
     }
   };
 
-  const [verbDetails, setVerbDetails] = useState({ hebrewtext: '', translit: '', russiantext: '' });
+  const [verbDetails, setVerbDetails] = useState({ hebrewtext: '', translit: '', russiantext: '', mp3: '' });
 
   const playAudio = async (audioFile) => {
     if (!autoPlaySounds) return;
@@ -682,6 +714,62 @@ const Exercise1 = ({ navigation }) => {
 
   const [isGenderMan, setIsGenderMan] = useState(true);
 
+  const handleGenderToggle = () => {
+    setIsGenderMan((prev) => {
+      const newIsGenderMan = !prev;
+      updateVerbDetails(shuffledVerbs[currentIndex], newIsGenderMan, verbDetails.russiantext !== '');
+      return newIsGenderMan;
+    });
+  };
+
+  // Поведение как в рабочей версии: только сохраняем, без пересборки текущей сессии
+  const handleExcludeVerb = async (hebrewVerb) => {
+    if (!hebrewVerb) return;
+
+    const excludedSet = new Set(excludedRef.current || []);
+    const pinnedSet = new Set(pinnedRef.current || []);
+
+    if (excludedSet.has(hebrewVerb)) {
+      excludedSet.delete(hebrewVerb);
+      await saveExcluded(Array.from(excludedSet));
+      return;
+    }
+
+    if (pinnedSet.has(hebrewVerb)) {
+      pinnedSet.delete(hebrewVerb);
+      await savePinned(Array.from(pinnedSet));
+    }
+
+    excludedSet.add(hebrewVerb);
+    await saveExcluded(Array.from(excludedSet));
+  };
+
+  // Поведение как в рабочей версии: только сохраняем, без пересборки текущей сессии
+  const handleTogglePinnedVerb = async (hebrewVerb) => {
+    if (!hebrewVerb) return;
+
+    const pinnedSet = new Set(pinnedRef.current || []);
+    const excludedSet = new Set(excludedRef.current || []);
+
+    if (excludedSet.has(hebrewVerb)) {
+      excludedSet.delete(hebrewVerb);
+      await saveExcluded(Array.from(excludedSet));
+    }
+
+    if (pinnedSet.has(hebrewVerb)) pinnedSet.delete(hebrewVerb);
+    else pinnedSet.add(hebrewVerb);
+
+    await savePinned(Array.from(pinnedSet));
+  };
+
+  const handleSelectExerciseCount = async (count) => {
+    if (!ALLOWED_EXERCISE_COUNTS.includes(count)) return;
+    if (count === selectedExerciseCount) return;
+
+    await saveExerciseCount(count);
+    await initializeExercise(language, count);
+  };
+
   const handleAnswer = (selectedOptionIndex) => {
     if (exerciseCompleted) return;
 
@@ -706,9 +794,8 @@ const Exercise1 = ({ navigation }) => {
 
     updateVerbDetails(shuffledVerbs[currentIndex], isGenderMan, true);
     setTimeout(() => {
-  setShowNextButton(true);
-}, 1000);
-
+      setShowNextButton(true);
+    }, 1000);
 
     const totalAnswered = correctAnswers + incorrectAnswers + 1;
     setProgress(totalAnswered);
@@ -717,7 +804,6 @@ const Exercise1 = ({ navigation }) => {
   const calculateScore = () => {
     const totalAttempts = correctAnswers + incorrectAnswers;
     if (totalAttempts === 0) return 0;
-    // оставляю формат как у тебя (строка), чтобы не ломать StatModal/stat.js
     return ((correctAnswers / totalAttempts) * 100).toFixed(2);
   };
 
@@ -740,7 +826,6 @@ const Exercise1 = ({ navigation }) => {
     }
   };
 
-  // ✅ страховка: если completion показали каким-то другим путём — всё равно сохраним
   useEffect(() => {
     if (exerciseCompleted) {
       handleExerciseCompletion();
@@ -758,7 +843,6 @@ const Exercise1 = ({ navigation }) => {
     if (nextIndex < shuffledVerbs.length) {
       setCurrentIndex(nextIndex);
     } else {
-      // ✅ Вот здесь показываем Completion + сразу сохраняем статистику
       setExerciseCompleted(true);
       handleExerciseCompletion();
     }
@@ -771,16 +855,15 @@ const Exercise1 = ({ navigation }) => {
     setExerciseCompleted(false);
     setShowNextButton(false);
     setOptionsOrder([]);
-    setVerbDetails({ hebrewtext: '', translit: '', russiantext: '' });
+    setVerbDetails({ hebrewtext: '', translit: '', russiantext: '', mp3: '' });
 
-    // ✅ ВАЖНО: сброс статистики/счётчиков/прогресса/индекса (как в EN фиксе)
     setStatisticsUpdated(false);
     setCorrectAnswers(0);
     setIncorrectAnswers(0);
     setProgress(0);
     setCurrentIndex(0);
 
-    await initializeExercise(language);
+    await initializeExercise(language, selectedExerciseCount);
   };
 
   const handleCancelExit = () => setExitConfirmationVisible(false);
@@ -788,44 +871,6 @@ const Exercise1 = ({ navigation }) => {
   const handleConfirmExit = () => {
     setExitConfirmationVisible(false);
     navigation.reset({ index: 0, routes: [{ name: 'Menu' }] });
-  };
-
-  const handleExcludeVerb = async (hebrewVerb) => {
-    if (!hebrewVerb) return;
-
-    const excludedSet = new Set(excludedRef.current || []);
-    const pinnedSet = new Set(pinnedRef.current || []);
-
-    if (excludedSet.has(hebrewVerb)) {
-      excludedSet.delete(hebrewVerb);
-      await saveExcluded(Array.from(excludedSet));
-      return;
-    }
-
-    if (pinnedSet.has(hebrewVerb)) {
-      pinnedSet.delete(hebrewVerb);
-      await savePinned(Array.from(pinnedSet));
-    }
-
-    excludedSet.add(hebrewVerb);
-    await saveExcluded(Array.from(excludedSet));
-  };
-
-  const handleTogglePinnedVerb = async (hebrewVerb) => {
-    if (!hebrewVerb) return;
-
-    const pinnedSet = new Set(pinnedRef.current || []);
-    const excludedSet = new Set(excludedRef.current || []);
-
-    if (excludedSet.has(hebrewVerb)) {
-      excludedSet.delete(hebrewVerb);
-      await saveExcluded(Array.from(excludedSet));
-    }
-
-    if (pinnedSet.has(hebrewVerb)) pinnedSet.delete(hebrewVerb);
-    else pinnedSet.add(hebrewVerb);
-
-    await savePinned(Array.from(pinnedSet));
   };
 
   const handleButton3Press = async () => {
@@ -841,14 +886,6 @@ const Exercise1 = ({ navigation }) => {
     }
   };
 
-  const handleGenderToggle = () => {
-    setIsGenderMan((prev) => {
-      const newIsGenderMan = !prev;
-      updateVerbDetails(shuffledVerbs[currentIndex], newIsGenderMan, verbDetails.russiantext !== '');
-      return newIsGenderMan;
-    });
-  };
-
   return (
     <>
       {isVerbListVisible && (
@@ -857,19 +894,17 @@ const Exercise1 = ({ navigation }) => {
           language={language}
           verbs={verbListForModal}
           pinnedIds={pinnedIds}
+          selectedCount={selectedExerciseCount}
+          onSelectCount={handleSelectExerciseCount}
           onStartExercise={() => {
             modalCloseReasonRef.current = 'start';
             setIsVerbListVisible(false);
           }}
           onClose={() => {
-  modalCloseReasonRef.current = 'menu';
-
-  // ❗️НЕ делаем setIsVerbListVisible(false),
-  // иначе на мгновение смонтируется экран упражнения и может стартануть звук.
-  if (navigation.canGoBack()) navigation.goBack();
-  else navigation.navigate('Menu');
-}}
-
+            modalCloseReasonRef.current = 'menu';
+            if (navigation.canGoBack()) navigation.goBack();
+            else navigation.navigate('Menu');
+          }}
         />
       )}
 
@@ -1047,21 +1082,21 @@ const Exercise1 = ({ navigation }) => {
 
 const styles = StyleSheet.create({
   scrollViewContent: {
-  flexGrow: 1,
-  justifyContent: 'flex-start',   // ← вместо center
-  alignItems: 'center',
-  paddingTop: 0,                // можно 5–15 по вкусу
-},
+    flexGrow: 1,
+    justifyContent: 'flex-start',
+    alignItems: 'center',
+    paddingTop: 0,
+  },
 
-container: {
-  flex: 1,
-  justifyContent: 'flex-start',  // ← вместо center
-  alignItems: 'center',
-  padding: 10,
-  paddingTop: 0,                // можно уменьшить ещё
-  backgroundColor: '#AFC1D0',
-  width: '100%',
-},
+  container: {
+    flex: 1,
+    justifyContent: 'flex-start',
+    alignItems: 'center',
+    padding: 10,
+    paddingTop: 0,
+    backgroundColor: '#AFC1D0',
+    width: '100%',
+  },
 
   topBar: {
     flexDirection: 'row',
@@ -1317,14 +1352,13 @@ container: {
     paddingLeft: wp('2.5%'),
     paddingRight: wp('2.5%'),
   },
- lottieAnimation: {
+  lottieAnimation: {
     position: 'absolute',
     width: wp('90%'),
     height: hp('18%'),
     justifyContent: 'center',
     alignItems: 'center',
   },
-
   speakerButton: {
     position: 'absolute',
     bottom: hp('-0.25%'),

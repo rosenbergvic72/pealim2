@@ -23,6 +23,7 @@ import FadeInView from './api/FadeInView';
 import { ensureMarkedToday } from './serverPush';
 import { useIap } from './src/iap/IapProvider';
 import StatsReportModalMulti from './StatsReportModalMulti';
+import UpgradeBanner from './UpgradeBanner';
 
 // Бесплатные экраны в PT
 const FREE_ROUTES_PT = new Set(['Exercise1Pt', 'Exercise2Pt']);
@@ -93,7 +94,7 @@ export default function MenuPage({ route }) {
 
   useEffect(() => {
     const onBackPress = () => {
-      navigation.reset({ index: 0, routes: [{ name: 'WelcomePt' }] });
+      navigation.reset({ index: 0, routes: [{ name: 'LanguageSelectionPage' }] });
       return true;
     };
     const backHandler = BackHandler.addEventListener('hardwareBackPress', onBackPress);
@@ -606,6 +607,16 @@ export default function MenuPage({ route }) {
               </View>
             </TouchableOpacity>
           </Animated.View>
+
+          <UpgradeBanner
+  hasPro={hasPro}
+  navigation={navigation}
+  language="pt"
+  animatedStyle={{
+    opacity: button3Opacity,
+    transform: [{ translateY: button3TranslateY }],
+  }}
+/>
 
           {/* 3 — LOCKED if !PRO */}
           <Animated.View

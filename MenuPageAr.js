@@ -23,6 +23,7 @@ import { useIap } from './src/iap/IapProvider';
 import { AR_TEXT, AR_TEXT_BOLD } from './arText';
 import StatsReportModalMulti from './StatsReportModalMulti';
 import Constants from 'expo-constants';
+import UpgradeBanner from './UpgradeBanner';
 
 // первые 2 упражнения — всегда бесплатны
 const FREE_ROUTES_AR = new Set(['Exercise1Ar', 'Exercise2Ar']);
@@ -92,7 +93,7 @@ export default function MenuPage({ route }) {
 
   useEffect(() => {
     const onBackPress = () => {
-      navigation.reset({ index: 0, routes: [{ name: 'WelcomeAr' }] });
+      navigation.reset({ index: 0, routes: [{ name: 'LanguageSelectionPage' }] });
       return true;
     };
     const backHandler = BackHandler.addEventListener('hardwareBackPress', onBackPress);
@@ -579,6 +580,16 @@ export default function MenuPage({ route }) {
               </View>
             </TouchableOpacity>
           </Animated.View>
+
+          <UpgradeBanner
+  hasPro={hasPro}
+  navigation={navigation}
+  language="ar"
+  animatedStyle={{
+    opacity: button3Opacity,
+    transform: [{ translateY: button3TranslateY }],
+  }}
+/>
 
           {/* Exercise 3 — LOCKED if !PRO */}
           <Animated.View
