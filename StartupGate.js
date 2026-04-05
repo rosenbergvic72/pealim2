@@ -2,6 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import { View, ActivityIndicator, StyleSheet } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { CommonActions, useNavigation } from '@react-navigation/native';
+import { useIap } from './src/iap/IapProvider';
 
 const FIRST_LAUNCH_KEY = 'verbify_first_launch_completed';
 const LANGUAGE_KEY = 'language';
@@ -59,10 +60,14 @@ export default function StartupGate() {
   const navigation = useNavigation();
   const hasNavigatedRef = useRef(false);
 
+  const { ready, accessState, hasPro } = useIap();
+
   useEffect(() => {
     let cancelled = false;
 
     const run = async () => {
+      if (!ready) return;
+      if (accessState === 'checking') return;
       if (hasNavigatedRef.current) return;
 
       try {
@@ -73,11 +78,11 @@ export default function StartupGate() {
 
         console.log('[StartupGate] savedLanguage =', savedLanguage);
         console.log('[StartupGate] firstLaunchCompleted =', firstLaunchCompleted);
+        console.log('[StartupGate] ready =', ready, 'accessState =', accessState, 'hasPro =', hasPro);
 
         if (cancelled || hasNavigatedRef.current) return;
         hasNavigatedRef.current = true;
 
-        // Если язык ещё не выбран — идём на выбор языка
         if (!savedLanguage) {
           navigation.dispatch(
             CommonActions.reset({
@@ -90,7 +95,6 @@ export default function StartupGate() {
 
         const routes = getRoutesForLanguage(savedLanguage);
 
-        // Первый запуск — welcome выбранного языка
         if (!firstLaunchCompleted) {
           navigation.dispatch(
             CommonActions.reset({
@@ -101,7 +105,6 @@ export default function StartupGate() {
           return;
         }
 
-        // Повторный запуск — сразу меню выбранного языка
         navigation.dispatch(
           CommonActions.reset({
             index: 0,
@@ -128,7 +131,7 @@ export default function StartupGate() {
     return () => {
       cancelled = true;
     };
-  }, [navigation]);
+  }, [navigation, ready, accessState, hasPro]);
 
   return (
     <View style={styles.container}>
