@@ -4,31 +4,45 @@ import { View, Text, TouchableOpacity, StyleSheet, Platform, Animated } from 're
 const texts = {
   en: {
     title: '🔓 UNLOCK ALL EXERCISES',
-    subtitle: 'Get full access to all exercises',
+    subtitleAndroid: '5 days free for new subscribers',
+    subtitleIOS: '7 days free for new subscribers',
+    note: 'Cancel anytime',
   },
   ru: {
     title: '🔓 ОТКРОЙТЕ ВСЕ УПРАЖНЕНИЯ',
-    subtitle: 'Получите полный доступ ко всем упражнениям',
+    subtitleAndroid: 'Бесплатно 5 дней для новых подписчиков',
+    subtitleIOS: '7 дней бесплатно для новых подписчиков',
+    note: 'Отменить можно в любой момент',
   },
   fr: {
     title: '🔓 DÉBLOQUEZ TOUS LES EXERCICES',
-    subtitle: 'Obtenez un accès complet à tous les exercices',
+    subtitleAndroid: '5 jours gratuits pour les nouveaux abonnés',
+    subtitleIOS: '7 jours gratuits pour les nouveaux abonnés',
+    note: 'Annulez à tout moment',
   },
   es: {
     title: '🔓 DESBLOQUEA TODOS LOS EJERCICIOS',
-    subtitle: 'Obtén acceso completo a todos los ejercicios',
+    subtitleAndroid: '5 días gratis para nuevos suscriptores',
+    subtitleIOS: '7 días gratis para nuevos suscriptores',
+    note: 'Cancela en cualquier momento',
   },
   pt: {
     title: '🔓 DESBLOQUEIE TODOS OS EXERCÍCIOS',
-    subtitle: 'Obtenha acesso completo a todos os exercícios',
+    subtitleAndroid: '5 dias grátis para novos assinantes',
+    subtitleIOS: '7 dias grátis para novos assinantes',
+    note: 'Cancele a qualquer momento',
   },
   ar: {
     title: '🔓 افتح جميع التمارين',
-    subtitle: 'احصل على وصول كامل إلى جميع التمارين',
+    subtitleAndroid: '5 أيام مجانًا للمشتركين الجدد',
+    subtitleIOS: '7 أيام مجانًا للمشتركين الجدد',
+    note: 'يمكن الإلغاء في أي وقت',
   },
   am: {
     title: '🔓 ሁሉንም ልምምዶች ክፈት',
-    subtitle: 'ሁሉንም ልምምዶች በሙሉ ይድረሱባቸው',
+    subtitleAndroid: 'ለአዲስ ተመዝጋቢዎች 5 ቀናት በነፃ',
+    subtitleIOS: 'ለአዲስ ተመዝጋቢዎች 7 ቀናት በነፃ',
+    note: 'በማንኛውም ጊዜ መሰረዝ ይቻላል',
   },
 };
 
@@ -45,6 +59,7 @@ export default function UpgradeBanner({
   if (hasPro) return null;
 
   const t = texts[language] || texts.en;
+  const subtitle = Platform.OS === 'ios' ? t.subtitleIOS : t.subtitleAndroid;
 
   return (
     <Animated.View style={[styles.container, animatedStyle]}>
@@ -57,8 +72,13 @@ export default function UpgradeBanner({
           <Text style={styles.title} maxFontSizeMultiplier={1.2}>
             {t.title}
           </Text>
+
           <Text style={styles.subtitle} maxFontSizeMultiplier={1.2}>
-            {t.subtitle}
+            {subtitle}
+          </Text>
+
+          <Text style={styles.note} maxFontSizeMultiplier={1.2}>
+            {t.note}
           </Text>
         </View>
       </TouchableOpacity>
@@ -95,7 +115,14 @@ const styles = StyleSheet.create({
   subtitle: {
     color: 'white',
     fontSize: 12,
+    fontWeight: '600',
     marginTop: 5,
+    textAlign: 'center',
+  },
+  note: {
+    color: 'rgba(255,255,255,0.82)',
+    fontSize: 12,
+    marginTop: 4,
     textAlign: 'center',
   },
 });

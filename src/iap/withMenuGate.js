@@ -1,20 +1,14 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { Platform, View, ActivityIndicator } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, ActivityIndicator } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { CommonActions } from '@react-navigation/native';
 import { useIap } from './IapProvider';
 
 const FREE_FLAG_KEY = 'freePreview';
-
-function paywallRouteName() {
-  return Platform.OS === 'ios' ? 'PaywallIOS' : 'Paywall';
-}
 
 export function withMenuGate(ScreenComponent, _featureKey) {
   function WithGate(props) {
     const { ready, hasPro, accessState = 'checking' } = useIap();
     const [freePreview, setFreePreview] = useState(null);
-    const redirectedRef = useRef(false);
 
     useEffect(() => {
       let mounted = true;
@@ -31,8 +25,9 @@ export function withMenuGate(ScreenComponent, _featureKey) {
             fromStorage = false;
           }
 
-          const val = fromParams || fromStorage;
-          if (mounted) setFreePreview(val);
+          if (mounted) {
+            setFreePreview(fromParams || fromStorage);
+          }
         } catch {
           if (mounted) setFreePreview(false);
         }
@@ -43,28 +38,7 @@ export function withMenuGate(ScreenComponent, _featureKey) {
       };
     }, [props?.route?.params?.freePreview]);
 
-    useEffect(() => {
-      if (!ready) return;
-      if (accessState === 'checking') return;
-      if (freePreview === null) return;
-
-      if (hasPro && redirectedRef.current) {
-        redirectedRef.current = false;
-        return;
-      }
-
-      if (!hasPro && !freePreview && !redirectedRef.current) {
-        redirectedRef.current = true;
-
-        props.navigation.dispatch(
-          CommonActions.reset({
-            index: 0,
-            routes: [{ name: paywallRouteName() }],
-          })
-        );
-      }
-    }, [ready, accessState, hasPro, freePreview, props.navigation]);
-
+    // Ждём, пока IAP полностью определит доступ
     if (!ready || accessState === 'checking') {
       return (
         <View
@@ -80,7 +54,8 @@ export function withMenuGate(ScreenComponent, _featureKey) {
       );
     }
 
-    if (freePreview === null && !hasPro) {
+    // Ждём, пока дочитается freePreview
+    if (freePreview === null) {
       return (
         <View
           style={{
@@ -95,7 +70,14 @@ export function withMenuGate(ScreenComponent, _featureKey) {
       );
     }
 
-    return <ScreenComponent {...props} freePreview={!!freePreview && !hasPro} />;
+    // НИКАКИХ редиректов на Paywall здесь больше нет
+    return (
+      <ScreenComponent
+        {...props}
+        hasPro={hasPro}
+        freePreview={!!freePreview && !hasPro}
+      />
+    );
   }
 
   WithGate.displayName = `withMenuGate(${

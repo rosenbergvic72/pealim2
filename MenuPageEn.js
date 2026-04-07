@@ -336,15 +336,18 @@ export default function MenuPage({ route }) {
     ]).start();
   };
 
-  const handlePress = (routeName) => {
-    if (isLocked(routeName)) {
-      navigation.navigate('Paywall');
-      return;
-    }
-    setNavigateTo(routeName);
-    setAnimationTriggered(true);
-  };
+  const isFreeName = name => name === 'Exercise1' || name === 'Exercise2';
+  // const isLocked = name => !hasPro && !isFreeName(name);
 
+const handlePress = exercise => {
+  // ❌ если залочено — просто игнорируем
+  if (isLocked(exercise)) {
+    return;
+  }
+
+  setNavigateTo(exercise);
+  setAnimationTriggered(true);
+};
   useEffect(() => {
     if (animationTriggered) {
       Animated.stagger(100, [

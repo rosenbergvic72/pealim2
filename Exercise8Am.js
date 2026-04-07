@@ -1069,7 +1069,7 @@ useEffect(() => {
   };
 
   const handleButton3Press = async () => {
-    const exerciseId = 'exercise8En';
+    const exerciseId = 'exercise8Am';
     try {
       const stats = await getStatistics(exerciseId);
       setStatistics(stats);
@@ -1159,7 +1159,7 @@ useFocusEffect(
       };
 
   const handleExerciseCompletion = async () => {
-    const exerciseId = 'exercise8En';
+    const exerciseId = 'exercise8Am';
     const currentScore = parseFloat(progressPercent.toFixed(2));
     await updateStatistics(exerciseId, currentScore);
 

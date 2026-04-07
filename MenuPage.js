@@ -321,17 +321,17 @@ export default function MenuPage({ route }) {
 
   // === Гейтинг нажатий ===
   const isFreeName = name => name === 'Exercise1' || name === 'Exercise2';
-  const isLocked = name => !hasPro && freePreview && !isFreeName(name);
+  const isLocked = name => !hasPro && !isFreeName(name);
 
-  const handlePress = exercise => {
-    // если залочено — ведём на Paywall
-    if (isLocked(exercise)) {
-      navigation.navigate('Paywall');
-      return;
-    }
-    setNavigateTo(exercise);
-    setAnimationTriggered(true);
-  };
+const handlePress = exercise => {
+  // ❌ если залочено — просто игнорируем
+  if (isLocked(exercise)) {
+    return;
+  }
+
+  setNavigateTo(exercise);
+  setAnimationTriggered(true);
+};
 
   useEffect(() => {
     if (animationTriggered) {

@@ -5471,11 +5471,11 @@
     "verbPortuguese": "lavar roupa",
     "verbArabic": "يغسل الملابس",
     "verbAmharic": "ልብስ መታጠብ",
-    "audioFile": "lekhabbes.mp3",
+    "audioFile": "lechabes.mp3",
     "verbHebrewOptions": [
       {
         "text": "לכבס",
-        "transliteration": "lekhabbes",
+        "transliteration": "lechabes",
         "isCorrect": true
       },
       {

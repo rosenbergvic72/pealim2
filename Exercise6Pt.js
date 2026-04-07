@@ -215,15 +215,15 @@ const Exercise6Pt = () => {
     setProgress(totalExercises > 0 ? nextIndex : 0);
   };
 
-  const finishExerciseWithDelay = useCallback(() => {
-    if (completionTriggeredRef.current) return;
-    completionTriggeredRef.current = true;
+ const finishExerciseWithDelay = useCallback((finalScore) => {
+  if (completionTriggeredRef.current) return;
+  completionTriggeredRef.current = true;
 
-    setTimeout(() => {
-      setExerciseCompleted(true);
-      handleExerciseCompletion();
-    }, 1400);
-  }, []);
+  setTimeout(async () => {
+    setExerciseCompleted(true);
+    await updateStatistics('exercise6Pt', Number(finalScore));
+  }, 1400);
+}, []);
 
   const changeBackgroundColor = (isCorrect) => {
     backgroundColorAnim.setValue(isCorrect ? 1 : 2);
@@ -598,9 +598,14 @@ const Exercise6Pt = () => {
       setRemainingPairs(prev => {
         const nextRemaining = prev - 1;
 
-        if (nextRemaining === 0) {
-          finishExerciseWithDelay();
-        }
+      if (nextRemaining === 0) {
+  const nextCorrect = correctCount + 1;
+  const nextIncorrect = incorrectCount;
+  const nextTotal = nextCorrect + nextIncorrect;
+  const finalScore = nextTotal > 0 ? ((nextCorrect / nextTotal) * 100).toFixed(2) : '0';
+
+  finishExerciseWithDelay(finalScore);
+}
 
         return nextRemaining;
       });

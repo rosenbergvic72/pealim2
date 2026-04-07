@@ -56,7 +56,8 @@
   "env": {
     "EXPO_PUBLIC_STORE": "gp",
     "EXPO_PUBLIC_DISABLE_IAP": "0",
-    "EXPO_PUBLIC_IAP_VERIFY_BASE_URL": "https://iap-server.onrender.com"
+    "EXPO_PUBLIC_IAP_VERIFY_BASE_URL": "https://iap-server.onrender.com",
+    "EXPO_PUBLIC_IAP_RESTORE_ON_LAUNCH": "0"
   },
   "channel": "development"
 },

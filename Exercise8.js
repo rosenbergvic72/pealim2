@@ -1108,7 +1108,7 @@ useFocusEffect(
       };
 
 const handleExerciseCompletion = async () => {
-  const exerciseId = 'exercise8En';
+  const exerciseId = 'exercise8';
   const currentScore = parseFloat(progressPercent.toFixed(2));
   await updateStatistics(exerciseId, currentScore);
 
