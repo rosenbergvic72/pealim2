@@ -736,17 +736,17 @@ const ensureIapConnection = useCallback(async () => {
     return !!(json?.pro === true && effectiveExpiresAt && notExpiredBy(effectiveExpiresAt));
   }, []);
 
-  const hasRecentGoodPro = useCallback(async () => {
+ const hasRecentGoodPro = useCallback(async () => {
   try {
     const lastGood = Number((await AsyncStorage.getItem(IAP_LAST_GOOD_PRO_AT)) || 0);
     if (!Number.isFinite(lastGood) || lastGood <= 0) return false;
 
-    const GRACE_MS = 1000 * 60 * 60 * 24 * 3; // 3 дня
+    const GRACE_MS = 1000 * 60 * 60 * 24 * 7; // 7 дней
     return Date.now() - lastGood < GRACE_MS;
   } catch {
     return false;
   }
-}, []); 
+}, []);
 
 const getLocalStoreEntitlement = useCallback(async () => {
   try {
@@ -1263,23 +1263,23 @@ if (!cancelled) {
   }, [resolveOfflineAccess, restoreFromNetwork, sendAccessPing, syncAccessStateRespectingCode]);
 
 
-  useEffect(() => {
+ useEffect(() => {
   let cancelled = false;
 
   if (!ready) return;
-  if (RESTORE_ON_LAUNCH) return; // если когда-то снова включишь старый режим
+  if (RESTORE_ON_LAUNCH) return;
   if (isSimulator || !Device.isDevice) return;
   if (Platform.OS !== 'android' && Platform.OS !== 'ios') return;
 
+  const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
   const runBackgroundRestore = async () => {
     try {
-      // Небольшая пауза, чтобы не мешать старту UI и загрузке цен
-      await new Promise((r) => setTimeout(r, 2500));
-
+      // Первая попытка: после старта, но не мешаем UI и ценам
+      await sleep(2500);
       if (cancelled) return;
 
-      const online = await restoreFromNetwork();
-
+      let online = await restoreFromNetwork();
       if (cancelled) return;
 
       if (online?.ok) {
@@ -1287,6 +1287,38 @@ if (!cancelled) {
           ...d,
           backgroundRestoreSource: online.source || null,
         }));
+      }
+
+      console.log('[IAP] background restore pass1=', {
+        ok: !!online?.ok,
+        pro: !!online?.pro,
+        source: online?.source || null,
+      });
+
+      // Если уже восстановили PRO — выходим
+      if (online?.ok && online?.pro) return;
+
+      // Для Android даём вторую попытку после прогрева Play Services / Billing
+      if (Platform.OS === 'android') {
+        await sleep(9000);
+        if (cancelled) return;
+
+        online = await restoreFromNetwork();
+        if (cancelled) return;
+
+        if (online?.ok) {
+          setDebug((d) => ({
+            ...d,
+            backgroundRestoreSource:
+              online.source || d.backgroundRestoreSource || null,
+          }));
+        }
+
+        console.log('[IAP] background restore pass2=', {
+          ok: !!online?.ok,
+          pro: !!online?.pro,
+          source: online?.source || null,
+        });
       }
     } catch (e) {
       console.log('[IAP] background restore failed=', e?.message || String(e));

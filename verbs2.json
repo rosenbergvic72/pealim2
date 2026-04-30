@@ -2330,7 +2330,7 @@
         ]
       },
       {
-        "verbRussian": "Ехать",
+        "verbRussian": "Ехать (верхом)",
         "verbEnglish": "to ride",
 "verbFrench": "monter",
 "verbSpanish": "montar",
@@ -2341,7 +2341,7 @@
         "audioFile": "lirkov.mp3",
 
         "verbHebrewOptions": [
-          { "text": "לרכב", "transliteration": "lirkov", "isCorrect": true },
+          { "text": "לרכוב", "transliteration": "lirkov", "isCorrect": true },
           { "text": "להתרחץ", "transliteration": "lehitrachetz", "isCorrect": false },
           { "text": "לרחוץ", "transliteration": "lirchotz", "isCorrect": false },
           { "text": "לטפל", "transliteration": "letapel", "isCorrect": false }

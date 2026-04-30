@@ -1,24 +1,5 @@
 // server.js
 // Push-notifications scheduler server (SQLite + Expo Push API)
-// ✅ Supports BOTH userId and deviceId by introducing stable audienceId (PRIMARY KEY)
-// ✅ Backward compatible: old clients can still send { userId, expoPushToken, ... }
-// ✅ New clients should send { audienceId, userId?, deviceId?, expoPushToken, ... }
-//
-// Tables:
-//   devices   (audienceId PK, stores token + lang/tz + userId/deviceId metadata)
-//   schedules (audienceId PK)
-//   activity  (audienceId + ymd PK)
-//
-// Endpoints:
-//   GET  /health
-//   POST /registerDevice
-//   POST /schedule
-//   POST /schedule/weekend
-//   DELETE /schedule/:audienceId
-//   POST /activity/mark
-//   GET  /debug/all
-//   GET  /debug/health
-//   POST /cron
 
 import express from 'express';
 import cors from 'cors';
@@ -51,7 +32,7 @@ db.exec(`
     utcOffsetMin INTEGER DEFAULT 0,
     appVersion TEXT,
     updatedAt TEXT,
-    store TEXT,     -- 'gp' | 'rustore'
+    store TEXT,     -- 'gp' | 'rustore' | 'ios'
     appId TEXT      -- com.rosenbergvictor72.verbify[.ru]
   );
 
@@ -117,9 +98,7 @@ function migrateToAudienceIdSchema() {
 
   console.log('[MIGRATE] legacy schema detected -> migrating to audienceId schema');
 
-  // Wrap in a transaction
   const tx = db.transaction(() => {
-    // devices -> devices_v2
     db.exec(`
       CREATE TABLE IF NOT EXISTS devices_v2 (
         audienceId TEXT PRIMARY KEY,
@@ -136,7 +115,6 @@ function migrateToAudienceIdSchema() {
       );
     `);
 
-    // Copy legacy data
     db.exec(`
       INSERT INTO devices_v2 (
         audienceId, expoPushToken, language, tz, utcOffsetMin, appVersion, updatedAt, store, appId, userId, deviceId
@@ -159,7 +137,6 @@ function migrateToAudienceIdSchema() {
     db.exec(`DROP TABLE devices;`);
     db.exec(`ALTER TABLE devices_v2 RENAME TO devices;`);
 
-    // schedules -> schedules_v2
     db.exec(`
       CREATE TABLE IF NOT EXISTS schedules_v2 (
         audienceId TEXT PRIMARY KEY,
@@ -187,7 +164,6 @@ function migrateToAudienceIdSchema() {
     db.exec(`DROP TABLE schedules;`);
     db.exec(`ALTER TABLE schedules_v2 RENAME TO schedules;`);
 
-    // activity -> activity_v2
     db.exec(`
       CREATE TABLE IF NOT EXISTS activity_v2 (
         audienceId TEXT NOT NULL,
@@ -221,20 +197,16 @@ function ensureColumn(table, name, type) {
   if (!cols.includes(name)) db.exec(`ALTER TABLE ${table} ADD COLUMN ${name} ${type}`);
 }
 
-// schedules legacy soft columns
 ensureColumn('schedules', 'altHour', 'INTEGER');
 ensureColumn('schedules', 'altMinute', 'INTEGER');
 ensureColumn('schedules', 'altDaysOfWeek', 'TEXT');
 
-// devices extra metadata columns in new schema
 ensureColumn('devices', 'store', 'TEXT');
 ensureColumn('devices', 'appId', 'TEXT');
 ensureColumn('devices', 'userId', 'TEXT');
 ensureColumn('devices', 'deviceId', 'TEXT');
 
-// If after migration some columns missing, make sure audienceId exists (guard)
 if (!hasColumn('devices', 'audienceId')) {
-  // If still legacy and migration didn't run for some reason, this is a hard mismatch.
   console.warn('[DB] WARNING: devices.audienceId missing; DB may still be legacy');
 }
 if (!hasColumn('schedules', 'audienceId')) {
@@ -243,10 +215,12 @@ if (!hasColumn('schedules', 'audienceId')) {
 
 /* ===================== Utils ===================== */
 
-// infer store from applicationId
-function inferStore(appId) {
-  if (!appId) return null;
-  return appId.endsWith('.ru') ? 'rustore' : 'gp';
+// infer store from appId / explicit store
+function inferStore(appId, explicitStore = null) {
+  if (explicitStore === 'ios') return 'ios';
+  if (!appId) return explicitStore || null;
+  if (appId.endsWith('.ru')) return 'rustore';
+  return explicitStore || 'gp';
 }
 
 // localization
@@ -303,15 +277,17 @@ function buildMessage(language = 'english') {
   }
 }
 
-// audienceId rules:
-// - Prefer explicit audienceId
-// - Else fallback to userId (legacy)
-// - Else fallback to deviceId (if you decide to use deviceId as audienceId in new clients)
+// Correct priority: audienceId -> userId -> deviceId
 function resolveAudienceId({ audienceId, userId, deviceId }) {
-  const a = deviceId || audienceId || userId || null;
+  const a = audienceId || userId || deviceId || null;
   return a ? String(a) : null;
 }
 
+function maskToken(token) {
+  const s = String(token || '');
+  if (s.length <= 10) return s;
+  return `${s.slice(0, 6)}...${s.slice(-6)}`;
+}
 
 /* ===================== Prepared statements ===================== */
 
@@ -330,6 +306,13 @@ const upsertDevice = db.prepare(`
     appId=excluded.appId,
     userId=COALESCE(excluded.userId, devices.userId),
     deviceId=COALESCE(excluded.deviceId, devices.deviceId)
+`);
+
+const getDeviceByToken = db.prepare(`
+  SELECT audienceId, userId, deviceId, expoPushToken, updatedAt
+  FROM devices
+  WHERE expoPushToken = ?
+  LIMIT 1
 `);
 
 // schedules: upsert by audienceId
@@ -406,7 +389,6 @@ async function sendExpoBatch(messages) {
 }
 
 /* ===================== Scheduler ===================== */
-// window tolerance in minutes
 const MINUTE_TOLERANCE = Number(process.env.MINUTE_TOLERANCE ?? '1.5');
 
 function makeSentKey(local, targetHour, targetMinute, useAlt) {
@@ -422,13 +404,13 @@ async function processDueNow() {
 
   const messages = [];
   const mapping = [];
+  const seenTokens = new Set();
 
   for (const row of rows) {
     const tz = row.tz || 'UTC';
     let local = nowUtc.setZone(tz);
     if (!local.isValid) local = nowUtc;
 
-    // 0..6 (sun=0)
     const dow06 = local.weekday % 7;
 
     let baseDays = null;
@@ -462,11 +444,9 @@ async function processDueNow() {
       continue;
     }
 
-    // skip if already active today
     const ymd = local.toFormat('yyyy-LL-dd');
     if (hasActivityToday.get(row.audienceId, ymd)) continue;
 
-    // time window check
     const target = local.set({
       hour: targetHour,
       minute: targetMinute,
@@ -476,13 +456,22 @@ async function processDueNow() {
     const diffMin = Math.abs(local.diff(target, 'minutes').minutes);
     if (diffMin > MINUTE_TOLERANCE) continue;
 
-    // prevent duplicates for same slot
     const sentKey = makeSentKey(local, targetHour, targetMinute, useAlt);
     if (row.lastSentKey === sentKey) continue;
 
+    const token = String(row.expoPushToken || '').trim();
+    if (!token) continue;
+
+    // dedup by token inside this cron cycle
+    if (seenTokens.has(token)) {
+      console.log('[PUSH][DEDUP_TOKEN] skip duplicate token for audienceId=', row.audienceId, 'token=', maskToken(token));
+      continue;
+    }
+    seenTokens.add(token);
+
     const msgText = buildMessage(row.language);
     messages.push({
-      to: row.expoPushToken,
+      to: token,
       sound: 'default',
       title: msgText.title,
       body: msgText.body,
@@ -490,7 +479,7 @@ async function processDueNow() {
       priority: 'high',
       channelId: 'default',
     });
-    mapping.push({ audienceId: row.audienceId, sentKey });
+    mapping.push({ audienceId: row.audienceId, sentKey, token });
   }
 
   const CHUNK = 100;
@@ -524,10 +513,11 @@ async function processDueNow() {
         console.warn(
           '[PUSH] send error for audienceId=',
           m.audienceId,
+          'token=',
+          maskToken(m.token),
           'resp=',
           r
         );
-        // NOTE: do NOT set lastSentKey on error, so we can retry later
       }
     }
   }
@@ -565,8 +555,7 @@ app.post('/registerDevice', (req, res) => {
         .json({ error: 'audienceId (or userId/deviceId) and expoPushToken are required' });
     }
 
-    // infer store by appId
-    const inferred = inferStore(appId);
+    const inferred = inferStore(appId, store);
     if (!store || (inferred && store !== inferred)) {
       if (store && inferred && store !== inferred) {
         console.warn('[registerDevice] store/appId mismatch -> override', {
@@ -578,8 +567,26 @@ app.post('/registerDevice', (req, res) => {
       store = inferred;
     }
 
+    // If same push token already exists under another audienceId,
+    // reuse the old audienceId to avoid duplicated device rows/schedules.
+    const existingByToken = getDeviceByToken.get(expoPushToken);
+    let finalAudienceId = resolvedAudienceId;
+
+    if (
+      existingByToken &&
+      existingByToken.audienceId &&
+      existingByToken.audienceId !== resolvedAudienceId
+    ) {
+      console.warn('[registerDevice] token already exists for another audienceId, reusing old audienceId', {
+        incomingAudienceId: resolvedAudienceId,
+        existingAudienceId: existingByToken.audienceId,
+        token: maskToken(expoPushToken),
+      });
+      finalAudienceId = existingByToken.audienceId;
+    }
+
     upsertDevice.run({
-      audienceId: resolvedAudienceId,
+      audienceId: finalAudienceId,
       expoPushToken,
       language: language || 'english',
       tz: tz || 'UTC',
@@ -592,11 +599,21 @@ app.post('/registerDevice', (req, res) => {
       deviceId: deviceId ? String(deviceId) : null,
     });
 
+    console.log('[registerDevice]', {
+      incomingAudienceId: resolvedAudienceId,
+      finalAudienceId,
+      userId: userId ? String(userId) : null,
+      deviceId: deviceId ? String(deviceId) : null,
+      token: maskToken(expoPushToken),
+      store: store || null,
+      appId: appId || null,
+    });
+
     // create default schedules on first registration for this audienceId
-    const exists = getScheduleExists.get(resolvedAudienceId);
+    const exists = getScheduleExists.get(finalAudienceId);
     if (!exists && AUTOSCHEDULE_BASE) {
       upsertSchedule.run({
-        audienceId: resolvedAudienceId,
+        audienceId: finalAudienceId,
         hour: Math.max(0, Math.min(23, Number(DEFAULT_BASE.hour))),
         minute: Math.max(0, Math.min(59, Number(DEFAULT_BASE.minute))),
         daysOfWeek: DEFAULT_BASE.daysOfWeek
@@ -605,21 +622,27 @@ app.post('/registerDevice', (req, res) => {
         lastSentKey: null,
         updatedAt: new Date().toISOString(),
       });
-      console.log('[registerDevice] default base schedule created', DEFAULT_BASE);
+      console.log('[registerDevice] default base schedule created', {
+        audienceId: finalAudienceId,
+        ...DEFAULT_BASE,
+      });
 
       if (AUTOSCHEDULE_ALT && Number.isFinite(DEFAULT_ALT.hour) && Number.isFinite(DEFAULT_ALT.minute)) {
         updateAltSchedule.run({
-          audienceId: resolvedAudienceId,
+          audienceId: finalAudienceId,
           altHour: Math.max(0, Math.min(23, Number(DEFAULT_ALT.hour))),
           altMinute: Math.max(0, Math.min(59, Number(DEFAULT_ALT.minute))),
           altDaysOfWeek: JSON.stringify(DEFAULT_ALT.daysOfWeek ?? [5]),
           updatedAt: new Date().toISOString(),
         });
-        console.log('[registerDevice] default ALT schedule created', DEFAULT_ALT);
+        console.log('[registerDevice] default ALT schedule created', {
+          audienceId: finalAudienceId,
+          ...DEFAULT_ALT,
+        });
       }
     }
 
-    res.json({ ok: true, audienceId: resolvedAudienceId });
+    res.json({ ok: true, audienceId: finalAudienceId });
   } catch (e) {
     console.error('[registerDevice] error:', e);
     res.status(500).json({ ok: false, error: String(e) });
@@ -749,4 +772,4 @@ app.post('/cron', async (_req, res) => {
 
 /* ===================== Start ===================== */
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log('Server up on :' + PORT));
+app.listen(PORT, () => console.log('Server up on :' + PORT));ы
