@@ -5747,22 +5747,36 @@
                         "correctTranslationIndex": 0
                     },
 
+              {
+  "hebrewVerb": "להתאמן",
+  "root": "א-מ-ן",
+  "binyan": "HITPA'EL",
+  "transliteration": "lehit'amen",
+  "audioFile": "lehitamen.mp3",
+  "translationOptions": ["Тренироваться", "Учить", "Бежать", "Прыгать"],
+  "translationOptionsEn": ["to train", "to study", "to run", "to jump"],
+  "translationOptionsFr": ["s'entraîner", "étudier", "courir", "sauter"],
+  "translationOptionsEs": ["entrenar", "estudiar", "correr", "saltar"],
+  "translationOptionsPt": ["treinar", "estudar", "correr", "pular"],
+  "translationOptionsAr": ["أن يتدرب", "أن يدرس", "أن يجري", "أن يقفز"],
+  "translationOptionsAm": ["ልምምድ ማድረግ", "መማር", "መሮጥ", "መዝለል"],
+  "correctTranslationIndex": 0
+},
                     {
-                        "hebrewVerb": "להתעמל",
-                        "root": "ע-מ-ל",
-                        "binyan": "HITPA'EL",
-                        "transliteration": "lehit'amel",
-                        "audioFile": "lehitamel.mp3",
-                        "translationOptions": ["Тренироваться", "Ускорять", "Лететь", "Смотреть"],
-                        "translationOptionsEn": ["to train", "to accelerate", "to fly", "to watch"],
-"translationOptionsFr": ["s'entraîner", "accélérer", "voler", "regarder"],
-"translationOptionsEs": ["entrenar", "acelerar", "volar", "mirar"],
-"translationOptionsPt": ["treinar", "acelerar", "voar", "assistir"],
-"translationOptionsAr": ["أن يتدرب", "أن تأخذ", "أن تفرح", "أن تندهش"],
-"translationOptionsAm": ["ስልጠና", "መፍጠር", "መብረር", "መመልከት"]
-,
-                        "correctTranslationIndex": 0
-                    },
+  "hebrewVerb": "להתעמל",
+  "root": "ע-מ-ל",
+  "binyan": "HITPA'EL",
+  "transliteration": "lehit'amel",
+  "audioFile": "lehitamel.mp3",
+  "translationOptions": ["Делать упражнения", "Ускорять", "Лететь", "Смотреть"],
+  "translationOptionsEn": ["to exercise", "to accelerate", "to fly", "to watch"],
+  "translationOptionsFr": ["faire de l'exercice", "accélérer", "voler", "regarder"],
+  "translationOptionsEs": ["hacer ejercicio", "acelerar", "volar", "mirar"],
+  "translationOptionsPt": ["fazer exercícios", "acelerar", "voar", "assistir"],
+  "translationOptionsAr": ["أن يمارس التمارين", "أن يسرّع", "أن يطير", "أن يشاهد"],
+  "translationOptionsAm": ["መልመጃ ማድረግ", "ማፋጠን", "መብረር", "መመልከት"],
+  "correctTranslationIndex": 0
+},
 
                     {
                         "hebrewVerb": "לסבול",

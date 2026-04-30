@@ -4783,22 +4783,39 @@
       ]
     },
     {
-      "verbRussian": "Тренироваться",
-      "verbEnglish": "to train",
-"verbFrench": "s'entraîner",
-"verbSpanish": "entrenarse",
-"verbPortuguese": "treinar",
-"verbArabic": "أن يتدرب",
-"verbAmharic": "መልማት",
+  "verbRussian": "Тренироваться",
+  "verbEnglish": "to train",
+  "verbFrench": "s'entraîner",
+  "verbSpanish": "entrenarse",
+  "verbPortuguese": "treinar",
+  "verbArabic": "أن يتدرب",
+  "verbAmharic": "መልመጃ ማድረግ",
 
-      "audioFile": "lehitamel.mp3",
-      "verbHebrewOptions": [
-        { "text": "להתעמל", "transliteration": "lehit'amel", "isCorrect": true },
-        { "text": "להכין", "transliteration": "lehachin", "isCorrect": false },
-        { "text": "להסביר", "transliteration": "lehasbir", "isCorrect": false },
-        { "text": "להפסיד", "transliteration": "lehafsid", "isCorrect": false }
-      ]
-    },
+  "audioFile": "lehitamen.mp3",
+  "verbHebrewOptions": [
+    { "text": "להתאמן", "transliteration": "lehit'amen", "isCorrect": true },
+    { "text": "להתעמל", "transliteration": "lehit'amel", "isCorrect": false },
+    { "text": "להכין", "transliteration": "lehachin", "isCorrect": false },
+    { "text": "להפסיד", "transliteration": "lehafsid", "isCorrect": false }
+  ]
+},
+   {
+  "verbRussian": "Делать упражнения",
+  "verbEnglish": "to exercise",
+  "verbFrench": "faire de l'exercice",
+  "verbSpanish": "hacer ejercicio",
+  "verbPortuguese": "fazer exercícios",
+  "verbArabic": "أن يمارس التمارين",
+  "verbAmharic": "መልመጃ ማድረግ",
+
+  "audioFile": "lehitamel.mp3",
+  "verbHebrewOptions": [
+    { "text": "להתעמל", "transliteration": "lehit'amel", "isCorrect": true },
+    { "text": "להתאמן", "transliteration": "lehit'amen", "isCorrect": false },
+    { "text": "להכין", "transliteration": "lehachin", "isCorrect": false },
+    { "text": "להסביר", "transliteration": "lehasbir", "isCorrect": false }
+  ]
+},
     {
       "verbRussian": "Страдать",
       "verbEnglish": "to suffer",

@@ -361,6 +361,7 @@ lekamet: require('./assets/lekamet.mp3'),
 legahets: require('./assets/legahets.mp3'),
 lehitkaven: require('./assets/lehitkaven.mp3'),
 lismokh: require('./assets/lismokh.mp3'),
+lehitamen: require('./assets/lehitamen.mp3'),
 
 
 

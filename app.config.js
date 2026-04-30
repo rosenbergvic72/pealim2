@@ -186,10 +186,23 @@ export default ({ config }) => {
     },
 
     plugins: [
-      'expo-localization',
-      'expo-notifications',
-      // react-native-iap подключаем только для GP и если IAP не отключён
-      ...(isRu || disableIap ? [] : ['react-native-iap']),
-    ],
+  'expo-localization',
+  'expo-notifications',
+
+  [
+    'react-native-fbsdk-next',
+    {
+      appID: '27221636834089503',
+      displayName: 'Verbify',
+      advertiserIDCollectionEnabled: true,
+      autoLogAppEventsEnabled: true,
+      isAutoInitEnabled: true,
+      iosUserTrackingPermission:
+        'This identifier will be used to deliver personalized ads to you.',
+    },
+  ],
+
+  ...(isRu || disableIap ? [] : ['react-native-iap']),
+],
   };
 };

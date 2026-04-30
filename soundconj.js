@@ -4508,6 +4508,9 @@ anisored: require('./assets/conj/other/anisored.mp3'),
 anisoredet: require('./assets/conj/other/anisoredet.mp3'),
 anitsad: require('./assets/conj/other/anitsad.mp3'),
 anitsada: require('./assets/conj/other/anitsada.mp3'),
+animitamen: require('./assets/conj/other/animitamen.mp3'),
+animitamenet: require('./assets/conj/other/animitamenet.mp3'),
+
 
 
 
