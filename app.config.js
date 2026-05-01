@@ -139,26 +139,48 @@ export default ({ config }) => {
       ...config.ios,
       bundleIdentifier: 'com.rosenbergvictor72.pealim2',
       icon: './assets/images/icon1024.png',
-      infoPlist: {
-        ...(config.ios?.infoPlist || {}),
-        ITSAppUsesNonExemptEncryption: false,
-        NSPhotoLibraryUsageDescription: '...',
-        NSPhotoLibraryAddUsageDescription: '...',
-        NSCameraUsageDescription: '...',
-        NSMicrophoneUsageDescription: '...',
-        CFBundleDevelopmentRegion: 'en',
-        CFBundleAllowMixedLocalizations: true,
-        CFBundleLocalizations: [
-          'en',
-          'ru',
-          'fr',
-          'es',
-          'pt-BR',
-          'ar',
-          'he',
-          'am',
-        ],
-      },
+     infoPlist: {
+  ...(config.ios?.infoPlist || {}),
+  ITSAppUsesNonExemptEncryption: false,
+
+  NSPhotoLibraryUsageDescription: '...',
+  NSPhotoLibraryAddUsageDescription: '...',
+  NSCameraUsageDescription: '...',
+  NSMicrophoneUsageDescription: '...',
+
+  CFBundleDevelopmentRegion: 'en',
+  CFBundleAllowMixedLocalizations: true,
+  CFBundleLocalizations: [
+    'en',
+    'ru',
+    'fr',
+    'es',
+    'pt-BR',
+    'ar',
+    'he',
+    'am',
+  ],
+
+  // 👇 ATT (ОБЯЗАТЕЛЬНО)
+  NSUserTrackingUsageDescription:
+    'This identifier will be used to deliver personalized ads to you.',
+
+  // 👇 SKAdNetwork (ВАЖНО ДЛЯ iOS РЕКЛАМЫ)
+  SKAdNetworkItems: [
+    { SKAdNetworkIdentifier: 'v9wttpbfk9.skadnetwork' },
+    { SKAdNetworkIdentifier: 'n38lu8286q.skadnetwork' },
+    { SKAdNetworkIdentifier: '4fzdc2evr5.skadnetwork' },
+    { SKAdNetworkIdentifier: '2fnua5tdw4.skadnetwork' },
+    { SKAdNetworkIdentifier: 'ydx93a7ass.skadnetwork' },
+    { SKAdNetworkIdentifier: '5a6flpkh64.skadnetwork' },
+    { SKAdNetworkIdentifier: 'p78axxw29g.skadnetwork' },
+    { SKAdNetworkIdentifier: 'v72qych5uu.skadnetwork' },
+    { SKAdNetworkIdentifier: 'ludvb6z3bs.skadnetwork' },
+    { SKAdNetworkIdentifier: 'cp8zw746q7.skadnetwork' },
+    { SKAdNetworkIdentifier: '3sh42y64q3.skadnetwork' },
+    { SKAdNetworkIdentifier: 'c6k4g5qg8m.skadnetwork' }
+  ],
+},
     },
 
     android: {
@@ -193,6 +215,7 @@ export default ({ config }) => {
     'react-native-fbsdk-next',
     {
       appID: '27221636834089503',
+      clientToken: 'a9e105d323bfae6bde57720df3ea99cd',
       displayName: 'Verbify',
       advertiserIDCollectionEnabled: true,
       autoLogAppEventsEnabled: true,

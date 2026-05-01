@@ -1,6 +1,8 @@
 // App.js
 import './src/ui/iosFontWeightPatch';
 
+// import { Settings, AppEventsLogger } from 'react-native-fbsdk-next';
+
 import './polyfills';
 import 'react-native-gesture-handler';
 import './animatedTimingPatch';
@@ -417,6 +419,26 @@ function AppInner() {
   const TOP_INSET = insets.top || 0;
 
   const TITLE_FS = 16;
+
+// useEffect(() => {
+//   const timer = setTimeout(async () => {
+//     try {
+//       const { Settings, AppEventsLogger } = await import('react-native-fbsdk-next');
+
+//       Settings.initializeSDK();
+//       Settings.setAutoLogAppEventsEnabled(true);
+//       Settings.setAdvertiserIDCollectionEnabled(true);
+
+//       AppEventsLogger.logEvent('verbify_app_open_test');
+
+//       console.log('[META] SDK initialized, test event sent');
+//     } catch (e) {
+//       console.log('[META ERROR]', e);
+//     }
+//   }, 2000);
+
+//   return () => clearTimeout(timer);
+// }, []);
 
 useEffect(() => {
   (async () => {
