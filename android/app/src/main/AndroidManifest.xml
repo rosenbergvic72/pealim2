@@ -21,6 +21,7 @@
     <meta-data android:name="com.facebook.sdk.ApplicationName" android:value="Verbify"/>
     <meta-data android:name="com.facebook.sdk.AutoInitEnabled" android:value="true"/>
     <meta-data android:name="com.facebook.sdk.AutoLogAppEventsEnabled" android:value="true"/>
+    <meta-data android:name="com.facebook.sdk.ClientToken" android:value="@string/facebook_client_token"/>
     <meta-data android:name="expo.modules.updates.ENABLED" android:value="true"/>
     <meta-data android:name="expo.modules.updates.EXPO_RUNTIME_VERSION" android:value="@string/expo_runtime_version"/>
     <meta-data android:name="expo.modules.updates.EXPO_UPDATES_CHECK_ON_LAUNCH" android:value="ALWAYS"/>

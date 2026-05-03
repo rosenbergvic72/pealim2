@@ -927,7 +927,7 @@ const Exercise6Fr = () => {
 
             <Animated.View style={[styles.progressContainer, { opacity: fadeAnim }]}>
               <View style={styles.textContainer}>
-                <Text style={styles.prtext} maxFontSizeMultiplier={1.2}>JUSTE: {correctCount / 2}</Text>
+                <Text style={styles.prtext} maxFontSizeMultiplier={1.2}>JUSTE: {correctCount}</Text>
                 <Text style={styles.prtext} maxFontSizeMultiplier={1.2}>FAUX: {incorrectCount}</Text>
               </View>
               <View style={styles.remainingTasksContainer}>

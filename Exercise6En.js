@@ -918,7 +918,7 @@ const finishExerciseWithDelay = useCallback((finalScore) => {
 
             <Animated.View style={[styles.progressContainer, { opacity: fadeAnim }]}>
               <View style={styles.textContainer}>
-                <Text style={styles.prtext} maxFontSizeMultiplier={1.2}>CORRECT: {correctCount / 2}</Text>
+                <Text style={styles.prtext} maxFontSizeMultiplier={1.2}>CORRECT: {correctCount}</Text>
                 <Text style={styles.prtext} maxFontSizeMultiplier={1.2}>INCORRECT: {incorrectCount}</Text>
               </View>
               <View style={styles.remainingTasksContainer}>

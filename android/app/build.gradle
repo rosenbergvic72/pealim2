@@ -93,7 +93,7 @@ missingDimensionStrategy "store", "play"
         applicationId 'com.rosenbergvictor72.pealim2'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 2000945
+        versionCode 2000946
         versionName "1.1.10"
     }
     signingConfigs {
