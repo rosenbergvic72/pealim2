@@ -12,6 +12,7 @@ import { Audio } from 'expo-av';
 import StartupGate from './StartupGate';
 
 import React, { useEffect, useRef, useState } from 'react';
+import * as TrackingTransparency from 'expo-tracking-transparency';
 
 import {
   StatusBar,
@@ -420,25 +421,45 @@ function AppInner() {
 
   const TITLE_FS = 16;
 
-// useEffect(() => {
-//   const timer = setTimeout(async () => {
-//     try {
-//       const { Settings, AppEventsLogger } = await import('react-native-fbsdk-next');
+useEffect(() => {
+  let timeout;
 
-//       Settings.initializeSDK();
-//       Settings.setAutoLogAppEventsEnabled(true);
-//       Settings.setAdvertiserIDCollectionEnabled(true);
+  const requestATT = async () => {
+    try {
+      const { status } =
+        await TrackingTransparency.getTrackingPermissionsAsync();
 
-//       AppEventsLogger.logEvent('verbify_app_open_test');
+      console.log('[ATT] current status:', status);
 
-//       console.log('[META] SDK initialized, test event sent');
-//     } catch (e) {
-//       console.log('[META ERROR]', e);
-//     }
-//   }, 2000);
+      if (status === 'undetermined') {
+        timeout = setTimeout(async () => {
+          const result =
+            await TrackingTransparency.requestTrackingPermissionsAsync();
 
-//   return () => clearTimeout(timer);
-// }, []);
+          console.log('[ATT] request result:', result.status);
+        }, 1500);
+      }
+    } catch (e) {
+      console.log('[ATT ERROR]', e);
+    }
+  };
+
+  const sub = AppState.addEventListener('change', (state) => {
+    if (state === 'active') {
+      requestATT();
+    }
+  });
+
+  if (AppState.currentState === 'active') {
+    requestATT();
+  }
+
+  return () => {
+    sub.remove();
+    if (timeout) clearTimeout(timeout);
+  };
+}, []);
+
 
 useEffect(() => {
   (async () => {

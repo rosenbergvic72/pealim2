@@ -8,6 +8,7 @@ ENV['RCT_NEW_ARCH_ENABLED'] = '0' if podfile_properties['newArchEnabled'] == 'fa
 ENV['EX_DEV_CLIENT_NETWORK_INSPECTOR'] = podfile_properties['EX_DEV_CLIENT_NETWORK_INSPECTOR']
 
 platform :ios, podfile_properties['ios.deploymentTarget'] || '15.1'
+
 install! 'cocoapods',
   :deterministic_uuids => false
 
@@ -16,7 +17,7 @@ prepare_react_native_project!
 target 'Verbify' do
   use_expo_modules!
 
-  # ✅ Fix for Firebase/GoogleUtilities "does not define modules" WITHOUT global modular headers
+  # Firebase Swift pods fix without breaking React/Hermes modules
   pod 'GoogleUtilities', :modular_headers => true
   pod 'FirebaseCoreInternal', :modular_headers => true
 
@@ -28,7 +29,7 @@ target 'Verbify' do
       'expo-modules-autolinking',
       'react-native-config',
       '--json',
-     	'--platform',
+      '--platform',
       'ios'
     ]
   end

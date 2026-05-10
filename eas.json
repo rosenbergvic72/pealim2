@@ -25,18 +25,20 @@
       "channel": "development-ios"
     },
 
-    "preview-ios": {
-      "distribution": "store",
-      "ios": {},
-      "autoIncrement": true,
-      "env": {
-        "EXPO_PUBLIC_STORE": "ios",
-        "EXPO_PUBLIC_DISABLE_IAP": "0",
-         "EXPO_PUBLIC_IAP_VERIFY_BASE_URL": "https://iap-server.onrender.com",
-        "EXPO_PUBLIC_IAP_CLEAR_OLD_CACHE": "0"
-      },
-      "channel": "preview-ios"
-    },
+ "preview-ios": {
+  "distribution": "store",
+  "ios": {
+    "image": "latest"
+  },
+  "autoIncrement": true,
+  "env": {
+    "EXPO_PUBLIC_STORE": "ios",
+    "EXPO_PUBLIC_DISABLE_IAP": "0",
+    "EXPO_PUBLIC_IAP_VERIFY_BASE_URL": "https://iap-server.onrender.com",
+    "EXPO_PUBLIC_IAP_CLEAR_OLD_CACHE": "0"
+  },
+  "channel": "preview-ios"
+},
 
     "internal-noiap-apk": {
       "android": { "buildType": "apk" },
