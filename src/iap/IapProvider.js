@@ -324,19 +324,23 @@ function notExpiredBy(expiresAt) {
 
 async function saveVerifyCache(json) {
   try {
+    const isPro = json?.pro === true;
     const expiresAt = json?.expiresAt ? String(json.expiresAt) : '';
-    const lastGood =
-      json?.pro === true
-        ? String(Date.now())
-        : (await AsyncStorage.getItem(IAP_LAST_GOOD_PRO_AT)) || '';
 
-    await AsyncStorage.multiSet([
+    const pairs = [
       [IAP_LAST_VERIFY_JSON, JSON.stringify(json || {})],
       [IAP_LAST_VERIFY_AT, String(Date.now())],
       [IAP_LAST_EXPIRES_AT, expiresAt],
-      [IAP_LAST_PRO, String(json?.pro === true)],
-      [IAP_LAST_GOOD_PRO_AT, lastGood],
-    ]);
+      [IAP_LAST_PRO, String(isPro)],
+    ];
+
+    if (isPro) {
+      pairs.push([IAP_LAST_GOOD_PRO_AT, String(Date.now())]);
+      await AsyncStorage.multiSet(pairs);
+    } else {
+      await AsyncStorage.multiSet(pairs);
+      await AsyncStorage.removeItem(IAP_LAST_GOOD_PRO_AT);
+    }
   } catch {}
 }
 
@@ -736,12 +740,21 @@ const ensureIapConnection = useCallback(async () => {
     return !!(json?.pro === true && effectiveExpiresAt && notExpiredBy(effectiveExpiresAt));
   }, []);
 
- const hasRecentGoodPro = useCallback(async () => {
+const hasRecentGoodPro = useCallback(async () => {
   try {
-    const lastGood = Number((await AsyncStorage.getItem(IAP_LAST_GOOD_PRO_AT)) || 0);
+    const [lastGoodRaw, expiresAtRaw] = await Promise.all([
+      AsyncStorage.getItem(IAP_LAST_GOOD_PRO_AT),
+      AsyncStorage.getItem(IAP_LAST_EXPIRES_AT),
+    ]);
+
+    const lastGood = Number(lastGoodRaw || 0);
     if (!Number.isFinite(lastGood) || lastGood <= 0) return false;
 
-    const GRACE_MS = 1000 * 60 * 60 * 24 * 7; // 7 дней
+    if (!expiresAtRaw || !notExpiredBy(expiresAtRaw)) {
+      return false;
+    }
+
+    const GRACE_MS = 1000 * 60 * 60 * 24 * 7;
     return Date.now() - lastGood < GRACE_MS;
   } catch {
     return false;
