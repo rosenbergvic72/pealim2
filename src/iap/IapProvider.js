@@ -111,6 +111,7 @@ const PROMO_SEGMENT_BY_CODE = {
   TIKVA30: 'tikva',
   AUSLENDER30: 'auslender',
   GOLOSISRAEL30: 'golosisrael',
+  VERB30: 'verb',
 };
 
 /* ===================== Context ===================== */

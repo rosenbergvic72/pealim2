@@ -30,9 +30,26 @@ const FONT_MED = 'mt-medium';
 const FONT_BOLD = 'mt-bold';
 const FONT_SEMIBOLD = 'mt-semibold';
 
-export default function MenuPage({ route }) {
+export default function MenuPage({
+  route,
+  hasPro: hasProFromGate,
+  hasFullAccess,
+  internalTrialActive,
+  internalTrialEndsAt,
+}) {
   const navigation = useNavigation();
-  const { hasPro } = useIap(); // ⬅️ доступ к PRO
+  const { hasPro: hasProFromIap } = useIap();
+
+  const hasPro = typeof hasProFromGate === 'boolean' ? hasProFromGate : hasProFromIap;
+  const fullAccess = typeof hasFullAccess === 'boolean' ? hasFullAccess : hasPro;
+  const trialActive =
+  typeof internalTrialActive === 'boolean'
+    ? internalTrialActive
+    : !!route?.params?.internalTrialActive;
+
+const trialEndsAt =
+  internalTrialEndsAt || route?.params?.internalTrialEndsAt || null;
+  
   const [freePreview, setFreePreview] = useState(false); // ⬅️ превью-режим 1–2
 
   const [name, setName] = useState('');
@@ -60,7 +77,7 @@ export default function MenuPage({ route }) {
         const fromParams = !!route?.params?.freePreview;
         const stored = await AsyncStorage.getItem('freePreview');
         const fromStorage = stored === '1';
-        if (mounted) setFreePreview(!hasPro && (fromParams || fromStorage));
+        if (mounted) setFreePreview(!fullAccess && (fromParams || fromStorage));
       } catch {
         if (mounted) setFreePreview(false);
       }
@@ -68,7 +85,7 @@ export default function MenuPage({ route }) {
     return () => {
       mounted = false;
     };
-  }, [route?.params?.freePreview, hasPro]);
+}, [route?.params?.freePreview, fullAccess]);
 
   useEffect(() => {
     navigation.setOptions({ headerLeft: () => null });
@@ -320,8 +337,8 @@ export default function MenuPage({ route }) {
   };
 
   // === Гейтинг нажатий ===
-  const isFreeName = name => name === 'Exercise1' || name === 'Exercise2';
-  const isLocked = name => !hasPro && !isFreeName(name);
+ const isFreeName = name => name === 'Exercise1' || name === 'Exercise2';
+const isLocked = name => !fullAccess && !isFreeName(name);
 
 const handlePress = exercise => {
   // ❌ если залочено — просто игнорируем
@@ -636,10 +653,12 @@ const handlePress = exercise => {
             </TouchableOpacity>
           </Animated.View>
 
-          <UpgradeBanner
+    <UpgradeBanner
   hasPro={hasPro}
   navigation={navigation}
   language="ru"
+ internalTrialActive={trialActive}
+internalTrialEndsAt={trialEndsAt}
   animatedStyle={{
     opacity: button3Opacity,
     transform: [{ translateY: button3TranslateY }],

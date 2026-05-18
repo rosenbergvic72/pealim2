@@ -17,7 +17,6 @@ import LottieView from 'lottie-react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import AppDescriptionModal from './AppDescriptionModalAm';
 import AppInfoModal from './AppInfoModalAm';
-import { useIap } from './src/iap/IapProvider';
 
 export default function WelcomePage({ navigation, route }) {
   const [name, setName] = useState('');
@@ -25,8 +24,7 @@ export default function WelcomePage({ navigation, route }) {
   const [animationFinished, setAnimationFinished] = useState(false);
   const [shadowVisible, setShadowVisible] = useState(false);
 
-  const { accessState = 'checking', hasPro } = useIap();
-
+  
   const imageOpacity = useRef(new Animated.Value(0)).current;
   const imageTranslateX = useRef(new Animated.Value(-100)).current;
   const titleOpacity = useRef(new Animated.Value(0)).current;
@@ -198,28 +196,23 @@ export default function WelcomePage({ navigation, route }) {
     });
   };
 
-  const handleNextPress = async () => {
-    if (!name.trim()) return;
+const handleNextPress = async () => {
+  if (!name.trim()) return;
 
-    try {
-      await AsyncStorage.setItem('name', name.trim());
-      await AsyncStorage.setItem('language', language);
-      await AsyncStorage.setItem('verbify_first_launch_completed', '1');
+  try {
+    await AsyncStorage.setItem('name', name.trim());
+    await AsyncStorage.setItem('language', language);
+    await AsyncStorage.setItem('verbify_first_launch_completed', '1');
 
-      if (accessState === 'checking') return;
-
-      if (hasPro) {
-        navigation.replace('MenuAm', { name: name.trim() });
-        return;
-      }
-
-      navigation.replace(Platform.OS === 'ios' ? 'PaywallIOS' : 'Paywall', {
-        from: 'WelcomePageAm',
-      });
-    } catch (e) {
-      console.error('Ошибка при переходе:', e);
-    }
-  };
+    navigation.replace('MenuAm', {
+      name: name.trim(),
+      internalTrialActive: !!route?.params?.internalTrialActive,
+      internalTrialEndsAt: route?.params?.internalTrialEndsAt || null,
+    });
+  } catch (e) {
+    console.error('Error during navigation:', e);
+  }
+};
 
   if (!animationFinished) {
     return (
@@ -288,13 +281,13 @@ export default function WelcomePage({ navigation, route }) {
                 styles.button,
                 styles.buttonEnabled,
                 shadowVisible && styles.shadow,
-                (name.trim().length === 0 || accessState === 'checking') && styles.buttonDisabled,
+                name.trim().length === 0 && styles.buttonDisabled,
               ]}
               onPress={handleNextPress}
-              disabled={name.trim().length === 0 || accessState === 'checking'}
+              disabled={name.trim().length === 0}
             >
               <Text style={styles.buttonText} maxFontSizeMultiplier={1.2}>
-                {accessState === 'checking' ? 'በመጫን ላይ...' : 'ቀጣይ'}
+                ቀጣይ
               </Text>
             </TouchableOpacity>
           </Animated.View>

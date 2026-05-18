@@ -50,13 +50,30 @@ const localstyle = StyleSheet.create({
   },
 });
 
-export default function MenuPage({ route }) {
-  const navigation = useNavigation();
-  const { hasPro } = useIap();
+export default function MenuPage({
+  route,
+  hasPro: hasProFromGate,
+  hasFullAccess,
+  internalTrialActive,
+  internalTrialEndsAt,
+}) {
+   const navigation = useNavigation();
+   const { hasPro: hasProFromIap } = useIap();
+ 
+   const hasPro = typeof hasProFromGate === 'boolean' ? hasProFromGate : hasProFromIap;
+   const fullAccess = typeof hasFullAccess === 'boolean' ? hasFullAccess : hasPro;
+   const trialActive =
+   typeof internalTrialActive === 'boolean'
+     ? internalTrialActive
+     : !!route?.params?.internalTrialActive;
+ 
+ const trialEndsAt =
+   internalTrialEndsAt || route?.params?.internalTrialEndsAt || null;
 
   // приглушённый вид заблокированных карточек (без бейджа/иконок)
   const lockStyle = { opacity: 0.45, backgroundColor: '#6f7f90' };
-  const isLocked = (routeName) => !hasPro && !FREE_ROUTES_EN.has(routeName);
+  const isLocked = (routeName) =>
+  !fullAccess && !FREE_ROUTES_EN.has(routeName);
 
   const [name, setName] = useState('');
   const [stats, setStats] = useState({});
@@ -630,6 +647,8 @@ const handlePress = exercise => {
   hasPro={hasPro}
   navigation={navigation}
   language="en"
+  internalTrialActive={trialActive}
+  internalTrialEndsAt={trialEndsAt}
   animatedStyle={{
     opacity: button3Opacity,
     transform: [{ translateY: button3TranslateY }],

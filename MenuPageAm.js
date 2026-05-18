@@ -51,13 +51,40 @@ const localstyle = StyleSheet.create({
   },
 });
 
-export default function MenuPage({ route }) {
+export default function MenuPage({
+  route,
+  hasPro: hasProFromGate,
+  hasFullAccess,
+  internalTrialActive,
+  internalTrialEndsAt,
+}) {
   const navigation = useNavigation();
-  const { hasPro } = useIap();
+  const { hasPro: hasProFromIap } = useIap();
+
+const hasPro =
+  typeof hasProFromGate === 'boolean'
+    ? hasProFromGate
+    : hasProFromIap;
+
+const fullAccess =
+  typeof hasFullAccess === 'boolean'
+    ? hasFullAccess
+    : hasPro;
+
+const trialActive =
+  typeof internalTrialActive === 'boolean'
+    ? internalTrialActive
+    : !!route?.params?.internalTrialActive;
+
+const trialEndsAt =
+  internalTrialEndsAt ||
+  route?.params?.internalTrialEndsAt ||
+  null;
 
   // Приглушение заблокированных карточек
   const lockStyle = { opacity: 0.45, backgroundColor: '#6f7f90' };
-  const isLocked = (routeName) => !hasPro && !FREE_ROUTES_AM.has(routeName);
+  const isLocked = (routeName) =>
+  !fullAccess && !FREE_ROUTES_AM.has(routeName);
 
   const [name, setName] = useState('');
   const [stats, setStats] = useState({});
@@ -606,10 +633,12 @@ const handlePress = exercise => {
             </TouchableOpacity>
           </Animated.View>
 
-          <UpgradeBanner
+      <UpgradeBanner
   hasPro={hasPro}
   navigation={navigation}
   language="am"
+  internalTrialActive={trialActive}
+  internalTrialEndsAt={trialEndsAt}
   animatedStyle={{
     opacity: button3Opacity,
     transform: [{ translateY: button3TranslateY }],

@@ -50,6 +50,7 @@ const CODE_SEGMENTS = {
   TIKVA30:   'tikva',
   TIMUR2026: 'timur',
   IVRITKALA2026: 'kala',
+  VERB30: 'verb',
 };
 const resolveSegmentByCode = (code) =>
   CODE_SEGMENTS[String(code || '').trim().toUpperCase()] || null;
@@ -96,49 +97,53 @@ async function redeemPartnerCodeOnServer({ code, userId }) {
 /* ===== Локализация (сокр.) ===== */
 const STR = {
   english: {
-    startTrial: 'START FREE TRIAL',
-    subscribe: 'SUBSCRIBE',
-    monthly: 'Monthly',
-    annual: 'Annual',
-    promoLabel: 'Promo code',
-    promoPlaceholder: 'promocode',
-    apply: 'Apply',
-    applied: () => 'Promo code applied',
-    invalid: 'Code is invalid',
-    playRedeem: 'Google Play code',
-    restore: 'Restore access',
-    activateCode: 'Activate code',
-    redeemTitle: 'Activate access code',
-    redeemHint: 'Enter the access code you received from a school, course, or teacher.',
-    redeemPlaceholder: 'ACCESS-CODE',
-    redeemBtn: 'Activate',
-    redeemCancel: 'Cancel',
-    redeemWorking: 'Activating…',
-    redeemInvalid: 'Please enter a valid code.',
-    redeemSuccessTitle: 'Done 🎉',
-    redeemSuccessBody: 'Done! Pro access is active.',
-    redeemDataWarning: 'Important: do not delete the app or clear its data — access codes are tied to this device ID. If you remove the app data, you may lose Pro access.',
-    choosePlan: 'Choose a plan',
-    headerTrialEmph: '5-DAY FREE TRIAL (for new subscribers)',
-    headerTrialTail:
-      '. Pick a plan and tap START FREE TRIAL. After the trial, full access continues automatically at the plan price—you can cancel anytime in Google Play / App Store, or tap CONTINUE FOR FREE.',
-    headerNoTrialEmph: 'Subscription',
-    headerNoTrialTail:
-      '. Pick a plan and tap SUBSCRIBE. You can cancel anytime in Google Play / App Store, or tap CONTINUE FOR FREE.',
-    freePreview: 'CONTINUE FOR FREE',
-    freePreviewSubtitle: 'Train 350 Hebrew verbs',
-    fullAccess: 'Full access',
-    limitedAccess: 'Limited access',
-    exercises12: 'Exercises 1 & 2',
-    postTitle: 'Subscription activated 🎉',
-    postBody:
-      'Full access is unlocked. If you receive a Google Play email about “registering” the subscription — it’s standard; access is already granted.',
-    postContinue: 'Continue',
-    fullAccessAllExercises: 'Full access • All exercises',
-  },
+  startTrial: 'CONTINUE IN GOOGLE PLAY',
+  subscribe: 'CONTINUE IN GOOGLE PLAY',
+  monthly: 'Monthly',
+  annual: 'Annual',
+  promoLabel: 'Promo code',
+  promoPlaceholder: 'promocode',
+  apply: 'Apply',
+  applied: () => 'Promo code applied',
+  invalid: 'Code is invalid',
+  playRedeem: 'Google Play code',
+  restore: 'Restore access',
+  activateCode: 'Activate code',
+  redeemTitle: 'Activate access code',
+  redeemHint:
+    'Enter the access code you received from a school, course, or teacher.',
+  redeemPlaceholder: 'ACCESS-CODE',
+  redeemBtn: 'Activate',
+  redeemCancel: 'Cancel',
+  redeemWorking: 'Activating…',
+  redeemInvalid: 'Please enter a valid code.',
+  redeemSuccessTitle: 'Done 🎉',
+  redeemSuccessBody:
+    'Done! Pro access is active for the duration of the code.',
+  redeemDataWarning:
+    'Important: do not delete the app or clear its data — access codes are tied to this device ID. If you remove the app data, you may lose Pro access.',
+  choosePlan: 'Choose a plan',
+  headerTrialEmph: 'Full access to all exercises',
+  headerTrialTail:
+    '. Choose a plan and continue in Google Play. If you have a promo code — enter it before subscribing. If you have an access code from a school or course — tap “Activate code”. You can cancel anytime in Google Play.',
+  headerNoTrialEmph: 'Full access to all exercises',
+  headerNoTrialTail:
+     '. Choose a plan and continue in Google Play. If you have a promo code — enter it before subscribing. If you have an access code from a school or course — tap “Activate code”. You can cancel anytime in Google Play.',
+  freePreview: 'CONTINUE FOR FREE',
+  freePreviewSubtitle: 'Trial period • Full access',
+  fullAccess: 'Full access',
+  limitedAccess: 'Train 350 Hebrew verbs',
+  exercises12: 'Exercises 1 and 2 are always free',
+  postTitle: 'Subscription activated 🎉',
+  postBody:
+    'Full access is unlocked. If you receive a Google Play email about “registering” the subscription — it’s standard; access is already granted.',
+  postContinue: 'Continue',
+  fullAccessAllExercises: 'Full access • All exercises',
+},
+
   русский: {
-    startTrial: 'НАЧАТЬ ПРОБНЫЙ ПЕРИОД',
-    subscribe: 'ОФОРМИТЬ ПОДПИСКУ',
+    startTrial: 'ПРОДОЛЖИТЬ В GOOGLE PLAY',
+    subscribe: 'ПРОДОЛЖИТЬ В GOOGLE PLAY',
     monthly: 'Помесячно',
     annual: 'На год',
     promoLabel: 'Промокод',
@@ -161,234 +166,250 @@ const STR = {
     redeemDataWarning:
       'Важно: не удаляйте приложение и не очищайте его данные — коды доступа привязаны к этому устройству. При удалении данных вы можете потерять доступ к Pro.',
     choosePlan: 'Выберите план',
-    headerTrialEmph: '5 ДНЕЙ БЕСПЛАТНОГО ДОСТУПА (для новых подписчиков)',
+    headerTrialEmph: 'Полный доступ ко всем упражнениям',
     headerTrialTail:
-      '. Выберите план и нажмите НАЧАТЬ ПРОБНЫЙ ПЕРИОД. После триала полный доступ продлится автоматически по цене выбранного плана — отменить можно в любой момент в Google Play / App Store, или нажмите ПРОДОЛЖИТЬ БЕСПЛАТНО.',
-    headerNoTrialEmph: 'Оформите подписку для полного доступа ко всем упражнениям',
+  '. Выберите план и продолжите оформление в Google Play. Если у вас есть промокод — введите его перед оформлением. Если у вас есть код доступа от школы или курса — нажмите «Активировать код». Подписку можно отменить в любой момент в Google Play.',
+    headerNoTrialEmph: 'Полный доступ ко всем упражнениям',
     headerNoTrialTail:
-      '. Выберите план и нажмите ОФОРМИТЬ ПОДПИСКУ. Отменить можно в любой момент в Google Play / App Store, или нажмите ПРОДОЛЖИТЬ БЕСПЛАТНО.',
+      '. Выберите план и продолжите оформление в Google Play. Если у вас есть промокод — введите его перед оформлением. Если у вас есть код доступа от школы или курса — нажмите «Активировать код». Подписку можно отменить в любой момент в Google Play.',
     freePreview: 'ПРОДОЛЖИТЬ БЕСПЛАТНО',
-    freePreviewSubtitle: 'Тренируйте 350 глаголов иврита',
+     freePreviewSubtitle: 'Пробный период - полный доступ',
+
+    // freePreviewSubtitle: 'Тренируйте 350 глаголов иврита',
     fullAccess: 'Полный доступ',
-    limitedAccess: 'Ограниченный доступ',
-    exercises12: 'Упражнения 1 и 2',
+    limitedAccess: 'Тренируйте 350 глаголов иврита',
+    exercises12: 'Упражнения 1 и 2 доступны всегда',
     postTitle: 'Подписка активирована 🎉',
     postBody:
       'Доступ ко всем функциям открыт. Если придёт письмо Google о «регистрации у разработчика» — это стандартное письмо, доступ уже предоставлен.',
     postContinue: 'Продолжить',
     fullAccessAllExercises: 'Полный доступ • Все упражнения',
   },
-  français: {
-    startTrial: 'DÉMARRER L’ESSAI GRATUIT',
-    subscribe: "S'ABONNER",
-    monthly: 'Mensuel',
-    annual: 'Annuel',
-    promoLabel: 'Code promo',
-    promoPlaceholder: 'promocode',
-    apply: 'Appliquer',
-    applied: () => 'Code promo appliqué',
-    invalid: 'Code invalide',
-    playRedeem: 'Code Google Play',
-    restore: "Restaurer l’accès",
-    activateCode: 'Activer un code',
-    redeemTitle: "Activation d’un code d’accès",
-    redeemHint: 'Saisissez le code d’accès que vous avez reçu d’une école, d’un cours ou d’un professeur.',
-    redeemPlaceholder: 'CODE-ACCÈS',
-    redeemBtn: 'Activer',
-    redeemCancel: 'Annuler',
-    redeemWorking: 'Activation…',
-    redeemInvalid: 'Veuillez entrer un code valide.',
-    redeemSuccessTitle: 'OK 🎉',
-    redeemSuccessBody: 'Code activé. L’accès Pro est activé pour la durée du code.',
-    redeemDataWarning:
-      "Important : ne supprimez pas l’application et n’effacez pas ses données — les codes d’accès sont liés à cet appareil. En cas de suppression des données, vous pouvez perdre l’accès Pro.",
-    choosePlan: 'Choisissez une formule',
-    headerTrialEmph: 'ESSAI GRATUIT DE 5 JOURS (pour les nouveaux abonnés)',
-    headerTrialTail:
-      '. Choisissez une formule et touchez DÉMARRER L’ESSAI GRATUIT. À la fin de l’essai, l’accès se prolonge automatiquement au prix de la formule — résiliation possible à tout moment (Google Play / App Store), ou touchez CONTINUER GRATUITEMENT.',
-    headerNoTrialEmph: 'Abonnez-vous pour accéder à tous les exercices',
-   headerNoTrialTail:
-  ". Choisissez une formule et touchez S’ABONNER. Vous pouvez résilier à tout moment (Google Play / App Store), ou touchez CONTINUER GRATUITEMENT.",
-freePreview: 'CONTINUER GRATUITEMENT',
-freePreviewSubtitle: 'Entraîne 350 verbes en hébreu',
 
-    fullAccess: 'Accès complet',
-    limitedAccess: 'Accès limité',
-    exercises12: 'Exercices 1 et 2',
-    postTitle: 'Abonnement activé 🎉',
-    postBody:
-      'Accès complet débloqué. L’e-mail Google Play sur « l’enregistrement » est standard ; l’accès est déjà accordé.',
-    postContinue: 'Continuer',
-    fullAccessAllExercises: 'Accès complet • Tous les exercices',
-  },
-  español: {
-    startTrial: 'INICIAR PRUEBA GRATUITA',
-    subscribe: 'SUSCRIBIRSE',
-    monthly: 'Mensual',
-    annual: 'Anual',
-    promoLabel: 'Código promocional',
-    promoPlaceholder: 'promocode',
-    apply: 'Aplicar',
-    applied: () => 'Código promocional aplicado',
-    invalid: 'Código no válido',
-    playRedeem: 'Código de Google Play',
-    restore: 'Restaurar acceso',
-    activateCode: 'Activar código',
-    redeemTitle: 'Activación de código',
-    redeemHint: 'Introduce el código de acceso que recibiste de una escuela, un curso o un profesor.',
-    redeemPlaceholder: 'CÓDIGO-DE-ACCESO',
-    redeemBtn: 'Activar',
-    redeemCancel: 'Cancelar',
-    redeemWorking: 'Activando…',
-    redeemInvalid: 'Introduce un código válido.',
-    redeemSuccessTitle: 'Listo 🎉',
-    redeemSuccessBody: 'Código activado. El acceso Pro está activo durante la vigencia del código.',
-    redeemDataWarning:
-      'Importante: no elimines la aplicación ni borres sus datos — los códigos de acceso están vinculados a este dispositivo. Si borras los datos, puedes perder el acceso Pro.',
-    choosePlan: 'Elige un plan',
-    headerTrialEmph: 'PRUEBA GRATUITA DE 5 DÍAS (para nuevos suscriptores)',
-    headerTrialTail:
-      '. Elige un plan y pulsa INICIAR PRUEBA GRATUITA. Tras la prueba, el acceso completo continúa automáticamente al precio del plan — puedes cancelar en cualquier momento en Google Play / App Store, o pulsa CONTINUAR GRATIS.',
-    headerNoTrialEmph: 'Suscríbete para tener acceso completo a todos los ejercicios',
-    headerNoTrialTail:
-      '. Elige un plan y pulsa SUSCRIBIRSE. Puedes cancelar en cualquier momento en Google Play / App Store, o pulsa CONTINUAR GRATIS.',
-    freePreview: 'CONTINUAR GRATIS',
-    freePreviewSubtitle: 'Entrena 350 verbos en hebreo',
-    fullAccess: 'Acceso completo',
-    limitedAccess: 'Acceso limitado',
-    exercises12: 'Ejercicios 1 y 2',
-    postTitle: 'Suscripción activada 🎉',
-    postBody:
-      'Acceso completo desbloqueado. El correo de Google Play sobre “registrar” es normal; el acceso ya está concedido.',
-    postContinue: 'Continuar',
-    fullAccessAllExercises: 'Acceso completo • Todos los ejercicios',
-  },
-  português: {
-    startTrial: 'INICIAR AVALIAÇÃO GRÁTIS',
-    subscribe: 'ASSINAR',
-    monthly: 'Mensal',
-    annual: 'Anual',
-    promoLabel: 'Código promocional',
-    promoPlaceholder: 'promocode',
-    apply: 'Aplicar',
-    applied: () => 'Código promocional aplicado',
-    invalid: 'Código inválido',
-    playRedeem: 'Código do Google Play',
-    restore: 'Restaurar acesso',
-    activateCode: 'Ativar código',
-    redeemTitle: 'Ativar código de acesso',
-    redeemHint: 'Digite o código de acesso que você recebeu de uma escola, curso ou professor.',
-    redeemPlaceholder: 'CÓDIGO-DE-ACESSO',
-    redeemBtn: 'Ativar',
-    redeemCancel: 'Cancelar',
-    redeemWorking: 'Ativando…',
-    redeemInvalid: 'Digite um código válido.',
-    redeemSuccessTitle: 'Pronto 🎉',
-    redeemSuccessBody: 'Código ativado. O acesso Pro está ativo durante a validade do código.',
-    redeemDataWarning:
-      'Importante: não apague o aplicativo nem limpe seus dados — os códigos de acesso estão vinculados a este dispositivo. Ao remover os dados, você pode perder o acesso Pro.',
-    choosePlan: 'Escolha um plano',
-    headerTrialEmph: '5 DIAS DE AVALIAÇÃO GRÁTIS (para novos assinantes)',
-    headerTrialTail:
-      '. Escolha um plano e toque em INICIAR AVALIAÇÃO GRÁTIS. Após a avaliação, o acesso completo continua automaticamente pelo preço do plano — você pode cancelar a qualquer momento no Google Play / App Store, ou toque em CONTINUAR GRÁTIS.',
-    headerNoTrialEmph: 'Assine para ter acesso total a todos os exercícios',
-    headerNoTrialTail:
-      '. Escolha um plano e toque em ASSINAR. Você pode cancelar a qualquer momento no Google Play / App Store, ou toque em CONTINUAR GRÁTIS.',
-    freePreview: 'CONTINUAR GRÁTIS',
-    freePreviewSubtitle: 'Treine 350 verbos em hebraico',
-    fullAccess: 'Acesso total',
-    limitedAccess: 'Acesso limitado',
-    exercises12: 'Exercícios 1 e 2',
-    postTitle: 'Assinatura ativada 🎉',
-    postBody:
-      'Acesso completo liberado. O e-mail do Google Play sobre “registro” é padrão; o acesso já foi concedido.',
-    postContinue: 'Continuar',
-    fullAccessAllExercises: 'Acesso total • Todos os exercícios',
-  },
-  'አማርኛ': {
-    startTrial: 'ነጻ ሙከራ ጀምር',
-    subscribe: 'መመዝገብ',
-    monthly: 'ወርሃዊ',
-    annual: 'ዓመታዊ',
-    promoLabel: 'ፕሮሞ ኮድ',
-    promoPlaceholder: 'promocode',
-    apply: 'አፕሊ',
-    applied: () => 'ፕሮሞ ኮድ ተፈጻሚ ሆነ',
-    invalid: 'ኮድ ልክ አይደለም',
-    playRedeem: 'የGoogle Play ኮድ',
-    restore: 'መዳረሻ መመለስ',
-    activateCode: 'ኮድ አንቃ',
-    redeemTitle: 'የመዳረሻ ኮድ አንቃ',
-    redeemHint: 'ከት/ቤት፣ ከኮርስ ወይም ከመምህር ያገኙትን የመዳረሻ ኮድ ያስገቡ።',
-    redeemPlaceholder: 'ACCESS-CODE',
-    redeemBtn: 'አንቃ',
-    redeemCancel: 'ሰርዝ',
-    redeemWorking: 'በመንቃት ላይ…',
-    redeemInvalid: 'ትክክለኛ ኮድ ያስገቡ።',
-    redeemSuccessTitle: 'ተከናውኗል 🎉',
-    redeemSuccessBody: 'ኮድ ተነቅቷል። የPro መዳረሻ ለኮዱ የሚሰራበት ጊዜ ተነቅቷል።',
-    redeemDataWarning:
-      'አስፈላጊ፡ መተግበሪያውን አትሰርዙ እና ውሂቡን አታጥፉ — የመዳረሻ ኮዶች ከዚህ መሣሪያ ጋር ተያይዘዋል። ውሂቡን ካጠፉ የPro መዳረሻን ሊያጡ ይችላሉ።',
-    choosePlan: 'እቅድ ይምረጡ',
-    headerTrialEmph: '5 ቀን ነጻ ሙከራ (ለአዲስ ተመዝጋቢዎች)',
-    headerTrialTail:
-      '። እቅድ ይምረጡ እና «ነጻ ሙከራ ጀምር» ይጫኑ። ከሙከራው በኋላ ሙሉ መዳረሻ በእቅዱ ዋጋ በራሱ ይቀጥላል — በGoogle Play / App Store ማቋረጥ በማንኛውም ጊዜ ይቻላል፣ ወይም «ነፃ መቀጠል» ይጫኑ።',
-    headerNoTrialEmph: 'ሙሉ መዳረሻ ለሁሉም ልምምዶች ይመዝገቡ',
-    headerNoTrialTail:
-      '። እቅድ ይምረጡ እና «መመዝገብ» ይጫኑ። በGoogle Play / App Store በማንኛውም ጊዜ ማቋረጥ ይቻላል፣ ወይም «ነፃ መቀጠል» ይጫኑ።',
-    freePreview: 'ነፃ መቀጠል',
-    freePreviewSubtitle: '350 የእብራይስጥ ግሶችን አስተማሩ',
-    fullAccess: 'ሙሉ መዳረሻ',
-    limitedAccess: 'የተገደበ መዳረሻ',
-    exercises12: 'ልምምዶች 1 እና 2',
-    postTitle: 'መመዝገብ ተከናውኗል 🎉',
-    postBody:
-      'ሙሉ መዳረሻ ተከፍቷል። የ Google Play “ምዝገባ” ኢሜይል መደበኛ ነው፤ መዳረሻ አስቀድሞ ተሰጥቷል።',
-    postContinue: 'ቀጥል',
-    fullAccessAllExercises: 'ሙሉ መዳረሻ • ሁሉም ልምምዶች',
-  },
-  العربية: {
-    startTrial: 'بدء الفترة التجريبية',
-    subscribe: 'اشْتَرِك',
-    monthly: 'شهري',
-    annual: 'سنوي',
-    promoLabel: 'رمز ترويجي',
-    promoPlaceholder: 'promocode',
-    apply: 'تطبيق',
-    applied: () => 'تم تطبيق الرمز الترويجي',
-    invalid: 'الرمز غير صالح',
-    playRedeem: 'رمز Google Play',
-    restore: 'استعادة الوصول',
-    activateCode: 'تفعيل الرمز',
-    redeemTitle: 'تفعيل رمز الوصول',
-    redeemHint: 'أدخل رمز الوصول الذي تلقيته من مدرسة أو دورة أو معلّم.',
-    redeemPlaceholder: 'ACCESS-CODE',
-    redeemBtn: 'تفعيل',
-    redeemCancel: 'إلغاء',
-    redeemWorking: 'جارٍ التفعيل…',
-    redeemInvalid: 'يرجى إدخال رمز صالح.',
-    redeemSuccessTitle: 'تم 🎉',
-    redeemSuccessBody: 'تم تفعيل الرمز. تم تفعيل وصول Pro طوال مدة صلاحية الرمز.',
-    redeemDataWarning:
-      'مهم: لا تقم بحذف التطبيق أو مسح بياناته — رموز الوصول مرتبطة بهذا الجهاز. عند حذف البيانات قد تفقد الوصول إلى Pro.',
-    choosePlan: 'اختر خطة',
-    headerTrialEmph: 'فترة تجريبية مجانية لمدة 5 أيام (للمشتركين الجدد)',
-    headerTrialTail:
-      '. اختر خطة واضغط «بدء الفترة التجريبية». بعد الفترة التجريبية، يستمر الوصول الكامل تلقائيًا بسعر الخطة — ويمكنك الإلغاء في أي وقت عبر Google Play / App Store، أو اضغط «المتابعة مجانًا».',
-    headerNoTrialEmph: 'اشترك للوصول الكامل إلى جميع التمارين',
-    headerNoTrialTail:
-      '. اختر خطة واضغط «اشترك». يمكنك الإلغاء في أي وقت عبر Google Play / App Store، أو اضغط «المتابعة مجانًا».',
-    freePreview: 'المتابعة مجانًا',
-    freePreviewSubtitle: 'تدرّب على 350 فعلًا عبريًا',
-    fullAccess: 'وصول كامل',
-    limitedAccess: 'وصول محدود',
-    exercises12: 'تمارين 1 و2',
-    postTitle: 'تم تفعيل الاشتراك 🎉',
-    postBody:
-      'تم فتح الوصول الكامل. رسالة “التسجيل لدى المطوّر” من Google Play إجراء قياسي؛ تم منح الوصول.',
-    postContinue: 'متابعة',
-    fullAccessAllExercises: 'وصول كامل • جميع التمارين',
-  },
+  français: {
+  startTrial: 'CONTINUER DANS GOOGLE PLAY',
+  subscribe: "S'ABONNER",
+  monthly: 'Mensuel',
+  annual: 'Annuel',
+  promoLabel: 'Code promo',
+  promoPlaceholder: 'promocode',
+  apply: 'Appliquer',
+  applied: () => 'Code promo appliqué',
+  invalid: 'Code invalide',
+  playRedeem: 'Code Google Play',
+  restore: "Restaurer l’accès",
+  activateCode: 'Activer un code',
+  redeemTitle: "Activation d’un code d’accès",
+  redeemHint:
+    'Saisissez le code d’accès que vous avez reçu d’une école, d’un cours ou d’un professeur.',
+  redeemPlaceholder: 'CODE-ACCÈS',
+  redeemBtn: 'Activer',
+  redeemCancel: 'Annuler',
+  redeemWorking: 'Activation…',
+  redeemInvalid: 'Veuillez entrer un code valide.',
+  redeemSuccessTitle: 'OK 🎉',
+  redeemSuccessBody:
+    'Code activé. L’accès Pro est activé pour la durée du code.',
+  redeemDataWarning:
+    "Important : ne supprimez pas l’application et n’effacez pas ses données — les codes d’accès sont liés à cet appareil. En cas de suppression des données, vous pouvez perdre l’accès Pro.",
+  choosePlan: 'Choisissez une formule',
+  headerTrialEmph: 'Accès complet à tous les exercices',
+  headerTrialTail:
+    '. Choisissez une formule et continuez dans Google Play. Si vous avez un code promo — saisissez-le avant l’abonnement. Si vous avez un code d’accès d’une école ou d’un cours — appuyez sur « Activer un code ». Résiliation possible à tout moment dans Google Play.',
+  headerNoTrialEmph: 'Accès complet à tous les exercices',
+  headerNoTrialTail:
+    '. Choisissez une formule et continuez dans Google Play. Résiliation possible à tout moment.',
+  freePreview: 'CONTINUER GRATUITEMENT',
+  freePreviewSubtitle: 'Période d’essai • Accès complet',
+  fullAccess: 'Accès complet',
+  limitedAccess: 'Entraîne 350 verbes en hébreu',
+  exercises12: 'Les exercices 1 et 2 restent toujours gratuits',
+  postTitle: 'Abonnement activé 🎉',
+  postBody:
+    'Accès complet débloqué. L’e-mail Google Play sur « l’enregistrement » est standard ; l’accès est déjà accordé.',
+  postContinue: 'Continuer',
+  fullAccessAllExercises: 'Accès complet • Tous les exercices',
+},
+
+español: {
+  startTrial: 'CONTINUAR EN GOOGLE PLAY',
+  subscribe: 'SUSCRIBIRSE',
+  monthly: 'Mensual',
+  annual: 'Anual',
+  promoLabel: 'Código promocional',
+  promoPlaceholder: 'promocode',
+  apply: 'Aplicar',
+  applied: () => 'Código promocional aplicado',
+  invalid: 'Código no válido',
+  playRedeem: 'Código de Google Play',
+  restore: 'Restaurar acceso',
+  activateCode: 'Activar código',
+  redeemTitle: 'Activación de código',
+  redeemHint:
+    'Introduce el código de acceso que recibiste de una escuela, un curso o un profesor.',
+  redeemPlaceholder: 'CÓDIGO-DE-ACCESO',
+  redeemBtn: 'Activar',
+  redeemCancel: 'Cancelar',
+  redeemWorking: 'Activando…',
+  redeemInvalid: 'Introduce un código válido.',
+  redeemSuccessTitle: 'Listo 🎉',
+  redeemSuccessBody:
+    'Código activado. El acceso Pro está activo durante la vigencia del código.',
+  redeemDataWarning:
+    'Importante: no elimines la aplicación ni borres sus datos — los códigos de acceso están vinculados a este dispositivo. Si borras los datos, puedes perder el acceso Pro.',
+  choosePlan: 'Elige un plan',
+  headerTrialEmph: 'Acceso completo a todos los ejercicios',
+  headerTrialTail:
+    '. Elige un plan y continúa en Google Play. Si tienes un código promocional, introdúcelo antes de suscribirte. Si tienes un código de acceso de una escuela o curso, pulsa «Activar código». Puedes cancelar en cualquier momento en Google Play.',
+  headerNoTrialEmph: 'Acceso completo a todos los ejercicios',
+  headerNoTrialTail:
+    '. Elige un plan y continúa en Google Play. Puedes cancelar en cualquier momento.',
+  freePreview: 'CONTINUAR GRATIS',
+  freePreviewSubtitle: 'Período de prueba • Acceso completo',
+  fullAccess: 'Acceso completo',
+  limitedAccess: 'Entrena 350 verbos en hebreo',
+  exercises12: 'Los ejercicios 1 y 2 siempre son gratuitos',
+  postTitle: 'Suscripción activada 🎉',
+  postBody:
+    'Acceso completo desbloqueado. El correo de Google Play sobre “registrar” es normal; el acceso ya está concedido.',
+  postContinue: 'Continuar',
+  fullAccessAllExercises: 'Acceso completo • Todos los ejercicios',
+},
+
+português: {
+  startTrial: 'CONTINUAR NO GOOGLE PLAY',
+  subscribe: 'ASSINAR',
+  monthly: 'Mensal',
+  annual: 'Anual',
+  promoLabel: 'Código promocional',
+  promoPlaceholder: 'promocode',
+  apply: 'Aplicar',
+  applied: () => 'Código promocional aplicado',
+  invalid: 'Código inválido',
+  playRedeem: 'Código do Google Play',
+  restore: 'Restaurar acesso',
+  activateCode: 'Ativar código',
+  redeemTitle: 'Ativar código de acesso',
+  redeemHint:
+    'Digite o código de acesso que você recebeu de uma escola, curso ou professor.',
+  redeemPlaceholder: 'CÓDIGO-DE-ACESSO',
+  redeemBtn: 'Ativar',
+  redeemCancel: 'Cancelar',
+  redeemWorking: 'Ativando…',
+  redeemInvalid: 'Digite um código válido.',
+  redeemSuccessTitle: 'Pronto 🎉',
+  redeemSuccessBody:
+    'Código ativado. O acesso Pro está ativo durante a validade do código.',
+  redeemDataWarning:
+    'Importante: não apague o aplicativo nem limpe seus dados — os códigos de acesso estão vinculados a este dispositivo. Ao remover os dados, você pode perder o acesso Pro.',
+  choosePlan: 'Escolha um plano',
+  headerTrialEmph: 'Acesso total a todos os exercícios',
+  headerTrialTail:
+    '. Escolha um plano e continue no Google Play. Se você tiver um código promocional, insira-o antes da assinatura. Se você tiver um código de acesso de uma escola ou curso, toque em «Ativar código». Você pode cancelar a qualquer momento no Google Play.',
+  headerNoTrialEmph: 'Acesso total a todos os exercícios',
+  headerNoTrialTail:
+    '. Escolha um plano e continue no Google Play. Você pode cancelar a qualquer momento.',
+  freePreview: 'CONTINUAR GRÁTIS',
+  freePreviewSubtitle: 'Período de teste • Acesso total',
+  fullAccess: 'Acesso total',
+  limitedAccess: 'Treine 350 verbos em hebraico',
+  exercises12: 'Os exercícios 1 e 2 continuam gratuitos',
+  postTitle: 'Assinatura ativada 🎉',
+  postBody:
+    'Acesso completo liberado. O e-mail do Google Play sobre “registro” é padrão; o acesso já foi concedido.',
+  postContinue: 'Continuar',
+  fullAccessAllExercises: 'Acesso total • Todos os exercícios',
+},
+
+العربية: {
+  startTrial: 'المتابعة في GOOGLE PLAY',
+  subscribe: 'اشْتَرِك',
+  monthly: 'شهري',
+  annual: 'سنوي',
+  promoLabel: 'رمز ترويجي',
+  promoPlaceholder: 'promocode',
+  apply: 'تطبيق',
+  applied: () => 'تم تطبيق الرمز الترويجي',
+  invalid: 'الرمز غير صالح',
+  playRedeem: 'رمز Google Play',
+  restore: 'استعادة الوصول',
+  activateCode: 'تفعيل الرمز',
+  redeemTitle: 'تفعيل رمز الوصول',
+  redeemHint:
+    'أدخل رمز الوصول الذي تلقيته من مدرسة أو دورة أو معلّم.',
+  redeemPlaceholder: 'ACCESS-CODE',
+  redeemBtn: 'تفعيل',
+  redeemCancel: 'إلغاء',
+  redeemWorking: 'جارٍ التفعيل…',
+  redeemInvalid: 'يرجى إدخال رمز صالح.',
+  redeemSuccessTitle: 'تم 🎉',
+  redeemSuccessBody:
+    'تم تفعيل الرمز. تم تفعيل وصول Pro طوال مدة صلاحية الرمز.',
+  redeemDataWarning:
+    'مهم: لا تقم بحذف التطبيق أو مسح بياناته — رموز الوصول مرتبطة بهذا الجهاز. عند حذف البيانات قد تفقد الوصول إلى Pro.',
+  choosePlan: 'اختر خطة',
+  headerTrialEmph: 'وصول كامل إلى جميع التمارين',
+  headerTrialTail:
+    '. اختر خطة وتابع عبر Google Play. إذا كان لديك رمز ترويجي، فأدخله قبل الاشتراك. وإذا كان لديك رمز وصول من مدرسة أو دورة، فاضغط على «تفعيل الرمز». يمكنك الإلغاء في أي وقت عبر Google Play.',
+  headerNoTrialEmph: 'وصول كامل إلى جميع التمارين',
+  headerNoTrialTail:
+    '. اختر خطة وتابع عبر Google Play. يمكنك الإلغاء في أي وقت.',
+  freePreview: 'المتابعة مجانًا',
+  freePreviewSubtitle: 'فترة تجريبية • وصول كامل',
+  fullAccess: 'وصول كامل',
+  limitedAccess: 'تدرّب على 350 فعلًا عبريًا',
+  exercises12: 'التمرينان 1 و2 متاحان دائمًا مجانًا',
+  postTitle: 'تم تفعيل الاشتراك 🎉',
+  postBody:
+    'تم فتح الوصول الكامل. رسالة “التسجيل لدى المطوّر” من Google Play إجراء قياسي؛ تم منح الوصول.',
+  postContinue: 'متابعة',
+  fullAccessAllExercises: 'وصول كامل • جميع التمارين',
+},
+
+አማርኛ: {
+  startTrial: 'በGOOGLE PLAY ቀጥል',
+  subscribe: 'መመዝገብ',
+  monthly: 'ወርሃዊ',
+  annual: 'ዓመታዊ',
+  promoLabel: 'ፕሮሞ ኮድ',
+  promoPlaceholder: 'promocode',
+  apply: 'አፕሊ',
+  applied: () => 'ፕሮሞ ኮድ ተፈጻሚ ሆነ',
+  invalid: 'ኮድ ልክ አይደለም',
+  playRedeem: 'የGoogle Play ኮድ',
+  restore: 'መዳረሻ መመለስ',
+  activateCode: 'ኮድ አንቃ',
+  redeemTitle: 'የመዳረሻ ኮድ አንቃ',
+  redeemHint:
+    'ከትምህርት ቤት፣ ከኮርስ ወይም ከመምህር ያገኙትን የመዳረሻ ኮድ ያስገቡ።',
+  redeemPlaceholder: 'ACCESS-CODE',
+  redeemBtn: 'አንቃ',
+  redeemCancel: 'ሰርዝ',
+  redeemWorking: 'በመንቃት ላይ…',
+  redeemInvalid: 'ትክክለኛ ኮድ ያስገቡ።',
+  redeemSuccessTitle: 'ተከናውኗል 🎉',
+  redeemSuccessBody:
+    'ኮድ ተነቅቷል። የPro መዳረሻ ለኮዱ የሚሰራበት ጊዜ ተነቅቷል።',
+  redeemDataWarning:
+    'አስፈላጊ፡ መተግበሪያውን አትሰርዙ እና ውሂቡን አታጥፉ — የመዳረሻ ኮዶች ከዚህ መሣሪያ ጋር ተያይዘዋል። ውሂቡን ካጠፉ የPro መዳረሻን ሊያጡ ይችላሉ።',
+  choosePlan: 'እቅድ ይምረጡ',
+  headerTrialEmph: 'ሙሉ መዳረሻ ለሁሉም ልምምዶች',
+  headerTrialTail:
+    '። እቅድ ይምረጡ እና በGoogle Play ይቀጥሉ። ፕሮሞ ኮድ ካለዎት ከመመዝገብዎ በፊት ያስገቡት። ከትምህርት ቤት ወይም ኮርስ የተሰጠዎት የመዳረሻ ኮድ ካለ «ኮድ አንቃ» የሚለውን ይጫኑ። በGoogle Play ውስጥ በማንኛውም ጊዜ ማቋረጥ ይቻላል።',
+  headerNoTrialEmph: 'ሙሉ መዳረሻ ለሁሉም ልምምዶች',
+  headerNoTrialTail:
+    '። እቅድ ይምረጡ እና በGoogle Play ይቀጥሉ። በማንኛውም ጊዜ ማቋረጥ ይቻላል።',
+  freePreview: 'በነፃ ቀጥል',
+  freePreviewSubtitle: 'የሙከራ ጊዜ • ሙሉ መዳረሻ',
+  fullAccess: 'ሙሉ መዳረሻ',
+  limitedAccess: '350 የዕብራይስጥ ግሶችን ይለማመዱ',
+  exercises12: 'ልምምድ 1 እና 2 ሁልጊዜ በነፃ ይገኛሉ',
+  postTitle: 'መመዝገብ ተከናውኗል 🎉',
+  postBody:
+    'ሙሉ መዳረሻ ተከፍቷል። የ Google Play “ምዝገባ” ኢሜይል መደበኛ ነው፤ መዳረሻ አስቀድሞ ተሰጥቷል።',
+  postContinue: 'ቀጥል',
+  fullAccessAllExercises: 'ሙሉ መዳረሻ • ሁሉም ልምምዶች',
+},
 };
 
 const RTL_LANGS = new Set(['العربية']);
@@ -838,63 +859,68 @@ const openRedeemModal = () => {
     </TouchableOpacity>
   );
 
-  const planBtn = (which, title, { baseAmt, segAmt, periodText, useStrike }) => {
-    const selected = plan === which;
-    return (
-      <TouchableOpacity
-        key={which}
-        style={[styles.planButtonBox, selected ? styles.planSelectedBox : styles.planIdleBox]}
-        onPress={() => setPlan(which)}
-        activeOpacity={0.8}
+const planBtn = (which, title, { baseAmt, segAmt, periodText, useStrike }) => {
+  const selected = plan === which;
+
+  return (
+    <TouchableOpacity
+      key={which}
+      style={[
+        styles.planButtonBox,
+        selected ? styles.planSelectedBox : styles.planIdleBox,
+      ]}
+      onPress={() => setPlan(which)}
+      activeOpacity={0.8}
+    >
+      <Text
+        style={[
+          styles.planTitle,
+          selected ? styles.planSelectedText : styles.planIdleText,
+        ]}
+        maxFontSizeMultiplier={1.2}
       >
-        <Text
-          style={[styles.planTitle, selected ? styles.planSelectedText : styles.planIdleText]}
-          maxFontSizeMultiplier={1.2}
-        >
-          {title}
-        </Text>
+        {title}
+      </Text>
 
-        <View style={styles.priceRow}>
-          {useStrike ? (
-            <>
-              <Text
-                style={[styles.planPriceOld]}
-                numberOfLines={1}
-                adjustsFontSizeToFit
-                maxFontSizeMultiplier={1.2}
-              >
-                {baseAmt}
-              </Text>
-              <Text
-                style={[styles.planPriceNew, selected ? styles.planSelectedText : styles.planIdleText]}
-                numberOfLines={1}
-                adjustsFontSizeToFit
-                maxFontSizeMultiplier={1.2}
-              >
-                {segAmt}
-              </Text>
-            </>
-          ) : (
-            <Text
-              style={[styles.planPriceBig, selected ? styles.planSelectedText : styles.planIdleText]}
-              numberOfLines={1}
-              adjustsFontSizeToFit
-              maxFontSizeMultiplier={1.2}
-            >
-              {segAmt || baseAmt || '…'}
-            </Text>
-          )}
-        </View>
+      <View style={styles.priceColumn}>
+        {useStrike && (
+          <Text
+            style={styles.planPriceOld}
+            numberOfLines={1}
+            adjustsFontSizeToFit
+            minimumFontScale={0.7}
+            maxFontSizeMultiplier={1.2}
+          >
+            {baseAmt}
+          </Text>
+        )}
 
         <Text
-          style={[styles.planPeriod, selected ? styles.planSelectedText : styles.planIdleText]}
+          style={[
+            useStrike ? styles.planPriceNew : styles.planPriceBig,
+            selected ? styles.planSelectedText : styles.planIdleText,
+          ]}
+          numberOfLines={1}
+          adjustsFontSizeToFit
+          minimumFontScale={0.7}
           maxFontSizeMultiplier={1.2}
         >
-          {periodText}
+          {segAmt || baseAmt || '…'}
         </Text>
-      </TouchableOpacity>
-    );
-  };
+      </View>
+
+      <Text
+        style={[
+          styles.planPeriod,
+          selected ? styles.planSelectedText : styles.planIdleText,
+        ]}
+        maxFontSizeMultiplier={1.2}
+      >
+        {periodText}
+      </Text>
+    </TouchableOpacity>
+  );
+};
 
   // Если есть pro и пост-модалка не нужна — экран скрываем
   if (hasPro && !showPost) return null;
@@ -1033,7 +1059,7 @@ const openRedeemModal = () => {
   label={STR[langKey]?.freePreview}
   subLabel={STR[langKey]?.freePreviewSubtitle}
   subLabelAccent
-  subLabel2={`${S.limitedAccess} • ${S.exercises12}`}
+  subLabel2={`${S.limitedAccess}\n${S.exercises12}`}
   onPress={goMenuFreePreview}
   kind="outline"
   subLabelStyle={{ fontSize: 16 }}   // ✅ больше только тут
@@ -1228,9 +1254,35 @@ const styles = StyleSheet.create({
   planSelectedBox: { borderColor: BRAND, backgroundColor: BRAND_BG },
   planTitle: { fontWeight: '800', fontSize: 16, marginBottom: 4 },
   priceRow: { flexDirection: 'row', alignItems: 'baseline', gap: 8, marginBottom: 2 },
-  planPriceBig: { fontSize: 22, fontWeight: '900' },
-  planPriceOld: { fontSize: 16, textDecorationLine: 'line-through', color: '#9aa6b2' },
-  planPriceNew: { fontSize: 22, fontWeight: '900' },
+  priceColumn: {
+  alignItems: 'center',
+  justifyContent: 'center',
+  width: '100%',
+  marginBottom: 2,
+},
+
+planPriceOld: {
+  fontSize: 16,
+  textDecorationLine: 'line-through',
+  color: '#9aa6b2',
+  marginBottom: 2,
+  textAlign: 'center',
+},
+
+planPriceBig: {
+  fontSize: 22,
+  fontWeight: '900',
+  textAlign: 'center',
+},
+
+planPriceNew: {
+  fontSize: 22,
+  fontWeight: '900',
+  textAlign: 'center',
+},
+  // planPriceBig: { fontSize: 22, fontWeight: '900' },
+  // planPriceOld: { fontSize: 16, textDecorationLine: 'line-through', color: '#9aa6b2' },
+  // planPriceNew: { fontSize: 22, fontWeight: '900' },
   planPeriod: { fontSize: 12, opacity: 0.9 },
   planIdleText: { color: BRAND },
   planSelectedText: { color: BRAND_TEXT },
@@ -1246,8 +1298,8 @@ const styles = StyleSheet.create({
   btnText: { fontWeight: '800', fontSize: 16 },
   btnTextOutline: { color: BRAND },
   btnTextSolid: { color: BRAND_TEXT },
-  btnSubText: { marginTop: 2, fontSize: 12, opacity: 0.9, fontWeight: '600' },
-  btnSubText2: { marginTop: 1, fontSize: 12, opacity: 0.8, fontWeight: '600' },
+  btnSubText: { marginTop: 2, fontSize: 13, opacity: 0.9, fontWeight: '600',textAlign: 'center' },
+  btnSubText2: { marginTop: 1, fontSize: 14, opacity: 0.8, fontWeight: '600', textAlign: 'center' },
   btnSubTextOutline: { color: BRAND },
   btnSubTextSolid: { color: BRAND_TEXT },
   btnSubTextAccent: { color: ACCENT, fontWeight: '900', opacity: 1 },

@@ -4,11 +4,45 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useIap } from './IapProvider';
 
 const FREE_FLAG_KEY = 'freePreview';
+const INTERNAL_TRIAL_KEY = 'verbify_internal_trial_v1';
+
+async function getInternalTrialState() {
+  try {
+    const saved = await AsyncStorage.getItem(INTERNAL_TRIAL_KEY);
+
+    if (!saved) {
+      return {
+        active: false,
+        endsAt: null,
+      };
+    }
+
+    const data = JSON.parse(saved);
+    const endsAt = Number(data.endsAt || 0);
+    const active = Date.now() < endsAt;
+
+    return {
+      active,
+      endsAt,
+    };
+  } catch (e) {
+    console.log('[withMenuGate][INTERNAL_TRIAL] error:', e);
+
+    return {
+      active: false,
+      endsAt: null,
+    };
+  }
+}
 
 export function withMenuGate(ScreenComponent, _featureKey) {
   function WithGate(props) {
     const { ready, hasPro, accessState = 'checking' } = useIap();
+
     const [freePreview, setFreePreview] = useState(null);
+    const [trialChecking, setTrialChecking] = useState(true);
+    const [internalTrialActive, setInternalTrialActive] = useState(false);
+    const [internalTrialEndsAt, setInternalTrialEndsAt] = useState(null);
 
     useEffect(() => {
       let mounted = true;
@@ -38,8 +72,29 @@ export function withMenuGate(ScreenComponent, _featureKey) {
       };
     }, [props?.route?.params?.freePreview]);
 
-    // Ждём, пока IAP полностью определит доступ
-    if (!ready || accessState === 'checking') {
+    useEffect(() => {
+      let mounted = true;
+
+      const loadTrial = async () => {
+        const trial = await getInternalTrialState();
+
+        if (!mounted) return;
+
+        setInternalTrialActive(trial.active);
+        setInternalTrialEndsAt(trial.endsAt);
+        setTrialChecking(false);
+
+        console.log('[withMenuGate] internalTrial =', trial);
+      };
+
+      loadTrial();
+
+      return () => {
+        mounted = false;
+      };
+    }, []);
+
+    if (!ready || accessState === 'checking' || trialChecking) {
       return (
         <View
           style={{
@@ -54,7 +109,6 @@ export function withMenuGate(ScreenComponent, _featureKey) {
       );
     }
 
-    // Ждём, пока дочитается freePreview
     if (freePreview === null) {
       return (
         <View
@@ -70,12 +124,16 @@ export function withMenuGate(ScreenComponent, _featureKey) {
       );
     }
 
-    // НИКАКИХ редиректов на Paywall здесь больше нет
+    const hasFullAccess = hasPro || internalTrialActive;
+
     return (
       <ScreenComponent
         {...props}
         hasPro={hasPro}
-        freePreview={!!freePreview && !hasPro}
+        hasFullAccess={hasFullAccess}
+        freePreview={!!freePreview && !hasFullAccess}
+        internalTrialActive={!hasPro && internalTrialActive}
+        internalTrialEndsAt={internalTrialEndsAt}
       />
     );
   }

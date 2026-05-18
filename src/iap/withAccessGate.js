@@ -1,6 +1,7 @@
 // src/iap/withAccessGate.js
-import React, { useEffect, useMemo, useRef } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Platform, View, ActivityIndicator } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useIap } from './IapProvider';
 
 // Экраны, которые всегда бесплатны (1 и 2 упражнение, все локали)
@@ -21,12 +22,41 @@ export const FREE_ROUTES = new Set([
   'Exercise2Am',
 ]);
 
+const INTERNAL_TRIAL_KEY = 'verbify_internal_trial_v1';
+
 function isFreeRoute(routeName) {
   return FREE_ROUTES.has(routeName);
 }
 
 function paywallRouteName() {
   return Platform.OS === 'ios' ? 'PaywallIOS' : 'Paywall';
+}
+
+async function getInternalTrialState() {
+  try {
+    const saved = await AsyncStorage.getItem(INTERNAL_TRIAL_KEY);
+    if (!saved) {
+      return {
+        active: false,
+        endsAt: null,
+      };
+    }
+
+    const data = JSON.parse(saved);
+    const endsAt = Number(data.endsAt || 0);
+    const active = Date.now() < endsAt;
+
+    return {
+      active,
+      endsAt,
+    };
+  } catch (e) {
+    console.log('[withAccessGate][INTERNAL_TRIAL] error:', e);
+    return {
+      active: false,
+      endsAt: null,
+    };
+  }
 }
 
 export function withAccessGate(ScreenComponent) {
@@ -39,35 +69,81 @@ export function withAccessGate(ScreenComponent) {
 
     const redirectedRef = useRef(false);
 
+    const [trialChecking, setTrialChecking] = useState(true);
+    const [internalTrialActive, setInternalTrialActive] = useState(false);
+    const [internalTrialEndsAt, setInternalTrialEndsAt] = useState(null);
+
+    useEffect(() => {
+      let cancelled = false;
+
+      const loadTrial = async () => {
+        const trial = await getInternalTrialState();
+
+        if (cancelled) return;
+
+        setInternalTrialActive(trial.active);
+        setInternalTrialEndsAt(trial.endsAt);
+        setTrialChecking(false);
+
+        console.log('[withAccessGate] trial =', trial);
+      };
+
+      loadTrial();
+
+      return () => {
+        cancelled = true;
+      };
+    }, [routeName]);
+
+    const hasFullAccess = hasPro || internalTrialActive;
+
     useEffect(() => {
       if (accessState === 'checking') return;
+      if (trialChecking) return;
 
-      if (!hasPro && !free && !redirectedRef.current) {
+      if (!hasFullAccess && !free && !redirectedRef.current) {
         redirectedRef.current = true;
 
         const id = setTimeout(() => {
-          navigation.replace(paywallRouteName(), { from: routeName });
+          navigation.replace(paywallRouteName(), {
+            from: routeName,
+            internalTrialExpired: true,
+          });
         }, 0);
 
         return () => clearTimeout(id);
       }
 
-      if (hasPro && redirectedRef.current) {
+      if (hasFullAccess && redirectedRef.current) {
         redirectedRef.current = false;
       }
-    }, [accessState, hasPro, free, navigation, routeName]);
+    }, [
+      accessState,
+      trialChecking,
+      hasFullAccess,
+      free,
+      navigation,
+      routeName,
+    ]);
 
     useEffect(() => {
-      if (accessState !== 'checking' && !hasPro) {
+      if (accessState !== 'checking' && !trialChecking && !hasFullAccess) {
         navigation.setOptions({ headerRight: () => null });
       }
-    }, [accessState, hasPro, navigation]);
+    }, [accessState, trialChecking, hasFullAccess, navigation]);
 
     if (free) {
-      return <ScreenComponent {...props} isFreeUser={!hasPro} />;
+      return (
+        <ScreenComponent
+          {...props}
+          isFreeUser={!hasFullAccess}
+          internalTrialActive={internalTrialActive}
+          internalTrialEndsAt={internalTrialEndsAt}
+        />
+      );
     }
 
-    if (accessState === 'checking') {
+    if (accessState === 'checking' || trialChecking) {
       return (
         <View
           style={{
@@ -82,11 +158,16 @@ export function withAccessGate(ScreenComponent) {
       );
     }
 
-    if (!hasPro && !free) return null;
+    if (!hasFullAccess && !free) return null;
 
-    const isFreeUser = !hasPro;
-
-    return <ScreenComponent {...props} isFreeUser={isFreeUser} />;
+    return (
+      <ScreenComponent
+        {...props}
+        isFreeUser={!hasFullAccess}
+        internalTrialActive={internalTrialActive}
+        internalTrialEndsAt={internalTrialEndsAt}
+      />
+    );
   }
 
   WrappedScreen.displayName = `withAccessGate(${
