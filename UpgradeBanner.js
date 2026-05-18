@@ -10,7 +10,7 @@ import {
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Clipboard from 'expo-clipboard';
 
-const UPGRADE_BANNER_TEST_MODE = false;
+const UPGRADE_BANNER_TEST_MODE = true;
 
 const PROMO_DISCOUNT = 30;
 

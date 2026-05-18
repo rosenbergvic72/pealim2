@@ -17,7 +17,7 @@ const INTERNAL_TRIAL_KEY = 'verbify_internal_trial_v1';
   true  = использовать сервер /trial/start
   false = старая локальная схема без сервера
 */
-const USE_SERVER_INTERNAL_TRIAL = true;
+const USE_SERVER_INTERNAL_TRIAL = false;
 
 const VERIFY_BASE_URL =
   Constants?.expoConfig?.extra?.IAP_VERIFY_BASE_URL ||
@@ -34,11 +34,11 @@ const TRIAL_START_URL = VERIFY_BASE_URL
   ? `${VERIFY_BASE_URL}/trial/start`
   : '';
 
-const INTERNAL_TRIAL_TEST_MODE = false;
+const INTERNAL_TRIAL_TEST_MODE = true;
 const INTERNAL_TRIAL_DAYS = INTERNAL_TRIAL_TEST_MODE ? 0.01 : 3;
 
 // Только для теста. В боевом релизе ОБЯЗАТЕЛЬНО false.
-const RESET_INTERNAL_TRIAL_ON_START = false;
+const RESET_INTERNAL_TRIAL_ON_START = true;
 
 function normalizeLanguage(value) {
   return String(value || '').trim().toLowerCase();
@@ -88,7 +88,7 @@ function calcLocalTrialEndsAt(now) {
   }
 
   const endDate = new Date(now);
-  endDate.setDate(endDate.getDate() + INTERNAL_TRIAL_DAYS);
+   endDate.setDate(endDate.getDate() + (INTERNAL_TRIAL_DAYS - 1));
   endDate.setHours(23, 59, 59, 999);
   return endDate.getTime();
 }
