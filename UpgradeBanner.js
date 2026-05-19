@@ -10,7 +10,7 @@ import {
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Clipboard from 'expo-clipboard';
 
-const UPGRADE_BANNER_TEST_MODE = true;
+const UPGRADE_BANNER_TEST_MODE = false;
 
 const PROMO_DISCOUNT = 30;
 
@@ -467,7 +467,10 @@ function getTrialEndDayText(language, internalTrialEndsAt, t, stage) {
   }
 
   const date = new Date(Number(internalTrialEndsAt));
-  const dayIndex = date.getDay();
+
+  // Берём день недели по UTC, чтобы 23:59:59Z
+  // не превращался в следующий день в Израиле/Европе/Азии.
+  const dayIndex = date.getUTCDay();
 
   const langDays = weekdays[language] || weekdays.en;
   const dayName = langDays[dayIndex];
