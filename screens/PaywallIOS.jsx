@@ -61,15 +61,16 @@ const STR = {
     fullAccessAll: 'Full access • All exercises',
 
     headerTrial:
-      'Pick a plan and tap SUBSCRIBE. Trial (if available) will be shown in the App Store sheet. You can cancel anytime in App Store, or tap CONTINUE FOR FREE.',
+      'Subscription. Choose a plan and continue in the App Store. If you have a promo code or an access code from a school or course, enter it before subscribing by tapping Enter App Store Promo Code. You can cancel your subscription at any time in the App Store.',
     headerTrialBadge: '7-DAY FREE TRIAL (for new subscribers).',
     headerNoTrial:
-      'Subscription. Pick a plan and tap SUBSCRIBE. You can cancel anytime in App Store, or tap CONTINUE FOR FREE.',
+      'Subscription. Choose a plan and continue in the App Store. If you have a promo code or an access code from a school or course, enter it before subscribing by tapping Enter App Store Promo Code. You can cancel your subscription at any time in the App Store.',
 
     freePreview: 'CONTINUE FOR FREE',
     freePreviewSubtitle: 'Train 350 Hebrew verbs',
     limitedAccess: 'Limited access',
     exercises12: 'Exercises 1 & 2',
+    trialFullAccess: 'Full access during the trial period',
 
     redeemUnderCta: 'Enter App Store promo code',
     restore: 'Restore access',
@@ -104,15 +105,16 @@ const STR = {
     fullAccessAll: 'Полный доступ • Все упражнения',
 
     headerTrial:
-      '. Выберите план и продолжите оформление в App Store. Если у вас есть промокод — введите его перед оформлением. Если у вас есть код доступа от школы или курса — нажмите «Активировать код». Подписку можно отменить в любой момент в Google Play.',
+      'Подписка. Выберите план и продолжите оформление в App Store. Если у вас есть промокод или код доступа от школы или курса — введите его перед оформлением, нажав Ввести промокод App Store. Подписку можно отменить в любой момент в App Store.',
     headerTrialBadge: '7 ДНЕЙ БЕСПЛАТНОГО ДОСТУПА (для новых подписчиков).',
     headerNoTrial:
-      'Выберите план и продолжите оформление в App Store. Если у вас есть промокод или код доступа от школы или курса — введите его перед оформлением, нажав Ввести промокод App Store. Подписку можно отменить в любой момент в App Store.',
+      'Подписка. Выберите план и продолжите оформление в App Store. Если у вас есть промокод или код доступа от школы или курса — введите его перед оформлением, нажав Ввести промокод App Store. Подписку можно отменить в любой момент в App Store.',
 
     freePreview: 'ПРОДОЛЖИТЬ БЕСПЛАТНО',
     freePreviewSubtitle: 'Тренируйте 350 глаголов иврита',
     limitedAccess: 'Ограниченный доступ',
     exercises12: 'Упражнения 1 и 2',
+    trialFullAccess: 'Полный доступ во время пробного периода',
 
     redeemUnderCta: 'Ввести промокод App Store',
     restore: 'Восстановить доступ',
@@ -147,15 +149,16 @@ const STR = {
     fullAccessAll: 'Accès complet • Tous les exercices',
 
     headerTrial:
-      "Choisissez un abonnement et appuyez sur S'ABONNER. L’essai gratuit (s’il est disponible) s’affichera dans la fenêtre App Store. Vous pouvez annuler à tout moment dans l’App Store, ou appuyer sur CONTINUER GRATUITEMENT.",
+      'Abonnement. Choisissez une formule et poursuivez dans l’App Store. Si vous avez un code promo ou un code d’accès fourni par une école ou un cours, saisissez-le avant l’abonnement en appuyant sur Saisir un code promo App Store. Vous pouvez annuler votre abonnement à tout moment dans l’App Store.',
     headerTrialBadge: '7 JOURS D’ESSAI GRATUIT (pour les nouveaux abonnés).',
     headerNoTrial:
-      "Abonnement. Choisissez un abonnement et appuyez sur S'ABONNER. Vous pouvez annuler à tout moment dans l’App Store, ou appuyer sur CONTINUER GRATUITEMENT.",
+      'Abonnement. Choisissez une formule et poursuivez dans l’App Store. Si vous avez un code promo ou un code d’accès fourni par une école ou un cours, saisissez-le avant l’abonnement en appuyant sur Saisir un code promo App Store. Vous pouvez annuler votre abonnement à tout moment dans l’App Store.',
 
     freePreview: 'CONTINUER GRATUITEMENT',
     freePreviewSubtitle: 'Entraînez 350 verbes hébreux',
     limitedAccess: 'Accès limité',
     exercises12: 'Exercices 1 et 2',
+    trialFullAccess: 'Accès complet pendant la période d’essai',
 
     redeemUnderCta: 'Saisir un code promo App Store',
     restore: "Restaurer l’accès",
@@ -190,15 +193,16 @@ const STR = {
     fullAccessAll: 'Acceso completo • Todos los ejercicios',
 
     headerTrial:
-      'Elige un plan y pulsa SUSCRIBIRSE. La prueba gratuita (si está disponible) aparecerá en la ventana del App Store. Puedes cancelarla en cualquier momento en el App Store o pulsar CONTINUAR GRATIS.',
+      'Suscripción. Elige un plan y continúa en el App Store. Si tienes un código promocional o un código de acceso de una escuela o curso, introdúcelo antes de suscribirte pulsando Introducir código promocional de App Store. Puedes cancelar tu suscripción en cualquier momento en el App Store.',
     headerTrialBadge: '7 DÍAS DE PRUEBA GRATIS (para nuevos suscriptores).',
     headerNoTrial:
-      'Suscripción. Elige un plan y pulsa SUSCRIBIRSE. Puedes cancelarla en cualquier momento en el App Store o pulsar CONTINUAR GRATIS.',
+      'Suscripción. Elige un plan y continúa en el App Store. Si tienes un código promocional o un código de acceso de una escuela o curso, introdúcelo antes de suscribirte pulsando Introducir código promocional de App Store. Puedes cancelar tu suscripción en cualquier momento en el App Store.',
 
     freePreview: 'CONTINUAR GRATIS',
     freePreviewSubtitle: 'Practica 350 verbos hebreos',
     limitedAccess: 'Acceso limitado',
     exercises12: 'Ejercicios 1 y 2',
+    trialFullAccess: 'Acceso completo durante el período de prueba',
 
     redeemUnderCta: 'Introducir código promocional de App Store',
     restore: 'Restaurar acceso',
@@ -233,15 +237,16 @@ const STR = {
     fullAccessAll: 'Acesso completo • Todos os exercícios',
 
     headerTrial:
-      'Escolha um plano e toque em ASSINAR. O período de teste (se disponível) será mostrado na janela da App Store. Você pode cancelar a qualquer momento na App Store ou tocar em CONTINUAR GRÁTIS.',
+      'Assinatura. Escolha um plano e continue na App Store. Se você tiver um código promocional ou um código de acesso de uma escola ou curso, insira-o antes de assinar tocando em Inserir código promocional da App Store. Você pode cancelar sua assinatura a qualquer momento na App Store.',
     headerTrialBadge: '7 DIAS DE TESTE GRÁTIS (para novos assinantes).',
     headerNoTrial:
-      'Assinatura. Escolha um plano e toque em ASSINAR. Você pode cancelar a qualquer momento na App Store ou tocar em CONTINUAR GRÁTIS.',
+      'Assinatura. Escolha um plano e continue na App Store. Se você tiver um código promocional ou um código de acesso de uma escola ou curso, insira-o antes de assinar tocando em Inserir código promocional da App Store. Você pode cancelar sua assinatura a qualquer momento na App Store.',
 
     freePreview: 'CONTINUAR GRÁTIS',
     freePreviewSubtitle: 'Pratique 350 verbos em hebraico',
     limitedAccess: 'Acesso limitado',
     exercises12: 'Exercícios 1 e 2',
+    trialFullAccess: 'Acesso completo durante o período de teste',
 
     redeemUnderCta: 'Inserir código promocional da App Store',
     restore: 'Restaurar acesso',
@@ -276,15 +281,16 @@ const STR = {
     fullAccessAll: 'وصول كامل • جميع التمارين',
 
     headerTrial:
-      'اختر خطة واضغط على اشترك. ستظهر الفترة التجريبية المجانية (إذا كانت متاحة) في نافذة App Store. يمكنك الإلغاء في أي وقت من App Store أو الضغط على المتابعة مجانًا.',
+      'اشتراك. اختر خطة وتابع في App Store. إذا كان لديك رمز ترويجي أو رمز وصول من مدرسة أو دورة، فأدخله قبل الاشتراك بالضغط على إدخال رمز ترويجي من App Store. يمكنك إلغاء الاشتراك في أي وقت من خلال App Store.',
     headerTrialBadge: '7 أيام تجريبية مجانية (للمشتركين الجدد).',
     headerNoTrial:
-      'اشتراك. اختر خطة واضغط على اشترك. يمكنك الإلغاء في أي وقت من App Store أو الضغط على المتابعة مجانًا.',
+      'اشتراك. اختر خطة وتابع في App Store. إذا كان لديك رمز ترويجي أو رمز وصول من مدرسة أو دورة، فأدخله قبل الاشتراك بالضغط على إدخال رمز ترويجي من App Store. يمكنك إلغاء الاشتراك في أي وقت من خلال App Store.',
 
     freePreview: 'المتابعة مجانًا',
     freePreviewSubtitle: 'تدرّب على 350 فعلًا عبريًا',
     limitedAccess: 'وصول محدود',
     exercises12: 'التمرينان 1 و2',
+     trialFullAccess: 'وصول كامل خلال الفترة التجريبية',
 
     redeemUnderCta: 'إدخال رمز ترويجي من App Store',
     restore: 'استعادة الوصول',
@@ -319,15 +325,16 @@ const STR = {
     fullAccessAll: 'ሙሉ መዳረሻ • ሁሉም ልምምዶች',
 
     headerTrial:
-      'እቅድ ይምረጡ እና ይመዝገቡን ይጫኑ። ነፃ የሙከራ ጊዜ (ካለ) በApp Store መስኮት ውስጥ ይታያል። በApp Store ውስጥ በማንኛውም ጊዜ ማቋረጥ ይችላሉ ወይም በነፃ ቀጥልን ይጫኑ።',
+      'ምዝገባ። እቅድ ይምረጡ እና በApp Store ይቀጥሉ። ከትምህርት ቤት ወይም ኮርስ የተሰጠ ፕሮሞ ኮድ ወይም የመዳረሻ ኮድ ካለዎት፣ ይመዝገቡ ከማለትዎ በፊት የApp Store ፕሮሞ ኮድ ያስገቡን በመጫን ያስገቡት። ምዝገባዎን በApp Store ውስጥ በማንኛውም ጊዜ ማቋረጥ ይችላሉ።',
     headerTrialBadge: '7 ቀናት ነፃ ሙከራ (ለአዲስ ተመዝጋቢዎች).',
     headerNoTrial:
-      'ምዝገባ። እቅድ ይምረጡ እና ይመዝገቡን ይጫኑ። በApp Store ውስጥ በማንኛውም ጊዜ ማቋረጥ ይችላሉ ወይም በነፃ ቀጥልን ይጫኑ።',
+      'ምዝገባ። እቅድ ይምረጡ እና በApp Store ይቀጥሉ። ከትምህርት ቤት ወይም ኮርስ የተሰጠ ፕሮሞ ኮድ ወይም የመዳረሻ ኮድ ካለዎት፣ ይመዝገቡ ከማለትዎ በፊት የApp Store ፕሮሞ ኮድ ያስገቡን በመጫን ያስገቡት። ምዝገባዎን በApp Store ውስጥ በማንኛውም ጊዜ ማቋረጥ ይችላሉ።',
 
     freePreview: 'በነፃ ቀጥል',
     freePreviewSubtitle: '350 የዕብራይስጥ ግሶችን ይለማመዱ',
     limitedAccess: 'የተገደበ መዳረሻ',
     exercises12: 'ልምምዶች 1 እና 2',
+     trialFullAccess: 'ሙሉ መዳረሻ በሙከራ ጊዜ ውስጥ',
 
     redeemUnderCta: 'የApp Store ፕሮሞ ኮድ ያስገቡ',
     restore: 'መዳረሻን መመለስ',
@@ -702,7 +709,7 @@ export default function PaywallIOS({ navigation }) {
             <Text style={[styles.btnText, styles.btnTextOutline]}>{S.redeemUnderCta}</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity
+          {/* <TouchableOpacity
             style={[styles.btnBox, styles.btnOutline]}
             onPress={goMenuFreePreview}
             activeOpacity={0.85}
@@ -714,7 +721,45 @@ export default function PaywallIOS({ navigation }) {
             <Text style={[styles.btnSubText2, styles.btnSubTextOutline]}>
               {S.limitedAccess} • {S.exercises12}
             </Text>
-          </TouchableOpacity>
+          </TouchableOpacity> */}
+
+          <TouchableOpacity
+  style={[styles.btnBox, styles.btnOutline]}
+  onPress={goMenuFreePreview}
+  activeOpacity={0.85}
+>
+  <Text style={[styles.btnText, styles.btnTextOutline]}>
+    {S.freePreview}
+  </Text>
+
+  <Text
+    style={[
+      styles.btnSubText,
+      styles.btnSubTextOutline,
+      styles.subAccent,
+    ]}
+  >
+    {S.freePreviewSubtitle}
+  </Text>
+
+  <Text style={[styles.btnSubText2, styles.btnSubTextOutline]}>
+    {S.limitedAccess} • {S.exercises12}
+  </Text>
+
+  <Text
+    style={[
+      styles.btnSubText2,
+      styles.btnSubTextOutline,
+      {
+        marginTop: 6,
+        fontSize: 11,
+        opacity: 0.75,
+      },
+    ]}
+  >
+    {S.trialFullAccess}
+  </Text>
+</TouchableOpacity>
 
           <Text style={styles.iosLegal}>{S.iosLegalText}</Text>
 
