@@ -1007,8 +1007,8 @@ const styles = StyleSheet.create({
     paddingRight: 6,
   },
   genderIcon: {
-    width: 20,
-    height: 20,
+    width: 26,
+    height: 26,
     marginRight: 5,
   },
   leftText: {

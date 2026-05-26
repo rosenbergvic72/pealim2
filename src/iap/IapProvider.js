@@ -267,15 +267,12 @@ function pickPreferredBaseOffer(product, kind, preferNoTrial = false) {
   return periodOffers.sort((a, b) => priceMicrosOf(a) - priceMicrosOf(b))[0] || null;
 }
 
-function requiredTagsForSegment(segment, cadence, preferNoTrial) {
-  if (!segment || segment === 'default') return null;
-
-  if (segment === 'basic') {
-    return preferNoTrial ? null : ['basic', 'trial5', cadence];
+function requiredTagsForSegment(segment, cadence) {
+  if (!segment || segment === 'default' || segment === 'basic') {
+    return null;
   }
 
-  const trialTag = preferNoTrial ? 'notrial' : 'trial5';
-  return [segment, trialTag, cadence];
+  return [segment, 'notrial', cadence];
 }
 
 function findSegmentOffer(product, requiredTags, kind) {
@@ -1003,7 +1000,7 @@ const relevant = (purchases || []).filter((p) => p.productId === SKU);
         return;
       }
 
-      const preferNoTrial = !!trialEverUsed;
+      const preferNoTrial = true;
 
       const baseMonthlyOffer = pickPreferredBaseOffer(prod, 'monthly', preferNoTrial);
       const baseAnnualOffer = pickPreferredBaseOffer(prod, 'annual', preferNoTrial);
@@ -1015,8 +1012,8 @@ const relevant = (purchases || []).filter((p) => p.productId === SKU);
       let promoAnnual = baseAnnual;
 
       if (promoActive) {
-        const tagsMonthly = requiredTagsForSegment(segment, 'monthly', preferNoTrial);
-        const tagsAnnual = requiredTagsForSegment(segment, 'annual', preferNoTrial);
+        const tagsMonthly = requiredTagsForSegment(segment, 'monthly');
+        const tagsAnnual = requiredTagsForSegment(segment, 'annual');
 
         const offerMonthly = findSegmentOffer(prod, tagsMonthly, 'monthly');
         const offerAnnual = findSegmentOffer(prod, tagsAnnual, 'annual');
@@ -1032,7 +1029,7 @@ const relevant = (purchases || []).filter((p) => p.productId === SKU);
         promoAnnual,
       });
     },
-    [promoActive, segment, trialEverUsed]
+    [promoActive, segment]
   );
 
   const findOfferToken = useCallback(
@@ -1040,21 +1037,21 @@ const relevant = (purchases || []).filter((p) => p.productId === SKU);
       const prod = productRef.current;
       if (!prod?.subscriptionOfferDetails?.length) return null;
 
-      const preferNoTrial = !!trialEverUsed;
+      const preferNoTrial = true;
 
       if (!promoActive) {
         const basePref = pickPreferredBaseOffer(prod, kind, preferNoTrial);
         return basePref?.offerToken || null;
       }
 
-      const required = requiredTagsForSegment(segment, kind, preferNoTrial);
+      const required = requiredTagsForSegment(segment, kind);
       const segOffer = findSegmentOffer(prod, required, kind);
       if (segOffer?.offerToken) return segOffer.offerToken;
 
       const fallback = pickPreferredBaseOffer(prod, kind, preferNoTrial);
       return fallback?.offerToken || null;
     },
-    [promoActive, segment, trialEverUsed]
+    [promoActive, segment]
   );
 
   const requestBuy = useCallback(
@@ -1359,10 +1356,10 @@ if (!cancelled) {
         if (cancelled) return;
 
         setDisplayPrices({
-          baseMonthly: '₪19.90',
-          baseAnnual: '₪159.90',
-          promoMonthly: '₪19.90',
-          promoAnnual: '₪159.90',
+          baseMonthly: '₪29.90',
+          baseAnnual: '₪239.90',
+          promoMonthly: '₪29.90',
+          promoAnnual: '₪239.90',
         });
         setAvailable(true);
         return;
