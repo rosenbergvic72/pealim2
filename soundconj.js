@@ -4510,6 +4510,8 @@ anitsad: require('./assets/conj/other/anitsad.mp3'),
 anitsada: require('./assets/conj/other/anitsada.mp3'),
 animitamen: require('./assets/conj/other/animitamen.mp3'),
 animitamenet: require('./assets/conj/other/animitamenet.mp3'),
+hityadadti1: require('./assets/conj/other/hityadadti1.mp3'),
+hityadadti2: require('./assets/conj/other/hityadadti2.mp3'),
 
 
 

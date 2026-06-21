@@ -4719,26 +4719,55 @@
             "correctTranslationIndex": 0
             },
             {
-                "hebrewVerb": "להתידד",
-                "root": "י-ד-ד",
-                "binyan": "HITPA'EL",
-                "transliteration": "lehityaded",
-                "audioFile": "lehityaded.mp3",
-                "translationOptions": [
-                "Дружить",
-                "Играть",
-                "Спать",
-                "Строить"
-                ],
-                "translationOptionsEn": ["to be friends", "to play", "to sleep", "to build"],
-"translationOptionsFr": ["être ami", "jouer", "dormir", "construire"],
-"translationOptionsEs": ["ser amigo", "jugar", "dormir", "construir"],
-"translationOptionsPt": ["ser amigo", "brincar", "dormir", "construir"],
-"translationOptionsAr": ["صادق", "أن تصبح", "أن تحكي", "أن تستخدم"],
-"translationOptionsAm": ["ጓደኝነት መመስረት", "መጫወት", "መብላት", "መገንበት"]
-,
-                "correctTranslationIndex": 0
-                },
+  "hebrewVerb": "להתיידד",
+  "root": "י-ד-ד",
+  "binyan": "HITPA'EL",
+  "transliteration": "lehityaded",
+  "audioFile": "lehityaded.mp3",
+  "translationOptions": [
+    "Подружиться",
+    "Играть",
+    "Спать",
+    "Строить"
+  ],
+  "translationOptionsEn": [
+    "to become friends",
+    "to play",
+    "to sleep",
+    "to build"
+  ],
+  "translationOptionsFr": [
+    "devenir ami",
+    "jouer",
+    "dormir",
+    "construire"
+  ],
+  "translationOptionsEs": [
+    "hacerse amigo",
+    "jugar",
+    "dormir",
+    "construir"
+  ],
+  "translationOptionsPt": [
+    "tornar-se amigo",
+    "brincar",
+    "dormir",
+    "construir"
+  ],
+  "translationOptionsAr": [
+    "أن يصبح صديقًا",
+    "أن يلعب",
+    "أن ينام",
+    "أن يبني"
+  ],
+  "translationOptionsAm": [
+    "ጓደኛ መሆን",
+    "መጫወት",
+    "መተኛት",
+    "መገንባት"
+  ],
+  "correctTranslationIndex": 0
+},
                 {
                 "hebrewVerb": "לנשום",
                 "root": "נ-שׁ-ם",

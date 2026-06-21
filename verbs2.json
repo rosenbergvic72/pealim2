@@ -3934,23 +3934,23 @@
           { "text": "לגדול", "transliteration": "ligdol", "isCorrect": false }
         ]
       },
-      {
-        "verbRussian": "Дружить",
-        "verbEnglish": "to be friends",
-"verbFrench": "être ami",
-"verbSpanish": "ser amigo",
-"verbPortuguese": "ser amigo",
-"verbArabic": "أن يكون صديقاً",
-"verbAmharic": "ጓደኛ መሆን",
+  {
+  "verbRussian": "Подружиться",
+  "verbEnglish": "to become friends",
+  "verbFrench": "devenir ami",
+  "verbSpanish": "hacerse amigo",
+  "verbPortuguese": "tornar-se amigo",
+  "verbArabic": "أن يصبح صديقًا",
+  "verbAmharic": "ጓደኛ መሆን",
 
-        "audioFile": "lehityaded.mp3",
-        "verbHebrewOptions": [
-          { "text": "להתידד", "transliteration": "lehityaded", "isCorrect": true },
-          { "text": "לנשום", "transliteration": "linshom", "isCorrect": false },
-          { "text": "לגדול", "transliteration": "ligdol", "isCorrect": false },
-          { "text": "לספור", "transliteration": "lispor", "isCorrect": false }
-        ]
-      },
+  "audioFile": "lehityaded.mp3",
+  "verbHebrewOptions": [
+    { "text": "להתיידד", "transliteration": "lehityaded", "isCorrect": true },
+    { "text": "לנשום", "transliteration": "linshom", "isCorrect": false },
+    { "text": "לגדול", "transliteration": "ligdol", "isCorrect": false },
+    { "text": "לספור", "transliteration": "lispor", "isCorrect": false }
+  ]
+},
       {
         "verbRussian": "Дышать",
         "verbEnglish": "to breathe",

@@ -3621,22 +3621,22 @@
         "binyanOptions": ["PI'EL", "PA'AL", "HIF'IL", "HITPA'EL"],
         "correctTranslationIndex": 3
     },
-    {
-        "hebrewVerb": "להתידד",
-        "root": "י-ד-ד",
-        "translation": "Дружить",
-        "verbEnglish": "to be friends",
-"verbFrench": "être ami",
-"verbSpanish": "ser amigo",
-"verbPortuguese": "ser amigo",
-"verbArabic": "أن يكون صديقاً",
-"verbAmharic": "ጓደኛ መሆን",
-        "binyan": "HITPA'EL",
-        "transliteration": "lehityaded",
-        "audioFile": "lehityaded.mp3",
-        "binyanOptions": ["PI'EL", "PA'AL", "HIF'IL", "HITPA'EL"],
-        "correctTranslationIndex": 3
-    },
+   {
+  "hebrewVerb": "להתיידד",
+  "root": "י-ד-ד",
+  "translation": "Подружиться",
+  "verbEnglish": "to become friends",
+  "verbFrench": "devenir ami",
+  "verbSpanish": "hacerse amigo",
+  "verbPortuguese": "tornar-se amigo",
+  "verbArabic": "أن يصبح صديقًا",
+  "verbAmharic": "ጓደኛ መሆን",
+  "binyan": "HITPA'EL",
+  "transliteration": "lehityaded",
+  "audioFile": "lehityaded.mp3",
+  "binyanOptions": ["PI'EL", "PA'AL", "HIF'IL", "HITPA'EL"],
+  "correctTranslationIndex": 3
+},
     {
         "hebrewVerb": "לנשום",
         "root": "נ-שׁ-ם",
