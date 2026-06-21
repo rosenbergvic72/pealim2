@@ -207,7 +207,7 @@ export default ({ config }) => {
       IAP_API_KEY: iapApiKeyFromEnv,
     },
 
-    plugins: [
+plugins: [
   'expo-localization',
   'expo-notifications',
 
@@ -226,6 +226,14 @@ export default ({ config }) => {
   ],
 
   ...(isRu || disableIap ? [] : ['react-native-iap']),
+
+  [
+    '@sentry/react-native/expo',
+    {
+      organization: 'victor-r-ez',
+      project: 'react-native',
+    },
+  ],
 ],
   };
 };

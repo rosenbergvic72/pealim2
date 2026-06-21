@@ -12,6 +12,7 @@ import { Audio } from 'expo-av';
 import StartupGate from './StartupGate';
 
 import React, { useEffect, useRef, useState } from 'react';
+import * as Sentry from '@sentry/react-native';
 import * as TrackingTransparency from 'expo-tracking-transparency';
 
 import {
@@ -145,7 +146,17 @@ import Paywall from './screens/Paywall';
 import PaywallIOS from './screens/PaywallIOS'; 
 import { withMenuGate } from './src/iap/withMenuGate';
 
+Sentry.init({
+  dsn: 'https://1cfe11543c2a7b5d12b7bb5b764b37c1@o4511602556796928.ingest.de.sentry.io/4511602578227280',
 
+  enableAutoSessionTracking: true,
+
+  tracesSampleRate: 0.1,
+
+  beforeSend(event) {
+    return event;
+  },
+});
 
 const gate = withAccessGate;
 
@@ -387,7 +398,7 @@ function CompactHeader({ navigation, options, back, route }) {
 
 
 /* ===== ВНЕШНИЙ компонент — провайдеры (IAP + SafeArea) ===== */
-export default function App() {
+function App() {
   const extra = Constants.expoConfig?.extra || {};
 const isExpoGo = Constants.appOwnership === 'expo';
 
@@ -1107,3 +1118,5 @@ useEffect(() => {
     </>
   );
 }
+
+export default Sentry.wrap(App);
