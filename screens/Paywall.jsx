@@ -7,6 +7,7 @@ import {
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { CommonActions, useFocusEffect } from '@react-navigation/native';
 import { useIap } from '../src/iap/IapProvider';
+import * as FirebaseAnalytics from '../src/analytics/FirebaseAnalytics';
 
 // ★ Ограничение автоскейла шрифтов
 if (Text.defaultProps == null) Text.defaultProps = {};
@@ -459,7 +460,7 @@ function deepResetTo(nav, name, params) {
   nav.dispatch(CommonActions.reset({ index: 0, routes: [{ name, params }] }));
 }
 
-export default function Paywall({ navigation }) {
+export default function Paywall({ navigation, route }) {
   const {
     available, ready, buyMonthly, buyAnnual,
     hasPro, restore, displayPrices,
@@ -474,6 +475,7 @@ export default function Paywall({ navigation }) {
   } = useIap();
 
   const [langKey, setLangKey] = useState('english');
+  const [languageLoaded, setLanguageLoaded] = useState(false);
   const [plan, setPlan] = useState(null); // без автоподстановки
   const [code, setCode] = useState('');
   const [promoMsg, setPromoMsg] = useState('');
@@ -491,6 +493,36 @@ const [trialFlagReady, setTrialFlagReady] = useState(false);
   const isRTL = RTL_LANGS.has(langKey);
   const S = STR[langKey] || STR.english;
   const showTrial = !trialFlagReady ? true : !trialEverUsed;
+
+  const paywallLoggedRef = useRef(false);
+
+useEffect(() => {
+  if (paywallLoggedRef.current) return;
+  if (!trialFlagReady) return;
+if (!languageLoaded) return;
+
+  paywallLoggedRef.current = true;
+
+  FirebaseAnalytics.logFirebaseEvent('paywall_screen_opened', {
+    language: langKey,
+    from: route?.params?.from || 'unknown',
+    promo_discount: route?.params?.promoDiscount || null,
+    show_trial_text: showTrial,
+    has_pro: hasPro,
+    ready,
+    user_id: userId || null,
+  });
+}, [
+  trialFlagReady,
+    languageLoaded,
+  langKey,
+  showTrial,
+  hasPro,
+  ready,
+  userId,
+  route?.params?.from,
+  route?.params?.promoDiscount,
+]);
 
 
   const navigatedRef = useRef(false);
@@ -543,12 +575,16 @@ const [trialFlagReady, setTrialFlagReady] = useState(false);
   const showPost = hasPro && !!shouldShowPost;
 
   /* language load */
-  useEffect(() => {
-    (async () => {
+useEffect(() => {
+  (async () => {
+    try {
       const saved = await AsyncStorage.getItem('language');
       if (saved && STR[saved]) setLangKey(saved);
-    })();
-  }, []);
+    } finally {
+      setLanguageLoaded(true);
+    }
+  })();
+}, []);
 
   /* trial flag (hide free-trial messaging after any previous Pro on this device) */
   useEffect(() => {
@@ -869,7 +905,20 @@ const planBtn = (which, title, { baseAmt, segAmt, periodText, useStrike }) => {
         styles.planButtonBox,
         selected ? styles.planSelectedBox : styles.planIdleBox,
       ]}
-      onPress={() => setPlan(which)}
+      onPress={() => {
+  setPlan(which);
+
+ FirebaseAnalytics.logFirebaseEvent('plan_selected', {
+  plan: which,
+  language: langKey,
+  from: route?.params?.from || 'unknown',
+  promo_applied: promoOK,
+  base_price: baseAmt || null,
+  promo_price: segAmt || null,
+  price: segAmt || baseAmt || null,
+  user_id: userId || null,
+});
+}}
       activeOpacity={0.8}
     >
       <Text

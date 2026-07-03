@@ -24,6 +24,8 @@ import { useIap } from './src/iap/IapProvider'; // ⬅️ PRO
 import StatsReportModalMulti from './StatsReportModalMulti';
 import Constants from 'expo-constants';
 import UpgradeBanner from './UpgradeBanner';
+// import * as Analytics from './src/analytics/Analytics';
+
 
 const FONT_REG = 'mt-regular';
 const FONT_MED = 'mt-medium';
@@ -341,7 +343,6 @@ const trialEndsAt =
 const isLocked = name => !fullAccess && !isFreeName(name);
 
 const handlePress = exercise => {
-  // ❌ если залочено — просто игнорируем
   if (isLocked(exercise)) {
     return;
   }

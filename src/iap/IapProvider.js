@@ -13,6 +13,8 @@ import { Platform, Linking } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Constants from 'expo-constants';
 import * as Device from 'expo-device';
+import * as Analytics from '../analytics/Analytics';
+import * as FirebaseAnalytics from '../analytics/FirebaseAnalytics';
 
 const isSimulator = !Device.isDevice;
 
@@ -1054,58 +1056,72 @@ const relevant = (purchases || []).filter((p) => p.productId === SKU);
     [promoActive, segment]
   );
 
-  const requestBuy = useCallback(
-    async (kind) => {
-      try {
-        const selectedSku =
-          Platform.OS === 'ios'
-            ? kind === 'annual'
-              ? SKU_ANNUAL
-              : SKU_MONTHLY
-            : SKU;
+const requestBuy = useCallback(
+  async (kind) => {
+    try {
+      const selectedSku =
+        Platform.OS === 'ios'
+          ? kind === 'annual'
+            ? SKU_ANNUAL
+            : SKU_MONTHLY
+          : SKU;
 
-        const baseParams = {
-          sku: selectedSku,
-          andDangerouslyFinishTransactionAutomatically: false,
-        };
+      const baseParams = {
+        sku: selectedSku,
+        andDangerouslyFinishTransactionAutomatically: false,
+      };
 
-        if (Platform.OS === 'ios') {
-          const targetProd =
-            kind === 'annual' ? productRefAnnual.current : productRef.current;
+      if (Platform.OS === 'ios') {
+        const targetProd =
+          kind === 'annual' ? productRefAnnual.current : productRef.current;
 
-          if (!targetProd) {
-            console.log('[IAP] product not loaded', kind);
-            return;
-          }
-
-          purchasingRef.current = true;
-          await RNIap.requestSubscription(baseParams);
+        if (!targetProd) {
+          console.log('[IAP] product not loaded', kind);
           return;
         }
 
-        const offerToken = findOfferToken(kind);
-        if (!offerToken) {
-          console.log('[IAP] no offerToken for', kind);
-          return;
-        }
+        await Analytics.logSubscribeClicked(kind, {
+          platform: Platform.OS,
+          product_id: selectedSku,
+          segment,
+          promo_active: promoActive,
+        });
 
         purchasingRef.current = true;
-
-        await RNIap.requestSubscription({
-          ...baseParams,
-          subscriptionOffers: [{ sku: selectedSku, offerToken }],
-        });
-      } catch (e) {
-        console.log('[IAP][BUY ERROR]', {
-          code: e?.code || null,
-          message: e?.message || null,
-          debugMessage: e?.debugMessage || null,
-        });
-        purchasingRef.current = false;
+        await RNIap.requestSubscription(baseParams);
+        return;
       }
-    },
-    [findOfferToken]
-  );
+
+      const offerToken = findOfferToken(kind);
+      if (!offerToken) {
+        console.log('[IAP] no offerToken for', kind);
+        return;
+      }
+
+      await Analytics.logSubscribeClicked(kind, {
+        platform: Platform.OS,
+        product_id: selectedSku,
+        segment,
+        promo_active: promoActive,
+      });
+
+      purchasingRef.current = true;
+
+      await RNIap.requestSubscription({
+        ...baseParams,
+        subscriptionOffers: [{ sku: selectedSku, offerToken }],
+      });
+    } catch (e) {
+      console.log('[IAP][BUY ERROR]', {
+        code: e?.code || null,
+        message: e?.message || null,
+        debugMessage: e?.debugMessage || null,
+      });
+      purchasingRef.current = false;
+    }
+  },
+  [findOfferToken, promoActive, segment]
+);
 
   const buyMonthly = useCallback(async () => requestBuy('monthly'), [requestBuy]);
   const buyAnnual = useCallback(async () => requestBuy('annual'), [requestBuy]);
@@ -1445,6 +1461,14 @@ if (okAvailable) {
             }
 
             const applySuccessState = async () => {
+
+await Analytics.logPurchaseSuccess({
+  platform: Platform.OS,
+  product_id: productId,
+  segment,
+  promo_active: promoActive,
+});
+
               syncAccessStateRespectingCode(true);
               setTrialEverUsed(true);
               setJustPurchased(true);
@@ -1502,7 +1526,24 @@ if (okAvailable) {
           }
         });
 
-        subError = RNIap.purchaseErrorListener((err) => {
+        subError = RNIap.purchaseErrorListener(async (err) => {
+
+ if (err?.code === 'E_USER_CANCELLED') {
+
+        await FirebaseAnalytics.logFirebaseEvent('purchase_cancelled', {
+            platform: Platform.OS,
+        });
+
+    } else {
+
+        await FirebaseAnalytics.logFirebaseEvent('purchase_failed', {
+            platform: Platform.OS,
+            code: err?.code,
+            message: err?.message,
+        });
+
+    }
+
           console.log('[IAP][ERROR]', {
             code: err?.code || null,
             message: err?.message || null,

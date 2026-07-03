@@ -487,6 +487,28 @@ useEffect(() => {
   })();
 }, []);
 
+useEffect(() => {
+  const sub = AppState.addEventListener('change', async (state) => {
+    if (state === 'active') {
+      try {
+        await Audio.setAudioModeAsync({
+          playsInSilentModeIOS: true,
+          staysActiveInBackground: false,
+          shouldDuckAndroid: false,
+        });
+
+        await Audio.setIsEnabledAsync(true);
+
+        console.log('[Audio] restored');
+      } catch (e) {
+        console.log('[Audio] restore error', e);
+      }
+    }
+  });
+
+  return () => sub.remove();
+}, []);
+
 
   const [notificationsEnabled, setNotificationsEnabled] = useState(false);
   const [notificationsReady, setNotificationsReady] = useState(false);

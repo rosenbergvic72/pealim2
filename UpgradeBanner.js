@@ -9,6 +9,8 @@ import {
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Clipboard from 'expo-clipboard';
+import * as Analytics from './src/analytics/Analytics';
+
 
 const UPGRADE_BANNER_TEST_MODE = false;
 
@@ -645,6 +647,45 @@ export default function UpgradeBanner({
     ? 'trial_expired'
     : content.stage || 'default';
 
+    useEffect(() => {
+  if (hasPro) return;
+
+  const baseParams = {
+    language,
+    source: 'upgrade_banner',
+    banner_stage: currentBannerStage,
+    trial_ends_at: internalTrialEndsAt,
+    platform: Platform.OS,
+  };
+
+  if (trialExpired) {
+    Analytics.logTrialExpired(baseParams);
+    return;
+  }
+
+  if (!internalTrialActive) return;
+
+  const dayByStage = {
+    install_day: 0,
+    trial_day_1: 1,
+    trial_day_2: 2,
+    trial_day_3_last: 3,
+  };
+
+  const day = dayByStage[currentBannerStage];
+
+  if (day !== undefined) {
+    Analytics.logTrialDay(day, baseParams);
+  }
+}, [
+  hasPro,
+  language,
+  currentBannerStage,
+  internalTrialActive,
+  internalTrialEndsAt,
+  trialExpired,
+]);
+
   const trialInstanceKey = internalTrialEndsAt
     ? String(internalTrialEndsAt)
     : 'no_trial';
@@ -781,13 +822,21 @@ export default function UpgradeBanner({
 
                 <TouchableOpacity
                   activeOpacity={0.85}
-                  onPress={() =>
-                    navigation.navigate(getPaywallRoute(), {
-                      promoDiscount: PROMO_DISCOUNT,
-                      promoCodes: PROMO_CODES,
-                      from: 'trial_expired_banner',
-                    })
-                  }
+               onPress={() => {
+  Analytics.logPaywallOpened('trial_expired_banner', {
+    language,
+    banner_stage: currentBannerStage,
+    trial_expired: true,
+    promo_discount: PROMO_DISCOUNT,
+    trial_stage: currentBannerStage,
+  });
+
+  navigation.navigate(getPaywallRoute(), {
+    promoDiscount: PROMO_DISCOUNT,
+    promoCodes: PROMO_CODES,
+    from: 'trial_expired_banner',
+  });
+}}
                   style={styles.discountButton}
                 >
                   <Text
@@ -826,13 +875,27 @@ export default function UpgradeBanner({
     >
       <TouchableOpacity
         activeOpacity={0.9}
-        onPress={() => {
-          if (internalTrialActive) {
-            setExpanded(v => !v);
-          } else {
-            navigation.navigate(getPaywallRoute());
-          }
-        }}
+       onPress={() => {
+  if (internalTrialActive) {
+    setExpanded(v => !v);
+  } else {
+    const source = trialExpired
+      ? 'expired_banner_container'
+      : 'default_banner_container';
+
+    Analytics.logPaywallOpened(source, {
+      language,
+      banner_stage: currentBannerStage,
+      trial_expired: trialExpired,
+      trial_active: internalTrialActive,
+      trial_stage: currentBannerStage,
+    });
+
+    navigation.navigate(getPaywallRoute(), {
+      from: source,
+    });
+  }
+}}
         style={styles.touch}
       >
         <View style={[styles.inner, !showFull && styles.compactInner]}>
@@ -868,11 +931,19 @@ export default function UpgradeBanner({
     {showFull && (
       <TouchableOpacity
         activeOpacity={0.85}
-        onPress={() =>
-          navigation.navigate(getPaywallRoute(), {
-            from: 'trial_banner',
-          })
-        }
+     onPress={() => {
+  Analytics.logPaywallOpened('trial_banner', {
+    language,
+    banner_stage: currentBannerStage,
+    trial_active: true,
+    trial_ends_at: internalTrialEndsAt,
+    trial_stage: currentBannerStage,
+  });
+
+  navigation.navigate(getPaywallRoute(), {
+    from: 'trial_banner',
+  });
+}}
         style={styles.secondaryButton}
       >
         <Text style={styles.secondaryButtonText} maxFontSizeMultiplier={1.2}>
@@ -894,15 +965,28 @@ export default function UpgradeBanner({
 )}
 
           {!internalTrialActive && (
-            <TouchableOpacity
-              activeOpacity={0.85}
-              onPress={() => navigation.navigate(getPaywallRoute())}
-              style={styles.payButton}
-            >
-              <Text style={styles.payButtonText} maxFontSizeMultiplier={1.2}>
-                {t.defaultTitle}
-              </Text>
-            </TouchableOpacity>
+          <TouchableOpacity
+  activeOpacity={0.85}
+  onPress={() => {
+    const source = 'expired_banner_compact';
+
+    Analytics.logPaywallOpened(source, {
+      language,
+      banner_stage: currentBannerStage,
+      trial_expired: trialExpired,
+      trial_stage: currentBannerStage,
+    });
+
+    navigation.navigate(getPaywallRoute(), {
+      from: source,
+    });
+  }}
+  style={styles.payButton}
+>
+  <Text style={styles.payButtonText} maxFontSizeMultiplier={1.2}>
+    {t.defaultTitle}
+  </Text>
+</TouchableOpacity>
           )}
         </View>
       </TouchableOpacity>

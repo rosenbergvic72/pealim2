@@ -4,6 +4,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import Constants from 'expo-constants';
 import { useIap } from './src/iap/IapProvider';
+import * as Analytics from './src/analytics/Analytics';
 
 const FIRST_LAUNCH_KEY = 'verbify_first_launch_completed';
 const LANGUAGE_KEY = 'language';
@@ -298,6 +299,19 @@ export default function StartupGate() {
               justStarted: false,
             }
           : await checkInternalTrial(userId);
+
+          if (
+  !hasPro &&
+  internalTrial.justStarted &&
+  internalTrial.active
+) {
+  await Analytics.logTrialStarted({
+    user_id: userId,
+    started_at: internalTrial.startedAt,
+    ends_at: internalTrial.endsAt,
+    source: 'startup_gate',
+  });
+}
 
         console.log('[StartupGate] savedLanguage =', savedLanguage);
         console.log('[StartupGate] firstLaunchCompleted =', firstLaunchCompleted);
