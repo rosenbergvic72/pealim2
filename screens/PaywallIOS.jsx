@@ -611,9 +611,9 @@ export default function PaywallIOS({ navigation }) {
               {showTrialHeader ? S.headerTrial : S.headerNoTrial}
             </Text>
 
-            {showTrialHeader && (
+            {/* {showTrialHeader && (
               <Text style={[styles.headerTitle, styles.headerEmph]}>{S.headerTrialBadge}</Text>
-            )}
+            )} */}
           </View>
 
           <Text style={styles.choosePlan}>{S.choosePlan}</Text>
