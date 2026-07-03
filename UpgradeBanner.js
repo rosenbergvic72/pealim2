@@ -93,6 +93,8 @@ const texts = {
     compactTrialDay2: '🔥 Второй день полного доступа',
     compactTrialDay3Last: '⏳ Последний день полного доступа',
     compactTrialExpired: '🔓 Получить полный доступ ко всем упражнениям',
+    promoHelp:
+'📋 Скопируйте и запомните промокод.\n\nЕсли пункт «Вставить» не появится, введите промокод вручную.',
   },
 
   en: {
@@ -151,6 +153,8 @@ const texts = {
     compactTrialDay2: '🔥 Second day of full access',
     compactTrialDay3Last: '⏳ Last day of full access',
     compactTrialExpired: '🔓 Get full access to all exercises',
+    promoHelp:
+  '📋 Copy and remember the promo code before opening the App Store.\n\nIf the Paste option does not appear when entering the code, enter the promo code manually.',
   },
 
   fr: {
@@ -209,6 +213,8 @@ const texts = {
     compactTrialDay2: "🔥 Deuxième jour d'accès complet",
     compactTrialDay3Last: "⏳ Dernier jour d'accès complet",
     compactTrialExpired: '🔓 Obtenir l’accès complet à tous les exercices',
+    promoHelp:
+'📋 Copiez et mémorisez le code promo avant d’ouvrir l’App Store.\n\nSi l’option « Coller » n’apparaît pas lors de la saisie du code, saisissez le code promo manuellement.',
   },
 
   es: {
@@ -267,6 +273,8 @@ const texts = {
     compactTrialDay2: '🔥 Segundo día de acceso completo',
     compactTrialDay3Last: '⏳ Último día de acceso completo',
     compactTrialExpired: '🔓 Obtener acceso completo a todos los ejercicios',
+    promoHelp:
+'📋 Copia y recuerda el código promocional antes de abrir App Store.\n\nSi la opción « Pegar » no aparece al introducir el código, introduce el código promocional manualmente.',
   },
 
   pt: {
@@ -325,6 +333,8 @@ const texts = {
     compactTrialDay2: '🔥 Segundo dia de acesso total',
     compactTrialDay3Last: '⏳ Último dia de acesso total',
     compactTrialExpired: '🔓 Obter acesso completo a todos os exercícios',
+    promoHelp:
+'📋 Copie e memorize o código promocional antes de abrir a App Store.\n\nSe a opção « Colar » não aparecer ao inserir o código, digite o código promocional manualmente.',
   },
 
   ar: {
@@ -383,6 +393,8 @@ const texts = {
     compactTrialDay2: '🔥 اليوم الثاني من الوصول الكامل',
     compactTrialDay3Last: '⏳ اليوم الأخير من الوصول الكامل',
     compactTrialExpired: '🔓 احصل على وصول كامل إلى جميع التمارين',
+    promoHelp:
+'📋 انسخ واحفظ الرمز الترويجي قبل فتح App Store.\n\nإذا لم يظهر خيار « لصق » عند إدخال الرمز، فأدخل الرمز الترويجي يدويًا.',
   },
 
   am: {
@@ -441,6 +453,8 @@ const texts = {
     compactTrialDay2: '🔥 የሙሉ መዳረሻ ሁለተኛ ቀን',
     compactTrialDay3Last: '⏳ የሙሉ መዳረሻ የመጨረሻ ቀን',
     compactTrialExpired: '🔓 ለሁሉም ልምምዶች ሙሉ መዳረሻ ያግኙ',
+    promoHelp:
+'📋 ወደ App Store ከመሄድዎ በፊት የፕሮሞ ኮዱን ይቅዱ እና ያስታውሱት።\n\nኮዱን ሲያስገቡ « Paste » የሚለው አማራጭ ካልታየ፣ የፕሮሞ ኮዱን በእጅ ያስገቡ።',
   },
 };
 
@@ -819,6 +833,15 @@ export default function UpgradeBanner({
                     />
                   )}
                 </View>
+
+                {Platform.OS === 'ios' && (
+  <Text
+    style={styles.promoHelp}
+    maxFontSizeMultiplier={1.2}
+  >
+    {t.promoHelp}
+  </Text>
+)}
 
                 <TouchableOpacity
                   activeOpacity={0.85}
@@ -1199,4 +1222,12 @@ promoCode: {
     fontSize: 13,
     fontWeight: '900',
   },
+  promoHelp: {
+  color: 'rgba(255,255,255,0.92)',
+  fontSize: 11,
+  lineHeight: 15,
+  textAlign: 'center',
+  marginTop: 8,
+  marginBottom: 4,
+},
 });

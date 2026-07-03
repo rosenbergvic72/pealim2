@@ -18,7 +18,7 @@ const INTERNAL_TRIAL_KEY = 'verbify_internal_trial_v1';
   true  = использовать сервер /trial/start
   false = старая локальная схема без сервера
 */
-const USE_SERVER_INTERNAL_TRIAL = true;
+const USE_SERVER_INTERNAL_TRIAL = false;
 
 const VERIFY_BASE_URL =
   Constants?.expoConfig?.extra?.IAP_VERIFY_BASE_URL ||
