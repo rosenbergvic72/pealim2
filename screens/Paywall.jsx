@@ -133,7 +133,7 @@ const STR = {
   freePreview: 'CONTINUE FOR FREE',
   freePreviewSubtitle: 'Trial period • Full access',
   fullAccess: 'Full access',
-  limitedAccess: 'Train 350 Hebrew verbs',
+  limitedAccess: 'Train 400+ Hebrew verbs',
   exercises12: 'Exercises 1 and 2 are always free',
   postTitle: 'Subscription activated 🎉',
   postBody:
@@ -178,7 +178,7 @@ const STR = {
 
     // freePreviewSubtitle: 'Тренируйте 350 глаголов иврита',
     fullAccess: 'Полный доступ',
-    limitedAccess: 'Тренируйте 350 глаголов иврита',
+    limitedAccess: 'Тренируйте 400+ глаголов иврита',
     exercises12: 'Упражнения 1 и 2 доступны всегда',
     postTitle: 'Подписка активирована 🎉',
     postBody:
@@ -223,7 +223,7 @@ const STR = {
   freePreview: 'CONTINUER GRATUITEMENT',
   freePreviewSubtitle: 'Période d’essai • Accès complet',
   fullAccess: 'Accès complet',
-  limitedAccess: 'Entraîne 350 verbes en hébreu',
+  limitedAccess: 'Entraîne 400+ verbes en hébreu',
   exercises12: 'Les exercices 1 et 2 restent toujours gratuits',
   postTitle: 'Abonnement activé 🎉',
   postBody:
@@ -268,7 +268,7 @@ español: {
   freePreview: 'CONTINUAR GRATIS',
   freePreviewSubtitle: 'Período de prueba • Acceso completo',
   fullAccess: 'Acceso completo',
-  limitedAccess: 'Entrena 350 verbos en hebreo',
+  limitedAccess: 'Entrena 400+ verbos en hebreo',
   exercises12: 'Los ejercicios 1 y 2 siempre son gratuitos',
   postTitle: 'Suscripción activada 🎉',
   postBody:
@@ -313,7 +313,7 @@ português: {
   freePreview: 'CONTINUAR GRÁTIS',
   freePreviewSubtitle: 'Período de teste • Acesso total',
   fullAccess: 'Acesso total',
-  limitedAccess: 'Treine 350 verbos em hebraico',
+  limitedAccess: 'Treine 400+ verbos em hebraico',
   exercises12: 'Os exercícios 1 e 2 continuam gratuitos',
   postTitle: 'Assinatura ativada 🎉',
   postBody:
@@ -358,7 +358,7 @@ português: {
   freePreview: 'المتابعة مجانًا',
   freePreviewSubtitle: 'فترة تجريبية • وصول كامل',
   fullAccess: 'وصول كامل',
-  limitedAccess: 'تدرّب على 350 فعلًا عبريًا',
+  limitedAccess: 'تدرّب على 400+ فعلًا عبريًا',
   exercises12: 'التمرينان 1 و2 متاحان دائمًا مجانًا',
   postTitle: 'تم تفعيل الاشتراك 🎉',
   postBody:
@@ -403,7 +403,7 @@ português: {
   freePreview: 'በነፃ ቀጥል',
   freePreviewSubtitle: 'የሙከራ ጊዜ • ሙሉ መዳረሻ',
   fullAccess: 'ሙሉ መዳረሻ',
-  limitedAccess: '350 የዕብራይስጥ ግሶችን ይለማመዱ',
+  limitedAccess: '400+ የዕብራይስጥ ግሶችን ይለማመዱ',
   exercises12: 'ልምምድ 1 እና 2 ሁልጊዜ በነፃ ይገኛሉ',
   postTitle: 'መመዝገብ ተከናውኗል 🎉',
   postBody:

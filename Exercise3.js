@@ -18,6 +18,7 @@ import verbs11RU from './verbs11RU.json';
 // import verbs11RU from './verbs11RUcopy.json';
 import soundsConj from './soundconj';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as FirebaseAnalytics from './src/analytics/FirebaseAnalytics';
 
 /* ================= helpers ================= */
 
@@ -61,6 +62,24 @@ const normalizeBinyan = (s) =>
 /* ================= component ================= */
 
 const Exercise3 = ({ navigation }) => {
+
+const exercise3LoggedRef=useRef(false);
+
+useFocusEffect(
+useCallback(()=>{
+if(exercise3LoggedRef.current)return;
+exercise3LoggedRef.current=true;
+
+FirebaseAnalytics.logFirebaseEvent('exercise3ru',{
+screen:'exercise3ru'
+});
+
+return()=>{
+exercise3LoggedRef.current=false;
+};
+},[])
+);
+  
   const [correctSound, setCorrectSound] = useState();
   const [incorrectSound, setIncorrectSound] = useState();
   const [exitConfirmationVisible, setExitConfirmationVisible] = useState(false);

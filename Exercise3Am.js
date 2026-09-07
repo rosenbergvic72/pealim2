@@ -15,6 +15,7 @@ import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-nat
 import verbs1RU from './verbs11RU.json'; // Assuming this file contains the data for verbs
 import soundsConj from './soundconj'; // Импорт дополнительных звуков
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as FirebaseAnalytics from './src/analytics/FirebaseAnalytics';
 
 
 const HEBREW_FONT = Platform.OS === 'android' ? 'mt-semibold' : 'mt-bold';
@@ -71,6 +72,24 @@ const normalizeBinyan = (s) =>
 
 
 const Exercise3Am = ({ navigation }) => {
+
+const exercise3LoggedRef=useRef(false);
+
+useFocusEffect(
+useCallback(()=>{
+if(exercise3LoggedRef.current)return;
+exercise3LoggedRef.current=true;
+
+FirebaseAnalytics.logFirebaseEvent('exercise3am',{
+screen:'exercise3am'
+});
+
+return()=>{
+exercise3LoggedRef.current=false;
+};
+},[])
+);
+
   const [correctSound, setCorrectSound] = useState();
   const [incorrectSound, setIncorrectSound] = useState();
   const [exitConfirmationVisible, setExitConfirmationVisible] = useState(false);

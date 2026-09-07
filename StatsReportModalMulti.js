@@ -73,14 +73,61 @@ const EX_SUFFIX = {
 
 /* Базовые упражнения — общий порядок */
 const BASE_EXERCISES = [
-  { baseId: 'exercise1', index: 1 },
-  { baseId: 'exercise2', index: 2 },
-  { baseId: 'exercise3', index: 3 },
-  { baseId: 'exercise5', index: 4 },
-  { baseId: 'exercise6', index: 5 },
-  { baseId: 'exercise8', index: 6 },
-  { baseId: 'exercise4', index: 7 },
-  { baseId: 'exercise7', index: 8 },
+  {
+    baseId: 'exercise1',
+    index: 1,
+    useLanguageSuffix: true,
+  },
+  {
+    baseId: 'exercise2',
+    index: 2,
+    useLanguageSuffix: true,
+  },
+  {
+    baseId: 'prepositionPronouns',
+    index: 3,
+    useLanguageSuffix: false,
+  },
+  // {
+  //   baseId: 'prepositionAfterVerbs',
+  //   index: 4,
+  //   useLanguageSuffix: false,
+  // },
+  {
+    baseId: 'exercise3',
+    index: 5,
+    useLanguageSuffix: true,
+  },
+  {
+    baseId: 'exercise5',
+    index: 6,
+    useLanguageSuffix: true,
+  },
+  {
+    baseId: 'exercise6',
+    index: 7,
+    useLanguageSuffix: true,
+  },
+  {
+    baseId: 'exercise8',
+    index: 8,
+    useLanguageSuffix: true,
+  },
+   {
+    baseId: 'prepositionAfterVerbs',
+    index: 4,
+    useLanguageSuffix: false,
+  },
+  {
+    baseId: 'exercise4',
+    index: 9,
+    useLanguageSuffix: true,
+  },
+  {
+    baseId: 'exercise7',
+    index: 10,
+    useLanguageSuffix: true,
+  },
 ];
 
 /* ===== ЛОКАЛИ ДЛЯ ДАТ ===== */
@@ -125,16 +172,21 @@ const STRINGS = {
       '30d': '1 месяц',
       '60d': '2 месяца',
     },
-    exercises: {
-      exercise1: 'Упражнение 1',
-      exercise2: 'Упражнение 2',
-      exercise3: 'Упражнение 3',
-      exercise5: 'Упражнение 4',
-      exercise6: 'Упражнение 5',
-      exercise8: 'Упражнение 6',
-      exercise4: 'Упражнение 7',
-      exercise7: 'Упражнение 8',
-    },
+exercises: {
+  exercise1: 'Упражнение 1',
+  exercise2: 'Упражнение 2',
+
+  prepositionPronouns: 'Предлоги 1',
+  
+
+  exercise3: 'Упражнение 3',
+  exercise5: 'Упражнение 4',
+  exercise6: 'Упражнение 5',
+  exercise8: 'Упражнение 6',
+  prepositionAfterVerbs: 'Предлоги 2',
+  exercise4: 'Упражнение 7',
+  exercise7: 'Упражнение 8',
+},
   },
 
   en: {
@@ -166,15 +218,19 @@ const STRINGS = {
       '60d': '2 months',
     },
     exercises: {
-      exercise1: 'Exercise 1',
-      exercise2: 'Exercise 2',
-      exercise3: 'Exercise 3',
-      exercise5: 'Exercise 4',
-      exercise6: 'Exercise 5',
-      exercise8: 'Exercise 6',
-      exercise4: 'Exercise 7',
-      exercise7: 'Exercise 8',
-    },
+  exercise1: 'Exercise 1',
+  exercise2: 'Exercise 2',
+
+   prepositionPronouns: 'Prepositions 1',
+prepositionAfterVerbs: 'Prepositions 2',
+
+  exercise3: 'Exercise 3',
+  exercise5: 'Exercise 4',
+  exercise6: 'Exercise 5',
+  exercise8: 'Exercise 6',
+  exercise4: 'Exercise 7',
+  exercise7: 'Exercise 8',
+},
   },
 
   fr: {
@@ -205,16 +261,19 @@ const STRINGS = {
       '30d': '1 mois',
       '60d': '2 mois',
     },
-    exercises: {
-      exercise1: 'Exercice 1',
-      exercise2: 'Exercice 2',
-      exercise3: 'Exercice 3',
-      exercise5: 'Exercice 4',
-      exercise6: 'Exercice 5',
-      exercise8: 'Exercice 6',
-      exercise4: 'Exercice 7',
-      exercise7: 'Exercice 8',
-    },
+exercises: {
+  exercise1: 'Exercice 1',
+  exercise2: 'Exercice 2',
+
+  prepositionPronouns: 'Prépositions 1',
+prepositionAfterVerbs: 'Prépositions 2',
+  exercise3: 'Exercice 3',
+  exercise5: 'Exercice 4',
+  exercise6: 'Exercice 5',
+  exercise8: 'Exercice 6',
+  exercise4: 'Exercice 7',
+  exercise7: 'Exercice 8',
+},
   },
 
   es: {
@@ -245,16 +304,19 @@ const STRINGS = {
       '30d': '1 mes',
       '60d': '2 meses',
     },
-    exercises: {
-      exercise1: 'Ejercicio 1',
-      exercise2: 'Ejercicio 2',
-      exercise3: 'Ejercicio 3',
-      exercise5: 'Ejercicio 4',
-      exercise6: 'Ejercicio 5',
-      exercise8: 'Ejercicio 6',
-      exercise4: 'Ejercicio 7',
-      exercise7: 'Ejercicio 8',
-    },
+exercises: {
+  exercise1: 'Ejercicio 1',
+  exercise2: 'Ejercicio 2',
+
+  prepositionPronouns: 'Preposiciones 1',
+prepositionAfterVerbs: 'Preposiciones 2',
+  exercise3: 'Ejercicio 3',
+  exercise5: 'Ejercicio 4',
+  exercise6: 'Ejercicio 5',
+  exercise8: 'Ejercicio 6',
+  exercise4: 'Ejercicio 7',
+  exercise7: 'Ejercicio 8',
+},
   },
 
   pt: {
@@ -285,16 +347,19 @@ const STRINGS = {
       '30d': '1 mês',
       '60d': '2 meses',
     },
-    exercises: {
-      exercise1: 'Exercício 1',
-      exercise2: 'Exercício 2',
-      exercise3: 'Exercício 3',
-      exercise5: 'Exercício 4',
-      exercise6: 'Exercício 5',
-      exercise8: 'Exercício 6',
-      exercise4: 'Exercício 7',
-      exercise7: 'Exercício 8',
-    },
+exercises: {
+  exercise1: 'Exercício 1',
+  exercise2: 'Exercício 2',
+
+  prepositionPronouns: 'Preposições 1',
+prepositionAfterVerbs: 'Preposições 2',
+  exercise3: 'Exercício 3',
+  exercise5: 'Exercício 4',
+  exercise6: 'Exercício 5',
+  exercise8: 'Exercício 6',
+  exercise4: 'Exercício 7',
+  exercise7: 'Exercício 8',
+},
   },
 
   am: {
@@ -325,16 +390,19 @@ const STRINGS = {
       '30d': '1 ወር',
       '60d': '2 ወራት',
     },
-    exercises: {
-      exercise1: 'ልምምድ 1',
-      exercise2: 'ልምምድ 2',
-      exercise3: 'ልምምድ 3',
-      exercise5: 'ልምምድ 4',
-      exercise6: 'ልምምድ 5',
-      exercise8: 'ልምምድ 6',
-      exercise4: 'ልምምድ 7',
-      exercise7: 'ልምምድ 8',
-    },
+ exercises: {
+  exercise1: 'ልምምድ 1',
+  exercise2: 'ልምምድ 2',
+
+  prepositionPronouns: 'መስተዋድዶች 1',
+prepositionAfterVerbs: 'መስተዋድዶች 2',
+  exercise3: 'ልምምድ 3',
+  exercise5: 'ልምምድ 4',
+  exercise6: 'ልምምድ 5',
+  exercise8: 'ልምምድ 6',
+  exercise4: 'ልምምድ 7',
+  exercise7: 'ልምምድ 8',
+},
   },
 
   ar: {
@@ -365,29 +433,50 @@ const STRINGS = {
       '30d': 'شهر واحد',
       '60d': 'شهران',
     },
-    exercises: {
-      exercise1: 'التمرين 1',
-      exercise2: 'التمرين 2',
-      exercise3: 'التمرين 3',
-      exercise5: 'التمرين 4',
-      exercise6: 'التمرين 5',
-      exercise8: 'التمرين 6',
-      exercise4: 'التمرين 7',
-      exercise7: 'التمرين 8',
-    },
+exercises: {
+  exercise1: 'التمرين 1',
+  exercise2: 'التمرين 2',
+
+  prepositionPronouns: 'حروف الجر 1',
+prepositionAfterVerbs: 'حروف الجر 2',
+  exercise3: 'التمرين 3',
+  exercise5: 'التمرين 4',
+  exercise6: 'التمرين 5',
+  exercise8: 'التمرين 6',
+  exercise4: 'التمرين 7',
+  exercise7: 'التمرين 8',
+},
   },
 };
 
 /* ===== ВСПОМОГАТЕЛЬНОЕ: список упражнений под язык ===== */
 function buildExercisesForLang(language) {
-  const lang = STRINGS[language] ? language : 'ru';
-  const suffix = EX_SUFFIX[lang] ?? '';
-  const labels = STRINGS[lang].exercises;
+  const lang =
+    STRINGS[language]
+      ? language
+      : 'ru';
 
-  return BASE_EXERCISES.map((item) => ({
-    storageId: `${item.baseId}${suffix},`.replace(/,$/, ''), // защита от случайной запятой
-    label: labels[item.baseId] || `Exercise ${item.index}`,
-  }));
+  const suffix =
+    EX_SUFFIX[lang] ?? '';
+
+  const labels =
+    STRINGS[lang].exercises;
+
+  return BASE_EXERCISES.map(
+    item => {
+      const storageId =
+        item.useLanguageSuffix
+          ? `${item.baseId}${suffix}`
+          : item.baseId;
+
+      return {
+        storageId,
+        label:
+          labels[item.baseId] ||
+          `Exercise ${item.index}`,
+      };
+    }
+  );
 }
 
 /* ==================== КОМПОНЕНТ ==================== */

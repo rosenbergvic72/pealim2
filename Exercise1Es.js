@@ -24,6 +24,7 @@ import VerbListModal from './VerbListModal';
 import ExcludedVerbsModal1 from './ExcludedVerbsModal1';
 
 import animation from './assets/Animation - 1723020554284.json';
+import * as FirebaseAnalytics from './src/analytics/FirebaseAnalytics';
 
 const EXERCISE1_COUNT_KEY = 'exercise1_selected_count';
 const DEFAULT_EXERCISE_COUNT = 12;
@@ -241,6 +242,25 @@ const handleSpeakerPress = async (audioFile) => {
 /* ---------- main component ---------- */
 
 const Exercise1Es = ({ navigation }) => {
+
+const exercise1LoggedRef=useRef(false);
+
+useFocusEffect(
+useCallback(()=>{
+if(exercise1LoggedRef.current)return;
+exercise1LoggedRef.current=true;
+
+FirebaseAnalytics.logFirebaseEvent('exercise1es',{
+screen:'exercise1es'
+});
+
+return()=>{
+exercise1LoggedRef.current=false;
+};
+},[])
+);
+
+
   const insets = useSafeAreaInsets();
 
   const EXCLUDED_KEY = 'exercise1_excluded_verbs';
@@ -260,6 +280,7 @@ const Exercise1Es = ({ navigation }) => {
 
   const [currentIndex, setCurrentIndex] = useState(0);
   const [showNextButton, setShowNextButton] = useState(false);
+  const [answerGiven, setAnswerGiven] = useState(false);
   const [optionsOrder, setOptionsOrder] = useState([]);
   const [shuffledVerbs, setShuffledVerbs] = useState([]);
 
@@ -573,14 +594,30 @@ const Exercise1Es = ({ navigation }) => {
     setVerbListForModal(verbList);
 
     setCurrentIndex(0);
-    setCorrectAnswers(0);
-    setIncorrectAnswers(0);
-    setProgress(0);
-    setShowNextButton(false);
-    setExerciseCompleted(false);
-    setOptionsOrder([]);
-    setStatisticsUpdated(false);
-    optionsContainerAnim.setValue(0);
+setProgress(0);
+setCorrectAnswers(0);
+setIncorrectAnswers(0);
+
+setExerciseCompleted(
+false
+);
+
+setShowNextButton(
+false
+);
+
+setAnswerGiven(
+false
+);
+
+setOptionsOrder([]);
+
+setStatisticsUpdated(
+false
+);
+
+optionsContainerAnim
+.setValue(0);
   };
 
   useEffect(() => {
@@ -744,6 +781,8 @@ const Exercise1Es = ({ navigation }) => {
 
     const isCorrect = selected.isCorrect;
 
+    setAnswerGiven(true);
+
     setOptionsOrder((prev) =>
       prev.map((opt, i) => ({
         ...opt,
@@ -773,6 +812,22 @@ const Exercise1Es = ({ navigation }) => {
     setTimeout(() => setShowNextButton(true), 1000);
   };
 
+  const openFullVerbCard = () => {
+  if (!answerGiven) return;
+
+  const currentVerb = shuffledVerbs[currentIndex];
+  if (!currentVerb) return;
+
+  const verbIndex = verbsData.indexOf(currentVerb);
+  if (verbIndex < 0) return;
+
+  navigation.navigate('VerbDetails', {
+    index: verbIndex,
+    language: 'es',
+    openedFromExercise: true,
+  });
+};
+
   const animateTranslation = () => {
     Animated.timing(optionsContainerAnim, {
       toValue: 0,
@@ -796,6 +851,7 @@ const Exercise1Es = ({ navigation }) => {
 
     optionsContainerAnim.setValue(-500);
     setShowNextButton(false);
+    setAnswerGiven(false);
 
     const nextIndex = currentIndex + 1;
     if (nextIndex >= shuffledVerbs.length) {
@@ -855,6 +911,8 @@ const Exercise1Es = ({ navigation }) => {
     setIncorrectAnswers(0);
     setProgress(0);
     setShowNextButton(false);
+    setAnswerGiven(false);
+    setOptionsOrder([]);
     setExerciseCompleted(false);
     setStatisticsUpdated(false);
     setCurrentIndex(0);
@@ -1007,6 +1065,8 @@ const Exercise1Es = ({ navigation }) => {
                 onExcludePress={() => handleExcludeVerb(shuffledVerbs[currentIndex]?.hebrewVerb)}
                 onPinTogglePress={() => handleTogglePinnedVerb(shuffledVerbs[currentIndex]?.hebrewVerb)}
                 onOpenManageModal={() => setIsExcludedModalVisible(true)}
+                  fullCardEnabled={answerGiven}
+  onOpenFullCard={openFullVerbCard}
               />
             )}
 

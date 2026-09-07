@@ -20,6 +20,7 @@ import { heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import VerbListModal2 from './VerbListModal2';
 import shuffleArray from './utils/shuffleArray';
+import * as FirebaseAnalytics from './src/analytics/FirebaseAnalytics';
 
 const FONT_REG = 'mt-regular';
 const FONT_MED = 'mt-medium';
@@ -363,6 +364,24 @@ const TypewriterHebrewHighlightedRTL = ({
 /* ===================================================================== */
 
 const Exercise8Fr = () => {
+
+  const exercise8LoggedRef=useRef(false);
+
+useFocusEffect(
+useCallback(()=>{
+if(exercise8LoggedRef.current)return;
+exercise8LoggedRef.current=true;
+
+FirebaseAnalytics.logFirebaseEvent('exercise6fr',{
+screen:'exercise6fr'
+});
+
+return()=>{
+exercise8LoggedRef.current=false;
+};
+},[])
+);
+
   const [verbs, setVerbs] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [displayPairs, setDisplayPairs] = useState([]);

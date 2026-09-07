@@ -89,6 +89,11 @@ import Exercise2Pt from './Exercise2Pt';
 import Exercise2Ar from './Exercise2Ar';
 import Exercise2Am from './Exercise2Am';
 
+import PrepositionExercise from './PrepositionExercise';
+import PrepositionVerbExercise from './PrepositionVerbExercise';
+import VerbLibraryScreen from './VerbLibraryScreen';
+import VerbDetailsScreen from './VerbDetailsScreen';
+
 import Exercise3 from './Exercise3';
 import Exercise3En from './Exercise3En';
 import Exercise3Fr from './Exercise3Fr';
@@ -844,6 +849,219 @@ useEffect(() => {
     return opts;
   };
 
+  const PREPOSITION_HEADER_CONFIG = {
+  ru: {
+    title: 'Предлоги 1',
+    rtl: false,
+  },
+
+  en: {
+    title: 'Prepositions 1',
+    rtl: false,
+  },
+
+  fr: {
+    title: 'Prépositions 1',
+    rtl: false,
+  },
+
+  es: {
+    title: 'Preposiciones 1',
+    rtl: false,
+  },
+
+  pt: {
+    title: 'Preposições 1',
+    rtl: false,
+  },
+
+  ar: {
+    title: 'حروف الجر 1',
+    rtl: true,
+  },
+
+  am: {
+    title: 'መስተዋድዶች 1',
+    rtl: false,
+  },
+};
+
+const getPrepositionHeaderConfig = language => {
+  const normalizedLanguage =
+    String(language || 'ru')
+      .trim()
+      .toLowerCase();
+
+  const aliases = {
+    russian: 'ru',
+    english: 'en',
+    french: 'fr',
+    spanish: 'es',
+    portuguese: 'pt',
+    arabic: 'ar',
+    amharic: 'am',
+
+    rus: 'ru',
+    eng: 'en',
+    fra: 'fr',
+    spa: 'es',
+    por: 'pt',
+    ara: 'ar',
+    amh: 'am',
+  };
+
+  const languageCode =
+    aliases[normalizedLanguage] ||
+    normalizedLanguage;
+
+  return (
+    PREPOSITION_HEADER_CONFIG[
+      languageCode
+    ] ||
+    PREPOSITION_HEADER_CONFIG.ru
+  );
+};
+
+const PREPOSITION_2_HEADER_CONFIG = {
+  ru: {
+    title: 'Предлоги 2',
+    rtl: false,
+  },
+
+  en: {
+    title: 'Prepositions 2',
+    rtl: false,
+  },
+
+  fr: {
+    title: 'Prépositions 2',
+    rtl: false,
+  },
+
+  es: {
+    title: 'Preposiciones 2',
+    rtl: false,
+  },
+
+  pt: {
+    title: 'Preposições 2',
+    rtl: false,
+  },
+
+  ar: {
+    title: 'حروف الجر 2',
+    rtl: true,
+  },
+
+  am: {
+    title: 'መስተዋድዶች 2',
+    rtl: false,
+  },
+};
+
+const getPreposition2HeaderConfig = language => {
+  const normalizedLanguage =
+    String(language || 'ru')
+      .trim()
+      .toLowerCase();
+
+  const aliases = {
+    russian: 'ru',
+    english: 'en',
+    french: 'fr',
+    spanish: 'es',
+    portuguese: 'pt',
+    arabic: 'ar',
+    amharic: 'am',
+
+    rus: 'ru',
+    eng: 'en',
+    fra: 'fr',
+    spa: 'es',
+    por: 'pt',
+    ara: 'ar',
+    amh: 'am',
+
+    'pt-pt': 'pt',
+  };
+
+  const languageCode =
+    aliases[normalizedLanguage] ||
+    normalizedLanguage;
+
+  return (
+    PREPOSITION_2_HEADER_CONFIG[
+      languageCode
+    ] ||
+    PREPOSITION_2_HEADER_CONFIG.ru
+  );
+};
+
+const VERB_LIBRARY_HEADER_CONFIG={
+ru:{title:'Карточки глаголов',rtl:false},
+en:{title:'Verb Cards',rtl:false},
+fr:{title:'Fiches de verbes',rtl:false},
+es:{title:'Fichas de verbos',rtl:false},
+pt:{title:'Fichas de verbos',rtl:false},
+ar:{title:'بطاقات الأفعال',rtl:true},
+am:{title:'የግስ ካርዶች',rtl:false}
+};
+
+const VERB_DETAILS_HEADER_CONFIG={
+ru:{title:'Карточка глагола',rtl:false},
+en:{title:'Verb Card',rtl:false},
+fr:{title:'Fiche du verbe',rtl:false},
+es:{title:'Ficha del verbo',rtl:false},
+pt:{title:'Ficha do verbo',rtl:false},
+ar:{title:'بطاقة الفعل',rtl:true},
+am:{title:'የግስ ካርድ',rtl:false}
+};
+
+const normalizeLanguageCode=language=>{
+const normalized=String(language||'ru').trim().toLowerCase();
+
+const aliases={
+russian:'ru',
+english:'en',
+french:'fr',
+spanish:'es',
+portuguese:'pt',
+arabic:'ar',
+amharic:'am',
+
+rus:'ru',
+eng:'en',
+fra:'fr',
+spa:'es',
+por:'pt',
+ara:'ar',
+amh:'am',
+
+'ru-ru':'ru',
+'en-us':'en',
+'en-gb':'en',
+'fr-fr':'fr',
+'es-es':'es',
+'pt-pt':'pt',
+'ar-il':'ar',
+'am-et':'am'
+};
+
+return aliases[normalized]||normalized;
+};
+
+const getVerbLibraryHeaderConfig=language=>
+VERB_LIBRARY_HEADER_CONFIG[
+normalizeLanguageCode(language)
+]||
+VERB_LIBRARY_HEADER_CONFIG.ru;
+
+const getVerbDetailsHeaderConfig=language=>
+VERB_DETAILS_HEADER_CONFIG[
+normalizeLanguageCode(language)
+]||
+VERB_DETAILS_HEADER_CONFIG.ru;
+
   // Отдельный helper для всех арабских упражнений
   const arExerciseHeader = (title) => ({
     ...createHeaderTitle(title, false, '', true),
@@ -1063,6 +1281,31 @@ useEffect(() => {
               }}
             />
 
+<Stack.Screen
+name="VerbLibrary"
+component={VerbLibraryScreen}
+options={({route})=>{
+const{title,rtl}=getVerbLibraryHeaderConfig(route.params?.language);
+return{
+...createHeaderTitle(title,false,'',rtl),
+headerForceBack:true
+};
+}}
+/>
+
+<Stack.Screen
+name="VerbDetails"
+component={VerbDetailsScreen}
+options={({route})=>{
+const{title,rtl}=getVerbDetailsHeaderConfig(route.params?.language);
+return{
+...createHeaderTitle(title,false,'',rtl),
+headerForceBack:true,
+cardStyle:{backgroundColor:'#83A3CD'}
+};
+}}
+/>
+
             {/* упражнения */}
             <Stack.Screen name="Exercise1" component={Exercise1G} options={{ ...createHeaderTitle('Упражнение 1'), ...exerciseHeaderOptions }} />
             <Stack.Screen name="Exercise1En" component={Exercise1EnG} options={{ ...createHeaderTitle('Exercise 1'), ...exerciseHeaderOptions }} />
@@ -1079,6 +1322,74 @@ useEffect(() => {
             <Stack.Screen name="Exercise2Pt" component={Exercise2PtG} options={{ ...createHeaderTitle('Exercício 2'), ...exerciseHeaderOptions }} />
             <Stack.Screen name="Exercise2Ar" component={Exercise2ArG} options={arExerciseHeader('التمرين 2')} />
             <Stack.Screen name="Exercise2Am" component={Exercise2AmG} options={{ ...createHeaderTitle('ልምምድ ሁለት'), ...exerciseHeaderOptions }} />
+
+            <Stack.Screen
+  name="PrepositionExercise"
+  component={PrepositionExercise}
+  options={({ route }) => {
+    const {
+      title,
+      rtl,
+    } =
+      getPrepositionHeaderConfig(
+        route.params?.language
+      );
+
+    return {
+      ...createHeaderTitle(
+        title,
+        false,
+        '',
+        rtl
+      ),
+
+      headerForceBack: true,
+
+      /*
+       * Оставляем переход без анимации,
+       * чтобы не появлялось мигание меню.
+       */
+      animationEnabled: false,
+      gestureEnabled: false,
+
+      cardStyle: {
+        backgroundColor: '#AFC1D0',
+      },
+    };
+  }}
+/>
+
+<Stack.Screen
+  name="PrepositionVerbExercise"
+  component={PrepositionVerbExercise}
+  options={({ route }) => {
+    const {
+      title,
+      rtl,
+    } =
+      getPreposition2HeaderConfig(
+        route.params?.language
+      );
+
+    return {
+      ...createHeaderTitle(
+        title,
+        false,
+        '',
+        rtl
+      ),
+
+      headerForceBack: true,
+
+      animationEnabled: false,
+      gestureEnabled: false,
+
+      cardStyle: {
+        backgroundColor: '#AFC1D0',
+      },
+    };
+  }}
+/>
 
             <Stack.Screen name="Exercise3" component={Exercise3G} options={{ ...createHeaderTitle('Упражнение 3'), ...exerciseHeaderOptions }} />
             <Stack.Screen name="Exercise3En" component={Exercise3EnG} options={{ ...createHeaderTitle('Exercise 3'), ...exerciseHeaderOptions }} />

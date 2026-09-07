@@ -142,7 +142,7 @@ const AppDescriptionModal = ({ visible, onToggle }) => {
                 <Text style={[styles.bold, styles.highlightExercise]}>
                   • Ejercicios 1 y 2 -
                 </Text>{' '}
-                ayudan a memorizar alrededor de 350 verbos clave y sus formas básicas.
+                ayudan a memorizar alrededor de 400 verbos clave y sus formas básicas.
               </Text>
               <Text style={styles.listItem}>
                 <Text style={[styles.bold, styles.highlightExercise]}>

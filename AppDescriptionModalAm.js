@@ -131,7 +131,7 @@ const AppDescriptionModal = ({ visible, onToggle }) => {
                 <Text style={[styles.bold, styles.highlightExercise]}>
                   • መልመጃዎች 1 እና 2 -
                 </Text>{' '}
-                ወደ 350 የሚጠጉ ቁልፍ ግሦችን እና መሰረታዊ ቅርጾቻቸውን ለማስታወስ ይረዳሉ።
+                ወደ 400 የሚጠጉ ቁልፍ ግሦችን እና መሰረታዊ ቅርጾቻቸውን ለማስታወስ ይረዳሉ።
               </Text>
 
               <Text style={styles.listItem}>

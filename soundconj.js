@@ -4512,6 +4512,182 @@ animitamen: require('./assets/conj/other/animitamen.mp3'),
 animitamenet: require('./assets/conj/other/animitamenet.mp3'),
 hityadadti1: require('./assets/conj/other/hityadadti1.mp3'),
 hityadadti2: require('./assets/conj/other/hityadadti2.mp3'),
+aninigash: require('./assets/conj/other/aninifgash.mp3'),
+aninigeshet: require('./assets/conj/other/aninifgeshet.mp3'),
+
+animityaetz: require('./assets/conj/other/animityaetz.mp3'),
+animityaetzet: require('./assets/conj/other/animityaetzet.mp3'),
+
+animitkhare: require('./assets/conj/other/animitkhare.mp3'),
+animitkhara: require('./assets/conj/other/animitkhara.mp3'),
+
+animitamet: require('./assets/conj/other/animitamet.mp3'),
+animitametet: require('./assets/conj/other/animitametet.mp3'),
+
+animizdahe: require('./assets/conj/other/animizdahe.mp3'),
+animizdaha: require('./assets/conj/other/animizdaha.mp3'),
+
+animistakhsekh: require('./assets/conj/other/animistakhsekh.mp3'),
+animistakhsekhet: require('./assets/conj/other/animistakhsekhet.mp3'),
+
+animashlim: require('./assets/conj/other/animashlim.mp3'),
+animashlima: require('./assets/conj/other/animashlima.mp3'),
+
+animitztalem: require('./assets/conj/other/animitztalem.mp3'),
+animitztalemet: require('./assets/conj/other/animitztalemet.mp3'),
+
+animitkatev: require('./assets/conj/other/animitkatev.mp3'),
+animitkatevet: require('./assets/conj/other/animitkatevet.mp3'),
+
+animeshatef: require('./assets/conj/other/animeshatef.mp3'),
+animeshatefet: require('./assets/conj/other/animeshatefet.mp3'),
+
+animevater: require('./assets/conj/other/animevater.mp3'),
+animevateret: require('./assets/conj/other/animevateret.mp3'),
+
+animodia: require('./assets/conj/other/animodia.mp3'),
+animodiaa: require('./assets/conj/other/animodiaa.mp3'),
+
+animeid: require('./assets/conj/other/animeid.mp3'),
+animeida: require('./assets/conj/other/animeida.mp3'),
+
+animartze: require('./assets/conj/other/animartze.mp3'),
+animartza: require('./assets/conj/other/animartza.mp3'),
+
+animishtalet: require('./assets/conj/other/animishtalet.mp3'),
+animishtaletet: require('./assets/conj/other/animishtaletet.mp3'),
+
+animeniakh: require('./assets/conj/other/animeniakh.mp3'),
+animenikha: require('./assets/conj/other/animenikha.mp3'),
+
+animetapes: require('./assets/conj/other/animetapes.mp3'),
+animetapeset: require('./assets/conj/other/animetapeset.mp3'),
+
+anishofet: require('./assets/conj/other/anishofet.mp3'),
+anishofetet: require('./assets/conj/other/anishofetet.mp3'),
+
+animagen: require('./assets/conj/other/animagen.mp3'),
+animegina: require('./assets/conj/other/animegina.mp3'),
+
+animefakeakh: require('./assets/conj/other/animefakeakh.mp3'),
+animefakakhat: require('./assets/conj/other/animefakakhat.mp3'),
+
+animabit: require('./assets/conj/other/animabit.mp3'),
+animabita: require('./assets/conj/other/animabita.mp3'),
+
+anishat: require('./assets/conj/other/anishat.mp3'),
+anishata: require('./assets/conj/other/anishata.mp3'),
+
+aniaf: require('./assets/conj/other/aniaf.mp3'),
+aniafa: require('./assets/conj/other/aniafa.mp3'),
+
+animekhaven: require('./assets/conj/other/animekhaven.mp3'),
+animekhavenet: require('./assets/conj/other/animekhavenet.mp3'),
+
+animatzmid: require('./assets/conj/other/animatzmid.mp3'),
+animatzmida: require('./assets/conj/other/animatzmida.mp3'),
+
+animatzliakh: require('./assets/conj/other/animatzliakh.mp3'),
+animatzlikha: require('./assets/conj/other/animatzlikha.mp3'),
+
+animishtatef: require('./assets/conj/other/animishtatef.mp3'),
+animishtatefet: require('./assets/conj/other/animishtatefet.mp3'),
+
+aniosek: require('./assets/conj/other/aniosek.mp3'),
+anioseket: require('./assets/conj/other/anioseket.mp3'),
+
+aniboreakh: require('./assets/conj/other/aniboreakh.mp3'),
+aniborakhat: require('./assets/conj/other/aniborakhat.mp3'),
+
+animitalem: require('./assets/conj/other/animitalem.mp3'),
+animitalemet: require('./assets/conj/other/animitalemet.mp3'),
+
+animishtakhrer: require('./assets/conj/other/animishtakhrer.mp3'),
+animishtakhreret: require('./assets/conj/other/animishtakhreret.mp3'),
+
+animitoshesh: require('./assets/conj/other/animitoshesh.mp3'),
+animitosheshet: require('./assets/conj/other/animitosheshet.mp3'),
+
+animitkabel: require('./assets/conj/other/animitkabel.mp3'),
+animitkabelet: require('./assets/conj/other/animitkabelet.mp3'),
+
+anipokhed: require('./assets/conj/other/anipokhed.mp3'),
+anipokhedet: require('./assets/conj/other/anipokhedet.mp3'),
+
+anikhotem: require('./assets/conj/other/anikhotem.mp3'),
+anikhotemet: require('./assets/conj/other/anikhotemet.mp3'),
+
+animatria: require('./assets/conj/other/animatria.mp3'),
+animatriaa: require('./assets/conj/other/animatriaa.mp3'),
+
+animearer: require('./assets/conj/other/animearer.mp3'),
+animeareret: require('./assets/conj/other/animeareret.mp3'),
+
+animakpid: require('./assets/conj/other/animakpid.mp3'),
+animakpida: require('./assets/conj/other/animakpida.mp3'),
+
+animitbases: require('./assets/conj/other/animitbases.mp3'),
+animitbaseset: require('./assets/conj/other/animitbaseset.mp3'),
+
+animitpasher: require('./assets/conj/other/animitpasher.mp3'),
+animitpasheret: require('./assets/conj/other/animitpasheret.mp3'),
+
+animitabel: require('./assets/conj/other/animitabel.mp3'),
+animitabelet: require('./assets/conj/other/animitabelet.mp3'),
+
+animashgiakh: require('./assets/conj/other/animashgiakh.mp3'),
+animashgikha: require('./assets/conj/other/animashgikha.mp3'),
+
+animitmazeg: require('./assets/conj/other/animitmazeg.mp3'),
+animitmazeget: require('./assets/conj/other/animitmazeget.mp3'),
+
+animistankhren: require('./assets/conj/other/animistankhren.mp3'),
+animistankhrenet: require('./assets/conj/other/animistankhrenet.mp3'),
+
+aninimne: require('./assets/conj/other/aninimne.mp3'),
+aninimnet: require('./assets/conj/other/aninimnet.mp3'),
+
+animityakhes: require('./assets/conj/other/animityakhes.mp3'),
+animityakheset: require('./assets/conj/other/animityakheset.mp3'),
+
+animafne: require('./assets/conj/other/animafne.mp3'),
+animafna: require('./assets/conj/other/animafna.mp3'),
+
+aninoher: require('./assets/conj/other/aninoher.mp3'),
+aninoheret: require('./assets/conj/other/aninoheret.mp3'),
+
+animitztayen: require('./assets/conj/other/animitztayen.mp3'),
+animitztayenet: require('./assets/conj/other/animitztayenet.mp3'),
+
+animitmakhe: require('./assets/conj/other/animitmakhe.mp3'),
+animitmakha: require('./assets/conj/other/animitmakha.mp3'),
+
+animitmaked: require('./assets/conj/other/animitmaked.mp3'),
+animitmakedet: require('./assets/conj/other/animitmakedet.mp3'),
+
+animitkhashev: require('./assets/conj/other/animitkhashev.mp3'),
+animitkhashevet: require('./assets/conj/other/animitkhashevet.mp3'),
+
+animistayeg: require('./assets/conj/other/animistayeg.mp3'),
+animistayeget: require('./assets/conj/other/animistayeget.mp3'),
+
+aninirta: require('./assets/conj/other/aninirta.mp3'),
+aninirtaat: require('./assets/conj/other/aninirtaat.mp3'),
+
+zenigzar: require('./assets/conj/other/zenigzar.mp3'),
+zotnigzeret: require('./assets/conj/other/zotnigzeret.mp3'),
+
+animistagel: require('./assets/conj/other/animistagel.mp3'),
+animistagelet: require('./assets/conj/other/animistagelet.mp3'),
+
+animishtayekh: require('./assets/conj/other/animishtayekh.mp3'),
+animishtayekhet: require('./assets/conj/other/animishtayekhet.mp3'),
+
+animitkhayev: require('./assets/conj/other/animitkhayev.mp3'),
+animitkhayevet: require('./assets/conj/other/animitkhayevet.mp3'),
+
+anineerakh: require('./assets/conj/other/anineerakh.mp3'),
+anineerekhet: require('./assets/conj/other/anineerekhet.mp3'),
 
 
 
