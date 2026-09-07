@@ -18,6 +18,7 @@ import TypewriterTextLTR from './TypewriterTextLTR';
 import LottieView from 'lottie-react-native';
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as FirebaseAnalytics from './src/analytics/FirebaseAnalytics';
 
 
 const FONT_REG = 'mt-regular';
@@ -388,6 +389,24 @@ const TypewriterHebrewHighlightedRTL = ({
 
 
 const Exercise7Ar = () => {
+
+const exercise7LoggedRef=useRef(false);
+
+useFocusEffect(
+useCallback(()=>{
+if(exercise7LoggedRef.current)return;
+exercise7LoggedRef.current=true;
+
+FirebaseAnalytics.logFirebaseEvent('exercise8ar',{
+screen:'exercise8ar'
+});
+
+return()=>{
+exercise7LoggedRef.current=false;
+};
+},[])
+);
+
   const [verbs, setVerbs] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [displayPairs, setDisplayPairs] = useState([]);

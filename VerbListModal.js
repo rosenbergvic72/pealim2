@@ -333,7 +333,7 @@ const styles = StyleSheet.create({
   },
 
   entext: {
-    fontSize: 15,
+    fontSize: 14,
     fontWeight: 'bold',
     color: '#333',
   },

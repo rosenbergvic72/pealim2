@@ -16,6 +16,7 @@ import { updateStatistics, getStatistics } from './stat';
 import LottieView from 'lottie-react-native';
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as FirebaseAnalytics from './src/analytics/FirebaseAnalytics';
 
 
 
@@ -383,6 +384,24 @@ const TypewriterHebrewHighlightedRTL = ({
 
 
 const Exercise7Am = () => {
+
+const exercise7LoggedRef=useRef(false);
+
+useFocusEffect(
+useCallback(()=>{
+if(exercise7LoggedRef.current)return;
+exercise7LoggedRef.current=true;
+
+FirebaseAnalytics.logFirebaseEvent('exercise8am',{
+screen:'exercise8am'
+});
+
+return()=>{
+exercise7LoggedRef.current=false;
+};
+},[])
+);
+
   const [verbs, setVerbs] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [displayPairs, setDisplayPairs] = useState([]);

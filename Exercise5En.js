@@ -15,6 +15,7 @@ import { updateStatistics, getStatistics } from './stat';
 import LottieView from 'lottie-react-native';
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as FirebaseAnalytics from './src/analytics/FirebaseAnalytics';
 
 const shuffleArray = (array) => {
   const shuffledArray = array.slice();
@@ -52,6 +53,24 @@ const getGrade = (percentage) => {
   };
 
 const Exercise5En = ({ navigation }) => {
+
+ const exercise5LoggedRef=useRef(false);
+
+useFocusEffect(
+useCallback(()=>{
+if(exercise5LoggedRef.current)return;
+exercise5LoggedRef.current=true;
+
+FirebaseAnalytics.logFirebaseEvent('exercise4en',{
+screen:'exercise4en'
+});
+
+return()=>{
+exercise5LoggedRef.current=false;
+};
+},[])
+);
+
   const [correctSound, setCorrectSound] = useState();
   const [incorrectSound, setIncorrectSound] = useState();
   const [exitConfirmationVisible, setExitConfirmationVisible] = useState(false);

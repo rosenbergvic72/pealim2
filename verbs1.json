@@ -1673,6 +1673,56 @@
       "correctTranslationIndex": 0
   },
   {
+  "hebrewVerb": "להפוך",
+  "root": "ה-פ-ך",
+  "binyan": "PA'AL",
+  "transliteration": "lahafoch",
+  "audioFile": "lahafoch.mp3",
+  "translationOptions": [
+    "Превращаться",
+    "Желать",
+    "Злить",
+    "Пить"
+  ],
+  "translationOptionsEn": [
+    "to turn into",
+    "to desire",
+    "to anger",
+    "to drink"
+  ],
+  "translationOptionsFr": [
+    "se transformer",
+    "désirer",
+    "énerver",
+    "boire"
+  ],
+  "translationOptionsEs": [
+    "convertirse",
+    "desear",
+    "enfadar",
+    "beber"
+  ],
+  "translationOptionsPt": [
+    "transformar-se",
+    "desejar",
+    "irritar",
+    "beber"
+  ],
+  "translationOptionsAr": [
+    "أن يتحول",
+    "أن يرغب",
+    "أن يغضب",
+    "أن يشرب"
+  ],
+  "translationOptionsAm": [
+    "መለወጥ",
+    "መመኘት",
+    "ማስቆጣት",
+    "መጠጣት"
+  ],
+  "correctTranslationIndex": 0
+},
+  {
       "hebrewVerb": "להשאר",
       "root": " ש-א-ר",
       "binyan": "NIF'AL",
@@ -1805,7 +1855,7 @@
       "transliteration": "latus",
       "audioFile": "latus.mp3",
       "translationOptions": [
-          "Летать",
+          "Лететь",
           "Ждать",
           "Видеть",
           "Пить"
@@ -3679,7 +3729,7 @@
     },
     {
     "hebrewVerb": "לתכנת",
-    "root": "ת-כ-ן",
+    "root": "ת-כ-נ-ן",
     "binyan": "PI'EL",
     "transliteration": "letachnet",
     "audioFile": "letachnet.mp3",
@@ -9002,6 +9052,2956 @@
     "መሮጥ",
     "መንበብ",
     "መገንባት"
+  ],
+  "correctTranslationIndex": 0
+},
+{
+  "hebrewVerb": "להיפגש",
+  "root": "פ-ג-ש",
+  "binyan": "NIF'AL",
+  "transliteration": "lehipagesh",
+  "audioFile": "lehipagesh.mp3",
+  "translationOptions": [
+    "Встречаться",
+    "Встречать",
+    "Знакомиться",
+    "Разговаривать"
+  ],
+  "translationOptionsEn": [
+    "to meet",
+    "to meet someone",
+    "to get acquainted",
+    "to talk"
+  ],
+  "translationOptionsFr": [
+    "se rencontrer",
+    "rencontrer quelqu'un",
+    "faire connaissance",
+    "parler"
+  ],
+  "translationOptionsEs": [
+    "encontrarse",
+    "encontrar a alguien",
+    "conocerse",
+    "hablar"
+  ],
+  "translationOptionsPt": [
+    "encontrar-se",
+    "encontrar alguém",
+    "conhecer-se",
+    "conversar"
+  ],
+  "translationOptionsAr": [
+    "أن يلتقي",
+    "أن يقابل شخصًا",
+    "أن يتعارف",
+    "أن يتحدث"
+  ],
+  "translationOptionsAm": [
+    "መገናኘት",
+    "አንድን ሰው መገናኘት",
+    "መተዋወቅ",
+    "መነጋገር"
+  ],
+  "correctTranslationIndex": 0
+},
+{
+  "hebrewVerb": "להתייעץ",
+  "root": "י-ע-ץ",
+  "binyan": "HITPA'EL",
+  "transliteration": "lehit'ya'etz",
+  "audioFile": "lehityaetz.mp3",
+  "translationOptions": [
+    "Советоваться",
+    "Советовать",
+    "Решать",
+    "Объяснять"
+  ],
+  "translationOptionsEn": [
+    "to consult",
+    "to advise",
+    "to decide",
+    "to explain"
+  ],
+  "translationOptionsFr": [
+    "consulter",
+    "conseiller",
+    "décider",
+    "expliquer"
+  ],
+  "translationOptionsEs": [
+    "consultar",
+    "aconsejar",
+    "decidir",
+    "explicar"
+  ],
+  "translationOptionsPt": [
+    "consultar",
+    "aconselhar",
+    "decidir",
+    "explicar"
+  ],
+  "translationOptionsAr": [
+    "أن يستشير",
+    "أن ينصح",
+    "أن يقرر",
+    "أن يشرح"
+  ],
+  "translationOptionsAm": [
+    "መማከር",
+    "መምከር",
+    "መወሰን",
+    "ማብራራት"
+  ],
+  "correctTranslationIndex": 0
+},
+{
+  "hebrewVerb": "להתחרות",
+  "root": "ח-ר-ה",
+  "binyan": "HITPA'EL",
+  "transliteration": "lehitkharot",
+  "audioFile": "lehitkharot.mp3",
+  "translationOptions": [
+    "Соревноваться",
+    "Побеждать",
+    "Участвовать",
+    "Тренироваться"
+  ],
+  "translationOptionsEn": [
+    "to compete",
+    "to win",
+    "to participate",
+    "to train"
+  ],
+  "translationOptionsFr": [
+    "concourir",
+    "gagner",
+    "participer",
+    "s'entraîner"
+  ],
+  "translationOptionsEs": [
+    "competir",
+    "ganar",
+    "participar",
+    "entrenar"
+  ],
+  "translationOptionsPt": [
+    "competir",
+    "vencer",
+    "participar",
+    "treinar"
+  ],
+  "translationOptionsAr": [
+    "أن يتنافس",
+    "أن يفوز",
+    "أن يشارك",
+    "أن يتدرب"
+  ],
+  "translationOptionsAm": [
+    "መወዳደር",
+    "ማሸነፍ",
+    "መሳተፍ",
+    "መለማመድ"
+  ],
+  "correctTranslationIndex": 0
+},
+{
+  "hebrewVerb": "להתעמת",
+  "root": "ע-מ-ת",
+  "binyan": "HITPA'EL",
+  "transliteration": "lehit'amet",
+  "audioFile": "lehitamet.mp3",
+  "translationOptions": [
+    "Противостоять",
+    "Спорить",
+    "Соглашаться",
+    "Избегать"
+  ],
+  "translationOptionsEn": [
+    "to confront",
+    "to argue",
+    "to agree",
+    "to avoid"
+  ],
+  "translationOptionsFr": [
+    "affronter",
+    "se disputer",
+    "être d'accord",
+    "éviter"
+  ],
+  "translationOptionsEs": [
+    "enfrentarse",
+    "discutir",
+    "estar de acuerdo",
+    "evitar"
+  ],
+  "translationOptionsPt": [
+    "confrontar-se",
+    "discutir",
+    "concordar",
+    "evitar"
+  ],
+  "translationOptionsAr": [
+    "أن يواجه",
+    "أن يتجادل",
+    "أن يوافق",
+    "أن يتجنب"
+  ],
+  "translationOptionsAm": [
+    "መጋፈጥ",
+    "መከራከር",
+    "መስማማት",
+    "ማስወገድ"
+  ],
+  "correctTranslationIndex": 0
+},
+{
+  "hebrewVerb": "להזדהות",
+  "root": "ז-ה-ה",
+  "binyan": "HITPA'EL",
+  "transliteration": "lehizdahot",
+  "audioFile": "lehizdahot.mp3",
+  "translationOptions": [
+    "Сочувствовать",
+    "Узнавать",
+    "Представляться",
+    "Соглашаться"
+  ],
+  "translationOptionsEn": [
+    "to identify with",
+    "to recognize",
+    "to introduce oneself",
+    "to agree"
+  ],
+  "translationOptionsFr": [
+    "s'identifier à",
+    "reconnaître",
+    "se présenter",
+    "être d'accord"
+  ],
+  "translationOptionsEs": [
+    "identificarse con",
+    "reconocer",
+    "presentarse",
+    "estar de acuerdo"
+  ],
+  "translationOptionsPt": [
+    "identificar-se com",
+    "reconhecer",
+    "apresentar-se",
+    "concordar"
+  ],
+  "translationOptionsAr": [
+    "أن يتعاطف مع",
+    "أن يتعرف على",
+    "أن يعرّف عن نفسه",
+    "أن يوافق"
+  ],
+  "translationOptionsAm": [
+    "ማዘን",
+    "መለየት",
+    "ራስን ማስተዋወቅ",
+    "መስማማት"
+  ],
+  "correctTranslationIndex": 0
+},
+{
+  "hebrewVerb": "להסתכסך",
+  "root": "ס-כ-ס-כ",
+  "binyan": "HITPA'EL",
+  "transliteration": "lehistakhsekh",
+  "audioFile": "lehistakhsekh.mp3",
+  "translationOptions": [
+    "Ссориться",
+    "Спорить",
+    "Мириться",
+    "Жаловаться"
+  ],
+  "translationOptionsEn": [
+    "to quarrel",
+    "to argue",
+    "to make peace",
+    "to complain"
+  ],
+  "translationOptionsFr": [
+    "se brouiller",
+    "se disputer",
+    "se réconcilier",
+    "se plaindre"
+  ],
+  "translationOptionsEs": [
+    "pelearse",
+    "discutir",
+    "reconciliarse",
+    "quejarse"
+  ],
+  "translationOptionsPt": [
+    "desentender-se",
+    "discutir",
+    "reconciliar-se",
+    "reclamar"
+  ],
+  "translationOptionsAr": [
+    "أن يتخاصم",
+    "أن يتجادل",
+    "أن يتصالح",
+    "أن يشتكي"
+  ],
+  "translationOptionsAm": [
+    "መጣላት",
+    "መከራከር",
+    "መታረቅ",
+    "ማማረር"
+  ],
+  "correctTranslationIndex": 0
+},
+{
+  "hebrewVerb": "להשלים",
+  "root": "ש-ל-מ",
+  "binyan": "HIF'IL",
+  "transliteration": "lehashlim",
+  "audioFile": "lehashlim.mp3",
+  "translationOptions": [
+    "Мириться",
+    "Ссориться",
+    "Спорить",
+    "Жаловаться"
+  ],
+  "translationOptionsEn": [
+    "to make peace",
+    "to quarrel",
+    "to argue",
+    "to complain"
+  ],
+  "translationOptionsFr": [
+    "se réconcilier",
+    "se brouiller",
+    "se disputer",
+    "se plaindre"
+  ],
+  "translationOptionsEs": [
+    "reconciliarse",
+    "pelearse",
+    "discutir",
+    "quejarse"
+  ],
+  "translationOptionsPt": [
+    "reconciliar-se",
+    "desentender-se",
+    "discutir",
+    "reclamar"
+  ],
+  "translationOptionsAr": [
+    "أن يتصالح",
+    "أن يتخاصم",
+    "أن يتجادل",
+    "أن يشتكي"
+  ],
+  "translationOptionsAm": [
+    "መታረቅ",
+    "መጣላት",
+    "መከራከር",
+    "ማማረር"
+  ],
+  "correctTranslationIndex": 0
+},
+{
+  "hebrewVerb": "להצטלם",
+  "root": "צ-ל-מ",
+  "binyan": "HITPA'EL",
+  "transliteration": "lehitztalem",
+  "audioFile": "lehitztalem.mp3",
+  "translationOptions": [
+    "Фотографироваться",
+    "Фотографировать",
+    "Рисовать",
+    "Снимать видео"
+  ],
+  "translationOptionsEn": [
+    "to be photographed",
+    "to photograph",
+    "to draw",
+    "to film"
+  ],
+  "translationOptionsFr": [
+    "être photographié",
+    "photographier",
+    "dessiner",
+    "filmer"
+  ],
+  "translationOptionsEs": [
+    "fotografiarse",
+    "fotografiar",
+    "dibujar",
+    "filmar"
+  ],
+  "translationOptionsPt": [
+    "fotografar-se",
+    "fotografar",
+    "desenhar",
+    "filmar"
+  ],
+  "translationOptionsAr": [
+    "أن يتصوّر",
+    "أن يصوّر",
+    "أن يرسم",
+    "أن يصوّر فيديو"
+  ],
+  "translationOptionsAm": [
+    "ፎቶ መነሳት",
+    "ፎቶ ማንሳት",
+    "መሳል",
+    "ቪዲዮ መቅረጽ"
+  ],
+  "correctTranslationIndex": 0
+},
+{
+  "hebrewVerb": "להתכתב",
+  "root": "כ-ת-ב",
+  "binyan": "HITPA'EL",
+  "transliteration": "lehitkatev",
+  "audioFile": "lehitkatev.mp3",
+  "translationOptions": [
+    "Переписываться",
+    "Писать",
+    "Читать",
+    "Разговаривать"
+  ],
+  "translationOptionsEn": [
+    "to correspond",
+    "to write",
+    "to read",
+    "to talk"
+  ],
+  "translationOptionsFr": [
+    "correspondre",
+    "écrire",
+    "lire",
+    "parler"
+  ],
+  "translationOptionsEs": [
+    "escribirse",
+    "escribir",
+    "leer",
+    "hablar"
+  ],
+  "translationOptionsPt": [
+    "corresponder-se",
+    "escrever",
+    "ler",
+    "conversar"
+  ],
+  "translationOptionsAr": [
+    "أن يتراسل",
+    "أن يكتب",
+    "أن يقرأ",
+    "أن يتحدث"
+  ],
+  "translationOptionsAm": [
+    "መጻጻፍ",
+    "መጻፍ",
+    "ማንበብ",
+    "መነጋገር"
+  ],
+  "correctTranslationIndex": 0
+},
+{
+  "hebrewVerb": "לשתף",
+  "root": "ש-ת-ף",
+  "binyan": "PI'EL",
+  "transliteration": "leshatef",
+  "audioFile": "leshatef.mp3",
+  "translationOptions": [
+    "Вовлекать",
+    "Исключать",
+    "Скрывать",
+    "Отделять"
+  ],
+  "translationOptionsEn": [
+    "to involve",
+    "to exclude",
+    "to hide",
+    "to separate"
+  ],
+  "translationOptionsFr": [
+    "impliquer",
+    "exclure",
+    "cacher",
+    "séparer"
+  ],
+  "translationOptionsEs": [
+    "involucrar",
+    "excluir",
+    "ocultar",
+    "separar"
+  ],
+  "translationOptionsPt": [
+    "envolver",
+    "excluir",
+    "esconder",
+    "separar"
+  ],
+  "translationOptionsAr": [
+    "أن يُشرك",
+    "أن يستبعد",
+    "أن يخفي",
+    "أن يفصل"
+  ],
+  "translationOptionsAm": [
+    "ማሳተፍ",
+    "ማግለል",
+    "መደበቅ",
+    "መለየት"
+  ],
+  "correctTranslationIndex": 0
+},
+{
+  "hebrewVerb": "לוותר",
+  "root": "ו-ת-ר",
+  "binyan": "PI'EL",
+  "transliteration": "levater",
+  "audioFile": "levater.mp3",
+  "translationOptions": [
+    "Уступать",
+    "Требовать",
+    "Настаивать",
+    "Соглашаться"
+  ],
+  "translationOptionsEn": [
+    "to give in",
+    "to demand",
+    "to insist",
+    "to agree"
+  ],
+  "translationOptionsFr": [
+    "céder",
+    "exiger",
+    "insister",
+    "accepter"
+  ],
+  "translationOptionsEs": [
+    "ceder",
+    "exigir",
+    "insistir",
+    "aceptar"
+  ],
+  "translationOptionsPt": [
+    "ceder",
+    "exigir",
+    "insistir",
+    "concordar"
+  ],
+  "translationOptionsAr": [
+    "أن يتنازل",
+    "أن يطالب",
+    "أن يصر",
+    "أن يوافق"
+  ],
+  "translationOptionsAm": [
+    "መተው",
+    "መጠየቅ",
+    "አጥብቆ መጠየቅ",
+    "መስማማት"
+  ],
+  "correctTranslationIndex": 0
+},
+{
+  "hebrewVerb": "להודיע",
+  "root": "י-ד-ע",
+  "binyan": "HIF'IL",
+  "transliteration": "lehodia",
+  "audioFile": "lehodia.mp3",
+  "translationOptions": [
+    "Сообщать",
+    "Предупреждать",
+    "Спрашивать",
+    "Объяснять"
+  ],
+  "translationOptionsEn": [
+    "to inform",
+    "to warn",
+    "to ask",
+    "to explain"
+  ],
+  "translationOptionsFr": [
+    "informer",
+    "avertir",
+    "demander",
+    "expliquer"
+  ],
+  "translationOptionsEs": [
+    "informar",
+    "advertir",
+    "preguntar",
+    "explicar"
+  ],
+  "translationOptionsPt": [
+    "informar",
+    "avisar",
+    "perguntar",
+    "explicar"
+  ],
+  "translationOptionsAr": [
+    "أن يُبلغ",
+    "أن يُحذر",
+    "أن يسأل",
+    "أن يشرح"
+  ],
+  "translationOptionsAm": [
+    "ማሳወቅ",
+    "ማስጠንቀቅ",
+    "መጠየቅ",
+    "ማብራራት"
+  ],
+  "correctTranslationIndex": 0
+},
+{
+  "hebrewVerb": "להעיד",
+  "root": "ע-ו-ד",
+  "binyan": "HIF'IL",
+  "transliteration": "leha'id",
+  "audioFile": "lehaid.mp3",
+  "translationOptions": [
+    "Свидетельствовать",
+    "Обвинять",
+    "Доказывать",
+    "Подтверждать"
+  ],
+  "translationOptionsEn": [
+    "to testify",
+    "to accuse",
+    "to prove",
+    "to confirm"
+  ],
+  "translationOptionsFr": [
+    "témoigner",
+    "accuser",
+    "prouver",
+    "confirmer"
+  ],
+  "translationOptionsEs": [
+    "testificar",
+    "acusar",
+    "probar",
+    "confirmar"
+  ],
+  "translationOptionsPt": [
+    "testemunhar",
+    "acusar",
+    "provar",
+    "confirmar"
+  ],
+  "translationOptionsAr": [
+    "أن يشهد",
+    "أن يتهم",
+    "أن يثبت",
+    "أن يؤكد"
+  ],
+  "translationOptionsAm": [
+    "መመስከር",
+    "መክሰስ",
+    "ማረጋገጥ",
+    "ማጽደቅ"
+  ],
+  "correctTranslationIndex": 0
+},
+{
+  "hebrewVerb": "להרצות",
+  "root": "ר-צ-ה",
+  "binyan": "HIF'IL",
+  "transliteration": "lehartzot",
+  "audioFile": "lehartzot.mp3",
+  "translationOptions": [
+    "Читать лекцию",
+    "Учиться",
+    "Объяснять",
+    "Слушать"
+  ],
+  "translationOptionsEn": [
+    "to lecture",
+    "to study",
+    "to explain",
+    "to listen"
+  ],
+  "translationOptionsFr": [
+    "donner un cours",
+    "étudier",
+    "expliquer",
+    "écouter"
+  ],
+  "translationOptionsEs": [
+    "dar una conferencia",
+    "estudiar",
+    "explicar",
+    "escuchar"
+  ],
+  "translationOptionsPt": [
+    "dar uma palestra",
+    "estudar",
+    "explicar",
+    "ouvir"
+  ],
+  "translationOptionsAr": [
+    "أن يحاضر",
+    "أن يدرس",
+    "أن يشرح",
+    "أن يستمع"
+  ],
+  "translationOptionsAm": [
+    "ንግግር ማቅረብ",
+    "ማጥናት",
+    "ማብራራት",
+    "ማዳመጥ"
+  ],
+  "correctTranslationIndex": 0
+},
+{
+  "hebrewVerb": "להשתלט",
+  "root": "ש-ל-ט",
+  "binyan": "HITPA'EL",
+  "transliteration": "lehishtalet",
+  "audioFile": "lehishtalet.mp3",
+  "translationOptions": [
+    "Захватывать",
+    "Управлять",
+    "Защищать",
+    "Освобождать"
+  ],
+  "translationOptionsEn": [
+    "to take over",
+    "to manage",
+    "to protect",
+    "to release"
+  ],
+  "translationOptionsFr": [
+    "s'emparer",
+    "gérer",
+    "protéger",
+    "libérer"
+  ],
+  "translationOptionsEs": [
+    "apoderarse",
+    "gestionar",
+    "proteger",
+    "liberar"
+  ],
+  "translationOptionsPt": [
+    "apoderar-se",
+    "gerir",
+    "proteger",
+    "libertar"
+  ],
+  "translationOptionsAr": [
+    "أن يسيطر",
+    "أن يدير",
+    "أن يحمي",
+    "أن يحرر"
+  ],
+  "translationOptionsAm": [
+    "መቆጣጠር",
+    "ማስተዳደር",
+    "መጠበቅ",
+    "ነፃ ማውጣት"
+  ],
+  "correctTranslationIndex": 0
+},
+{
+  "hebrewVerb": "להניח",
+  "root": "נ-ו-ח",
+  "binyan": "HIF'IL",
+  "transliteration": "lehaniakh",
+  "audioFile": "lehaniakh.mp3",
+  "translationOptions": [
+    "Положить",
+    "Поднять",
+    "Бросить",
+    "Убрать"
+  ],
+  "translationOptionsEn": [
+    "to place",
+    "to lift",
+    "to throw",
+    "to remove"
+  ],
+  "translationOptionsFr": [
+    "poser",
+    "soulever",
+    "jeter",
+    "enlever"
+  ],
+  "translationOptionsEs": [
+    "colocar",
+    "levantar",
+    "lanzar",
+    "quitar"
+  ],
+  "translationOptionsPt": [
+    "colocar",
+    "levantar",
+    "jogar",
+    "retirar"
+  ],
+  "translationOptionsAr": [
+    "أن يضع",
+    "أن يرفع",
+    "أن يرمي",
+    "أن يزيل"
+  ],
+  "translationOptionsAm": [
+    "ማስቀመጥ",
+    "ማንሳት",
+    "መወርወር",
+    "ማስወገድ"
+  ],
+  "correctTranslationIndex": 0
+},
+{
+  "hebrewVerb": "לטפס",
+  "root": "ט-פ-ס",
+  "binyan": "PI'EL",
+  "transliteration": "letapes",
+  "audioFile": "letapes.mp3",
+  "translationOptions": [
+    "Взбираться",
+    "Спускаться",
+    "Прыгать",
+    "Падать"
+  ],
+  "translationOptionsEn": [
+    "to climb",
+    "to descend",
+    "to jump",
+    "to fall"
+  ],
+  "translationOptionsFr": [
+    "grimper",
+    "descendre",
+    "sauter",
+    "tomber"
+  ],
+  "translationOptionsEs": [
+    "trepar",
+    "bajar",
+    "saltar",
+    "caer"
+  ],
+  "translationOptionsPt": [
+    "escalar",
+    "descer",
+    "saltar",
+    "cair"
+  ],
+  "translationOptionsAr": [
+    "أن يتسلق",
+    "أن ينزل",
+    "أن يقفز",
+    "أن يسقط"
+  ],
+  "translationOptionsAm": [
+    "መውጣት",
+    "መውረድ",
+    "መዝለል",
+    "መውደቅ"
+  ],
+  "correctTranslationIndex": 0
+},
+{
+  "hebrewVerb": "לשפוט",
+  "root": "ש-פ-ט",
+  "binyan": "PA'AL",
+  "transliteration": "lishpot",
+  "audioFile": "lishpot.mp3",
+  "translationOptions": [
+    "Судить",
+    "Обвинять",
+    "Защищать",
+    "Наказывать"
+  ],
+  "translationOptionsEn": [
+    "to judge",
+    "to accuse",
+    "to defend",
+    "to punish"
+  ],
+  "translationOptionsFr": [
+    "juger",
+    "accuser",
+    "défendre",
+    "punir"
+  ],
+  "translationOptionsEs": [
+    "juzgar",
+    "acusar",
+    "defender",
+    "castigar"
+  ],
+  "translationOptionsPt": [
+    "julgar",
+    "acusar",
+    "defender",
+    "punir"
+  ],
+  "translationOptionsAr": [
+    "أن يحكم",
+    "أن يتهم",
+    "أن يدافع",
+    "أن يعاقب"
+  ],
+  "translationOptionsAm": [
+    "መፍረድ",
+    "መክሰስ",
+    "መከላከል",
+    "መቅጣት"
+  ],
+  "correctTranslationIndex": 0
+},
+{
+  "hebrewVerb": "להגן",
+  "root": "ג-נ-נ",
+  "binyan": "HIF'IL",
+  "transliteration": "lehagen",
+  "audioFile": "lehagen.mp3",
+  "translationOptions": [
+    "Оборонять",
+    "Нападать",
+    "Захватывать",
+    "Отступать"
+  ],
+  "translationOptionsEn": [
+    "to defend",
+    "to attack",
+    "to capture",
+    "to retreat"
+  ],
+  "translationOptionsFr": [
+    "défendre",
+    "attaquer",
+    "capturer",
+    "reculer"
+  ],
+  "translationOptionsEs": [
+    "defender",
+    "atacar",
+    "capturar",
+    "retroceder"
+  ],
+  "translationOptionsPt": [
+    "defender",
+    "atacar",
+    "capturar",
+    "recuar"
+  ],
+  "translationOptionsAr": [
+    "أن يدافع",
+    "أن يهاجم",
+    "أن يستولي",
+    "أن يتراجع"
+  ],
+  "translationOptionsAm": [
+    "መከላከል",
+    "ማጥቃት",
+    "መቆጣጠር",
+    "ማፈግፈግ"
+  ],
+  "correctTranslationIndex": 0
+},
+{
+  "hebrewVerb": "לפקח",
+  "root": "פ-ק-ח",
+  "binyan": "PI'EL",
+  "transliteration": "lefake'akh",
+  "audioFile": "lefakeakh.mp3",
+  "translationOptions": [
+    "Надзирать",
+    "Управлять",
+    "Проверять",
+    "Наблюдать"
+  ],
+  "translationOptionsEn": [
+    "to supervise",
+    "to manage",
+    "to check",
+    "to observe"
+  ],
+  "translationOptionsFr": [
+    "superviser",
+    "gérer",
+    "vérifier",
+    "observer"
+  ],
+  "translationOptionsEs": [
+    "supervisar",
+    "gestionar",
+    "comprobar",
+    "observar"
+  ],
+  "translationOptionsPt": [
+    "supervisionar",
+    "gerir",
+    "verificar",
+    "observar"
+  ],
+  "translationOptionsAr": [
+    "أن يشرف",
+    "أن يدير",
+    "أن يفحص",
+    "أن يراقب"
+  ],
+  "translationOptionsAm": [
+    "መቆጣጠር",
+    "ማስተዳደር",
+    "መፈተሽ",
+    "መመልከት"
+  ],
+  "correctTranslationIndex": 0
+},
+{
+  "hebrewVerb": "להביט",
+  "root": "נ-ב-ט",
+  "binyan": "HIF'IL",
+  "transliteration": "lehabit",
+  "audioFile": "lehabit.mp3",
+  "translationOptions": [
+    "Взглянуть",
+    "Замечать",
+    "Искать",
+    "Показывать"
+  ],
+  "translationOptionsEn": [
+    "to gaze",
+    "to notice",
+    "to search",
+    "to show"
+  ],
+  "translationOptionsFr": [
+    "contempler",
+    "remarquer",
+    "chercher",
+    "montrer"
+  ],
+  "translationOptionsEs": [
+    "contemplar",
+    "notar",
+    "buscar",
+    "mostrar"
+  ],
+  "translationOptionsPt": [
+    "contemplar",
+    "notar",
+    "procurar",
+    "mostrar"
+  ],
+  "translationOptionsAr": [
+    "أن يحدق",
+    "أن يلاحظ",
+    "أن يبحث",
+    "أن يُظهر"
+  ],
+  "translationOptionsAm": [
+    "በትኩረት ማየት",
+    "ማስተዋል",
+    "መፈለግ",
+    "ማሳየት"
+  ],
+  "correctTranslationIndex": 0
+},
+{
+  "hebrewVerb": "לשוט",
+  "root": "ש-ו-ט",
+  "binyan": "PA'AL",
+  "transliteration": "lashut",
+  "audioFile": "lashut.mp3",
+  "translationOptions": [
+    "Плавать на судне",
+    "Нырять",
+    "Грести",
+    "Летать"
+  ],
+  "translationOptionsEn": [
+    "to sail",
+    "to dive",
+    "to row",
+    "to fly"
+  ],
+  "translationOptionsFr": [
+    "naviguer",
+    "plonger",
+    "ramer",
+    "voler"
+  ],
+  "translationOptionsEs": [
+    "navegar",
+    "bucear",
+    "remar",
+    "volar"
+  ],
+  "translationOptionsPt": [
+    "navegar",
+    "mergulhar",
+    "remar",
+    "voar"
+  ],
+  "translationOptionsAr": [
+    "أن يبحر",
+    "أن يغوص",
+    "أن يجدف",
+    "أن يطير"
+  ],
+  "translationOptionsAm": [
+    "በመርከብ መጓዝ",
+    "መጥለቅ",
+    "መቅዘፍ",
+    "መብረር"
+  ],
+  "correctTranslationIndex": 0
+},
+{
+  "hebrewVerb": "לעוף",
+  "root": "ע-ו-ף",
+  "binyan": "PA'AL",
+  "transliteration": "la'uf",
+  "audioFile": "lauf.mp3",
+  "translationOptions": [
+    "Летать",
+    "Прыгать",
+    "Падать",
+    "Парить"
+  ],
+  "translationOptionsEn": [
+    "to fly",
+    "to jump",
+    "to fall",
+    "to hover"
+  ],
+  "translationOptionsFr": [
+    "voler",
+    "sauter",
+    "tomber",
+    "planer"
+  ],
+  "translationOptionsEs": [
+    "volar",
+    "saltar",
+    "caer",
+    "planear"
+  ],
+  "translationOptionsPt": [
+    "voar",
+    "saltar",
+    "cair",
+    "planar"
+  ],
+  "translationOptionsAr": [
+    "أن يطير",
+    "أن يقفز",
+    "أن يسقط",
+    "أن يحلق"
+  ],
+  "translationOptionsAm": [
+    "መብረር",
+    "መዝለል",
+    "መውደቅ",
+    "መንሳፈፍ"
+  ],
+  "correctTranslationIndex": 0
+},
+{
+  "hebrewVerb": "לכוון",
+  "root": "כ-ו-נ",
+  "binyan": "PI'EL",
+  "transliteration": "lekhaven",
+  "audioFile": "lekhaven.mp3",
+  "translationOptions": [
+    "Направлять",
+    "Останавливать",
+    "Следовать",
+    "Менять"
+  ],
+  "translationOptionsEn": [
+    "to direct",
+    "to stop",
+    "to follow",
+    "to change"
+  ],
+  "translationOptionsFr": [
+    "diriger",
+    "arrêter",
+    "suivre",
+    "changer"
+  ],
+  "translationOptionsEs": [
+    "dirigir",
+    "parar",
+    "seguir",
+    "cambiar"
+  ],
+  "translationOptionsPt": [
+    "direcionar",
+    "parar",
+    "seguir",
+    "mudar"
+  ],
+  "translationOptionsAr": [
+    "أن يوجّه",
+    "أن يوقف",
+    "أن يتبع",
+    "أن يغيّر"
+  ],
+  "translationOptionsAm": [
+    "መምራት",
+    "ማቆም",
+    "መከተል",
+    "መቀየር"
+  ],
+  "correctTranslationIndex": 0
+},
+{
+  "hebrewVerb": "להצמיד",
+  "root": "צ-מ-ד",
+  "binyan": "HIF'IL",
+  "transliteration": "lehatzmid",
+  "audioFile": "lehatzmid.mp3",
+  "translationOptions": [
+    "Прикреплять",
+    "Отделять",
+    "Поднимать",
+    "Перемещать"
+  ],
+  "translationOptionsEn": [
+    "to attach",
+    "to separate",
+    "to lift",
+    "to move"
+  ],
+  "translationOptionsFr": [
+    "attacher",
+    "séparer",
+    "soulever",
+    "déplacer"
+  ],
+  "translationOptionsEs": [
+    "adjuntar",
+    "separar",
+    "levantar",
+    "mover"
+  ],
+  "translationOptionsPt": [
+    "anexar",
+    "separar",
+    "levantar",
+    "mover"
+  ],
+  "translationOptionsAr": [
+    "أن يُرفق",
+    "أن يفصل",
+    "أن يرفع",
+    "أن ينقل"
+  ],
+  "translationOptionsAm": [
+    "ማያያዝ",
+    "መለየት",
+    "ማንሳት",
+    "ማንቀሳቀስ"
+  ],
+  "correctTranslationIndex": 0
+},
+{
+  "hebrewVerb": "להצליח",
+  "root": "צ-ל-ח",
+  "binyan": "HIF'IL",
+  "transliteration": "lehatzliakh",
+  "audioFile": "lehatzliakh.mp3",
+  "translationOptions": [
+    "Преуспевать",
+    "Стараться",
+    "Проигрывать",
+    "Сомневаться"
+  ],
+  "translationOptionsEn": [
+    "to succeed",
+    "to try",
+    "to lose",
+    "to doubt"
+  ],
+  "translationOptionsFr": [
+    "réussir",
+    "essayer",
+    "perdre",
+    "douter"
+  ],
+  "translationOptionsEs": [
+    "tener éxito",
+    "intentar",
+    "perder",
+    "dudar"
+  ],
+  "translationOptionsPt": [
+    "ter sucesso",
+    "tentar",
+    "perder",
+    "duvidar"
+  ],
+  "translationOptionsAr": [
+    "أن ينجح",
+    "أن يحاول",
+    "أن يخسر",
+    "أن يشك"
+  ],
+  "translationOptionsAm": [
+    "መሳካት",
+    "መሞከር",
+    "መሸነፍ",
+    "መጠራጠር"
+  ],
+  "correctTranslationIndex": 0
+},
+{
+  "hebrewVerb": "להשתתף",
+  "root": "ש-ת-ף",
+  "binyan": "HITPA'EL",
+  "transliteration": "lehishtatef",
+  "audioFile": "lehishtatef.mp3",
+  "translationOptions": [
+    "Участвовать",
+    "Организовывать",
+    "Приглашать",
+    "Отказываться"
+  ],
+  "translationOptionsEn": [
+    "to participate",
+    "to organize",
+    "to invite",
+    "to refuse"
+  ],
+  "translationOptionsFr": [
+    "participer",
+    "organiser",
+    "inviter",
+    "refuser"
+  ],
+  "translationOptionsEs": [
+    "participar",
+    "organizar",
+    "invitar",
+    "rechazar"
+  ],
+  "translationOptionsPt": [
+    "participar",
+    "organizar",
+    "convidar",
+    "recusar"
+  ],
+  "translationOptionsAr": [
+    "أن يشارك",
+    "أن ينظم",
+    "أن يدعو",
+    "أن يرفض"
+  ],
+  "translationOptionsAm": [
+    "መሳተፍ",
+    "ማደራጀት",
+    "መጋበዝ",
+    "እምቢ ማለት"
+  ],
+  "correctTranslationIndex": 0
+},
+{
+  "hebrewVerb": "לעסוק",
+  "root": "ע-ס-ק",
+  "binyan": "PA'AL",
+  "transliteration": "la'asok",
+  "audioFile": "laasok.mp3",
+  "translationOptions": [
+    "Заниматься",
+    "Отдыхать",
+    "Изучать",
+    "Работать"
+  ],
+  "translationOptionsEn": [
+    "to engage in",
+    "to rest",
+    "to study",
+    "to work"
+  ],
+  "translationOptionsFr": [
+    "s'occuper de",
+    "se reposer",
+    "étudier",
+    "travailler"
+  ],
+  "translationOptionsEs": [
+    "dedicarse a",
+    "descansar",
+    "estudiar",
+    "trabajar"
+  ],
+  "translationOptionsPt": [
+    "dedicar-se a",
+    "descansar",
+    "estudar",
+    "trabalhar"
+  ],
+  "translationOptionsAr": [
+    "أن ينشغل بـ",
+    "أن يستريح",
+    "أن يدرس",
+    "أن يعمل"
+  ],
+  "translationOptionsAm": [
+    "መሰማራት",
+    "ማረፍ",
+    "ማጥናት",
+    "መስራት"
+  ],
+  "correctTranslationIndex": 0
+},
+{
+  "hebrewVerb": "לברוח",
+  "root": "ב-ר-ח",
+  "binyan": "PA'AL",
+  "transliteration": "livroakh",
+  "audioFile": "livroakh.mp3",
+  "translationOptions": [
+    "Убегать",
+    "Прятаться",
+    "Догонять",
+    "Возвращаться"
+  ],
+  "translationOptionsEn": [
+    "to run away",
+    "to hide",
+    "to catch up",
+    "to return"
+  ],
+  "translationOptionsFr": [
+    "s'enfuir",
+    "se cacher",
+    "rattraper",
+    "revenir"
+  ],
+  "translationOptionsEs": [
+    "huir",
+    "esconderse",
+    "alcanzar",
+    "volver"
+  ],
+  "translationOptionsPt": [
+    "fugir",
+    "esconder-se",
+    "alcançar",
+    "voltar"
+  ],
+  "translationOptionsAr": [
+    "أن يهرب",
+    "أن يختبئ",
+    "أن يلحق",
+    "أن يعود"
+  ],
+  "translationOptionsAm": [
+    "መሸሽ",
+    "መደበቅ",
+    "መድረስ",
+    "መመለስ"
+  ],
+  "correctTranslationIndex": 0
+},
+{
+  "hebrewVerb": "להתעלם",
+  "root": "ע-ל-מ",
+  "binyan": "HITPA'EL",
+  "transliteration": "lehit'alem",
+  "audioFile": "lehitalem.mp3",
+  "translationOptions": [
+    "Игнорировать",
+    "Замечать",
+    "Отвечать",
+    "Слушать"
+  ],
+  "translationOptionsEn": [
+    "to ignore",
+    "to notice",
+    "to answer",
+    "to listen"
+  ],
+  "translationOptionsFr": [
+    "ignorer",
+    "remarquer",
+    "répondre",
+    "écouter"
+  ],
+  "translationOptionsEs": [
+    "ignorar",
+    "notar",
+    "responder",
+    "escuchar"
+  ],
+  "translationOptionsPt": [
+    "ignorar",
+    "notar",
+    "responder",
+    "ouvir"
+  ],
+  "translationOptionsAr": [
+    "أن يتجاهل",
+    "أن يلاحظ",
+    "أن يجيب",
+    "أن يستمع"
+  ],
+  "translationOptionsAm": [
+    "ችላ ማለት",
+    "ማስተዋል",
+    "መመለስ",
+    "ማዳመጥ"
+  ],
+  "correctTranslationIndex": 0
+},
+{
+  "hebrewVerb": "להשתחרר",
+  "root": "ש-ח-ר",
+  "binyan": "HITPA'EL",
+  "transliteration": "lehishtakhrer",
+  "audioFile": "lehishtakhrer.mp3",
+  "translationOptions": [
+    "Освобождаться",
+    "Задерживаться",
+    "Возвращаться",
+    "Сдаваться"
+  ],
+  "translationOptionsEn": [
+    "to get free",
+    "to be delayed",
+    "to return",
+    "to surrender"
+  ],
+  "translationOptionsFr": [
+    "se libérer",
+    "être retardé",
+    "revenir",
+    "se rendre"
+  ],
+  "translationOptionsEs": [
+    "liberarse",
+    "retrasarse",
+    "volver",
+    "rendirse"
+  ],
+  "translationOptionsPt": [
+    "libertar-se",
+    "atrasar-se",
+    "voltar",
+    "render-se"
+  ],
+  "translationOptionsAr": [
+    "أن يتحرر",
+    "أن يتأخر",
+    "أن يعود",
+    "أن يستسلم"
+  ],
+  "translationOptionsAm": [
+    "ነፃ መውጣት",
+    "መዘግየት",
+    "መመለስ",
+    "እጅ መስጠት"
+  ],
+  "correctTranslationIndex": 0
+},
+{
+  "hebrewVerb": "להתאושש",
+  "root": "א-ו-ש",
+  "binyan": "HITPA'EL",
+  "transliteration": "lehit'oshesh",
+  "audioFile": "lehitoshesh.mp3",
+  "translationOptions": [
+    "Восстанавливаться",
+    "Ухудшаться",
+    "Уставать",
+    "Отдыхать"
+  ],
+  "translationOptionsEn": [
+    "to recover",
+    "to worsen",
+    "to get tired",
+    "to rest"
+  ],
+  "translationOptionsFr": [
+    "se rétablir",
+    "s'aggraver",
+    "se fatiguer",
+    "se reposer"
+  ],
+  "translationOptionsEs": [
+    "recuperarse",
+    "empeorar",
+    "cansarse",
+    "descansar"
+  ],
+  "translationOptionsPt": [
+    "recuperar-se",
+    "piorar",
+    "cansar-se",
+    "descansar"
+  ],
+  "translationOptionsAr": [
+    "أن يتعافى",
+    "أن يسوء",
+    "أن يتعب",
+    "أن يستريح"
+  ],
+  "translationOptionsAm": [
+    "ማገገም",
+    "መባባስ",
+    "መድከም",
+    "ማረፍ"
+  ],
+  "correctTranslationIndex": 0
+},
+{
+  "hebrewVerb": "להתקבל",
+  "root": "ק-ב-ל",
+  "binyan": "HITPA'EL",
+  "transliteration": "lehitkabel",
+  "audioFile": "lehitkabel.mp3",
+  "translationOptions": [
+    "Быть принятым",
+    "Отказываться",
+    "Подавать заявку",
+    "Выбирать"
+  ],
+  "translationOptionsEn": [
+    "to be accepted",
+    "to refuse",
+    "to apply",
+    "to choose"
+  ],
+  "translationOptionsFr": [
+    "être accepté",
+    "refuser",
+    "postuler",
+    "choisir"
+  ],
+  "translationOptionsEs": [
+    "ser aceptado",
+    "rechazar",
+    "solicitar",
+    "elegir"
+  ],
+  "translationOptionsPt": [
+    "ser aceito",
+    "recusar",
+    "candidatar-se",
+    "escolher"
+  ],
+  "translationOptionsAr": [
+    "أن يُقبل",
+    "أن يرفض",
+    "أن يتقدم بطلب",
+    "أن يختار"
+  ],
+  "translationOptionsAm": [
+    "ተቀባይነት ማግኘት",
+    "እምቢ ማለት",
+    "ማመልከት",
+    "መምረጥ"
+  ],
+  "correctTranslationIndex": 0
+},
+{
+  "hebrewVerb": "לפחד",
+  "root": "פ-ח-ד",
+  "binyan": "PA'AL",
+  "transliteration": "lafakhed",
+  "audioFile": "lafakhed.mp3",
+  "translationOptions": [
+    "Бояться",
+    "Волноваться",
+    "Сомневаться",
+    "Удивляться"
+  ],
+  "translationOptionsEn": [
+    "to be afraid",
+    "to worry",
+    "to doubt",
+    "to be surprised"
+  ],
+  "translationOptionsFr": [
+    "avoir peur",
+    "s'inquiéter",
+    "douter",
+    "être surpris"
+  ],
+  "translationOptionsEs": [
+    "tener miedo",
+    "preocuparse",
+    "dudar",
+    "sorprenderse"
+  ],
+  "translationOptionsPt": [
+    "ter medo",
+    "preocupar-se",
+    "duvidar",
+    "surpreender-se"
+  ],
+  "translationOptionsAr": [
+    "أن يخاف",
+    "أن يقلق",
+    "أن يشك",
+    "أن يتفاجأ"
+  ],
+  "translationOptionsAm": [
+    "መፍራት",
+    "መጨነቅ",
+    "መጠራጠር",
+    "መገረም"
+  ],
+  "correctTranslationIndex": 0
+},
+{
+  "hebrewVerb": "לחתום",
+  "root": "ח-ת-מ",
+  "binyan": "PA'AL",
+  "transliteration": "lakhtom",
+  "audioFile": "lakhtom.mp3",
+  "translationOptions": [
+    "Подписывать",
+    "Заполнять",
+    "Отправлять",
+    "Отменять"
+  ],
+  "translationOptionsEn": [
+    "to sign",
+    "to fill out",
+    "to send",
+    "to cancel"
+  ],
+  "translationOptionsFr": [
+    "signer",
+    "remplir",
+    "envoyer",
+    "annuler"
+  ],
+  "translationOptionsEs": [
+    "firmar",
+    "rellenar",
+    "enviar",
+    "cancelar"
+  ],
+  "translationOptionsPt": [
+    "assinar",
+    "preencher",
+    "enviar",
+    "cancelar"
+  ],
+  "translationOptionsAr": [
+    "أن يوقّع",
+    "أن يملأ",
+    "أن يرسل",
+    "أن يلغي"
+  ],
+  "translationOptionsAm": [
+    "መፈረም",
+    "መሙላት",
+    "መላክ",
+    "መሰረዝ"
+  ],
+  "correctTranslationIndex": 0
+},
+{
+  "hebrewVerb": "להתריע",
+  "root": "ר-ו-ע",
+  "binyan": "HIF'IL",
+  "transliteration": "lehatria",
+  "audioFile": "lehatria.mp3",
+  "translationOptions": [
+    "Предупреждать",
+    "Успокаивать",
+    "Сообщать",
+    "Угрожать"
+  ],
+  "translationOptionsEn": [
+    "to alert",
+    "to calm",
+    "to inform",
+    "to threaten"
+  ],
+  "translationOptionsFr": [
+    "alerter",
+    "calmer",
+    "informer",
+    "menacer"
+  ],
+  "translationOptionsEs": [
+    "alertar",
+    "calmar",
+    "informar",
+    "amenazar"
+  ],
+  "translationOptionsPt": [
+    "alertar",
+    "acalmar",
+    "informar",
+    "ameaçar"
+  ],
+  "translationOptionsAr": [
+    "أن يحذّر",
+    "أن يهدّئ",
+    "أن يُبلغ",
+    "أن يهدّد"
+  ],
+  "translationOptionsAm": [
+    "ማስጠንቀቅ",
+    "ማረጋጋት",
+    "ማሳወቅ",
+    "ማስፈራራት"
+  ],
+  "correctTranslationIndex": 0
+},
+{
+  "hebrewVerb": "לערער",
+  "root": "ע-ר-ר",
+  "binyan": "PI'EL",
+  "transliteration": "le'ar'er",
+  "audioFile": "learer.mp3",
+  "translationOptions": [
+    "Обжаловать",
+    "Одобрять",
+    "Подтверждать",
+    "Отменять"
+  ],
+  "translationOptionsEn": [
+    "to appeal",
+    "to approve",
+    "to confirm",
+    "to cancel"
+  ],
+  "translationOptionsFr": [
+    "faire appel",
+    "approuver",
+    "confirmer",
+    "annuler"
+  ],
+  "translationOptionsEs": [
+    "apelar",
+    "aprobar",
+    "confirmar",
+    "cancelar"
+  ],
+  "translationOptionsPt": [
+    "recorrer",
+    "aprovar",
+    "confirmar",
+    "cancelar"
+  ],
+  "translationOptionsAr": [
+    "أن يستأنف",
+    "أن يوافق",
+    "أن يؤكد",
+    "أن يلغي"
+  ],
+  "translationOptionsAm": [
+    "ይግባኝ ማለት",
+    "ማጽደቅ",
+    "ማረጋገጥ",
+    "መሰረዝ"
+  ],
+  "correctTranslationIndex": 0
+},
+{
+  "hebrewVerb": "להקפיד",
+  "root": "ק-פ-ד",
+  "binyan": "HIF'IL",
+  "transliteration": "lehakpid",
+  "audioFile": "lehakpid.mp3",
+  "translationOptions": [
+    "Соблюдать",
+    "Нарушать",
+    "Разрешать",
+    "Требовать"
+  ],
+  "translationOptionsEn": [
+    "to adhere to",
+    "to violate",
+    "to allow",
+    "to demand"
+  ],
+  "translationOptionsFr": [
+    "respecter",
+    "enfreindre",
+    "permettre",
+    "exiger"
+  ],
+  "translationOptionsEs": [
+    "cumplir",
+    "infringir",
+    "permitir",
+    "exigir"
+  ],
+  "translationOptionsPt": [
+    "cumprir",
+    "violar",
+    "permitir",
+    "exigir"
+  ],
+  "translationOptionsAr": [
+    "أن يلتزم",
+    "أن ينتهك",
+    "أن يسمح",
+    "أن يطالب"
+  ],
+  "translationOptionsAm": [
+    "መከተል",
+    "መጣስ",
+    "መፍቀድ",
+    "መጠየቅ"
+  ],
+  "correctTranslationIndex": 0
+},
+{
+  "hebrewVerb": "להתבסס",
+  "root": "ב-ס-ס",
+  "binyan": "HITPA'EL",
+  "transliteration": "lehitbases",
+  "audioFile": "lehitbases.mp3",
+  "translationOptions": [
+    "Основываться",
+    "Предполагать",
+    "Доказывать",
+    "Зависеть"
+  ],
+  "translationOptionsEn": [
+    "to be based on",
+    "to assume",
+    "to prove",
+    "to depend"
+  ],
+  "translationOptionsFr": [
+    "se baser sur",
+    "supposer",
+    "prouver",
+    "dépendre"
+  ],
+  "translationOptionsEs": [
+    "basarse en",
+    "suponer",
+    "demostrar",
+    "depender"
+  ],
+  "translationOptionsPt": [
+    "basear-se em",
+    "supor",
+    "provar",
+    "depender"
+  ],
+  "translationOptionsAr": [
+    "أن يستند إلى",
+    "أن يفترض",
+    "أن يثبت",
+    "أن يعتمد على"
+  ],
+  "translationOptionsAm": [
+    "መመስረት",
+    "መገመት",
+    "ማረጋገጥ",
+    "መወሰን"
+  ],
+  "correctTranslationIndex": 0
+},
+{
+  "hebrewVerb": "להתפשר",
+  "root": "פ-ש-ר",
+  "binyan": "HITPA'EL",
+  "transliteration": "lehitpasher",
+  "audioFile": "lehitpasher.mp3",
+  "translationOptions": [
+    "Идти на компромисс",
+    "Настаивать",
+    "Отказываться",
+    "Соглашаться"
+  ],
+  "translationOptionsEn": [
+    "to compromise",
+    "to insist",
+    "to refuse",
+    "to agree"
+  ],
+  "translationOptionsFr": [
+    "faire un compromis",
+    "insister",
+    "refuser",
+    "accepter"
+  ],
+  "translationOptionsEs": [
+    "llegar a un compromiso",
+    "insistir",
+    "rechazar",
+    "aceptar"
+  ],
+  "translationOptionsPt": [
+    "chegar a um compromisso",
+    "insistir",
+    "recusar",
+    "aceitar"
+  ],
+  "translationOptionsAr": [
+    "أن يتوصل إلى حل وسط",
+    "أن يصرّ",
+    "أن يرفض",
+    "أن يوافق"
+  ],
+  "translationOptionsAm": [
+    "መደራደር",
+    "አጥብቆ መጠየቅ",
+    "እምቢ ማለት",
+    "መስማማት"
+  ],
+  "correctTranslationIndex": 0
+},
+{
+  "hebrewVerb": "להתאבל",
+  "root": "א-ב-ל",
+  "binyan": "HITPA'EL",
+  "transliteration": "lehit'abel",
+  "audioFile": "lehitabel.mp3",
+  "translationOptions": [
+    "Скорбеть",
+    "Радоваться",
+    "Утешать",
+    "Вспоминать"
+  ],
+  "translationOptionsEn": [
+    "to mourn",
+    "to rejoice",
+    "to comfort",
+    "to remember"
+  ],
+  "translationOptionsFr": [
+    "être en deuil",
+    "se réjouir",
+    "consoler",
+    "se souvenir"
+  ],
+  "translationOptionsEs": [
+    "estar de luto",
+    "alegrarse",
+    "consolar",
+    "recordar"
+  ],
+  "translationOptionsPt": [
+    "estar de luto",
+    "alegrar-se",
+    "consolar",
+    "lembrar"
+  ],
+  "translationOptionsAr": [
+    "أن يحزن على ميت",
+    "أن يفرح",
+    "أن يواسي",
+    "أن يتذكر"
+  ],
+  "translationOptionsAm": [
+    "ማዘን",
+    "መደሰት",
+    "ማጽናናት",
+    "ማስታወስ"
+  ],
+  "correctTranslationIndex": 0
+},
+{
+  "hebrewVerb": "להשגיח",
+  "root": "ש-ג-ח",
+  "binyan": "HIF'IL",
+  "transliteration": "lehashgiakh",
+  "audioFile": "lehashgiakh.mp3",
+  "translationOptions": [
+    "Присматривать",
+    "Игнорировать",
+    "Помогать",
+    "Проверять"
+  ],
+  "translationOptionsEn": [
+    "to watch over",
+    "to ignore",
+    "to help",
+    "to check"
+  ],
+  "translationOptionsFr": [
+    "surveiller",
+    "ignorer",
+    "aider",
+    "vérifier"
+  ],
+  "translationOptionsEs": [
+    "vigilar",
+    "ignorar",
+    "ayudar",
+    "comprobar"
+  ],
+  "translationOptionsPt": [
+    "vigiar",
+    "ignorar",
+    "ajudar",
+    "verificar"
+  ],
+  "translationOptionsAr": [
+    "أن يراقب",
+    "أن يتجاهل",
+    "أن يساعد",
+    "أن يفحص"
+  ],
+  "translationOptionsAm": [
+    "መከታተል",
+    "ችላ ማለት",
+    "መርዳት",
+    "መፈተሽ"
+  ],
+  "correctTranslationIndex": 0
+},
+{
+  "hebrewVerb": "להתמזג",
+  "root": "מ-ז-ג",
+  "binyan": "HITPA'EL",
+  "transliteration": "lehitmazeg",
+  "audioFile": "lehitmazeg.mp3",
+  "translationOptions": [
+    "Сливаться",
+    "Разделяться",
+    "Исчезать",
+    "Расширяться"
+  ],
+  "translationOptionsEn": [
+    "to merge",
+    "to separate",
+    "to disappear",
+    "to expand"
+  ],
+  "translationOptionsFr": [
+    "fusionner",
+    "se séparer",
+    "disparaître",
+    "s'étendre"
+  ],
+  "translationOptionsEs": [
+    "fusionarse",
+    "separarse",
+    "desaparecer",
+    "expandirse"
+  ],
+  "translationOptionsPt": [
+    "fundir-se",
+    "separar-se",
+    "desaparecer",
+    "expandir-se"
+  ],
+  "translationOptionsAr": [
+    "أن يندمج",
+    "أن ينفصل",
+    "أن يختفي",
+    "أن يتوسع"
+  ],
+  "translationOptionsAm": [
+    "መዋሃድ",
+    "መለያየት",
+    "መጥፋት",
+    "መስፋፋት"
+  ],
+  "correctTranslationIndex": 0
+},
+{
+  "hebrewVerb": "להסתנכרן",
+  "root": "ס-נ-כ-ר-נ",
+  "binyan": "HITPA'EL",
+  "transliteration": "lehistankhren",
+  "audioFile": "lehistankhren.mp3",
+  "translationOptions": [
+    "Синхронизироваться",
+    "Подключаться",
+    "Обновляться",
+    "Отключаться"
+  ],
+  "translationOptionsEn": [
+    "to synchronize",
+    "to connect",
+    "to update",
+    "to disconnect"
+  ],
+  "translationOptionsFr": [
+    "se synchroniser",
+    "se connecter",
+    "se mettre à jour",
+    "se déconnecter"
+  ],
+  "translationOptionsEs": [
+    "sincronizarse",
+    "conectarse",
+    "actualizarse",
+    "desconectarse"
+  ],
+  "translationOptionsPt": [
+    "sincronizar-se",
+    "conectar-se",
+    "atualizar-se",
+    "desconectar-se"
+  ],
+  "translationOptionsAr": [
+    "أن يتزامن",
+    "أن يتصل",
+    "أن يتحدث",
+    "أن ينفصل"
+  ],
+  "translationOptionsAm": [
+    "ማመሳሰል",
+    "መገናኘት",
+    "ማዘመን",
+    "ግንኙነት ማቋረጥ"
+  ],
+  "correctTranslationIndex": 0
+},
+{
+  "hebrewVerb": "להימנות",
+  "root": "מ-נ-ה",
+  "binyan": "NIF'AL",
+  "transliteration": "lehimannot",
+  "audioFile": "lehimannot.mp3",
+  "translationOptions": [
+    "Числиться",
+    "Исключаться",
+    "Выбираться",
+    "Присоединяться"
+  ],
+  "translationOptionsEn": [
+    "to be counted among",
+    "to be excluded",
+    "to be chosen",
+    "to join"
+  ],
+  "translationOptionsFr": [
+    "compter parmi",
+    "être exclu",
+    "être choisi",
+    "rejoindre"
+  ],
+  "translationOptionsEs": [
+    "contarse entre",
+    "ser excluido",
+    "ser elegido",
+    "unirse"
+  ],
+  "translationOptionsPt": [
+    "contar-se entre",
+    "ser excluído",
+    "ser escolhido",
+    "juntar-se"
+  ],
+  "translationOptionsAr": [
+    "أن يُعدّ من",
+    "أن يُستبعد",
+    "أن يُختار",
+    "أن ينضم"
+  ],
+  "translationOptionsAm": [
+    "ከ... መካከል መቆጠር",
+    "መገለል",
+    "መመረጥ",
+    "መቀላቀል"
+  ],
+  "correctTranslationIndex": 0
+},
+{
+  "hebrewVerb": "להתייחס",
+  "root": "י-ח-ס",
+  "binyan": "HITPA'EL",
+  "transliteration": "lehit'yakhes",
+  "audioFile": "lehityakhes.mp3",
+  "translationOptions": [
+    "Относиться",
+    "Игнорировать",
+    "Сравнивать",
+    "Обсуждать"
+  ],
+  "translationOptionsEn": [
+    "to relate to",
+    "to ignore",
+    "to compare",
+    "to discuss"
+  ],
+  "translationOptionsFr": [
+    "se rapporter à",
+    "ignorer",
+    "comparer",
+    "discuter"
+  ],
+  "translationOptionsEs": [
+    "referirse a",
+    "ignorar",
+    "comparar",
+    "discutir"
+  ],
+  "translationOptionsPt": [
+    "referir-se a",
+    "ignorar",
+    "comparar",
+    "discutir"
+  ],
+  "translationOptionsAr": [
+    "أن يتعامل مع",
+    "أن يتجاهل",
+    "أن يقارن",
+    "أن يناقش"
+  ],
+  "translationOptionsAm": [
+    "አመለካከት መያዝ",
+    "ችላ ማለት",
+    "ማወዳደር",
+    "መወያየት"
+  ],
+  "correctTranslationIndex": 0
+},
+{
+  "hebrewVerb": "להפנות",
+  "root": "פ-נ-ה",
+  "binyan": "HIF'IL",
+  "transliteration": "lehafnot",
+  "audioFile": "lehafnot.mp3",
+  "translationOptions": [
+    "Направлять",
+    "Отказывать",
+    "Задерживать",
+    "Скрывать"
+  ],
+  "translationOptionsEn": [
+    "to direct",
+    "to refuse",
+    "to delay",
+    "to hide"
+  ],
+  "translationOptionsFr": [
+    "diriger",
+    "refuser",
+    "retarder",
+    "cacher"
+  ],
+  "translationOptionsEs": [
+    "dirigir",
+    "rechazar",
+    "retrasar",
+    "ocultar"
+  ],
+  "translationOptionsPt": [
+    "direcionar",
+    "recusar",
+    "atrasar",
+    "esconder"
+  ],
+  "translationOptionsAr": [
+    "أن يوجّه",
+    "أن يرفض",
+    "أن يؤخر",
+    "أن يخفي"
+  ],
+  "translationOptionsAm": [
+    "መምራት",
+    "እምቢ ማለት",
+    "ማዘግየት",
+    "መደበቅ"
+  ],
+  "correctTranslationIndex": 0
+},
+{
+  "hebrewVerb": "לנהור",
+  "root": "נ-ה-ר",
+  "binyan": "PA'AL",
+  "transliteration": "linhor",
+  "audioFile": "linhor.mp3",
+  "translationOptions": [
+    "Устремляться",
+    "Расходиться",
+    "Останавливаться",
+    "Возвращаться"
+  ],
+  "translationOptionsEn": [
+    "to flock",
+    "to disperse",
+    "to stop",
+    "to return"
+  ],
+  "translationOptionsFr": [
+    "affluer",
+    "se disperser",
+    "s'arrêter",
+    "revenir"
+  ],
+  "translationOptionsEs": [
+    "acudir en masa",
+    "dispersarse",
+    "parar",
+    "volver"
+  ],
+  "translationOptionsPt": [
+    "afluir",
+    "dispersar-se",
+    "parar",
+    "voltar"
+  ],
+  "translationOptionsAr": [
+    "أن يتوافد",
+    "أن يتفرق",
+    "أن يتوقف",
+    "أن يعود"
+  ],
+  "translationOptionsAm": [
+    "በብዛት መጉረፍ",
+    "መበተን",
+    "ማቆም",
+    "መመለስ"
+  ],
+  "correctTranslationIndex": 0
+},
+{
+  "hebrewVerb": "להצטיין",
+  "root": "צ-י-נ",
+  "binyan": "HITPA'EL",
+  "transliteration": "lehitztayen",
+  "audioFile": "lehitztayen.mp3",
+  "translationOptions": [
+    "Преуспевать",
+    "Ошибаться",
+    "Стараться",
+    "Соревноваться"
+  ],
+  "translationOptionsEn": [
+    "to excel",
+    "to be mistaken",
+    "to try",
+    "to compete"
+  ],
+  "translationOptionsFr": [
+    "exceller",
+    "se tromper",
+    "essayer",
+    "concourir"
+  ],
+  "translationOptionsEs": [
+    "destacar",
+    "equivocarse",
+    "intentar",
+    "competir"
+  ],
+  "translationOptionsPt": [
+    "destacar-se",
+    "enganar-se",
+    "tentar",
+    "competir"
+  ],
+  "translationOptionsAr": [
+    "أن يتفوق",
+    "أن يخطئ",
+    "أن يحاول",
+    "أن يتنافس"
+  ],
+  "translationOptionsAm": [
+    "መበለጥ",
+    "መሳሳት",
+    "መሞከር",
+    "መወዳደር"
+  ],
+  "correctTranslationIndex": 0
+},
+{
+  "hebrewVerb": "להתמחות",
+  "root": "מ-ח-ה",
+  "binyan": "HITPA'EL",
+  "transliteration": "lehitmakhot",
+  "audioFile": "lehitmot.mp3",
+  "translationOptions": [
+    "Специализироваться",
+    "Обучаться",
+    "Исследовать",
+    "Преподавать"
+  ],
+  "translationOptionsEn": [
+    "to specialize",
+    "to study",
+    "to research",
+    "to teach"
+  ],
+  "translationOptionsFr": [
+    "se spécialiser",
+    "étudier",
+    "rechercher",
+    "enseigner"
+  ],
+  "translationOptionsEs": [
+    "especializarse",
+    "estudiar",
+    "investigar",
+    "enseñar"
+  ],
+  "translationOptionsPt": [
+    "especializar-se",
+    "estudar",
+    "pesquisar",
+    "ensinar"
+  ],
+  "translationOptionsAr": [
+    "أن يتخصص",
+    "أن يدرس",
+    "أن يبحث",
+    "أن يدرّس"
+  ],
+  "translationOptionsAm": [
+    "ልዩ ሙያ ማግኘት",
+    "ማጥናት",
+    "መመርመር",
+    "ማስተማር"
+  ],
+  "correctTranslationIndex": 0
+},
+{
+  "hebrewVerb": "להתמקד",
+  "root": "מ-ק-ד",
+  "binyan": "HITPA'EL",
+  "transliteration": "lehitmaked",
+  "audioFile": "lehitmaked.mp3",
+  "translationOptions": [
+    "Сосредотачиваться",
+    "Отвлекаться",
+    "Избегать",
+    "Расслабляться"
+  ],
+  "translationOptionsEn": [
+    "to focus",
+    "to get distracted",
+    "to avoid",
+    "to relax"
+  ],
+  "translationOptionsFr": [
+    "se concentrer",
+    "se distraire",
+    "éviter",
+    "se détendre"
+  ],
+  "translationOptionsEs": [
+    "concentrarse",
+    "distraerse",
+    "evitar",
+    "relajarse"
+  ],
+  "translationOptionsPt": [
+    "concentrar-se",
+    "distrair-se",
+    "evitar",
+    "relaxar"
+  ],
+  "translationOptionsAr": [
+    "أن يركّز",
+    "أن يتشتت",
+    "أن يتجنب",
+    "أن يسترخي"
+  ],
+  "translationOptionsAm": [
+    "ማተኮር",
+    "መዘናጋት",
+    "ማስወገድ",
+    "ዘና ማለት"
+  ],
+  "correctTranslationIndex": 0
+},
+{
+  "hebrewVerb": "להתחשב",
+  "root": "ח-ש-ב",
+  "binyan": "HITPA'EL",
+  "transliteration": "lehitkhashev",
+  "audioFile": "lehitkhashev.mp3",
+  "translationOptions": [
+    "Учитывать",
+    "Игнорировать",
+    "Предполагать",
+    "Проверять"
+  ],
+  "translationOptionsEn": [
+    "to take into account",
+    "to ignore",
+    "to assume",
+    "to check"
+  ],
+  "translationOptionsFr": [
+    "tenir compte de",
+    "ignorer",
+    "supposer",
+    "vérifier"
+  ],
+  "translationOptionsEs": [
+    "tener en cuenta",
+    "ignorar",
+    "suponer",
+    "comprobar"
+  ],
+  "translationOptionsPt": [
+    "levar em conta",
+    "ignorar",
+    "supor",
+    "verificar"
+  ],
+  "translationOptionsAr": [
+    "أن يأخذ بعين الاعتبار",
+    "أن يتجاهل",
+    "أن يفترض",
+    "أن يتحقق"
+  ],
+  "translationOptionsAm": [
+    "ግምት ውስጥ ማስገባት",
+    "ችላ ማለት",
+    "መገመት",
+    "ማረጋገጥ"
+  ],
+  "correctTranslationIndex": 0
+},
+{
+  "hebrewVerb": "להסתייג",
+  "root": "ס-י-ג",
+  "binyan": "HITPA'EL",
+  "transliteration": "lehistayeg",
+  "audioFile": "lehistayeg.mp3",
+  "translationOptions": [
+    "Возражать",
+    "Соглашаться",
+    "Поддерживать",
+    "Одобрять"
+  ],
+  "translationOptionsEn": [
+    "to object",
+    "to agree",
+    "to support",
+    "to approve"
+  ],
+  "translationOptionsFr": [
+    "s'opposer",
+    "être d'accord",
+    "soutenir",
+    "approuver"
+  ],
+  "translationOptionsEs": [
+    "objetar",
+    "estar de acuerdo",
+    "apoyar",
+    "aprobar"
+  ],
+  "translationOptionsPt": [
+    "objetar",
+    "concordar",
+    "apoiar",
+    "aprovar"
+  ],
+  "translationOptionsAr": [
+    "أن يعترض",
+    "أن يوافق",
+    "أن يدعم",
+    "أن يؤيد"
+  ],
+  "translationOptionsAm": [
+    "መቃወም",
+    "መስማማት",
+    "መደገፍ",
+    "ማጽደቅ"
+  ],
+  "correctTranslationIndex": 0
+},
+{
+  "hebrewVerb": "להירתע",
+  "root": "ר-ת-ע",
+  "binyan": "NIF'AL",
+  "transliteration": "lehirata",
+  "audioFile": "lehiratea.mp3",
+  "translationOptions": [
+    "Отступать",
+    "Продвигаться",
+    "Рисковать",
+    "Настаивать"
+  ],
+  "translationOptionsEn": [
+    "to recoil",
+    "to advance",
+    "to risk",
+    "to insist"
+  ],
+  "translationOptionsFr": [
+    "reculer",
+    "avancer",
+    "risquer",
+    "insister"
+  ],
+  "translationOptionsEs": [
+    "retroceder",
+    "avanzar",
+    "arriesgar",
+    "insistir"
+  ],
+  "translationOptionsPt": [
+    "recuar",
+    "avançar",
+    "arriscar",
+    "insistir"
+  ],
+  "translationOptionsAr": [
+    "أن يتراجع",
+    "أن يتقدم",
+    "أن يخاطر",
+    "أن يصرّ"
+  ],
+  "translationOptionsAm": [
+    "ማፈግፈግ",
+    "መራመድ",
+    "አደጋ መጋፈጥ",
+    "አጥብቆ መጠየቅ"
+  ],
+  "correctTranslationIndex": 0
+},
+{
+  "hebrewVerb": "להיגזר",
+  "root": "ג-ז-ר",
+  "binyan": "NIF'AL",
+  "transliteration": "lehigazer",
+  "audioFile": "lehigazer.mp3",
+  "translationOptions": [
+    "Следовать",
+    "Противоречить",
+    "Доказывать",
+    "Предполагать"
+  ],
+  "translationOptionsEn": [
+    "to follow",
+    "to contradict",
+    "to prove",
+    "to assume"
+  ],
+  "translationOptionsFr": [
+    "découler",
+    "contredire",
+    "prouver",
+    "supposer"
+  ],
+  "translationOptionsEs": [
+    "derivarse",
+    "contradecir",
+    "demostrar",
+    "suponer"
+  ],
+  "translationOptionsPt": [
+    "decorrer",
+    "contradizer",
+    "provar",
+    "supor"
+  ],
+  "translationOptionsAr": [
+    "أن ينتج عن",
+    "أن يناقض",
+    "أن يثبت",
+    "أن يفترض"
+  ],
+  "translationOptionsAm": [
+    "መከተል",
+    "መቃረን",
+    "ማረጋገጥ",
+    "መገመት"
+  ],
+  "correctTranslationIndex": 0
+},
+{
+  "hebrewVerb": "להסתגל",
+  "root": "ס-ג-ל",
+  "binyan": "HITPA'EL",
+  "transliteration": "lehistagel",
+  "audioFile": "lehistagel.mp3",
+  "translationOptions": [
+    "Адаптироваться",
+    "Сопротивляться",
+    "Избегать",
+    "Привыкать"
+  ],
+  "translationOptionsEn": [
+    "to adapt",
+    "to resist",
+    "to avoid",
+    "to get used to"
+  ],
+  "translationOptionsFr": [
+    "s'adapter",
+    "résister",
+    "éviter",
+    "s'habituer"
+  ],
+  "translationOptionsEs": [
+    "adaptarse",
+    "resistir",
+    "evitar",
+    "acostumbrarse"
+  ],
+  "translationOptionsPt": [
+    "adaptar-se",
+    "resistir",
+    "evitar",
+    "acostumar-se"
+  ],
+  "translationOptionsAr": [
+    "أن يتكيف",
+    "أن يقاوم",
+    "أن يتجنب",
+    "أن يعتاد"
+  ],
+  "translationOptionsAm": [
+    "መላመድ",
+    "መቋቋም",
+    "ማስወገድ",
+    "መልመድ"
+  ],
+  "correctTranslationIndex": 0
+},
+{
+  "hebrewVerb": "להשתייך",
+  "root": "ש-י-כ",
+  "binyan": "HITPA'EL",
+  "transliteration": "lehishtayekh",
+  "audioFile": "lehishtayekh.mp3",
+  "translationOptions": [
+    "Относиться",
+    "Отделяться",
+    "Присоединяться",
+    "Выделяться"
+  ],
+  "translationOptionsEn": [
+    "to belong",
+    "to separate",
+    "to join",
+    "to stand out"
+  ],
+  "translationOptionsFr": [
+    "appartenir",
+    "se séparer",
+    "rejoindre",
+    "se distinguer"
+  ],
+  "translationOptionsEs": [
+    "pertenecer",
+    "separarse",
+    "unirse",
+    "destacar"
+  ],
+  "translationOptionsPt": [
+    "pertencer",
+    "separar-se",
+    "juntar-se",
+    "destacar-se"
+  ],
+  "translationOptionsAr": [
+    "أن ينتمي",
+    "أن ينفصل",
+    "أن ينضم",
+    "أن يتميز"
+  ],
+  "translationOptionsAm": [
+    "መ所属",
+    "መለያየት",
+    "መቀላቀል",
+    "መለየት"
+  ],
+  "correctTranslationIndex": 0
+},
+{
+  "hebrewVerb": "להתחייב",
+  "root": "ח-י-ב",
+  "binyan": "HITPA'EL",
+  "transliteration": "lehitkhayev",
+  "audioFile": "lehitkhayev.mp3",
+  "translationOptions": [
+    "Обязываться",
+    "Отказываться",
+    "Сомневаться",
+    "Разрешать"
+  ],
+  "translationOptionsEn": [
+    "to commit",
+    "to refuse",
+    "to doubt",
+    "to allow"
+  ],
+  "translationOptionsFr": [
+    "s'engager",
+    "refuser",
+    "douter",
+    "permettre"
+  ],
+  "translationOptionsEs": [
+    "comprometerse",
+    "negarse",
+    "dudar",
+    "permitir"
+  ],
+  "translationOptionsPt": [
+    "comprometer-se",
+    "recusar",
+    "duvidar",
+    "permitir"
+  ],
+  "translationOptionsAr": [
+    "أن يلتزم",
+    "أن يرفض",
+    "أن يشك",
+    "أن يسمح"
+  ],
+  "translationOptionsAm": [
+    "ቃል መግባት",
+    "እምቢ ማለት",
+    "መጠራጠር",
+    "መፍቀድ"
+  ],
+  "correctTranslationIndex": 0
+},
+{
+  "hebrewVerb": "להיערך",
+  "root": "ע-ר-כ",
+  "binyan": "NIF'AL",
+  "transliteration": "lehe'arekh",
+  "audioFile": "lehearekh.mp3",
+  "translationOptions": [
+    "Готовиться",
+    "Отказываться",
+    "Торопиться",
+    "Отдыхать"
+  ],
+  "translationOptionsEn": [
+    "to prepare",
+    "to refuse",
+    "to hurry",
+    "to rest"
+  ],
+  "translationOptionsFr": [
+    "se préparer",
+    "refuser",
+    "se dépêcher",
+    "se reposer"
+  ],
+  "translationOptionsEs": [
+    "prepararse",
+    "negarse",
+    "apresurarse",
+    "descansar"
+  ],
+  "translationOptionsPt": [
+    "preparar-se",
+    "recusar",
+    "apressar-se",
+    "descansar"
+  ],
+  "translationOptionsAr": [
+    "أن يستعد",
+    "أن يرفض",
+    "أن يستعجل",
+    "أن يستريح"
+  ],
+  "translationOptionsAm": [
+    "መዘጋጀት",
+    "እምቢ ማለት",
+    "መቸኮል",
+    "ማረፍ"
   ],
   "correctTranslationIndex": 0
 }

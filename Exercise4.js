@@ -16,6 +16,7 @@ import { updateStatistics, getStatistics } from './stat';
 import LottieView from 'lottie-react-native';
 import { widthPercentageToDP as wp } from 'react-native-responsive-screen';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as FirebaseAnalytics from './src/analytics/FirebaseAnalytics';
 
 const FONT_REG = 'mt-regular';
 const FONT_MED = 'mt-medium';
@@ -26,6 +27,24 @@ const HEBREW_FONT = Platform.OS === 'android' ? 'mt-semibold' : 'mt-bold';
 const HEBREW_FS = Platform.OS === 'android' ? 18 : 22;
 
 const Exercise4 = () => {
+
+  const exercise4LoggedRef=useRef(false);
+
+useFocusEffect(
+useCallback(()=>{
+if(exercise4LoggedRef.current)return;
+exercise4LoggedRef.current=true;
+
+FirebaseAnalytics.logFirebaseEvent('exercise7ru',{
+screen:'exercise7ru'
+});
+
+return()=>{
+exercise4LoggedRef.current=false;
+};
+},[])
+);
+
   const [pairs, setPairs] = useState([]);
   const totalPairs = pairs.length;
   const [remainingPairs, setRemainingPairs] = useState(totalPairs);

@@ -20,6 +20,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import VerbListModal2 from './VerbListModal2';
 import shuffleArray from './utils/shuffleArray';
 import verbs1Data from './verbs1.json';
+import * as FirebaseAnalytics from './src/analytics/FirebaseAnalytics';
 
 const FONT_REG = 'mt-regular';
 const FONT_MED = 'mt-medium';
@@ -30,6 +31,24 @@ const HEBREW_FONT = Platform.OS === 'android' ? 'mt-semibold' : 'mt-bold';
 const HEBREW_FS = Platform.OS === 'android' ? 18 : 22;
 
 const Exercise6 = () => {
+
+  const exercise6LoggedRef=useRef(false);
+
+useFocusEffect(
+useCallback(()=>{
+if(exercise6LoggedRef.current)return;
+exercise6LoggedRef.current=true;
+
+FirebaseAnalytics.logFirebaseEvent('exercise5ru',{
+screen:'exercise5ru'
+});
+
+return()=>{
+exercise6LoggedRef.current=false;
+};
+},[])
+);
+
   const [pairs, setPairs] = useState([]);
   const totalPairs = pairs.length;
   const [remainingPairs, setRemainingPairs] = useState(totalPairs);
@@ -1083,7 +1102,7 @@ const styles = StyleSheet.create({
   title: { fontSize: 18, fontWeight: 'bold', marginTop: wp('1%'), marginBottom: 10, color: '#2F4766', textAlign: 'center' },
 
   verbContainer: {
-    flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
+    flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',   
     padding: 5, marginBottom: 5, backgroundColor: '#FFFDEF', borderRadius: 10,
     marginLeft: 5, marginRight: 5,
     shadowColor: "#000", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.25, shadowRadius: 3.84, elevation: 5,

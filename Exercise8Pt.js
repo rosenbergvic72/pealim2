@@ -18,6 +18,7 @@ import LottieView from 'lottie-react-native';
 import SearchModalPt from './SearchModalPt';
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as FirebaseAnalytics from './src/analytics/FirebaseAnalytics';
 
 import VerbListModal2 from './VerbListModal2';
 import shuffleArray from './utils/shuffleArray';
@@ -460,6 +461,24 @@ const TypewriterHebrewHighlightedRTL = ({
 /* ===================================================================== */
 
 const Exercise8Pt = () => {
+
+  const exercise8LoggedRef=useRef(false);
+
+useFocusEffect(
+useCallback(()=>{
+if(exercise8LoggedRef.current)return;
+exercise8LoggedRef.current=true;
+
+FirebaseAnalytics.logFirebaseEvent('exercise6pt',{
+screen:'exercise6pt'
+});
+
+return()=>{
+exercise8LoggedRef.current=false;
+};
+},[])
+);
+
   const [verbs, setVerbs] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [displayPairs, setDisplayPairs] = useState([]);

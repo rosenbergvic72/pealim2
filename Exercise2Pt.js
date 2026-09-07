@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 import VerbCard2 from './VerbCard2Pt';
 import verbsData from './verbs2.json';
+import verbs1 from './verbs1.json';
 import verbs1RU from './verbs11RU.json';
 import ProgressBar from './ProgressBar';
 import CompletionMessage from './CompletionMessagePt';
@@ -28,6 +29,7 @@ import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-nat
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import VerbListModal from './VerbListModal';
 import ExcludedVerbsModal2 from './ExcludedVerbsModal2';
+import * as FirebaseAnalytics from './src/analytics/FirebaseAnalytics';
 
 const EXERCISE2_COUNT_KEY = 'exercise2_selected_count';
 const DEFAULT_EXERCISE_COUNT = 12;
@@ -65,6 +67,52 @@ const getHebrewIdEx2 = (verb) => {
 const getTranslitEx2 = (verb) => {
   const correctOption = (verb?.verbHebrewOptions || []).find((opt) => opt?.isCorrect);
   return String(correctOption?.transliteration || '').trim();
+};
+
+const findVerbDetailsIndex = (exerciseVerb) => {
+  if (!exerciseVerb) return -1;
+
+  const correctHebrew = getHebrewIdEx2(exerciseVerb);
+  if (!correctHebrew) return -1;
+
+  const targetTranslation = normalize(exerciseVerb.verbPortuguese);
+
+  let candidates = verbs1
+    .map((verb, index) => ({ verb, index }))
+    .filter(({ verb }) =>
+      String(verb?.hebrewVerb || '').trim() === correctHebrew
+    );
+
+  if (!candidates.length) return -1;
+
+  if (targetTranslation) {
+    const exact = candidates.find(({ verb }) => {
+      const correctIndex = Number.isInteger(verb?.correctTranslationIndex)
+        ? verb.correctTranslationIndex
+        : 0;
+
+      const correctTranslation =
+        verb?.translationOptionsPt?.[correctIndex] ||
+        verb?.translationOptionsPt?.[0] ||
+        '';
+
+      return normalize(correctTranslation) === targetTranslation;
+    });
+
+    if (exact) return exact.index;
+  }
+
+  const targetAudio = normAudio(exerciseVerb.audioFile);
+
+  if (targetAudio) {
+    const byAudio = candidates.find(
+      ({ verb }) => normAudio(verb?.audioFile) === targetAudio
+    );
+
+    if (byAudio) return byAudio.index;
+  }
+
+  return candidates[0].index;
 };
 
 const buildDeck = (
@@ -259,6 +307,24 @@ const VerbDetailsContainer2 = ({
 };
 
 const Exercise2Pt = () => {
+
+const exercise2LoggedRef=useRef(false);
+
+useFocusEffect(
+useCallback(()=>{
+if(exercise2LoggedRef.current)return;
+exercise2LoggedRef.current=true;
+
+FirebaseAnalytics.logFirebaseEvent('exercise2pt',{
+screen:'exercise2pt'
+});
+
+return()=>{
+exercise2LoggedRef.current=false;
+};
+},[])
+);
+
   const navigation = useNavigation();
 
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -1057,6 +1123,29 @@ const Exercise2Pt = () => {
     initializeVerbList(language, setShuffledVerbs, setVerbListForModal, count);
   };
 
+  const openFullVerbCard = () => {
+  if (!isAnswered) return;
+
+  const currentVerb = shuffledVerbs[currentIndex];
+  if (!currentVerb) return;
+
+  const verbIndex = findVerbDetailsIndex(currentVerb);
+
+  if (verbIndex < 0) {
+    console.warn(
+      '[Exercise2Pt] VerbDetails: verb not found',
+      currentVerb
+    );
+    return;
+  }
+
+  navigation.navigate('VerbDetails', {
+    index: verbIndex,
+    language: 'pt',
+    openedFromExercise: true,
+  });
+};
+
   const handleNextCard = () => {
     if (currentIndex + 1 >= shuffledVerbs.length) {
       setExerciseCompleted(true);
@@ -1220,6 +1309,8 @@ const Exercise2Pt = () => {
                     onExcludePress={() => handleToggleExcludedVerb(getHebrewIdEx2(shuffledVerbs[currentIndex]))}
                     onPinTogglePress={() => handleTogglePinnedVerb(getHebrewIdEx2(shuffledVerbs[currentIndex]))}
                     onOpenManageModal={toggleExcludedVerbsModal}
+                    fullCardEnabled={isAnswered}
+  onOpenFullCard={openFullVerbCard}
                   />
                 )}
 
