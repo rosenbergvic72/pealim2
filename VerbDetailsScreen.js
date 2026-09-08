@@ -1583,8 +1583,8 @@ style={styles.genderIcon}
 
 <Text
 numberOfLines={2}
-adjustsFontSizeToFit
-minimumFontScale={0.82}
+// adjustsFontSizeToFit
+// minimumFontScale={0.82}
 maxFontSizeMultiplier={1}
 style={[
 styles.conjugationTranslation,

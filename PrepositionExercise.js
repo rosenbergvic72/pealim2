@@ -1888,6 +1888,7 @@ return (
     <SafeAreaView
       style={styles.screen}
     >
+      <View style={styles.content}>
       <View style={styles.topBar}>
         <Image
           source={require('./VERBIFY.png')}
@@ -2056,6 +2057,7 @@ return (
       : uiText.next}
   </Text>
 </TouchableOpacity>
+</View>
      </SafeAreaView>
 
 {isStatModalVisible && (
@@ -2088,11 +2090,15 @@ return (
 };
 
 const styles = StyleSheet.create({
-  screen: {
-    flex: 1,
-    backgroundColor: '#83A3CD',
-    paddingHorizontal: 16,
-  },
+screen: {
+  flex: 1,
+  backgroundColor: '#83A3CD',
+},
+
+content: {
+  flex: 1,
+  paddingHorizontal: 16,
+},
 
   settingsLoadingScreen: {
     flex: 1,
@@ -2190,13 +2196,15 @@ percentContainer: {
 
 percentText: {
   minWidth: 68,
-
   paddingHorizontal: 8,
+  paddingVertical: 3,
 
   color: '#FFFFFF',
   fontSize: 20,
+  lineHeight: 27,
   fontWeight: 'bold',
   textAlign: 'center',
+
   backgroundColor: '#83A3CD',
   borderRadius: 10,
 },

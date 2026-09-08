@@ -95,7 +95,7 @@ export default ({ config }) => {
     ? 'com.rosenbergvictor72.verbify.ru'
     : 'com.rosenbergvictor72.pealim2';
 
-  const appVersion = '1.1.30';
+  const appVersion = '1.1.32';
   const versionCode = isRu ? 1000010 : 2000900; // инкрементируйте при каждом релизе
   const runtimeVersion = `${appVersion}-${isRu ? 'ru' : 'gp'}`;
 
@@ -142,13 +142,10 @@ export default ({ config }) => {
      infoPlist: {
   ...(config.ios?.infoPlist || {}),
   ITSAppUsesNonExemptEncryption: false,
+    NSPhotoLibraryUsageDescription:
+    'Verbify may access your photo library only when required by system components used by the app. Verbify does not use your photos for advertising or tracking.',
 
-  NSPhotoLibraryUsageDescription: '...',
-  NSPhotoLibraryAddUsageDescription: '...',
-  NSCameraUsageDescription: '...',
-  NSMicrophoneUsageDescription: '...',
-
-  CFBundleDevelopmentRegion: 'en',
+    CFBundleDevelopmentRegion: 'en',
   CFBundleAllowMixedLocalizations: true,
   CFBundleLocalizations: [
     'en',
@@ -211,19 +208,21 @@ plugins: [
   'expo-localization',
   'expo-notifications',
 
-  [
-    'react-native-fbsdk-next',
-    {
-      appID: '27221636834089503',
-      clientToken: 'a9e105d323bfae6bde57720df3ea99cd',
-      displayName: 'Verbify',
-      advertiserIDCollectionEnabled: true,
-      autoLogAppEventsEnabled: true,
-      isAutoInitEnabled: true,
-      iosUserTrackingPermission:
-        'This identifier will be used to deliver personalized ads to you.',
-    },
-  ],
+[
+  'react-native-fbsdk-next',
+  {
+    appID: '27221636834089503',
+    clientToken: 'a9e105d323bfae6bde57720df3ea99cd',
+    displayName: 'Verbify',
+
+    advertiserIDCollectionEnabled: false,
+    autoLogAppEventsEnabled: false,
+    isAutoInitEnabled: false,
+
+    iosUserTrackingPermission:
+      'This identifier will be used to measure advertising performance and deliver more relevant ads.',
+  },
+],
 
   ...(isRu || disableIap ? [] : ['react-native-iap']),
 

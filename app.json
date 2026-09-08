@@ -33,14 +33,11 @@
     },
     "ios": {
       "bundleIdentifier": "com.rosenbergvictor72.pealim2",
-      "buildNumber": "56",
+      "buildNumber": "60",
       "icon": "./assets/images/icon1024.png",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false,
-        "NSPhotoLibraryUsageDescription": "...",
-        "NSPhotoLibraryAddUsageDescription": "...",
-        "NSCameraUsageDescription": "...",
-        "NSMicrophoneUsageDescription": "..."
+        "NSPhotoLibraryUsageDescription": "Verbify may access your photo library only when required by system components used by the app. Verbify does not use your photos for advertising or tracking."
       }
     },
     "plugins": [

@@ -2091,6 +2091,7 @@ useFocusEffect(
   return (
     <>
       <SafeAreaView style={styles.screen}>
+         <View style={styles.content}>
         <View style={styles.topBar}>
           <Image
             source={require('./VERBIFY.png')}
@@ -2274,6 +2275,7 @@ useFocusEffect(
               : uiText.next}
           </Text>
         </TouchableOpacity>
+        </View>
       </SafeAreaView>
 
       {isRotationModalVisible && (
@@ -2322,11 +2324,15 @@ useFocusEffect(
 };
 
 const styles = StyleSheet.create({
-  screen: {
-    flex: 1,
-    backgroundColor: '#83A3CD',
-    paddingHorizontal: 16,
-  },
+screen: {
+  flex: 1,
+  backgroundColor: '#83A3CD',
+},
+
+content: {
+  flex: 1,
+  paddingHorizontal: 16,
+},
 
   settingsLoadingScreen: {
     flex: 1,

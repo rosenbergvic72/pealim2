@@ -2,6 +2,7 @@
 import './src/ui/iosFontWeightPatch';
 
 // import { Settings, AppEventsLogger } from 'react-native-fbsdk-next';
+import { Settings } from 'react-native-fbsdk-next';
 
 import './polyfills';
 import 'react-native-gesture-handler';
@@ -438,42 +439,47 @@ function AppInner() {
   const TITLE_FS = 16;
 
 useEffect(() => {
-  let timeout;
-
-  const requestATT = async () => {
+  const initMetaAfterATT = async () => {
     try {
+      // Android — ATT не нужен
+      if (Platform.OS !== 'ios') {
+        Settings.initializeSDK();
+        return;
+      }
+
       const { status } =
         await TrackingTransparency.getTrackingPermissionsAsync();
 
       console.log('[ATT] current status:', status);
 
+      let finalStatus = status;
+
       if (status === 'undetermined') {
-        timeout = setTimeout(async () => {
-          const result =
-            await TrackingTransparency.requestTrackingPermissionsAsync();
+        const result =
+          await TrackingTransparency.requestTrackingPermissionsAsync();
 
-          console.log('[ATT] request result:', result.status);
-        }, 1500);
+        finalStatus = result.status;
+
+        console.log('[ATT] request result:', finalStatus);
       }
+
+      // Meta запускается ТОЛЬКО после ответа ATT
+    const trackingAllowed = finalStatus === 'granted';
+
+await Settings.setAdvertiserTrackingEnabled(trackingAllowed);
+
+Settings.initializeSDK();
+
+console.log(
+  '[Meta] initialized. Advertiser tracking:',
+  trackingAllowed
+);
     } catch (e) {
-      console.log('[ATT ERROR]', e);
+      console.log('[ATT/META ERROR]', e);
     }
   };
 
-  const sub = AppState.addEventListener('change', (state) => {
-    if (state === 'active') {
-      requestATT();
-    }
-  });
-
-  if (AppState.currentState === 'active') {
-    requestATT();
-  }
-
-  return () => {
-    sub.remove();
-    if (timeout) clearTimeout(timeout);
-  };
+  initMetaAfterATT();
 }, []);
 
 

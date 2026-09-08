@@ -332,7 +332,8 @@ export default function MenuPage({
     name === 'Exercise2' ||
     name === 'PrepositionExercise';
 
-  const isLocked = name => !fullAccess && !isFreeName(name);
+  // const isLocked = name => !fullAccess && !isFreeName(name);
+  const isLocked = name => !__DEV__ && !fullAccess && !isFreeName(name);
 
   const handlePress = exercise => {
     if (isLocked(exercise)) return;
