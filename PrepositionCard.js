@@ -63,7 +63,7 @@ const HebrewWithSuffix = ({
     return (
       <Text
         style={textStyle}
-        maxFontSizeMultiplier={1.2}
+        maxFontSizeMultiplier={1}
       >
         {value}
       </Text>
@@ -76,7 +76,7 @@ const HebrewWithSuffix = ({
   return (
     <Text
       style={textStyle}
-      maxFontSizeMultiplier={1.2}
+      maxFontSizeMultiplier={1}
     >
       {base}
 
@@ -991,7 +991,7 @@ const styles = StyleSheet.create({
     color: '#333652',
 
     fontSize: 30,
-    fontWeight: '900',
+    fontWeight: '700',
 
     textAlign: 'center',
   },
@@ -1011,10 +1011,10 @@ const styles = StyleSheet.create({
   promptHebrew: {
     color: '#333652',
 
-    fontSize: 34,
-    lineHeight: 42,
+    fontSize: 32,
+    lineHeight: 35,
 
-    fontWeight: '900',
+    fontWeight: '700',
 
     textAlign: 'center',
 
@@ -1026,10 +1026,10 @@ const styles = StyleSheet.create({
 
     color: '#CE6857',
 
-    fontSize: 16,
+    fontSize: 17,
     lineHeight: 20,
 
-    fontWeight: '800',
+    fontWeight: '700',
 
     textAlign: 'center',
   },
@@ -1121,10 +1121,10 @@ const styles = StyleSheet.create({
   },
 
   optionText: {
-    fontSize: 29,
-    lineHeight: 34,
+    fontSize: 27,
+    lineHeight: 30,
 
-    fontWeight: '900',
+    fontWeight: '700',
 
     textAlign: 'center',
   },
@@ -1146,10 +1146,10 @@ const styles = StyleSheet.create({
 
     paddingHorizontal: 4,
 
-    fontSize: 17,
+    fontSize: 18,
     lineHeight: 22,
 
-    fontWeight: '800',
+    fontWeight: '600',
 
     textAlign: 'center',
   },
@@ -1157,7 +1157,7 @@ const styles = StyleSheet.create({
   pronominalSuffix: {
     color: '#FF3AB3',
 
-    fontWeight: '900',
+    fontWeight: '700',
   },
 
   pronominalSuffixInactive: {
@@ -1171,10 +1171,10 @@ const styles = StyleSheet.create({
 
     color: '#CE6857',
 
-    fontSize: 16,
+    fontSize: 17,
     lineHeight: 17,
 
-    fontWeight: '800',
+    fontWeight: '700',
 
     textAlign: 'center',
   },
@@ -1186,8 +1186,8 @@ const styles = StyleSheet.create({
   optionSpeaker: {
     position: 'absolute',
 
-    right: 5,
-    bottom: 5,
+    right: 3,
+    bottom: 3,
 
     width: 28,
     height: 28,
@@ -1199,8 +1199,8 @@ const styles = StyleSheet.create({
   },
 
   optionSpeakerIcon: {
-    width: 22,
-    height: 22,
+    width: 18,
+    height: 18,
 
     resizeMode: 'contain',
   },

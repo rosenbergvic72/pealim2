@@ -33,7 +33,7 @@
     },
     "ios": {
       "bundleIdentifier": "com.rosenbergvictor72.pealim2",
-      "buildNumber": "60",
+      "buildNumber": "64",
       "icon": "./assets/images/icon1024.png",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false,

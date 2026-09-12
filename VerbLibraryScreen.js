@@ -422,7 +422,7 @@ hebrewVerb:{
 color:'#2D4769',
 fontSize:26,
 lineHeight:31,
-fontWeight:'900',
+fontWeight:'800',
 textAlign:'right',
 writingDirection:'rtl'
 },

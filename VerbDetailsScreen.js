@@ -2127,7 +2127,7 @@ hebrewVerb:{
 color:'#2D4769',
 fontSize:42,
 lineHeight:46,
-fontWeight:'900',
+fontWeight:'800',
 textAlign:'center',
 writingDirection:'rtl'
 },
@@ -2198,9 +2198,9 @@ rootText:{
 marginTop:-2,
 width:'100%',
 color:'#5c0101',
-fontSize:30,
+fontSize:28,
 lineHeight:30,
-fontWeight:'900',
+fontWeight:'800',
 textAlign:'center',
 writingDirection:'ltr',
 includeFontPadding:false

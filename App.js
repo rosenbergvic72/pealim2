@@ -438,10 +438,22 @@ function AppInner() {
 
   const TITLE_FS = 16;
 
-useEffect(() => {
+  const [notificationsEnabled, setNotificationsEnabled] = useState(false);
+  const [notificationsReady, setNotificationsReady] = useState(false);
+  const [chatVisible, setChatVisible] = useState(false);
+  const [modalKey, setModalKey] = useState(0);
+  const [fontsReady, setFontsReady] = useState(false);
+
+  /* =========================
+     ATT + META
+     ========================= */
+
+ useEffect(() => {
+  if (!fontsReady) return;
+
   const initMetaAfterATT = async () => {
     try {
-      // Android — ATT не нужен
+      // Android — ATT не используется
       if (Platform.OS !== 'ios') {
         Settings.initializeSDK();
         return;
@@ -450,7 +462,10 @@ useEffect(() => {
       const { status } =
         await TrackingTransparency.getTrackingPermissionsAsync();
 
-      console.log('[ATT] current status:', status);
+      console.log(
+        '[ATT] current status:',
+        status
+      );
 
       let finalStatus = status;
 
@@ -460,47 +475,47 @@ useEffect(() => {
 
         finalStatus = result.status;
 
-        console.log('[ATT] request result:', finalStatus);
+        console.log(
+          '[ATT] request result:',
+          finalStatus
+        );
       }
 
-      // Meta запускается ТОЛЬКО после ответа ATT
-    const trackingAllowed = finalStatus === 'granted';
+      // Meta запускается только после ATT
+      Settings.initializeSDK();
 
-await Settings.setAdvertiserTrackingEnabled(trackingAllowed);
+      const trackingAllowed =
+        finalStatus === 'granted';
 
-Settings.initializeSDK();
+      await Settings.setAdvertiserTrackingEnabled(
+        trackingAllowed
+      );
 
-console.log(
-  '[Meta] initialized. Advertiser tracking:',
-  trackingAllowed
-);
+      await Settings.setAdvertiserIDCollectionEnabled(
+        trackingAllowed
+      );
+
+      console.log(
+        '[Meta] initialized. Tracking:',
+        trackingAllowed
+      );
     } catch (e) {
-      console.log('[ATT/META ERROR]', e);
+      console.log(
+        '[ATT/META ERROR]',
+        e
+      );
     }
   };
 
   initMetaAfterATT();
-}, []);
+}, [fontsReady]);
 
+  /* =========================
+     AUDIO
+     ========================= */
 
-useEffect(() => {
-  (async () => {
-    try {
-      await Audio.setAudioModeAsync({
-        playsInSilentModeIOS: true,
-        staysActiveInBackground: false,
-        shouldDuckAndroid: false,
-      });
-      await Audio.setIsEnabledAsync(true);
-    } catch (e) {
-      console.log('[Audio init] error', e);
-    }
-  })();
-}, []);
-
-useEffect(() => {
-  const sub = AppState.addEventListener('change', async (state) => {
-    if (state === 'active') {
+  useEffect(() => {
+    (async () => {
       try {
         await Audio.setAudioModeAsync({
           playsInSilentModeIOS: true,
@@ -509,23 +524,49 @@ useEffect(() => {
         });
 
         await Audio.setIsEnabledAsync(true);
-
-        console.log('[Audio] restored');
       } catch (e) {
-        console.log('[Audio] restore error', e);
+        console.log(
+          '[Audio init] error',
+          e
+        );
       }
-    }
-  });
+    })();
+  }, []);
 
-  return () => sub.remove();
-}, []);
+  useEffect(() => {
+    const sub =
+      AppState.addEventListener(
+        'change',
+        async state => {
+          if (state === 'active') {
+            try {
+              await Audio.setAudioModeAsync({
+                playsInSilentModeIOS: true,
+                staysActiveInBackground: false,
+                shouldDuckAndroid: false,
+              });
 
+              await Audio.setIsEnabledAsync(
+                true
+              );
 
-  const [notificationsEnabled, setNotificationsEnabled] = useState(false);
-  const [notificationsReady, setNotificationsReady] = useState(false);
-  const [chatVisible, setChatVisible] = useState(false);
-  const [modalKey, setModalKey] = useState(0);
-  const [fontsReady, setFontsReady] = useState(false);
+              console.log(
+                '[Audio] restored'
+              );
+            } catch (e) {
+              console.log(
+                '[Audio] restore error',
+                e
+              );
+            }
+          }
+        }
+      );
+
+    return () => sub.remove();
+  }, []);
+
+  // ✅ текущее имя роута (для цвета футера)
 
   // ✅ текущее имя роута (для цвета футера)
   const [currentRouteName, setCurrentRouteName] = useState('LanguageSelectionPage');
@@ -640,53 +681,68 @@ useEffect(() => {
   }, []);
 
   // Пуши — инициализация и авто-синхронизация тумблера
-  useEffect(() => {
-    (async () => {
-      try {
-        const stored = await AsyncStorage.getItem('notificationsEnabled');
-        let enabled = stored === 'true';
+// Пуши — при первом запуске НЕ запрашиваем разрешение автоматически.
+// Пользователь включает уведомления самостоятельно через тумблер.
+useEffect(() => {
+  (async () => {
+    try {
+      const stored = await AsyncStorage.getItem('notificationsEnabled');
 
-        if (stored == null) {
-          let token = await AsyncStorage.getItem('expoPushToken');
-          if (!token) token = await getExpoPushTokenAsync();
-          enabled = !!token;
-          await AsyncStorage.setItem(
-            'notificationsEnabled',
-            enabled ? 'true' : 'false'
-          );
-        }
+      let enabled = stored === 'true';
 
-        setNotificationsEnabled(enabled);
+      if (stored == null) {
+        enabled = false;
+        await AsyncStorage.setItem('notificationsEnabled', 'false');
+      }
 
+      setNotificationsEnabled(enabled);
+
+      if (enabled) {
         const lang = (await AsyncStorage.getItem('language')) || 'english';
-        if (enabled) {
-          await registerDeviceOnServer(lang);
 
-          const already = await AsyncStorage.getItem('notificationScheduled');
-          if (!already) {
-            const res = await setServerSchedule(19, 45, null);
-            if (res.ok) {
-              await AsyncStorage.setItem('notificationScheduled', 'true');
-              const resAlt = await setAltServerSchedule(10, 45, [5]);
-              if (resAlt.ok)
-                await AsyncStorage.setItem('notificationAltScheduled', 'true');
+        await registerDeviceOnServer(lang);
+
+        const already = await AsyncStorage.getItem('notificationScheduled');
+
+        if (!already) {
+          const res = await setServerSchedule(19, 45, null);
+
+          if (res.ok) {
+            await AsyncStorage.setItem('notificationScheduled', 'true');
+
+            const resAlt = await setAltServerSchedule(10, 45, [5]);
+
+            if (resAlt.ok) {
+              await AsyncStorage.setItem(
+                'notificationAltScheduled',
+                'true'
+              );
             }
           }
+        }
 
-          const altAlready = await AsyncStorage.getItem('notificationAltScheduled');
-          if (!altAlready) {
-            const resAlt = await setAltServerSchedule(10, 45, [5]);
-            if (resAlt.ok)
-              await AsyncStorage.setItem('notificationAltScheduled', 'true');
+        const altAlready = await AsyncStorage.getItem(
+          'notificationAltScheduled'
+        );
+
+        if (!altAlready) {
+          const resAlt = await setAltServerSchedule(10, 45, [5]);
+
+          if (resAlt.ok) {
+            await AsyncStorage.setItem(
+              'notificationAltScheduled',
+              'true'
+            );
           }
         }
-      } catch (e) {
-        console.error('Push init error:', e);
-      } finally {
-        setNotificationsReady(true);
       }
-    })();
-  }, []);
+    } catch (e) {
+      console.error('Push init error:', e);
+    } finally {
+      setNotificationsReady(true);
+    }
+  })();
+}, []);
 
   // === ТУМБЛЕР УВЕДОМЛЕНИЙ ===
   const toggleNotifications = async () => {

@@ -2366,7 +2366,7 @@ content: {
 
   progressContainer: {
     width: '100%',
-    minHeight: 58,
+    minHeight: 54,
 
     flexDirection: 'row',
     alignItems: 'center',
@@ -2375,8 +2375,8 @@ content: {
 
     borderRadius: 10,
 
-    marginTop: 4,
-    marginBottom: 10,
+    marginTop: 0,
+    marginBottom: 8,
 
     shadowColor: '#000',
     shadowOffset: {
@@ -2467,7 +2467,7 @@ content: {
   },
 
   nextButton: {
-    minHeight: 58,
+    minHeight: 52,
 
     borderRadius: 29,
 
@@ -2543,7 +2543,7 @@ content: {
   score: {
     color: '#CE6857',
 
-    fontSize: 52,
+    fontSize: 50,
     fontWeight: '900',
   },
 

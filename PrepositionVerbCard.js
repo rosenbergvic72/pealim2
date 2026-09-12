@@ -6,6 +6,7 @@ import {
   Text,
   TouchableOpacity,
   View,
+  Dimensions,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 
@@ -16,6 +17,9 @@ const HEBREW_ROW_GAP = 8;
 const HEBREW_COLUMN_GAP = 8;
 const SEPARATE_MARKER_WIDTH = 60;
 const PREFIX_SLOT_WIDTH = 30;
+
+const SCREEN_HEIGHT = Dimensions.get('window').height;
+const IS_SHORT_SCREEN = SCREEN_HEIGHT < 760;
 
 const HEBREW_COLORS = {
   firstBackground: '#E8F2EE',
@@ -282,26 +286,14 @@ const PrepositionVerbCard = ({
 
   /* ---------- варианты ---------- */
 
-  const optionTextAnimations = useMemo(
-    () =>
-      Array.from(
-        {
-          length:
-            Math.max(
-              options.length,
-              3
-            ),
-        },
-        () => ({
-          opacity:
-            new Animated.Value(0),
-
-          translateY:
-            new Animated.Value(5),
-        })
-      ),
-    [options.length]
-  );
+const optionTextAnimations=useMemo(()=>Array.from({length:Math.max(options.length,3)},()=>({
+  opacity:new Animated.Value(0),
+  translateY:new Animated.Value(3),
+})),[
+  options.length,
+  safeItem.id,
+  safeItem.before,
+]);
 
   /* ---------- aurora ---------- */
 
@@ -376,59 +368,38 @@ const PrepositionVerbCard = ({
 
   /* ---------- анимация вариантов ---------- */
 
-  useEffect(() => {
-    optionTextAnimations.forEach(
-      anim => {
-        anim.opacity.stopAnimation();
-        anim.translateY.stopAnimation();
-
-        anim.opacity.setValue(0);
-        anim.translateY.setValue(5);
-      }
-    );
-
-    const animation =
-      Animated.stagger(
-        70,
-
-        optionTextAnimations
-          .slice(
-            0,
-            options.length
-          )
-          .map(anim =>
-            Animated.parallel([
-              Animated.timing(
-                anim.opacity,
-                {
-                  toValue: 1,
-                  duration: 260,
-                  useNativeDriver: true,
-                }
-              ),
-
-              Animated.timing(
-                anim.translateY,
-                {
-                  toValue: 0,
-                  duration: 260,
-                  useNativeDriver: true,
-                }
-              ),
-            ])
-          )
-      );
-
-    animation.start();
-
-    return () =>
-      animation.stop();
-  }, [
-    safeItem.id,
-    safeItem.before,
-    optionTextAnimations,
-    options.length,
-  ]);
+ useEffect(()=>{
+optionTextAnimations.forEach(anim=>{
+anim.opacity.stopAnimation();
+anim.translateY.stopAnimation();
+anim.opacity.setValue(0);
+anim.translateY.setValue(3);
+});
+const animation=Animated.stagger(
+110,
+optionTextAnimations.slice(0,options.length).map(anim=>
+Animated.parallel([
+Animated.timing(anim.opacity,{
+toValue:1,
+duration:450,
+useNativeDriver:true,
+}),
+Animated.timing(anim.translateY,{
+toValue:0,
+duration:450,
+useNativeDriver:true,
+}),
+])
+)
+);
+animation.start();
+return()=>animation.stop();
+},[
+safeItem.id,
+safeItem.before,
+optionTextAnimations,
+options.length,
+]);
 
   /* ---------- aurora до ответа ---------- */
 
@@ -1355,8 +1326,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFDEF',
     borderRadius: 24,
     paddingHorizontal: 18,
-    paddingTop: 14,
-    paddingBottom: 14,
+    paddingTop: IS_SHORT_SCREEN ? 8 : 14,
+    paddingBottom: IS_SHORT_SCREEN ? 8 : 14,
     shadowColor: '#000',
     shadowOpacity: 0.15,
     shadowRadius: 12,
@@ -1369,8 +1340,8 @@ const styles = StyleSheet.create({
 
   verbInfoBox: {
     width: '100%',
-    height: 54,
-    marginBottom: 8,
+    height: IS_SHORT_SCREEN ? 48 : 54,
+    marginBottom: IS_SHORT_SCREEN ? 5 : 8,
     flexDirection: 'row-reverse',
     alignItems: 'center',
     justifyContent: 'center',
@@ -1393,9 +1364,9 @@ const styles = StyleSheet.create({
   verbInfinitive: {
     width: '100%',
     color: '#333652',
-    fontSize: 21       ,
+    fontSize: 21,
     lineHeight: 26,
-    fontWeight: '900',
+    fontWeight: '800',
     textAlign: 'center',
     textAlignVertical: 'center',
     writingDirection: 'rtl',
@@ -1404,7 +1375,7 @@ const styles = StyleSheet.create({
 
   verbPreposition: {
     color: '#A84F70',
-    fontWeight: '900',
+    fontWeight: '800',
   },
 
   verbTransliteration: {
@@ -1413,7 +1384,7 @@ const styles = StyleSheet.create({
     color: '#CE6857',
     fontSize: 16,
     lineHeight: 18,
-    fontWeight: '700',
+    fontWeight: '600',
     textAlign: 'center',
     includeFontPadding: false,
   },
@@ -1442,7 +1413,7 @@ const styles = StyleSheet.create({
   },
 
   translationBox: {
-    height: 66,
+    height: IS_SHORT_SCREEN ? 52 : 56,
     borderRadius: 17,
     backgroundColor: '#E6EEF8',
     borderWidth: 1,
@@ -1456,9 +1427,9 @@ const styles = StyleSheet.create({
   translation: {
     width: '100%',
     color: '#333652',
-    fontSize: 18,
-    lineHeight: 24,
-    fontWeight: '900',
+    fontSize: 17,
+    lineHeight: 22,
+    fontWeight: '700',
     textAlign: 'center',
     textAlignVertical: 'center',
     includeFontPadding: false,
@@ -1469,8 +1440,8 @@ const styles = StyleSheet.create({
     height:
       HEBREW_CLOUD_HEIGHT * 2 +
       HEBREW_ROW_GAP,
-    marginTop: 16,
-    marginBottom: 16,
+    marginTop: IS_SHORT_SCREEN ? 4 : 14,
+    marginBottom: IS_SHORT_SCREEN ? 4 : 14,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -1525,7 +1496,7 @@ const styles = StyleSheet.create({
     color: '#333652',
     fontSize: HEBREW_FONT_SIZE,
     lineHeight: HEBREW_LINE_HEIGHT,
-    fontWeight: '900',
+    fontWeight: '700',
     textAlign: 'center',
     textAlignVertical: 'center',
     writingDirection: 'rtl',
@@ -1565,7 +1536,7 @@ const styles = StyleSheet.create({
     color: '#CE6857',
     fontSize: HEBREW_FONT_SIZE,
     lineHeight: HEBREW_LINE_HEIGHT,
-    fontWeight: '900',
+    fontWeight: '700',
     textAlign: 'center',
     includeFontPadding: false,
   },
@@ -1588,7 +1559,7 @@ const styles = StyleSheet.create({
     color: '#333652',
     fontSize: HEBREW_FONT_SIZE,
     lineHeight: HEBREW_LINE_HEIGHT,
-    fontWeight: '900',
+    fontWeight: '700',
     textAlign: 'center',
     textAlignVertical: 'center',
     writingDirection: 'rtl',
@@ -1645,7 +1616,7 @@ const styles = StyleSheet.create({
     color: '#CE6857',
     fontSize: HEBREW_FONT_SIZE,
     lineHeight: HEBREW_LINE_HEIGHT,
-    fontWeight: '900',
+    fontWeight: '700',
     textAlign: 'center',
     includeFontPadding: false,
   },
@@ -1668,7 +1639,7 @@ const styles = StyleSheet.create({
     color: '#333652',
     fontSize: HEBREW_FONT_SIZE,
     lineHeight: HEBREW_LINE_HEIGHT,
-    fontWeight: '900',
+    fontWeight: '700',
     textAlign: 'center',
     textAlignVertical: 'center',
     writingDirection: 'rtl',
@@ -1687,7 +1658,7 @@ const styles = StyleSheet.create({
     color: '#333652',
     fontSize: HEBREW_FONT_SIZE,
     lineHeight: HEBREW_LINE_HEIGHT,
-    fontWeight: '900',
+    fontWeight: '700',
     textAlign: 'center',
     textAlignVertical: 'center',
     writingDirection: 'rtl',
@@ -1696,13 +1667,13 @@ const styles = StyleSheet.create({
 
   highlightedPrefix: {
     color: '#A84F70',
-    fontWeight: '900',
+    fontWeight: '700',
   },
 
   rotationButtonsWrapper: {
     width: '100%',
     height: 38,
-    marginBottom: 8,
+    marginBottom: IS_SHORT_SCREEN ? 3 : 8,
     alignItems: 'flex-end',
     justifyContent: 'center',
   },
@@ -1738,7 +1709,7 @@ const styles = StyleSheet.create({
 
   translitCloud: {
     width: '100%',
-    height: 68,
+    height: IS_SHORT_SCREEN ? 48 : 58,
 
     position: 'relative',
     overflow: 'hidden',
@@ -1821,50 +1792,53 @@ const styles = StyleSheet.create({
   translitText: {
     width: '100%',
     color: '#CE6857',
-    fontSize: 19,
+    fontSize: 17,
     lineHeight: 20,
-    fontWeight: '800',
+    fontWeight: '700',
     textAlign: 'center',
     textAlignVertical: 'center',
     includeFontPadding: false,
   },
 
   speakerButton: {
-    width: 32,
-    height: 32,
+    width: 30,
+    height: 30,
     alignItems: 'center',
     justifyContent: 'center',
   },
 
   speakerIcon: {
-    width: 23,
-    height: 23,
+    width: 22,
+    height: 22,
     resizeMode: 'contain',
   },
 
+  /* ---------- ответы ---------- */
+
   optionsArea: {
-    flex: 1,
-    minHeight: 78,
-    justifyContent: 'flex-end',
+    flex: 0,
+    minHeight: IS_SHORT_SCREEN ? 52 : 68,
+    justifyContent: 'flex-start',
+    paddingTop: IS_SHORT_SCREEN ? 6 : 10,
   },
 
   optionsRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    gap: 10,
-    marginTop: 8,
-    marginBottom: 6,
+    gap: IS_SHORT_SCREEN ? 7 : 10,
+    marginTop: 0,
+    marginBottom: 0,
   },
 
   option: {
     flex: 1,
-    minHeight: 60,
-    borderRadius: 18,
+    height: IS_SHORT_SCREEN ? 50 : 58,
+    borderRadius: IS_SHORT_SCREEN ? 15 : 18,
     borderWidth: 2,
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: 6,
-    paddingVertical: 6,
+    paddingVertical: 4,
   },
 
   optionDefault: {
@@ -1888,10 +1862,13 @@ const styles = StyleSheet.create({
   },
 
   optionText: {
-    fontSize: 32,
-    lineHeight: 39,
-    fontWeight: '900',
+    fontSize: IS_SHORT_SCREEN ? 25 : 31,
+    lineHeight: IS_SHORT_SCREEN ? 30 : 36,
+    fontWeight: '700',
     textAlign: 'center',
+    textAlignVertical: 'center',
+    writingDirection: 'rtl',
+    includeFontPadding: false,
   },
 
   optionTextDefault: {
