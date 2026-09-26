@@ -4659,7 +4659,7 @@
 "verbAmharic": "መዋጋት",
         "audioFile": "leheavek.mp3",
         "verbHebrewOptions": [
-          { "text": "להאבק", "transliteration": "lehe'avek", "isCorrect": true },
+          { "text": "להיאבק", "transliteration": "lehe'avek", "isCorrect": true },
           { "text": "להתחיל", "transliteration": "lehatchil", "isCorrect": false },
           { "text": "לזכור", "transliteration": "lizkor", "isCorrect": false },
           { "text": "לחזור", "transliteration": "lachzor", "isCorrect": false }
@@ -5037,7 +5037,7 @@
 
       "audioFile": "lehityashev.mp3",
       "verbHebrewOptions": [
-        { "text": "להתישב", "transliteration": "lehityashev", "isCorrect": true },
+        { "text": "להתיישב", "transliteration": "lehityashev", "isCorrect": true },
         { "text": "להזמין", "transliteration": "lehazmin", "isCorrect": false },
         { "text": "להדליק", "transliteration": "lehadlik", "isCorrect": false },
         { "text": "לכבות", "transliteration": "lechabot", "isCorrect": false }

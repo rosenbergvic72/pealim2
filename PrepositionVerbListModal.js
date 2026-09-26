@@ -6,12 +6,14 @@ import React, {
 } from 'react';
 
 import {
+  Platform,
   Pressable,
   SafeAreaView,
   ScrollView,
   StyleSheet,
   Text,
   View,
+  useWindowDimensions,
 } from 'react-native';
 
 const UI_TEXT = {
@@ -27,7 +29,6 @@ const UI_TEXT = {
     allType: 'Все предлоги',
     start: 'НАЧАТЬ',
     noItems: 'Для выбранных параметров нет предложений',
-
     levels: {
       base: 'Базовый',
       middle: 'Средний',
@@ -48,7 +49,6 @@ const UI_TEXT = {
     allType: 'All prepositions',
     start: 'START',
     noItems: 'There are no sentences for the selected settings',
-
     levels: {
       base: 'Basic',
       middle: 'Intermediate',
@@ -69,7 +69,6 @@ const UI_TEXT = {
     allType: 'Toutes les prépositions',
     start: 'COMMENCER',
     noItems: 'Aucune phrase pour les paramètres sélectionnés',
-
     levels: {
       base: 'Débutant',
       middle: 'Intermédiaire',
@@ -90,7 +89,6 @@ const UI_TEXT = {
     allType: 'Todas las preposiciones',
     start: 'EMPEZAR',
     noItems: 'No hay frases para los parámetros seleccionados',
-
     levels: {
       base: 'Básico',
       middle: 'Intermedio',
@@ -111,7 +109,6 @@ const UI_TEXT = {
     allType: 'Todas as preposições',
     start: 'COMEÇAR',
     noItems: 'Não há frases para os parâmetros selecionados',
-
     levels: {
       base: 'Básico',
       middle: 'Intermédio',
@@ -132,7 +129,6 @@ const UI_TEXT = {
     allType: 'جميع حروف الجر',
     start: 'ابدأ',
     noItems: 'لا توجد جمل للإعدادات المحددة',
-
     levels: {
       base: 'أساسي',
       middle: 'متوسط',
@@ -153,7 +149,6 @@ const UI_TEXT = {
     allType: 'ሁሉም መስተዋድዶች',
     start: 'ጀምር',
     noItems: 'ለተመረጡት ቅንብሮች ዓረፍተ ነገሮች የሉም',
-
     levels: {
       base: 'መሠረታዊ',
       middle: 'መካከለኛ',
@@ -174,7 +169,6 @@ const UI_TEXT = {
     allType: 'כל מילות היחס',
     start: 'התחלה',
     noItems: 'אין משפטים עבור ההגדרות שנבחרו',
-
     levels: {
       base: 'בסיסי',
       middle: 'בינוני',
@@ -224,10 +218,7 @@ const LANGUAGE_ALIASES = {
 };
 
 const normalizeLanguage = language => {
-  const key = String(language || '')
-    .trim()
-    .toLowerCase();
-
+  const key = String(language || '').trim().toLowerCase();
   return LANGUAGE_ALIASES[key] || 'en';
 };
 
@@ -244,40 +235,22 @@ const normalizePrepositionType = value => {
 };
 
 const LevelButton = memo(
-  ({
-    level,
-    label,
-    selected,
-    onPress,
-  }) => (
+  ({ styles, level, label, selected, onPress }) => (
     <Pressable
       accessibilityRole="button"
-      accessibilityState={{
-        selected,
-      }}
-      onPress={() =>
-        onPress?.(level)
-      }
+      accessibilityState={{ selected }}
+      onPress={() => onPress?.(level)}
       style={({ pressed }) => [
         styles.levelButton,
-
-        selected &&
-          styles.levelButtonSelected,
-
-        pressed &&
-          styles.buttonPressed,
+        selected && styles.levelButtonSelected,
+        pressed && styles.buttonPressed,
       ]}
     >
       <Text
-        numberOfLines={1}
-        adjustsFontSizeToFit
-        minimumFontScale={0.65}
-        maxFontSizeMultiplier={1}
+        maxFontSizeMultiplier={1.2}
         style={[
           styles.levelButtonText,
-
-          selected &&
-            styles.levelButtonTextSelected,
+          selected && styles.levelButtonTextSelected,
         ]}
       >
         {label}
@@ -286,40 +259,25 @@ const LevelButton = memo(
   )
 );
 
-LevelButton.displayName =
-  'LevelButton';
+LevelButton.displayName = 'LevelButton';
 
 const CountButton = memo(
-  ({
-    count,
-    selected,
-    onPress,
-  }) => (
+  ({ styles, count, selected, onPress }) => (
     <Pressable
       accessibilityRole="button"
-      accessibilityState={{
-        selected,
-      }}
-      onPress={() =>
-        onPress?.(count)
-      }
+      accessibilityState={{ selected }}
+      onPress={() => onPress?.(count)}
       style={({ pressed }) => [
         styles.countButton,
-
-        selected &&
-          styles.countButtonSelected,
-
-        pressed &&
-          styles.buttonPressed,
+        selected && styles.countButtonSelected,
+        pressed && styles.buttonPressed,
       ]}
     >
       <Text
-        maxFontSizeMultiplier={1}
+        maxFontSizeMultiplier={1.2}
         style={[
           styles.countButtonText,
-
-          selected &&
-            styles.countButtonTextSelected,
+          selected && styles.countButtonTextSelected,
         ]}
       >
         {count}
@@ -328,11 +286,11 @@ const CountButton = memo(
   )
 );
 
-CountButton.displayName =
-  'CountButton';
+CountButton.displayName = 'CountButton';
 
 const PrepositionTypeButton = memo(
   ({
+    styles,
     type,
     label,
     description,
@@ -341,47 +299,32 @@ const PrepositionTypeButton = memo(
     onPress,
     isRtl,
   }) => {
-    const isAll =
-      type === 'all';
+    const isAll = type === 'all';
 
     return (
       <Pressable
         accessibilityRole="button"
-        accessibilityState={{
-          selected,
-        }}
-        onPress={() =>
-          onPress?.(type)
-        }
+        accessibilityState={{ selected }}
+        onPress={() => onPress?.(type)}
         style={({ pressed }) => [
           styles.typeButton,
-
-          selected &&
-            styles.typeButtonSelected,
-
-          pressed &&
-            styles.buttonPressed,
+          selected && styles.typeButtonSelected,
+          pressed && styles.buttonPressed,
         ]}
       >
         {isAll ? (
           <View
-            style={
-              styles.allTypeContent
-            }
+            style={[
+              styles.allTypeContent,
+              isRtl && styles.typeButtonContentRtl,
+            ]}
           >
             <Text
-              numberOfLines={1}
-              adjustsFontSizeToFit
-              minimumFontScale={0.72}
-              maxFontSizeMultiplier={1}
+              maxFontSizeMultiplier={1.2}
               style={[
                 styles.allTypeLabel,
-
-                selected &&
-                  styles.typeButtonLabelSelected,
-
-                isRtl &&
-                  styles.rtlText,
+                selected && styles.typeButtonLabelSelected,
+                isRtl && styles.rtlText,
               ]}
             >
               {label}
@@ -390,21 +333,14 @@ const PrepositionTypeButton = memo(
             <View
               style={[
                 styles.allTypeCountBadge,
-
-                isRtl &&
-                  styles.allTypeCountBadgeRtl,
-
-                selected &&
-                  styles.typeCountBadgeSelected,
+                selected && styles.typeCountBadgeSelected,
               ]}
             >
               <Text
-                maxFontSizeMultiplier={1}
+                maxFontSizeMultiplier={1.2}
                 style={[
                   styles.typeCountText,
-
-                  selected &&
-                    styles.typeCountTextSelected,
+                  selected && styles.typeCountTextSelected,
                 ]}
               >
                 {count}
@@ -415,29 +351,16 @@ const PrepositionTypeButton = memo(
           <View
             style={[
               styles.typeButtonContent,
-
-              isRtl &&
-                styles.typeButtonContentRtl,
+              isRtl && styles.typeButtonContentRtl,
             ]}
           >
-            <View
-              style={
-                styles.typeTextContainer
-              }
-            >
+            <View style={styles.typeTextContainer}>
               <Text
-                numberOfLines={1}
-                adjustsFontSizeToFit
-                minimumFontScale={0.72}
-                maxFontSizeMultiplier={1}
+                maxFontSizeMultiplier={1.2}
                 style={[
                   styles.typeButtonLabel,
-
-                  selected &&
-                    styles.typeButtonLabelSelected,
-
-                  isRtl &&
-                    styles.rtlText,
+                  selected && styles.typeButtonLabelSelected,
+                  isRtl && styles.rtlText,
                 ]}
               >
                 {label}
@@ -445,17 +368,14 @@ const PrepositionTypeButton = memo(
 
               <Text
                 numberOfLines={1}
-                maxFontSizeMultiplier={1}
+                adjustsFontSizeToFit
+                minimumFontScale={0.85}
+                maxFontSizeMultiplier={1.2}
                 style={[
                   styles.typeButtonDescription,
-
-                  selected &&
-                    styles.typeButtonDescriptionSelected,
-
+                  selected && styles.typeButtonDescriptionSelected,
                   styles.hebrewText,
-
-                  isRtl &&
-                    styles.rtlText,
+                  isRtl && styles.rtlText,
                 ]}
               >
                 {description}
@@ -465,18 +385,14 @@ const PrepositionTypeButton = memo(
             <View
               style={[
                 styles.typeCountBadge,
-
-                selected &&
-                  styles.typeCountBadgeSelected,
+                selected && styles.typeCountBadgeSelected,
               ]}
             >
               <Text
-                maxFontSizeMultiplier={1}
+                maxFontSizeMultiplier={1.2}
                 style={[
                   styles.typeCountText,
-
-                  selected &&
-                    styles.typeCountTextSelected,
+                  selected && styles.typeCountTextSelected,
                 ]}
               >
                 {count}
@@ -489,428 +405,291 @@ const PrepositionTypeButton = memo(
   }
 );
 
-PrepositionTypeButton.displayName =
-  'PrepositionTypeButton';
+PrepositionTypeButton.displayName = 'PrepositionTypeButton';
 
-const PrepositionVerbListModal = ({
+const ListBody = ({
   language,
   items = [],
-
   selectedCount,
-
   selectedLevels = [],
   allowedCounts = [],
   allowedLevels = [],
-
   selectedPrepositionType = 'all',
-
   onSelectPrepositionType,
   onSelectCount,
   onSelectLevel,
   onStart,
 }) => {
-  const lang =
-    normalizeLanguage(language);
+  const [viewportHeight, setViewportHeight] = useState(0);
+  const [contentHeight, setContentHeight] = useState(0);
+  const [compact, setCompact] = useState(false);
 
-  const text =
-    UI_TEXT[lang] ||
-    UI_TEXT.en;
+  const styles = compact ? compactStyles : regularStyles;
 
-  const isRtl =
-    lang === 'ar' ||
-    lang === 'he';
+  const overflowing =
+    viewportHeight > 0 &&
+    contentHeight > viewportHeight + 1;
 
-  const [
-    activePrepositionType,
-    setActivePrepositionType,
-  ] = useState(
-    normalizePrepositionType(
-      selectedPrepositionType
-    )
-  );
+  const scrollEnabled =
+    overflowing &&
+    (Platform.OS !== 'android' || compact);
+
+  useEffect(() => {
+    if (
+      Platform.OS === 'android' &&
+      overflowing &&
+      !compact
+    ) {
+      setCompact(true);
+    }
+  }, [overflowing, compact]);
+
+  const lang = normalizeLanguage(language);
+  const text = UI_TEXT[lang] || UI_TEXT.en;
+  const isRtl = lang === 'ar' || lang === 'he';
+
+  const [activePrepositionType, setActivePrepositionType] =
+    useState(normalizePrepositionType(selectedPrepositionType));
 
   useEffect(() => {
     setActivePrepositionType(
-      normalizePrepositionType(
-        selectedPrepositionType
-      )
+      normalizePrepositionType(selectedPrepositionType)
     );
-  }, [
-    selectedPrepositionType,
-  ]);
+  }, [selectedPrepositionType]);
 
-  const safeItems =
-    useMemo(
-      () =>
-        Array.isArray(items)
-          ? items.filter(
-              item =>
-                item &&
-                item.id &&
-                item.before &&
-                item.after
-            )
-          : [],
-      [items]
-    );
-
-  const selectedLevelSet =
-    useMemo(
-      () =>
-        new Set(
-          Array.isArray(
-            selectedLevels
+  const safeItems = useMemo(
+    () =>
+      Array.isArray(items)
+        ? items.filter(
+            item =>
+              item &&
+              item.id &&
+              item.before &&
+              item.after
           )
-            ? selectedLevels
-            : []
-        ),
-      [selectedLevels]
-    );
+        : [],
+    [items]
+  );
 
-  const allLevelsSelected =
-    useMemo(
-      () =>
-        [
-          'base',
-          'middle',
-          'advanced',
-        ].every(level =>
-          selectedLevelSet.has(
-            level
-          )
-        ),
-      [selectedLevelSet]
-    );
+  const selectedLevelSet = useMemo(
+    () =>
+      new Set(
+        Array.isArray(selectedLevels)
+          ? selectedLevels
+          : []
+      ),
+    [selectedLevels]
+  );
 
-  const separateItems =
-    useMemo(
-      () =>
-        safeItems.filter(
-          item =>
-            item.prepositionType ===
-            'separate'
-        ),
-      [safeItems]
-    );
+  const allLevelsSelected = useMemo(
+    () =>
+      ['base', 'middle', 'advanced'].every(level =>
+        selectedLevelSet.has(level)
+      ),
+    [selectedLevelSet]
+  );
 
-  const prefixItems =
-    useMemo(
-      () =>
-        safeItems.filter(
-          item =>
-            item.prepositionType ===
-            'prefix'
-        ),
-      [safeItems]
-    );
+  const separateItems = useMemo(
+    () =>
+      safeItems.filter(
+        item => item.prepositionType === 'separate'
+      ),
+    [safeItems]
+  );
 
-  const filteredItems =
-    useMemo(() => {
-      if (
-        activePrepositionType ===
-        'separate'
-      ) {
-        return separateItems;
-      }
+  const prefixItems = useMemo(
+    () =>
+      safeItems.filter(
+        item => item.prepositionType === 'prefix'
+      ),
+    [safeItems]
+  );
 
-      if (
-        activePrepositionType ===
-        'prefix'
-      ) {
-        return prefixItems;
-      }
-
-      return safeItems;
-    }, [
-      activePrepositionType,
-      separateItems,
-      prefixItems,
-      safeItems,
-    ]);
-
-  const prepositionTypes =
-    useMemo(
-      () => [
-        {
-          type: 'separate',
-          label:
-            text.separateType,
-          description:
-            text.separateDescription,
-          count:
-            separateItems.length,
-        },
-
-        {
-          type: 'prefix',
-          label:
-            text.prefixType,
-          description:
-            text.prefixDescription,
-          count:
-            prefixItems.length,
-        },
-
-        {
-          type: 'all',
-          label:
-            text.allType,
-          description: '',
-          count:
-            safeItems.length,
-        },
-      ],
-      [
-        text,
-        separateItems.length,
-        prefixItems.length,
-        safeItems.length,
-      ]
-    );
-
-  const canStart =
-    filteredItems.length > 0;
-
-  const handleSelectPrepositionType =
-    type => {
-      const normalizedType =
-        normalizePrepositionType(
-          type
-        );
-
-      setActivePrepositionType(
-        normalizedType
-      );
-
-      onSelectPrepositionType?.(
-        normalizedType
-      );
-    };
-
-  const handleStart = () => {
-    if (!canStart) {
-      return;
+  const filteredItems = useMemo(() => {
+    if (activePrepositionType === 'separate') {
+      return separateItems;
     }
 
-    onStart?.(
-      activePrepositionType,
-      filteredItems
-    );
+    if (activePrepositionType === 'prefix') {
+      return prefixItems;
+    }
+
+    return safeItems;
+  }, [
+    activePrepositionType,
+    separateItems,
+    prefixItems,
+    safeItems,
+  ]);
+
+  const prepositionTypes = useMemo(
+    () => [
+      {
+        type: 'separate',
+        label: text.separateType,
+        description: text.separateDescription,
+        count: separateItems.length,
+      },
+      {
+        type: 'prefix',
+        label: text.prefixType,
+        description: text.prefixDescription,
+        count: prefixItems.length,
+      },
+      {
+        type: 'all',
+        label: text.allType,
+        description: '',
+        count: safeItems.length,
+      },
+    ],
+    [
+      text,
+      separateItems.length,
+      prefixItems.length,
+      safeItems.length,
+    ]
+  );
+
+  const canStart = filteredItems.length > 0;
+
+  const handleSelectPrepositionType = type => {
+    const normalizedType = normalizePrepositionType(type);
+
+    setActivePrepositionType(normalizedType);
+    onSelectPrepositionType?.(normalizedType);
+  };
+
+  const handleStart = () => {
+    if (!canStart) return;
+
+    onStart?.(activePrepositionType, filteredItems);
   };
 
   return (
-    <SafeAreaView
-      style={styles.screen}
-    >
-      {/* Header */}
-
-      <View
-        style={styles.header}
-      >
+    <SafeAreaView style={styles.screen}>
+      <View style={styles.header}>
         <Text
-          numberOfLines={3}
-          adjustsFontSizeToFit
-          minimumFontScale={0.75}
-          maxFontSizeMultiplier={1}
+          maxFontSizeMultiplier={1.2}
           style={[
             styles.title,
-
-            isRtl &&
-              styles.rtlText,
+            isRtl && styles.rtlText,
           ]}
         >
           {text.title}
         </Text>
       </View>
 
-      {/* Content */}
-
       <ScrollView
         style={styles.scroll}
-        contentContainerStyle={
-          styles.scrollContent
+        contentContainerStyle={styles.scrollContent}
+        onLayout={event =>
+          setViewportHeight(event.nativeEvent.layout.height)
         }
-        showsVerticalScrollIndicator={
-          false
+        onContentSizeChange={(_, height) =>
+          setContentHeight(height)
         }
+        scrollEnabled={scrollEnabled}
+        showsVerticalScrollIndicator={false}
+        bounces={false}
+        overScrollMode="never"
       >
-        <View
-          style={
-            styles.settingsCard
-          }
-        >
-          {/* Level */}
-
+        <View style={styles.settingsCard}>
           <Text
+            maxFontSizeMultiplier={1.2}
             style={[
               styles.sectionTitle,
-
-              isRtl &&
-                styles.rtlText,
+              isRtl && styles.rtlText,
             ]}
           >
             {text.level}
           </Text>
 
-          <View
-            style={
-              styles.levelButtons
-            }
-          >
-            {allowedLevels.map(
-              level => {
-                const selected =
-                  level === 'all'
-                    ? allLevelsSelected
-                    : selectedLevelSet.has(
-                        level
-                      );
+          <View style={styles.levelButtons}>
+            {allowedLevels.map(level => {
+              const selected =
+                level === 'all'
+                  ? allLevelsSelected
+                  : selectedLevelSet.has(level);
 
-                return (
-                  <LevelButton
-                    key={level}
-                    level={level}
-                    label={
-                      text.levels[
-                        level
-                      ] ||
-                      level
-                    }
-                    selected={
-                      selected
-                    }
-                    onPress={
-                      onSelectLevel
-                    }
-                  />
-                );
-              }
-            )}
+              return (
+                <LevelButton
+                  key={level}
+                  styles={styles}
+                  level={level}
+                  label={text.levels[level] || level}
+                  selected={selected}
+                  onPress={onSelectLevel}
+                />
+              );
+            })}
           </View>
 
-          <View
-            style={styles.divider}
-          />
-
-          {/* Count */}
+          <View style={styles.divider} />
 
           <Text
+            maxFontSizeMultiplier={1.2}
             style={[
               styles.sectionTitle,
-
-              isRtl &&
-                styles.rtlText,
+              isRtl && styles.rtlText,
             ]}
           >
             {text.count}
           </Text>
 
-          <View
-            style={
-              styles.countButtons
-            }
-          >
-            {allowedCounts.map(
-              count => (
-                <CountButton
-                  key={count}
-                  count={count}
-                  selected={
-                    selectedCount ===
-                    count
-                  }
-                  onPress={
-                    onSelectCount
-                  }
-                />
-              )
-            )}
+          <View style={styles.countButtons}>
+            {allowedCounts.map(count => (
+              <CountButton
+                key={count}
+                styles={styles}
+                count={count}
+                selected={selectedCount === count}
+                onPress={onSelectCount}
+              />
+            ))}
           </View>
 
-          <View
-            style={styles.divider}
-          />
-
-          {/* Preposition types */}
+          <View style={styles.divider} />
 
           <Text
+            maxFontSizeMultiplier={1.2}
             style={[
               styles.sectionTitle,
-
-              isRtl &&
-                styles.rtlText,
+              isRtl && styles.rtlText,
             ]}
           >
             {text.typeTitle}
           </Text>
 
-          <View
-            style={
-              styles.typeButtons
-            }
-          >
-            {prepositionTypes.map(
-              option => {
-                /*
-                 * Если выбрано "all",
-                 * подсвечиваем:
-                 *
-                 * separate
-                 * prefix
-                 * all
-                 */
-                const selected =
-                  activePrepositionType ===
-                    option.type ||
-                  activePrepositionType ===
-                    'all';
+          <View style={styles.typeButtons}>
+            {prepositionTypes.map(option => {
+              const selected =
+                activePrepositionType === option.type ||
+                activePrepositionType === 'all';
 
-                return (
-                  <PrepositionTypeButton
-                    key={
-                      option.type
-                    }
-                    type={
-                      option.type
-                    }
-                    label={
-                      option.label
-                    }
-                    description={
-                      option.description
-                    }
-                    count={
-                      option.count
-                    }
-                    selected={
-                      selected
-                    }
-                    onPress={
-                      handleSelectPrepositionType
-                    }
-                    isRtl={
-                      isRtl
-                    }
-                  />
-                );
-              }
-            )}
+              return (
+                <PrepositionTypeButton
+                  key={option.type}
+                  styles={styles}
+                  type={option.type}
+                  label={option.label}
+                  description={option.description}
+                  count={option.count}
+                  selected={selected}
+                  onPress={handleSelectPrepositionType}
+                  isRtl={isRtl}
+                />
+              );
+            })}
           </View>
 
-          {/* Ошибка, если нет данных */}
-
           {!canStart && (
-            <View
-              style={
-                styles.emptyContainer
-              }
-            >
+            <View style={styles.emptyContainer}>
               <Text
+                maxFontSizeMultiplier={1.2}
                 style={[
                   styles.emptyText,
-
-                  isRtl &&
-                    styles.rtlText,
+                  isRtl && styles.rtlText,
                 ]}
               >
                 {text.noItems}
@@ -920,32 +699,20 @@ const PrepositionVerbListModal = ({
         </View>
       </ScrollView>
 
-      {/* Start */}
-
-      <View
-        style={
-          styles.bottomButtons
-        }
-      >
+      <View style={styles.bottomButtons}>
         <Pressable
           accessibilityRole="button"
           disabled={!canStart}
           onPress={handleStart}
           style={({ pressed }) => [
             styles.startButton,
-
-            !canStart &&
-              styles.startButtonDisabled,
-
-            pressed &&
-              canStart &&
-              styles.buttonPressed,
+            !canStart && styles.startButtonDisabled,
+            pressed && canStart && styles.buttonPressed,
           ]}
         >
           <Text
-            style={
-              styles.startButtonText
-            }
+            style={styles.startButtonText}
+            maxFontSizeMultiplier={1.2}
           >
             {text.start}
           </Text>
@@ -955,665 +722,348 @@ const PrepositionVerbListModal = ({
   );
 };
 
-const styles =
+const createStyles = compact =>
   StyleSheet.create({
     screen: {
       flex: 1,
-
-      backgroundColor:
-        '#83A3CD',
+      backgroundColor: '#83A3CD',
     },
 
     header: {
-      paddingHorizontal:
-        18,
-
-      paddingTop:
-        8,
-
-      paddingBottom:
-        8,
+      paddingHorizontal: 18,
+      paddingTop: compact ? 4 : 8,
+      paddingBottom: compact ? 4 : 8,
     },
 
     title: {
-      color:
-        '#FFFDEF',
-
-      fontSize:
-        22,
-
-      lineHeight:
-        29,
-
-      fontWeight:
-        '900',
-
-      textAlign:
-        'center',
+      color: '#FFFDEF',
+      fontSize: 16,
+      lineHeight: 29,
+      fontWeight: '900',
+      textAlign: 'center',
     },
 
     rtlText: {
-      writingDirection:
-        'rtl',
+      writingDirection: 'rtl',
     },
 
     hebrewText: {
-      writingDirection:
-        'rtl',
+      writingDirection: 'rtl',
     },
 
     scroll: {
-      flex:
-        1,
+      flex: 1,
     },
 
     scrollContent: {
-      paddingHorizontal:
-        16,
-
-      paddingBottom:
-        8,
+      paddingHorizontal: 16,
+      paddingBottom: 8,
     },
 
     settingsCard: {
-      backgroundColor:
-        '#FFFDEF',
-
-      borderRadius:
-        22,
-
-      paddingHorizontal:
-        14,
-
-      paddingTop:
-        13,
-
-      paddingBottom:
-        13,
-
-      shadowColor:
-        '#000',
-
-      shadowOpacity:
-        0.15,
-
-      shadowRadius:
-        10,
-
+      backgroundColor: '#FFFDEF',
+      borderRadius: 22,
+      paddingHorizontal: 14,
+      paddingTop: compact ? 9 : 13,
+      paddingBottom: compact ? 9 : 13,
+      shadowColor: '#000',
+      shadowOpacity: 0.15,
+      shadowRadius: 10,
       shadowOffset: {
-        width:
-          0,
-
-        height:
-          4,
+        width: 0,
+        height: 4,
       },
-
-      elevation:
-        5,
+      elevation: 5,
     },
 
     sectionTitle: {
-      color:
-        '#333652',
-
-      fontSize:
-        16,
-
-      lineHeight:
-        21,
-
-      fontWeight:
-        '900',
-
-      textAlign:
-        'center',
+      color: '#333652',
+      fontSize: 16,
+      lineHeight: 21,
+      fontWeight: '900',
+      textAlign: 'center',
     },
 
-    /* ---------- LEVEL ---------- */
-
     levelButtons: {
-      flexDirection:
-        'row',
-
-      flexWrap:
-        'wrap',
-
-      justifyContent:
-        'space-between',
-
-      marginTop:
-        8,
-
-      rowGap:
-        7,
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      justifyContent: 'space-between',
+      marginTop: compact ? 5 : 8,
+      rowGap: compact ? 5 : 7,
     },
 
     levelButton: {
-      width:
-        '48%',
-
-      minHeight:
-        43,
-
-      borderRadius:
-        14,
-
-      borderWidth:
-        2,
-
-      borderColor:
-        '#D7DCE6',
-
-      backgroundColor:
-        '#FFFFFF',
-
-      alignItems:
-        'center',
-
-      justifyContent:
-        'center',
-
-      paddingHorizontal:
-        7,
+      width: '48%',
+      minHeight: 43,
+      borderRadius: 14,
+      borderWidth: 2,
+      borderColor: '#D7DCE6',
+      backgroundColor: '#FFFFFF',
+      alignItems: 'center',
+      justifyContent: 'center',
+      paddingHorizontal: 7,
+      paddingVertical: 6,
     },
 
     levelButtonSelected: {
-      borderColor:
-        '#CE6857',
-
-      backgroundColor:
-        '#CE6857',
+      borderColor: '#CE6857',
+      backgroundColor: '#CE6857',
     },
 
     levelButtonText: {
-      color:
-        '#333652',
-
-      fontSize:
-        15,
-
-      fontWeight:
-        '900',
-
-      textAlign:
-        'center',
+      width: '100%',
+      color: '#333652',
+      fontSize: 15,
+      fontWeight: '900',
+      textAlign: 'center',
     },
 
     levelButtonTextSelected: {
-      color:
-        '#FFFDEF',
+      color: '#FFFDEF',
     },
 
     divider: {
-      height:
-        1,
-
-      marginVertical:
-        11,
-
-      backgroundColor:
-        'rgba(51,54,82,0.12)',
+      height: 1,
+      marginVertical: compact ? 6 : 11,
+      backgroundColor: 'rgba(51,54,82,0.12)',
     },
 
-    /* ---------- COUNT ---------- */
-
     countButtons: {
-      flexDirection:
-        'row',
-
-      flexWrap:
-        'wrap',
-
-      justifyContent:
-        'space-between',
-
-      marginTop:
-        8,
-
-      rowGap:
-        7,
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      justifyContent: 'space-between',
+      marginTop: compact ? 5 : 8,
+      rowGap: compact ? 5 : 7,
     },
 
     countButton: {
-      width:
-        '22%',
-
-      minHeight:
-        42,
-
-      borderRadius:
-        14,
-
-      borderWidth:
-        2,
-
-      borderColor:
-        '#D7DCE6',
-
-      backgroundColor:
-        '#FFFFFF',
-
-      alignItems:
-        'center',
-
-      justifyContent:
-        'center',
+      width: '22%',
+      minHeight: 42,
+      paddingVertical: 6,
+      paddingHorizontal: 4,
+      borderRadius: 14,
+      borderWidth: 2,
+      borderColor: '#D7DCE6',
+      backgroundColor: '#FFFFFF',
+      alignItems: 'center',
+      justifyContent: 'center',
     },
 
     countButtonSelected: {
-      borderColor:
-        '#CE6857',
-
-      backgroundColor:
-        '#CE6857',
+      borderColor: '#CE6857',
+      backgroundColor: '#CE6857',
     },
 
     countButtonText: {
-      color:
-        '#333652',
-
-      fontSize:
-        16,
-
-      fontWeight:
-        '900',
+      color: '#333652',
+      fontSize: 16,
+      fontWeight: '900',
     },
 
     countButtonTextSelected: {
-      color:
-        '#FFFDEF',
+      color: '#FFFDEF',
     },
 
-    /* ---------- TYPE ---------- */
-
     typeButtons: {
-      marginTop:
-        8,
-
-      rowGap:
-        7,
+      marginTop: compact ? 5 : 8,
+      rowGap: compact ? 5 : 7,
     },
 
     typeButton: {
-      height:
-        64,
-
-      minHeight:
-        64,
-
-      maxHeight:
-        64,
-
-      borderRadius:
-        17,
-
-      borderWidth:
-        2,
-
-      borderColor:
-        '#D7DCE6',
-
-      backgroundColor:
-        '#FFFFFF',
-
-      justifyContent:
-        'center',
-
-      paddingHorizontal:
-        13,
-
-      paddingVertical:
-        7,
+      minHeight: compact ? 58 : 64,
+      borderRadius: 17,
+      borderWidth: 2,
+      borderColor: '#D7DCE6',
+      backgroundColor: '#FFFFFF',
+      justifyContent: 'center',
+      paddingHorizontal: 13,
+      paddingVertical: 7,
     },
 
     typeButtonSelected: {
-      borderColor:
-        '#CE6857',
-
-      backgroundColor:
-        '#F8E7ED',
+      borderColor: '#CE6857',
+      backgroundColor: '#F8E7ED',
     },
 
     typeButtonContent: {
-      flexDirection:
-        'row',
-
-      alignItems:
-        'center',
-
-      justifyContent:
-        'space-between',
-
-      columnGap:
-        10,
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      columnGap: 10,
     },
 
     typeButtonContentRtl: {
-      flexDirection:
-        'row-reverse',
+      flexDirection: 'row-reverse',
     },
 
     typeTextContainer: {
-      flex:
-        1,
-
-      justifyContent:
-        'center',
+      flex: 1,
+      minWidth: 0,
+      justifyContent: 'center',
     },
 
     typeButtonLabel: {
-      color:
-        '#333652',
-
-      fontSize:
-        16,
-
-      lineHeight:
-        20,
-
-      fontWeight:
-        '900',
-
-      textAlign:
-        'left',
+      width: '100%',
+      color: '#333652',
+      fontSize: 16,
+      lineHeight: 20,
+      fontWeight: '900',
+      textAlign: 'left',
     },
 
     typeButtonLabelSelected: {
-      color:
-        '#9F3F64',
+      color: '#9F3F64',
     },
 
     typeButtonDescription: {
-      marginTop:
-        2,
-
-      color:
-        '#73788F',
-
-      fontSize:
-        14,
-
-      lineHeight:
-        17,
-
-      fontWeight:
-        '800',
-
-      textAlign:
-        'left',
+      width: '100%',
+      marginTop: 2,
+      color: '#73788F',
+      fontSize: 14,
+      lineHeight: 17,
+      fontWeight: '800',
+      textAlign: 'left',
     },
 
     typeButtonDescriptionSelected: {
-      color:
-        '#A84F70',
+      color: '#A84F70',
     },
 
     typeCountBadge: {
-      minWidth:
-        48,
-
-      height:
-        34,
-
-      borderRadius:
-        13,
-
-      backgroundColor:
-        '#E8EEF7',
-
-      borderWidth:
-        1,
-
-      borderColor:
-        '#C4D0E2',
-
-      alignItems:
-        'center',
-
-      justifyContent:
-        'center',
-
-      paddingHorizontal:
-        8,
+      minWidth: 48,
+      minHeight: 34,
+      paddingVertical: 4,
+      paddingHorizontal: 8,
+      flexShrink: 0,
+      borderRadius: 13,
+      backgroundColor: '#E8EEF7',
+      borderWidth: 1,
+      borderColor: '#C4D0E2',
+      alignItems: 'center',
+      justifyContent: 'center',
     },
 
     typeCountBadgeSelected: {
-      backgroundColor:
-        '#CE6857',
-
-      borderColor:
-        '#CE6857',
+      backgroundColor: '#CE6857',
+      borderColor: '#CE6857',
     },
 
     typeCountText: {
-      color:
-        '#333652',
-
-      fontSize:
-        15,
-
-      fontWeight:
-        '900',
+      color: '#333652',
+      fontSize: 15,
+      fontWeight: '900',
     },
 
     typeCountTextSelected: {
-      color:
-        '#FFFDEF',
+      color: '#FFFDEF',
     },
 
-    /* ---------- ALL TYPE ---------- */
-
     allTypeContent: {
-      position:
-        'relative',
-
-      width:
-        '100%',
-
-      height:
-        '100%',
-
-      alignItems:
-        'center',
-
-      justifyContent:
-        'center',
+      width: '100%',
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      columnGap: 10,
     },
 
     allTypeLabel: {
-      width:
-        '68%',
-
-      color:
-        '#333652',
-
-      fontSize:
-        16,
-
-      lineHeight:
-        21,
-
-      fontWeight:
-        '900',
-
-      textAlign:
-        'center',
+      flex: 1,
+      minWidth: 0,
+      color: '#333652',
+      fontSize: 16,
+      lineHeight: 21,
+      fontWeight: '900',
+      textAlign: 'center',
     },
 
     allTypeCountBadge: {
-      position:
-        'absolute',
-
-      right:
-        0,
-
-      top:
-        '50%',
-
-      minWidth:
-        48,
-
-      height:
-        34,
-
-      marginTop:
-        -17,
-
-      borderRadius:
-        13,
-
-      backgroundColor:
-        '#E8EEF7',
-
-      borderWidth:
-        1,
-
-      borderColor:
-        '#C4D0E2',
-
-      alignItems:
-        'center',
-
-      justifyContent:
-        'center',
-
-      paddingHorizontal:
-        8,
+      minWidth: 48,
+      minHeight: 34,
+      flexShrink: 0,
+      borderRadius: 13,
+      backgroundColor: '#E8EEF7',
+      borderWidth: 1,
+      borderColor: '#C4D0E2',
+      alignItems: 'center',
+      justifyContent: 'center',
+      paddingHorizontal: 8,
+      paddingVertical: 4,
     },
-
-    allTypeCountBadgeRtl: {
-      right:
-        undefined,
-
-      left:
-        0,
-    },
-
-    /* ---------- EMPTY ---------- */
 
     emptyContainer: {
-      minHeight:
-        56,
-
-      marginTop:
-        10,
-
-      borderRadius:
-        13,
-
-      backgroundColor:
-        '#F8E7ED',
-
-      alignItems:
-        'center',
-
-      justifyContent:
-        'center',
-
-      paddingHorizontal:
-        14,
-
-      paddingVertical:
-        8,
+      minHeight: 56,
+      marginTop: 10,
+      borderRadius: 13,
+      backgroundColor: '#F8E7ED',
+      alignItems: 'center',
+      justifyContent: 'center',
+      paddingHorizontal: 14,
+      paddingVertical: 8,
     },
 
     emptyText: {
-      color:
-        '#9F3F64',
-
-      fontSize:
-        13,
-
-      lineHeight:
-        18,
-
-      fontWeight:
-        '800',
-
-      textAlign:
-        'center',
+      color: '#9F3F64',
+      fontSize: 13,
+      lineHeight: 18,
+      fontWeight: '800',
+      textAlign: 'center',
     },
 
-    /* ---------- BOTTOM ---------- */
-
     bottomButtons: {
-      paddingHorizontal:
-        16,
-
-      paddingTop:
-        7,
-
-      paddingBottom:
-        9,
-
-      backgroundColor:
-        '#83A3CD',
+      paddingHorizontal: 16,
+      paddingTop: compact ? 4 : 7,
+      paddingBottom: compact ? 5 : 9,
+      backgroundColor: '#83A3CD',
     },
 
     startButton: {
-      minHeight:
-        56,
-
-      borderRadius:
-        19,
-
-      backgroundColor:
-        '#CE6857',
-
-      alignItems:
-        'center',
-
-      justifyContent:
-        'center',
-
-      shadowColor:
-        '#000',
-
-      shadowOpacity:
-        0.16,
-
-      shadowRadius:
-        6,
-
+      minHeight: 56,
+      paddingVertical: 8,
+      paddingHorizontal: 12,
+      borderRadius: 19,
+      backgroundColor: '#CE6857',
+      alignItems: 'center',
+      justifyContent: 'center',
+      shadowColor: '#000',
+      shadowOpacity: 0.16,
+      shadowRadius: 6,
       shadowOffset: {
-        width:
-          0,
-
-        height:
-          3,
+        width: 0,
+        height: 3,
       },
-
-      elevation:
-        5,
+      elevation: 5,
     },
 
     startButtonDisabled: {
-      opacity:
-        0.42,
+      opacity: 0.42,
     },
 
     startButtonText: {
-      color:
-        '#FFFDEF',
-
-      fontSize:
-        19,
-
-      fontWeight:
-        '900',
+      width: '100%',
+      textAlign: 'center',
+      color: '#FFFDEF',
+      fontSize: 19,
+      fontWeight: '900',
     },
 
     buttonPressed: {
-      opacity:
-        0.78,
-
-      transform: [
-        {
-          scale:
-            0.985,
-        },
-      ],
+      opacity: 0.78,
+      transform: [{ scale: 0.985 }],
     },
   });
+
+const regularStyles = createStyles(false);
+const compactStyles = createStyles(true);
+
+const PrepositionVerbListModal = props => {
+  const { width, height, fontScale } = useWindowDimensions();
+
+  return (
+    <ListBody
+      key={`${width}:${height}:${fontScale}:${props.language || ''}`}
+      {...props}
+    />
+  );
+};
 
 export default PrepositionVerbListModal;

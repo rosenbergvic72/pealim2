@@ -4296,7 +4296,7 @@
         "correctTranslationIndex": 1
     },
     {
-        "hebrewVerb": "להאבק",
+        "hebrewVerb": "להיאבק",
         "root": "א-ב-ק",
         "translation": "Драться",
         "verbEnglish": "to fight",
@@ -4679,7 +4679,7 @@
         "correctTranslationIndex": 3
     },
     {
-        "hebrewVerb": "להתישב",
+        "hebrewVerb": "להתיישב",
         "root": "י-שׁ-ב",
         "binyan": "HITPA'EL",
         "transliteration": "lehityashev",

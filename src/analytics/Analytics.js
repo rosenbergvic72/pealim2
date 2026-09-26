@@ -105,6 +105,11 @@ export async function logSubscribeClicked(plan = 'unknown', params = {}) {
 }
 
 export async function logPurchaseSuccess(params = {}) {
+  console.log('[Analytics] purchase_success reached', {
+    platform: params.platform,
+    product_id: params.product_id,
+  });
+
   try {
     await FirebaseAnalytics.logPurchaseSuccess(params);
   } catch (e) {
@@ -112,7 +117,9 @@ export async function logPurchaseSuccess(params = {}) {
   }
 
   try {
+    console.log('[Analytics] calling Facebook purchase');
     FacebookAnalytics.logPurchaseSuccess(params);
+    console.log('[Analytics] Facebook purchase call returned');
   } catch (e) {
     console.log('[Analytics] Facebook purchase_success error:', e?.message || e);
   }

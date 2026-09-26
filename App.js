@@ -111,6 +111,8 @@ import Exercise4Pt from './Exercise4Pt';
 import Exercise4Ar from './Exercise4Ar';
 import Exercise4Am from './Exercise4Am';
 
+import RootVerbExercise from './RootVerbExercise';
+
 import Exercise5 from './Exercise5';
 import Exercise5En from './Exercise5En';
 import Exercise5Fr from './Exercise5Fr';
@@ -1468,6 +1470,39 @@ cardStyle:{backgroundColor:'#83A3CD'}
             <Stack.Screen name="Exercise4Pt" component={Exercise4PtG} options={{ ...createHeaderTitle('Exercício 7'), ...exerciseHeaderOptions }} />
             <Stack.Screen name="Exercise4Ar" component={Exercise4ArG} options={arExerciseHeader('التمرين 7')} />
             <Stack.Screen name="Exercise4Am" component={Exercise4AmG} options={{ ...createHeaderTitle('ልምምድ ሰባት'), ...exerciseHeaderOptions }} />
+
+ <Stack.Screen
+  name="RootVerbExercise"
+  component={RootVerbExercise}
+  options={({ route }) => {
+    const titles = {
+      ru: 'Корни и биньяны',
+      en: 'Roots and Binyanim',
+      fr: 'Racines et binyanim',
+      es: 'Raíces y binyanim',
+      pt: 'Raízes e binyanim',
+      ar: 'الجذور والأوزان',
+      am: 'ሥሮች እና ቢንያኖች',
+    };
+
+    const language = normalizeLanguageCode(
+      route.params?.language || 'en'
+    );
+    const rtl = language === 'ar';
+    const title = titles[language] || titles.en;
+
+    return {
+      ...createHeaderTitle(title, false, '', rtl),
+      headerShown: true,
+      headerForceBack: true,
+      animationEnabled: false,
+      gestureEnabled: false,
+      cardStyle: {
+        backgroundColor: '#83A3CD',
+      },
+    };
+  }}
+/>
 
             <Stack.Screen name="Exercise5" component={Exercise5G} options={{ ...createHeaderTitle('Упражнение 4'), ...exerciseHeaderOptions }} />
             <Stack.Screen name="Exercise5En" component={Exercise5EnG} options={{ ...createHeaderTitle('Exercise 4'), ...exerciseHeaderOptions }} />
