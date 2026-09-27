@@ -86,7 +86,7 @@ export default function MenuPage({
   };
 
   const isLocked = routeName =>
-    !fullAccess && !FREE_ROUTES_EN.has(routeName);
+  !__DEV__ && !fullAccess && !FREE_ROUTES_EN.has(routeName);
 
   const [name, setName] = useState('');
   const [stats, setStats] = useState({});
@@ -165,6 +165,9 @@ export default function MenuPage({
   const button9Opacity = useRef(new Animated.Value(0)).current;
   const button9TranslateY = useRef(new Animated.Value(250)).current;
 
+  const button10Opacity = useRef(new Animated.Value(0)).current;
+const button10TranslateY = useRef(new Animated.Value(250)).current;
+
   const PREVIOUS_TOTAL_KEY = 'previousTotalExercises';
 
   const fetchStatistics = async () => {
@@ -175,6 +178,7 @@ export default function MenuPage({
       'prepositionAfterVerbs',
       'exercise3En',
       'exercise5En',
+      'rootFamilies',
       'exercise6En',
       'exercise8En',
       'exercise4En',
@@ -474,6 +478,18 @@ export default function MenuPage({
         }),
       ]),
       Animated.parallel([
+  Animated.timing(button10Opacity, {
+    toValue: 1,
+    duration: 500,
+    useNativeDriver: true,
+  }),
+  Animated.timing(button10TranslateY, {
+    toValue: 0,
+    duration: 500,
+    useNativeDriver: true,
+  }),
+]),
+      Animated.parallel([
         Animated.timing(button5Opacity, {
           toValue: 1,
           duration: 500,
@@ -541,44 +557,119 @@ export default function MenuPage({
       return;
     }
 
-    if (
-      exercise === 'PrepositionExercise' ||
-      exercise === 'PrepositionVerbExercise'
-    ) {
-      navigation.navigate(exercise, {
-        language: 'en',
-      });
-
-      return;
-    }
+  if (
+  exercise === 'PrepositionExercise' ||
+  exercise === 'PrepositionVerbExercise' ||
+  exercise === 'RootVerbExercise'
+) {
+  navigation.navigate(exercise, { language: 'en' });
+  return;
+}
 
     setNavigateTo(exercise);
     setAnimationTriggered(true);
   };
-    useEffect(() => {
-    if (animationTriggered) {
-      Animated.stagger(100, [
-        Animated.timing(headerOpacity, { toValue: 0, duration: 300, useNativeDriver: true }),
-        Animated.timing(titleOpacity, { toValue: 0, duration: 300, useNativeDriver: true }),
-        Animated.timing(button1Opacity, { toValue: 0, duration: 300, useNativeDriver: true }),
-        Animated.timing(button2Opacity, { toValue: 0, duration: 300, useNativeDriver: true }),
-        Animated.timing(button3Opacity, { toValue: 0, duration: 300, useNativeDriver: true }),
-        Animated.timing(button4Opacity, { toValue: 0, duration: 300, useNativeDriver: true }),
-        Animated.timing(button5Opacity, { toValue: 0, duration: 300, useNativeDriver: true }),
-        Animated.timing(button6Opacity, { toValue: 0, duration: 300, useNativeDriver: true }),
-        Animated.timing(button7Opacity, { toValue: 0, duration: 300, useNativeDriver: true }),
-        Animated.timing(button8Opacity, { toValue: 0, duration: 300, useNativeDriver: true }),
-        Animated.timing(button9Opacity, { toValue: 0, duration: 300, useNativeDriver: true }),
-      ]).start(() => {
-        setTimeout(() => {
-          if (navigateTo) {
-            navigation.navigate(navigateTo);
-            setAnimationTriggered(false);
-          }
-        }, 100);
-      });
-    }
-  }, [animationTriggered, navigateTo, navigation]);
+useEffect(() => {
+  if (!animationTriggered) return;
+
+  let timer;
+
+  const animation = Animated.stagger(100, [
+    Animated.timing(headerOpacity, {
+      toValue: 0,
+      duration: 300,
+      useNativeDriver: true,
+    }),
+
+    Animated.timing(verbLibraryOpacity, {
+      toValue: 0,
+      duration: 300,
+      useNativeDriver: true,
+    }),
+
+    Animated.timing(titleOpacity, {
+      toValue: 0,
+      duration: 300,
+      useNativeDriver: true,
+    }),
+
+    Animated.timing(button1Opacity, {
+      toValue: 0,
+      duration: 300,
+      useNativeDriver: true,
+    }),
+
+    Animated.timing(button2Opacity, {
+      toValue: 0,
+      duration: 300,
+      useNativeDriver: true,
+    }),
+
+    Animated.timing(button3Opacity, {
+      toValue: 0,
+      duration: 300,
+      useNativeDriver: true,
+    }),
+
+    Animated.timing(button4Opacity, {
+      toValue: 0,
+      duration: 300,
+      useNativeDriver: true,
+    }),
+
+    Animated.timing(button5Opacity, {
+      toValue: 0,
+      duration: 300,
+      useNativeDriver: true,
+    }),
+
+    Animated.timing(button6Opacity, {
+      toValue: 0,
+      duration: 300,
+      useNativeDriver: true,
+    }),
+
+    Animated.timing(button10Opacity, {
+      toValue: 0,
+      duration: 300,
+      useNativeDriver: true,
+    }),
+
+    Animated.timing(button7Opacity, {
+      toValue: 0,
+      duration: 300,
+      useNativeDriver: true,
+    }),
+
+    Animated.timing(button8Opacity, {
+      toValue: 0,
+      duration: 300,
+      useNativeDriver: true,
+    }),
+
+    Animated.timing(button9Opacity, {
+      toValue: 0,
+      duration: 300,
+      useNativeDriver: true,
+    }),
+  ]);
+
+  animation.start(({ finished }) => {
+    if (!finished) return;
+
+    timer = setTimeout(() => {
+      if (navigateTo) {
+        navigation.navigate(navigateTo);
+        setAnimationTriggered(false);
+      }
+    }, 100);
+  });
+
+  return () => {
+    animation.stop();
+    clearTimeout(timer);
+  };
+}, [animationTriggered, navigateTo, navigation]);
 
   useEffect(() => {
     if (!statsAnimationFinished) {
@@ -663,7 +754,7 @@ export default function MenuPage({
     }
   }, []);
 
-  if (!animationFinished || animationTriggered) {
+ if (!animationFinished) {
     return (
       <View style={styles.animationContainer}>
         <LottieView
@@ -1000,6 +1091,88 @@ export default function MenuPage({
               </View>
             </TouchableOpacity>
           </Animated.View>
+
+          {/* ROOTS & BINYANIM */}
+<Animated.View
+  style={[
+    styles.buttonContainer,
+    styles.rootButtonContainer,
+    {
+      opacity: button10Opacity,
+      transform: [{ translateY: button10TranslateY }],
+    },
+    isLocked('RootVerbExercise') && lockStyle,
+  ]}
+>
+  <TouchableOpacity
+    style={styles.rootTouchable}
+    accessibilityRole="button"
+    accessibilityLabel="Roots and Binyanim. New exercise"
+    accessibilityState={{
+      disabled: isLocked('RootVerbExercise'),
+    }}
+    disabled={isLocked('RootVerbExercise')}
+    activeOpacity={0.8}
+    onPress={() => handlePress('RootVerbExercise')}
+  >
+    <View style={styles.rootHeading}>
+      <Text
+        style={styles.rootTitle}
+        maxFontSizeMultiplier={1.2}
+      >
+        ROOTS & BINYANIM
+      </Text>
+
+      <View style={styles.rootNewBadge}>
+        <Text
+          style={styles.rootNewText}
+          maxFontSizeMultiplier={1.2}
+        >
+          NEW EXERCISE
+        </Text>
+      </View>
+    </View>
+
+    <View style={styles.upperPart2}>
+      <Text
+        style={styles.upperText}
+        maxFontSizeMultiplier={1.2}
+      >
+        VERBS FROM THE SAME ROOT
+      </Text>
+    </View>
+
+    <View style={[styles.lowerRight, styles.rootStats]}>
+      <Text
+        style={styles.lowerText}
+        maxFontSizeMultiplier={1.2}
+      >
+        COMPLETED{' '}
+        <Text
+          style={styles.statValue}
+          maxFontSizeMultiplier={1.2}
+        >
+          {stats.rootFamilies?.timesCompleted ?? 0}
+        </Text>
+      </Text>
+
+      <Text
+        style={styles.lowerText}
+        maxFontSizeMultiplier={1.2}
+      >
+        AVERAGE SCORE{' '}
+        <Text
+          style={styles.statValue}
+          maxFontSizeMultiplier={1.2}
+        >
+          {Number(
+            stats.rootFamilies?.averageCompletionRate ?? 0
+          ).toFixed(2)}%
+        </Text>
+      </Text>
+    </View>
+  </TouchableOpacity>
+</Animated.View>
 
           {/* EXERCISE 5 */}
           <Animated.View
@@ -1640,4 +1813,63 @@ verbLibrarySubtitle:{
     borderWidth: 4,
     borderColor: '#ffa793',
   },
+  rootButtonContainer: {
+  backgroundColor: '#70558F',
+  borderWidth: 3,
+  borderColor: '#EBCB83',
+  shadowColor: '#49345F',
+  shadowOpacity: 0.3,
+  shadowRadius: 8,
+  shadowOffset: { width: 0, height: 2 },
+  elevation: 8,
+},
+
+rootTouchable: {
+  width: '100%',
+},
+
+rootHeading: {
+  flexDirection: 'row',
+  flexWrap: 'wrap',
+  alignItems: 'center',
+  justifyContent: 'space-between',
+  gap: 8,
+  marginBottom: 10,
+  paddingHorizontal: 10,
+},
+
+rootTitle: {
+  flexShrink: 1,
+  color: '#2D4769',
+  fontSize: 10,
+  lineHeight: 14,
+  fontWeight: '700',
+  backgroundColor: 'white',
+  padding: 3,
+  borderRadius: 5,
+  maxWidth: '100%',
+},
+
+rootNewBadge: {
+  alignSelf: 'flex-start',
+  paddingHorizontal: 8,
+  paddingVertical: 4,
+  borderRadius: 7,
+  backgroundColor: '#F5D991',
+  maxWidth: '100%',
+  flexShrink: 1,
+},
+
+rootNewText: {
+  color: '#49345F',
+  fontSize: 10,
+  lineHeight: 17,
+  fontWeight: '900',
+  textAlign: 'center',
+},
+
+rootStats: {
+  flexWrap: 'wrap',
+  gap: 6,
+},
 });

@@ -388,6 +388,18 @@ const EXERCISE_SUBTITLES = {
     he:
       'מילות יחס אחרי פעלים ומילות יחס צמודות',
   },
+
+  rootFamilies: {
+  ru: 'КОРНИ И БИНЬЯНЫ',
+  en: 'ROOTS & BINYANIM',
+  fr: 'RACINES ET BINYANIM',
+  es: 'RAÍCES Y BINYANIM',
+  pt: 'RAÍZES E BINYANIM',
+  ar: 'الجذور والأوزان',
+  am: 'ሥሮች እና ቢንያኒም',
+  he: 'שורשים ובניינים',
+},
+
 };
 
 const formatScore = (

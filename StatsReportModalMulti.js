@@ -88,11 +88,6 @@ const BASE_EXERCISES = [
     index: 3,
     useLanguageSuffix: false,
   },
-  // {
-  //   baseId: 'prepositionAfterVerbs',
-  //   index: 4,
-  //   useLanguageSuffix: false,
-  // },
   {
     baseId: 'exercise3',
     index: 5,
@@ -103,6 +98,14 @@ const BASE_EXERCISES = [
     index: 6,
     useLanguageSuffix: true,
   },
+
+  // Корни и биньяны
+  {
+    baseId: 'rootFamilies',
+    index: 7,
+    useLanguageSuffix: false,
+  },
+
   {
     baseId: 'exercise6',
     index: 7,
@@ -113,7 +116,7 @@ const BASE_EXERCISES = [
     index: 8,
     useLanguageSuffix: true,
   },
-   {
+  {
     baseId: 'prepositionAfterVerbs',
     index: 4,
     useLanguageSuffix: false,
@@ -175,12 +178,10 @@ const STRINGS = {
 exercises: {
   exercise1: 'Упражнение 1',
   exercise2: 'Упражнение 2',
-
   prepositionPronouns: 'Предлоги 1',
-  
-
   exercise3: 'Упражнение 3',
   exercise5: 'Упражнение 4',
+  rootFamilies: 'Корни и биньяны',
   exercise6: 'Упражнение 5',
   exercise8: 'Упражнение 6',
   prepositionAfterVerbs: 'Предлоги 2',
@@ -217,17 +218,16 @@ exercises: {
       '30d': '1 month',
       '60d': '2 months',
     },
-    exercises: {
+exercises: {
   exercise1: 'Exercise 1',
   exercise2: 'Exercise 2',
-
-   prepositionPronouns: 'Prepositions 1',
-prepositionAfterVerbs: 'Prepositions 2',
-
+  prepositionPronouns: 'Prepositions 1',
   exercise3: 'Exercise 3',
   exercise5: 'Exercise 4',
+  rootFamilies: 'Roots & Binyanim',
   exercise6: 'Exercise 5',
   exercise8: 'Exercise 6',
+  prepositionAfterVerbs: 'Prepositions 2',
   exercise4: 'Exercise 7',
   exercise7: 'Exercise 8',
 },
@@ -264,13 +264,13 @@ prepositionAfterVerbs: 'Prepositions 2',
 exercises: {
   exercise1: 'Exercice 1',
   exercise2: 'Exercice 2',
-
   prepositionPronouns: 'Prépositions 1',
-prepositionAfterVerbs: 'Prépositions 2',
   exercise3: 'Exercice 3',
   exercise5: 'Exercice 4',
+  rootFamilies: 'Racines et binyanim',
   exercise6: 'Exercice 5',
   exercise8: 'Exercice 6',
+  prepositionAfterVerbs: 'Prépositions 2',
   exercise4: 'Exercice 7',
   exercise7: 'Exercice 8',
 },
@@ -307,13 +307,13 @@ prepositionAfterVerbs: 'Prépositions 2',
 exercises: {
   exercise1: 'Ejercicio 1',
   exercise2: 'Ejercicio 2',
-
   prepositionPronouns: 'Preposiciones 1',
-prepositionAfterVerbs: 'Preposiciones 2',
   exercise3: 'Ejercicio 3',
   exercise5: 'Ejercicio 4',
+  rootFamilies: 'Raíces y binyanim',
   exercise6: 'Ejercicio 5',
   exercise8: 'Ejercicio 6',
+  prepositionAfterVerbs: 'Preposiciones 2',
   exercise4: 'Ejercicio 7',
   exercise7: 'Ejercicio 8',
 },
@@ -350,13 +350,13 @@ prepositionAfterVerbs: 'Preposiciones 2',
 exercises: {
   exercise1: 'Exercício 1',
   exercise2: 'Exercício 2',
-
   prepositionPronouns: 'Preposições 1',
-prepositionAfterVerbs: 'Preposições 2',
   exercise3: 'Exercício 3',
   exercise5: 'Exercício 4',
+  rootFamilies: 'Raízes e binyanim',
   exercise6: 'Exercício 5',
   exercise8: 'Exercício 6',
+  prepositionAfterVerbs: 'Preposições 2',
   exercise4: 'Exercício 7',
   exercise7: 'Exercício 8',
 },
@@ -390,16 +390,16 @@ prepositionAfterVerbs: 'Preposições 2',
       '30d': '1 ወር',
       '60d': '2 ወራት',
     },
- exercises: {
+exercises: {
   exercise1: 'ልምምድ 1',
   exercise2: 'ልምምድ 2',
-
   prepositionPronouns: 'መስተዋድዶች 1',
-prepositionAfterVerbs: 'መስተዋድዶች 2',
   exercise3: 'ልምምድ 3',
   exercise5: 'ልምምድ 4',
+  rootFamilies: 'ሥሮች እና ቢንያኒም',
   exercise6: 'ልምምድ 5',
   exercise8: 'ልምምድ 6',
+  prepositionAfterVerbs: 'መስተዋድዶች 2',
   exercise4: 'ልምምድ 7',
   exercise7: 'ልምምድ 8',
 },
@@ -436,13 +436,13 @@ prepositionAfterVerbs: 'መስተዋድዶች 2',
 exercises: {
   exercise1: 'التمرين 1',
   exercise2: 'التمرين 2',
-
   prepositionPronouns: 'حروف الجر 1',
-prepositionAfterVerbs: 'حروف الجر 2',
   exercise3: 'التمرين 3',
   exercise5: 'التمرين 4',
+  rootFamilies: 'الجذور والأوزان',
   exercise6: 'التمرين 5',
   exercise8: 'التمرين 6',
+  prepositionAfterVerbs: 'حروف الجر 2',
   exercise4: 'التمرين 7',
   exercise7: 'التمرين 8',
 },

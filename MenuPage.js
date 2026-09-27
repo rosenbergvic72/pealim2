@@ -91,6 +91,8 @@ export default function MenuPage({
   const button8TranslateY = useRef(new Animated.Value(250)).current;
   const button9Opacity = useRef(new Animated.Value(0)).current;
   const button9TranslateY = useRef(new Animated.Value(250)).current;
+  const button10Opacity = useRef(new Animated.Value(0)).current;
+const button10TranslateY = useRef(new Animated.Value(250)).current;
 
   const PREVIOUS_TOTAL_KEY = 'previousTotalExercises';
 
@@ -359,6 +361,18 @@ export default function MenuPage({
         }),
       ]),
       Animated.parallel([
+  Animated.timing(button10Opacity, {
+    toValue: 1,
+    duration: 500,
+    useNativeDriver: true,
+  }),
+  Animated.timing(button10TranslateY, {
+    toValue: 0,
+    duration: 500,
+    useNativeDriver: true,
+  }),
+]),
+      Animated.parallel([
         Animated.timing(button5Opacity, {
           toValue: 1,
           duration: 500,
@@ -456,6 +470,11 @@ export default function MenuPage({
         duration: 300,
         useNativeDriver: true,
       }),
+      Animated.timing(verbLibraryOpacity, {
+  toValue: 0,
+  duration: 300,
+  useNativeDriver: true,
+}),
       Animated.timing(titleOpacity, {
         toValue: 0,
         duration: 300,
@@ -491,6 +510,11 @@ export default function MenuPage({
         duration: 300,
         useNativeDriver: true,
       }),
+      Animated.timing(button10Opacity, {
+  toValue: 0,
+  duration: 300,
+  useNativeDriver: true,
+}),
       Animated.timing(button7Opacity, {
         toValue: 0,
         duration: 300,
@@ -623,7 +647,7 @@ export default function MenuPage({
     }
   }, []);
 
-  if (!animationFinished || animationTriggered) {
+ if (!animationFinished) {
     return (
       <View style={styles.animationContainer}>
         <LottieView
@@ -1170,10 +1194,10 @@ export default function MenuPage({
             style={[
               styles.buttonContainer,
               styles.rootButtonContainer,
-              {
-                opacity: button6Opacity,
-                transform: [{ translateY: button6TranslateY }],
-              },
+             {
+  opacity: button10Opacity,
+  transform: [{ translateY: button10TranslateY }],
+},
               isLocked('RootVerbExercise') && lockStyle,
             ]}
           >

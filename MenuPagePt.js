@@ -90,7 +90,7 @@ export default function MenuPage({
   };
 
   const isLocked = routeName =>
-    !fullAccess && !FREE_ROUTES_PT.has(routeName);
+  !__DEV__ && !fullAccess && !FREE_ROUTES_PT.has(routeName);
 
   const [name, setName] = useState('');
   const [stats, setStats] = useState({});
@@ -173,6 +173,9 @@ export default function MenuPage({
   const button9Opacity = useRef(new Animated.Value(0)).current;
   const button9TranslateY = useRef(new Animated.Value(250)).current;
 
+  const button10Opacity = useRef(new Animated.Value(0)).current;
+const button10TranslateY = useRef(new Animated.Value(250)).current;
+
   const PREVIOUS_TOTAL_KEY = 'previousTotalExercises';
 
   const fetchStatistics = async () => {
@@ -183,6 +186,7 @@ export default function MenuPage({
       'prepositionAfterVerbs',
       'exercise3Pt',
       'exercise5Pt',
+      'rootFamilies',
       'exercise6Pt',
       'exercise8Pt',
       'exercise4Pt',
@@ -554,6 +558,18 @@ export default function MenuPage({
         }),
       ]),
       Animated.parallel([
+  Animated.timing(button10Opacity, {
+    toValue: 1,
+    duration: 500,
+    useNativeDriver: true,
+  }),
+  Animated.timing(button10TranslateY, {
+    toValue: 0,
+    duration: 500,
+    useNativeDriver: true,
+  }),
+]),
+      Animated.parallel([
         Animated.timing(button5Opacity, {
           toValue: 1,
           duration: 500,
@@ -621,16 +637,17 @@ export default function MenuPage({
       return;
     }
 
-    if (
-      exercise === 'PrepositionExercise' ||
-      exercise === 'PrepositionVerbExercise'
-    ) {
-      navigation.navigate(exercise, {
-        language: 'pt',
-      });
+if (
+  exercise === 'PrepositionExercise' ||
+  exercise === 'PrepositionVerbExercise' ||
+  exercise === 'RootVerbExercise'
+) {
+  navigation.navigate(exercise, {
+    language: 'pt',
+  });
 
-      return;
-    }
+  return;
+}
 
     setNavigateTo(exercise);
     setAnimationTriggered(true);
@@ -644,6 +661,11 @@ export default function MenuPage({
           duration: 300,
           useNativeDriver: true,
         }),
+        Animated.timing(verbLibraryOpacity, {
+  toValue: 0,
+  duration: 300,
+  useNativeDriver: true,
+}),
         Animated.timing(titleOpacity, {
           toValue: 0,
           duration: 300,
@@ -679,6 +701,11 @@ export default function MenuPage({
           duration: 300,
           useNativeDriver: true,
         }),
+        Animated.timing(button10Opacity, {
+  toValue: 0,
+  duration: 300,
+  useNativeDriver: true,
+}),
         Animated.timing(button7Opacity, {
           toValue: 0,
           duration: 300,
@@ -720,7 +747,7 @@ export default function MenuPage({
     }
   }, [statsAnimationFinished]);
 
-  if (!animationFinished || animationTriggered) {
+  if (!animationFinished) {
     return (
       <View style={styles.animationContainer}>
         <LottieView
@@ -1305,6 +1332,65 @@ export default function MenuPage({
             </TouchableOpacity>
           </Animated.View>
 
+          {/* RAÍZES E BINYANIM */}
+<Animated.View
+  style={[
+    styles.buttonContainer,
+    styles.rootButtonContainer,
+    {
+      opacity: button10Opacity,
+      transform: [{ translateY: button10TranslateY }],
+    },
+    isLocked('RootVerbExercise') && lockStyle,
+  ]}
+>
+  <TouchableOpacity
+    style={styles.rootTouchable}
+    accessibilityRole="button"
+    accessibilityLabel="Raízes e binyanim. Novo exercício"
+    accessibilityState={{ disabled: isLocked('RootVerbExercise') }}
+    disabled={isLocked('RootVerbExercise')}
+    activeOpacity={0.8}
+    onPress={() => handlePress('RootVerbExercise')}
+  >
+    <View style={styles.rootHeading}>
+      <Text style={styles.rootTitle} maxFontSizeMultiplier={1.2}>
+        RAÍZES E BINYANIM
+      </Text>
+
+      <View style={styles.rootNewBadge}>
+        <Text style={styles.rootNewText} maxFontSizeMultiplier={1.2}>
+          NOVO EXERCÍCIO
+        </Text>
+      </View>
+    </View>
+
+    <View style={styles.upperPart2}>
+      <Text style={styles.upperText} maxFontSizeMultiplier={1.2}>
+        VERBOS DA MESMA RAIZ
+      </Text>
+    </View>
+
+    <View style={[styles.lowerRight, styles.rootStats]}>
+      <Text style={styles.lowerText} maxFontSizeMultiplier={1.2}>
+        CONCLUÍDO{' '}
+        <Text style={styles.statValue}>
+          {stats.rootFamilies?.timesCompleted ?? 0}
+        </Text>
+      </Text>
+
+      <Text style={styles.lowerText} maxFontSizeMultiplier={1.2}>
+        PONTUAÇÃO MÉDIA{' '}
+        <Text style={styles.statValue}>
+          {Number(
+            stats.rootFamilies?.averageCompletionRate ?? 0
+          ).toFixed(2)}%
+        </Text>
+      </Text>
+    </View>
+  </TouchableOpacity>
+</Animated.View>
+
           {/* 5 */}
           <Animated.View
             style={[
@@ -1521,7 +1607,7 @@ export default function MenuPage({
                   numberOfLines={2}
                   maxFontSizeMultiplier={1.2}
                 >
-                  PREPOSIÇÕES APÓS VERBOS E PREPOSIÇÕES PREFIXADAS
+                  VERBOS E PREPOSIÇÕES
                 </Text>
               </View>
 
@@ -2208,4 +2294,63 @@ verbLibrarySubtitle:{
     includeFontPadding: false,
     textAlignVertical: 'center',
   },
+  rootButtonContainer: {
+  backgroundColor: '#70558F',
+  borderWidth: 3,
+  borderColor: '#EBCB83',
+  shadowColor: '#49345F',
+  shadowOpacity: 0.3,
+  shadowRadius: 8,
+  shadowOffset: { width: 0, height: 2 },
+  elevation: 8,
+},
+
+rootTouchable: {
+  width: '100%',
+},
+
+rootHeading: {
+  flexDirection: 'row',
+  flexWrap: 'wrap',
+  alignItems: 'center',
+  justifyContent: 'space-between',
+  gap: 8,
+  marginBottom: 10,
+  paddingHorizontal: 10,
+},
+
+rootTitle: {
+  flexShrink: 1,
+  color: '#2D4769',
+  fontSize: 10,
+  lineHeight: 14,
+  fontWeight: '700',
+  backgroundColor: 'white',
+  padding: 3,
+  borderRadius: 5,
+  maxWidth: '100%',
+},
+
+rootNewBadge: {
+  alignSelf: 'flex-start',
+  paddingHorizontal: 8,
+  paddingVertical: 4,
+  borderRadius: 7,
+  backgroundColor: '#F5D991',
+  maxWidth: '100%',
+  flexShrink: 1,
+},
+
+rootNewText: {
+  color: '#49345F',
+  fontSize: 10,
+  lineHeight: 17,
+  fontWeight: '900',
+  textAlign: 'center',
+},
+
+rootStats: {
+  flexWrap: 'wrap',
+  gap: 6,
+},
 });
