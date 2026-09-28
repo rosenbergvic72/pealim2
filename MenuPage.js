@@ -729,13 +729,10 @@ const button10TranslateY = useRef(new Animated.Value(250)).current;
                     </Text>
 
                     <View style={styles.statsBox}>
-                      <Text
-                        style={styles.statsValue}
-                        maxFontSizeMultiplier={1.2}
-                        numberOfLines={1}
-                        adjustsFontSizeToFit
-                        minimumFontScale={0.8}
-                      >
+                   <Text
+  style={styles.statsValue}
+  maxFontSizeMultiplier={1.2}
+>
                         {totalExercisesCompleted}
                       </Text>
                     </View>
@@ -750,13 +747,10 @@ const button10TranslateY = useRef(new Animated.Value(250)).current;
                     </Text>
 
                     <View style={styles.statsBox}>
-                      <Text
-                        style={styles.statsValue}
-                        maxFontSizeMultiplier={1.2}
-                        numberOfLines={1}
-                        adjustsFontSizeToFit
-                        minimumFontScale={0.8}
-                      >
+                    <Text
+  style={styles.statsValue}
+  maxFontSizeMultiplier={1.2}
+>
                         {averageCompletionRate}%
                       </Text>
                     </View>
@@ -771,13 +765,10 @@ const button10TranslateY = useRef(new Animated.Value(250)).current;
                     </Text>
 
                     <View style={styles.statsBox}>
-                      <Text
-                        style={styles.statsValue}
-                        maxFontSizeMultiplier={1.2}
-                        numberOfLines={1}
-                        adjustsFontSizeToFit
-                        minimumFontScale={0.8}
-                      >
+                    <Text
+  style={styles.statsValue}
+  maxFontSizeMultiplier={1.2}
+>
                         {activeDays}
                       </Text>
                     </View>
