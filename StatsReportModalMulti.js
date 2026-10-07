@@ -131,6 +131,16 @@ const BASE_EXERCISES = [
     index: 10,
     useLanguageSuffix: true,
   },
+  {
+  baseId: 'exercise9',
+  index: 9,
+  useLanguageSuffix: false,
+},
+{
+  baseId: 'exercise10',
+  index: 10,
+  useLanguageSuffix: false,
+},
 ];
 
 /* ===== ЛОКАЛИ ДЛЯ ДАТ ===== */
@@ -187,6 +197,8 @@ exercises: {
   prepositionAfterVerbs: 'Предлоги 2',
   exercise4: 'Упражнение 7',
   exercise7: 'Упражнение 8',
+  exercise9: 'Упражнение 9',
+exercise10: 'Упражнение 10',
 },
   },
 
@@ -230,6 +242,8 @@ exercises: {
   prepositionAfterVerbs: 'Prepositions 2',
   exercise4: 'Exercise 7',
   exercise7: 'Exercise 8',
+  exercise9: 'Exercise 9',
+exercise10: 'Exercise 10',
 },
   },
 
@@ -273,6 +287,8 @@ exercises: {
   prepositionAfterVerbs: 'Prépositions 2',
   exercise4: 'Exercice 7',
   exercise7: 'Exercice 8',
+  exercise9: 'Exercice 9',
+exercise10: 'Exercice 10',
 },
   },
 
@@ -316,6 +332,8 @@ exercises: {
   prepositionAfterVerbs: 'Preposiciones 2',
   exercise4: 'Ejercicio 7',
   exercise7: 'Ejercicio 8',
+  exercise9: 'Ejercicio 9',
+exercise10: 'Ejercicio 10',
 },
   },
 
@@ -359,6 +377,8 @@ exercises: {
   prepositionAfterVerbs: 'Preposições 2',
   exercise4: 'Exercício 7',
   exercise7: 'Exercício 8',
+  exercise9: 'Exercício 9',
+exercise10: 'Exercício 10',
 },
   },
 
@@ -402,6 +422,8 @@ exercises: {
   prepositionAfterVerbs: 'መስተዋድዶች 2',
   exercise4: 'ልምምድ 7',
   exercise7: 'ልምምድ 8',
+  exercise9: 'ልምምድ 9',
+exercise10: 'ልምምድ 10',
 },
   },
 
@@ -445,6 +467,8 @@ exercises: {
   prepositionAfterVerbs: 'حروف الجر 2',
   exercise4: 'التمرين 7',
   exercise7: 'التمرين 8',
+  exercise9: 'التمرين 9',
+exercise10: 'التمرين 10',   
 },
   },
 };

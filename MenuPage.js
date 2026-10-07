@@ -184,6 +184,8 @@ const button10TranslateY = useRef(new Animated.Value(250)).current;
       'exercise8',
       'exercise4',
       'exercise7',
+       'exercise9',
+      'exercise10',
     ];
 
     const statsData = {};
@@ -449,7 +451,9 @@ const button10TranslateY = useRef(new Animated.Value(250)).current;
     if (
       exercise === 'PrepositionExercise' ||
       exercise === 'PrepositionVerbExercise' ||
-      exercise === 'RootVerbExercise'
+      exercise === 'RootVerbExercise' ||
+      exercise === 'Exercise9' ||
+      exercise === 'Exercise10'
     ) {
       navigation.navigate(exercise, { language: 'ru' });
       return;
@@ -1621,6 +1625,98 @@ const button10TranslateY = useRef(new Animated.Value(250)).current;
             </TouchableOpacity>
           </Animated.View>
 
+          {/* УПРАЖНЕНИЯ 9 И 10 */}
+{[
+  {
+    screen: 'Exercise9',
+    statsKey: 'exercise9',
+    number: 9,
+    title: 'ГЛАГОЛ В ПРЕДЛОЖЕНИИ',
+  },
+  {
+    screen: 'Exercise10',
+    statsKey: 'exercise10',
+    number: 10,
+    title: 'УСЛЫШЬ И ПОЙМИ',
+  },
+].map(item => (
+  <Animated.View
+    key={item.screen}
+    style={[
+      styles.buttonContainer,
+      {
+        opacity: button7Opacity,
+        transform: [{ translateY: button7TranslateY }],
+      },
+      isLocked(item.screen) && lockStyle,
+    ]}
+  >
+    <TouchableOpacity
+      onPress={() => handlePress(item.screen)}
+      disabled={isLocked(item.screen)}
+      accessibilityRole="button"
+      accessibilityLabel={`Упражнение ${item.number}. ${item.title}`}
+      accessibilityState={{
+        disabled: isLocked(item.screen),
+      }}
+      style={styles.exerciseTouchable}
+    >
+      <View style={styles.upperPart1}>
+        <Text
+          style={styles.upperText1}
+          maxFontSizeMultiplier={1.2}
+        >
+          УПРАЖНЕНИЕ {item.number}
+        </Text>
+
+        <Image
+          source={require('./star5.png')}
+          style={styles.image1}
+        />
+      </View>
+
+      <View style={styles.upperPart2}>
+        <Text
+          style={styles.upperText}
+          maxFontSizeMultiplier={1.2}
+        >
+          {item.title}
+        </Text>
+      </View>
+
+      <View style={styles.lowerRight}>
+        <Text
+          style={styles.lowerText}
+          maxFontSizeMultiplier={1.2}
+        >
+          СДЕЛАНО{' '}
+          <Text
+            style={styles.statValue}
+            maxFontSizeMultiplier={1.2}
+          >
+            {stats[item.statsKey]?.timesCompleted ?? 0}
+          </Text>
+        </Text>
+
+        <Text
+          style={styles.lowerText}
+          maxFontSizeMultiplier={1.2}
+        >
+          СРЕДНИЙ РЕЗУЛЬТАТ{' '}
+          <Text
+            style={styles.statValue}
+            maxFontSizeMultiplier={1.2}
+          >
+            {Number(
+              stats[item.statsKey]?.averageCompletionRate ?? 0
+            ).toFixed(2)}%
+          </Text>
+        </Text>
+      </View>
+    </TouchableOpacity>
+  </Animated.View>
+))}
+
           <Animated.View
             style={[
               styles.infoWrap,
@@ -1712,6 +1808,11 @@ const button10TranslateY = useRef(new Animated.Value(250)).current;
               </Text>
             </TouchableOpacity>
           </Animated.View>
+
+
+
+
+
         </View>
       </ScrollView>
 

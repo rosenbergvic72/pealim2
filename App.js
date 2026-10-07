@@ -145,6 +145,9 @@ import Exercise8Pt from './Exercise8Pt';
 import Exercise8Ar from './Exercise8Ar';
 import Exercise8Am from './Exercise8Am';
 
+import Exercise9 from './Exercise9';
+import Exercise10 from './Exercise10';
+
 import ChatBotModal from './api/ChatBotModal';
 
 // IAP и Paywall
@@ -269,6 +272,9 @@ const Exercise8EsG = gate(Exercise8Es);
 const Exercise8PtG = gate(Exercise8Pt);
 const Exercise8ArG = gate(Exercise8Ar);
 const Exercise8AmG = gate(Exercise8Am);
+
+const Exercise9G = gate(Exercise9);
+const Exercise10G = gate(Exercise10);
 
 /* ===== Кастомный компактный Header (44dp) ===== */
 function CompactHeader({ navigation, options, back, route }) {
@@ -1535,6 +1541,28 @@ cardStyle:{backgroundColor:'#83A3CD'}
             <Stack.Screen name="Exercise8Pt" component={Exercise8PtG} options={{ ...createHeaderTitle('Exercício 6'), ...exerciseHeaderOptions }} />
             <Stack.Screen name="Exercise8Ar" component={Exercise8ArG} options={arExerciseHeader('التمرين 6')} />
             <Stack.Screen name="Exercise8Am" component={Exercise8AmG} options={{ ...createHeaderTitle('መልመጃ ስድስት'), ...exerciseHeaderOptions }} />
+
+            <Stack.Screen
+  name="Exercise9"
+  component={Exercise9G}
+  options={{
+    headerShown: false,
+    animationEnabled: false,
+    gestureEnabled: false,
+    cardStyle: { backgroundColor: '#83A3CD' },
+  }}
+/>
+
+<Stack.Screen
+  name="Exercise10"
+  component={Exercise10G}
+  options={{
+    headerShown: false,
+    animationEnabled: false,
+    gestureEnabled: false,
+    cardStyle: { backgroundColor: '#83A3CD' },
+  }}
+/>
           </Stack.Navigator>
         </SafeAreaView>
       </NavigationContainer>
