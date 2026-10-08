@@ -10,38 +10,39 @@ const lines = {
 };
 export const UI = Object.fromEntries(Object.entries(lines).map(([lang,values])=>[lang,Object.fromEntries(keys.map((key,i)=>[key,values[i]]))]));
 export const HELP = {
+
   ru: [
-    'Подставьте правильную форму глагола в предложение. Учитывайте время, лицо и род. После ответа появятся перевод и транслитерация. Задания можно исключать из повторения или отмечать для более частого показа.',
+    'Подставьте правильную форму глагола в предложение. Учитывайте время, лицо и род. После ответа появятся перевод и транслитерация. Нажмите кнопку динамика, чтобы прослушать всё предложение целиком на иврите. Задания можно исключать из повторения или отмечать для более частого показа.',
     'Прослушайте предложение и выберите правильный перевод. После ответа откроются текст на иврите и транслитерация. Задания можно исключать из повторения или отмечать для более частого показа.'
   ],
 
   en: [
-    'Choose the correct verb form to complete the sentence. Pay attention to tense, person and gender. Translation and transliteration appear after answering. You can exclude tasks from review or mark them to appear more often.',
+    'Choose the correct verb form to complete the sentence. Pay attention to tense, person and gender. Translation and transliteration appear after answering. Tap the speaker button to listen to the complete sentence in Hebrew. You can exclude tasks from review or mark them to appear more often.',
     'Listen to the sentence and choose the correct translation. Hebrew text and transliteration appear after answering. You can exclude tasks from review or mark them to appear more often.'
   ],
 
   fr: [
-    'Choisissez la bonne forme du verbe pour compléter la phrase. Tenez compte du temps, de la personne et du genre. La traduction et la translittération apparaissent après la réponse. Vous pouvez exclure certaines questions ou les faire apparaître plus souvent.',
+    'Choisissez la bonne forme du verbe pour compléter la phrase. Tenez compte du temps, de la personne et du genre. La traduction et la translittération apparaissent après la réponse. Appuyez sur le bouton du haut-parleur pour écouter la phrase complète en hébreu. Vous pouvez exclure certaines questions ou les faire apparaître plus souvent.',
     'Écoutez la phrase et choisissez la bonne traduction. Le texte en hébreu et la translittération apparaissent après la réponse. Vous pouvez exclure certaines questions ou les faire apparaître plus souvent.'
   ],
 
   es: [
-    'Elige la forma correcta del verbo para completar la oración. Ten en cuenta el tiempo, la persona y el género. La traducción y la transliteración aparecen después de responder. Puedes excluir preguntas o marcarlas para que aparezcan con más frecuencia.',
+    'Elige la forma correcta del verbo para completar la oración. Ten en cuenta el tiempo, la persona y el género. La traducción y la transliteración aparecen después de responder. Pulsa el botón del altavoz para escuchar la oración completa en hebreo. Puedes excluir preguntas o marcarlas para que aparezcan con más frecuencia.',
     'Escucha la oración y elige la traducción correcta. El texto en hebreo y la transliteración aparecen después de responder. Puedes excluir preguntas o marcarlas para que aparezcan con más frecuencia.'
   ],
 
   pt: [
-    'Escolha a forma correta do verbo para completar a frase. Considere o tempo, a pessoa e o gênero. A tradução e a transliteração aparecem depois da resposta. Você pode excluir questões ou marcá-las para aparecerem com mais frequência.',
+    'Escolha a forma correta do verbo para completar a frase. Considere o tempo, a pessoa e o gênero. A tradução e a transliteração aparecem depois da resposta. Toque no botão do alto-falante para ouvir a frase completa em hebraico. Você pode excluir questões ou marcá-las para aparecerem com mais frequência.',
     'Ouça a frase e escolha a tradução correta. O texto em hebraico e a transliteração aparecem depois da resposta. Você pode excluir questões ou marcá-las para aparecerem com mais frequência.'
   ],
 
   ar: [
-    'اختر صيغة الفعل الصحيحة لإكمال الجملة. انتبه إلى الزمن والشخص والجنس. تظهر الترجمة والكتابة الصوتية بعد الإجابة. يمكنك استبعاد بعض الأسئلة من التكرار أو جعلها تظهر بشكل أكثر تكرارًا.',
+    'اختر صيغة الفعل الصحيحة لإكمال الجملة. انتبه إلى الزمن والشخص والجنس. تظهر الترجمة والكتابة الصوتية بعد الإجابة. اضغط على زر مكبر الصوت للاستماع إلى الجملة كاملة بالعبرية. يمكنك استبعاد بعض الأسئلة من التكرار أو جعلها تظهر بشكل أكثر تكرارًا.',
     'استمع إلى الجملة واختر الترجمة الصحيحة. يظهر النص العبري والكتابة الصوتية بعد الإجابة. يمكنك استبعاد بعض الأسئلة من التكرار أو جعلها تظهر بشكل أكثر تكرارًا.'
   ],
 
   am: [
-    'ዓረፍተ ነገሩን ለማሟላት ትክክለኛውን የግስ ቅርጽ ይምረጡ። ጊዜን፣ ሰውን እና ጾታን ያስተውሉ። ከመልሱ በኋላ ትርጉሙ እና ትራንስሊተሬሽኑ ይታያሉ። ጥያቄዎችን ከድገማ ማስወገድ ወይም ብዙ ጊዜ እንዲታዩ ማድረግ ይችላሉ።',
+    'ዓረፍተ ነገሩን ለማሟላት ትክክለኛውን የግስ ቅርጽ ይምረጡ። ጊዜን፣ ሰውን እና ጾታን ያስተውሉ። ከመልሱ በኋላ ትርጉሙ እና ትራንስሊተሬሽኑ ይታያሉ። ሙሉውን ዓረፍተ ነገር በዕብራይስጥ ለማዳመጥ የድምፅ ማጉያውን ቁልፍ ይጫኑ። ጥያቄዎችን ከድገማ ማስወገድ ወይም ብዙ ጊዜ እንዲታዩ ማድረግ ይችላሉ።',
     'ዓረፍተ ነገሩን ያዳምጡ እና ትክክለኛውን ትርጉም ይምረጡ። ከመልሱ በኋላ የዕብራይስጥ ጽሑፍ እና ትራንስሊተሬሽኑ ይታያሉ። ጥያቄዎችን ከድገማ ማስወገድ ወይም ብዙ ጊዜ እንዲታዩ ማድረግ ይችላሉ።'
   ]
 

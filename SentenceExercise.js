@@ -1,5 +1,5 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { ActivityIndicator, Alert, Animated, AppState, Easing, FlatList, Image, Modal, SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, useWindowDimensions, View } from 'react-native';
+import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { ActivityIndicator, Alert, Animated, AppState, Easing, FlatList, Image, Modal, Platform, SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, useWindowDimensions, View } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect, useIsFocused } from '@react-navigation/native';
 import { updateStatistics, getStatistics } from './stat';
@@ -172,7 +172,7 @@ export default function SentenceExercise({ navigation, route, mode = 9 }) {
     const leavingRef = useRef(false), timer = useRef(null), epoch = useRef(0), scrollRef = useRef(null);
     const { play, stop } = useSentenceAudio();
     const { height, width } = useWindowDimensions();
-    const compact = height < 720;
+    const compact = height < 860;
     const cardMotion = useRef(new Animated.Value(0)).current;
     const optionReadyAnim = useRef(new Animated.Value(0)).current;
     const motionEnabled = phase === 'task' && !modal;
@@ -198,6 +198,13 @@ export default function SentenceExercise({ navigation, route, mode = 9 }) {
     const topStyles = useMemo(() => createTopStyles(compact), [compact]);
     const ui = UI[language] || UI.en, rtl = language === 'ar';
     const title = ui[`title${mode}`];
+
+    useLayoutEffect(() => {
+        navigation?.setOptions?.({
+            headerShown: phase !== 'settings',
+        });
+    }, [navigation, phase]);
+
     const exerciseHelp = mode === 10 ? (EX10_HELP[language] || EX10_HELP.en) : (HELP[language]?.[0] || HELP.en[0]);
     const modalHelp = MODAL_HELP[mode]?.[language] || MODAL_HELP[mode]?.en || exerciseHelp;
     const item = deck[index] || null;
@@ -480,7 +487,18 @@ export default function SentenceExercise({ navigation, route, mode = 9 }) {
         stopAll(); changeSettings({ sound: enabled }); };
     const header = (<View style={topStyles.topBar}>
       <TouchableOpacity onPress={goMenu} accessibilityRole="button" accessibilityLabel={ui.menu} activeOpacity={0.7}>
-        <Image source={ICONS.logo} style={[topStyles.logo, mode === 9 && { width: Math.min(compact ? 90 : 130, Math.max(56, width - 258)) }]}/>
+        <Image
+  source={ICONS.logo}
+  style={[
+    topStyles.logo,
+    mode === 9 && {
+      width: Math.min(
+        compact ? 108 : 140,
+        Math.max(76, width - (compact ? 220 : 250))
+      ),
+    },
+  ]}
+/>
       </TouchableOpacity>
       <View style={topStyles.topButtons}>
         {[
@@ -528,7 +546,7 @@ export default function SentenceExercise({ navigation, route, mode = 9 }) {
     const rotationItems = parsed.items.filter(x => rotationMatches(x));
     const rotationCount = filter => parsed.items.filter(x => rotationMatches(x, filter)).length;
     const reveal = answered;
-    const optionHeight = mode === 9 ? 84 : (compact ? 54 : 60);
+    const optionHeight = mode === 9 ? (compact ? 74 : 84) : (compact ? 50 : 60);
 const optionWaitingAnimatedStyle =
     mode === 10 && !answered
         ? {
@@ -558,9 +576,9 @@ const optionWaitingAnimatedStyle =
         outputRange: [0.16, 0.38, 0.78, 1],
     });
     if (!loaded)
-        return <ScreenSafeAreaView style={s.screen} edges={['top', 'left', 'right']}><ActivityIndicator style={{ flex: 1 }} color="#FFFDEF" accessibilityLabel={ui.loading}/></ScreenSafeAreaView>;
-    return <ScreenSafeAreaView style={s.screen} edges={['top', 'left', 'right']}><View style={phase === 'settings' ? settingsModal.root : [s.container, width > 650 && s.wide]}>
-    {phase !== 'settings' && header}
+        return <ScreenSafeAreaView style={s.screen} edges={phase === 'settings' ? ['top', 'left', 'right'] : ['left', 'right']}><ActivityIndicator style={{ flex: 1 }} color="#FFFDEF" accessibilityLabel={ui.loading}/></ScreenSafeAreaView>;
+    return <ScreenSafeAreaView style={s.screen} edges={phase === 'settings' ? ['top', 'left', 'right'] : ['left', 'right']}><View style={phase === 'settings' ? settingsModal.root : [s.container, width > 650 && s.wide]}>
+    {phase === 'result' && header}
     {phase === 'settings' && <>
       <View style={settingsModal.header}>
         <TouchableOpacity accessibilityRole="button" accessibilityLabel={ui.close} onPress={goMenu} activeOpacity={0.75} style={settingsModal.closeButton}>
@@ -594,7 +612,20 @@ const optionWaitingAnimatedStyle =
         </TouchableOpacity>
       </View>
     </>}
-    {phase === 'task' && item && <>
+    {phase === 'task' && item && (
+      <View style={s.taskScreen}>
+        <ScrollView
+          ref={scrollRef}
+          style={s.fullTaskScroll}
+          contentContainerStyle={[
+            s.fullTaskScrollContent,
+            compact && s.fullTaskScrollContentCompact,
+          ]}
+          showsVerticalScrollIndicator={false}
+          bounces={false}
+          nestedScrollEnabled
+        >
+      {header}
       <View style={topStyles.progressContainer}>
         <View style={topStyles.progressTextContainer}>
           <Text style={topStyles.progressStatText} maxFontSizeMultiplier={1.2}>
@@ -618,35 +649,34 @@ const optionWaitingAnimatedStyle =
       <View style={topStyles.progressBarContainer}>
         <ProgressBar progress={progress} totalExercises={deck.length}/>
       </View>
-      <ScrollView ref={scrollRef} contentContainerStyle={s.scrollBody} showsVerticalScrollIndicator={false}>
-        <T style={s.taskTitle}>{ui[`choose${mode}`]}</T>
+      <T style={[s.taskTitle, compact && s.taskTitleCompact]}>{ui[`choose${mode}`]}</T>
         <View>
          <View style={[
                 s.card,
-                compact && { padding: 12 },
-                mode === 10 && { paddingTop: 10, paddingBottom: 3 },
+                compact && { padding: 9, marginBottom: 8 },
+                mode === 10 && { paddingTop: compact ? 8 : 10, paddingBottom: compact ? 2 : 3 },
             ]}>
             {mode === 9 ? (<>
-                <View style={card9.hebrewBox}>
+                <View style={[card9.hebrewBox, compact && card9Compact.hebrewBox]}>
                   <MovingBackdrop motion={cardMotion} colors={['126,177,226', '144,201,210']}/>
                   <ScrollView style={{ flex: 1, width: '100%' }} contentContainerStyle={{ flexGrow: 1, justifyContent: 'center' }} nestedScrollEnabled bounces={false} showsVerticalScrollIndicator={false}>
                     <SentenceWithVerbSlot key={item.id} split={split} answered={answered} compact={compact}/>
                   </ScrollView>
                 </View>
-          <View style={card9.translationBox}>
+          <View style={[card9.translationBox, compact && card9Compact.translationBox]}>
   <MovingBackdrop motion={cardMotion} colors={['185,155,218', '216,169,198']} reverse/>
   <ScrollView style={card9.translationScroll} contentContainerStyle={card9.translationContent} nestedScrollEnabled bounces={false} showsVerticalScrollIndicator={false}>
     <TranslationText text={item[language]} rtl={rtl}/>
   </ScrollView>
             </View>
-                <View style={card9.translitBox}>
+                <View style={[card9.translitBox, compact && card9Compact.translitBox]}>
                     <MovingBackdrop motion={cardMotion} colors={['230,179,121', '226,151,167']}/>
                     <ScrollView style={{ flex: 1, alignSelf: 'stretch', zIndex: 1 }} contentContainerStyle={{ flexGrow: 1, justifyContent: 'center', paddingHorizontal: 10 }} nestedScrollEnabled bounces={false} showsVerticalScrollIndicator={false} accessibilityElementsHidden={!answered} importantForAccessibility={!answered ? 'no-hide-descendants' : 'auto'}>
                       <T style={[s.translit, card9.front, { flex: 0, fontSize: 15, lineHeight: 20 }, !answered && { opacity: 0 }]}>{item.translit}</T>
                     </ScrollView>
                 </View>
               </>) : (<>
-                <View style={card9.hebrewBox}>
+                <View style={[card9.hebrewBox, compact && card9Compact.hebrewBox]}>
                   <MovingBackdrop motion={cardMotion} vivid colors={['89,158,230', '85,204,184']}/>
                   {!reveal && sentencePlaying ? (
                     <LottieView
@@ -671,7 +701,7 @@ const optionWaitingAnimatedStyle =
                     </View>
                   )}
                 </View>
-                <View style={[card9.translitBox, { paddingHorizontal: 10 }]}>
+                <View style={[card9.translitBox, compact && card9Compact.translitBox, { paddingHorizontal: 10 }]}>
                   <MovingBackdrop motion={cardMotion} colors={['230,179,121', '226,151,167']}/>
                   <ScrollView style={{ flex: 1, alignSelf: 'stretch', zIndex: 1 }} contentContainerStyle={{ flexGrow: 1, justifyContent: 'center' }} nestedScrollEnabled bounces={false} showsVerticalScrollIndicator={false} accessibilityElementsHidden={!reveal} importantForAccessibility={!reveal ? 'no-hide-descendants' : 'auto'}>
                     <T style={[s.translit, { flex: 0, fontSize: 15, lineHeight: 20 }, (!reveal) && { opacity: 0 }]}>{reveal ? item.translit : ''}</T>
@@ -679,7 +709,7 @@ const optionWaitingAnimatedStyle =
                 </View>
               </>)}
             {audioError && <T style={s.error}>{ui.audioError}</T>}
-            <View style={s.rotation}>
+            <View style={[s.rotation, compact && s.rotationCompact]}>
               {mode === 9 && answered && (
                 <View style={card9.replayControls}>
                   <Icon
@@ -733,7 +763,7 @@ const optionWaitingAnimatedStyle =
                 const good = answered && option.correct, bad = answered && selected === option.id && !option.correct;
                 const waitingForAudio = mode === 10 && !answered && !heard;
                 const disabled = answered || waitingForAudio || sentencePlaying;
-                return <AnimatedTouchableOpacity key={option.id} accessibilityRole="button" accessibilityLabel={option.label} accessibilityState={{ disabled }} disabled={disabled} onPress={() => answer(option)} activeOpacity={0.8} style={[s.option, { minHeight: optionHeight }, mode === 10 && { width: '100%', height: optionHeight, maxHeight: optionHeight, paddingVertical: 4, marginBottom: 7, borderWidth: 2 }, mode === 9 && { overflow: 'hidden', height: optionHeight, maxHeight: optionHeight, paddingVertical: 4 }, optionWaitingAnimatedStyle, good && s.good, bad && s.bad, answered && !good && !bad && s.inactive]}>
+                return <AnimatedTouchableOpacity key={option.id} accessibilityRole="button" accessibilityLabel={option.label} accessibilityState={{ disabled }} disabled={disabled} onPress={() => answer(option)} activeOpacity={0.8} style={[s.option, { minHeight: optionHeight }, mode === 10 && { width: '100%', height: optionHeight, maxHeight: optionHeight, paddingVertical: compact ? 3 : 4, marginBottom: compact ? 5 : 7, borderWidth: 2 }, mode === 9 && { overflow: 'hidden', height: optionHeight, maxHeight: optionHeight, paddingVertical: compact ? 3 : 4, marginBottom: compact ? 5 : 9 }, optionWaitingAnimatedStyle, good && s.good, bad && s.bad, answered && !good && !bad && s.inactive]}>
               <Animated.View
                 style={[
                   {
@@ -754,16 +784,18 @@ const optionWaitingAnimatedStyle =
                       s.optionTranslation,
                       {
                         width: '100%',
-                        height: '100%',
                         alignSelf: 'stretch',
                         flexShrink: 0,
                         fontSize: compact ? 14 : 15,
                         lineHeight: compact ? 18 : 20,
                         textAlign: 'center',
-                        textAlignVertical: 'center',
                         includeFontPadding: false,
                         paddingVertical: 0,
                         writingDirection: rtl ? 'rtl' : 'ltr',
+                      },
+                      Platform.OS === 'android' && {
+                        height: '100%',
+                        textAlignVertical: 'center',
                       },
                       rtl && s.rtl,
                     ]}
@@ -783,13 +815,13 @@ const optionWaitingAnimatedStyle =
                       style={[
                         card9.front,
                         s.optionHebrew,
-                        { fontSize: 24, lineHeight: 30 },
+                        { fontSize: compact ? 22 : 24, lineHeight: compact ? 27 : 30 },
                       ]}
                     >
                       {option.label}
                     </T>
-                    {settings.showTranslation !== false && <View style={{ width: '100%', minHeight: 32, justifyContent: 'center', zIndex: 1 }} accessibilityElementsHidden={settings.showTranslation === false} importantForAccessibility={settings.showTranslation === false ? 'no-hide-descendants' : 'auto'}>
-                      <T style={{ fontSize: 14, lineHeight: 16, fontWeight: '700', color: '#CE6857', textAlign: 'center', writingDirection: 'ltr' }}>{optionTransliteration(conjugationIndex, item, option.label) || ' '}</T>
+                    {settings.showTranslation !== false && <View style={{ width: '100%', minHeight: compact ? 27 : 32, justifyContent: 'center', zIndex: 1 }} accessibilityElementsHidden={settings.showTranslation === false} importantForAccessibility={settings.showTranslation === false ? 'no-hide-descendants' : 'auto'}>
+                      <T style={{ fontSize: compact ? 13 : 14, lineHeight: compact ? 15 : 16, fontWeight: '700', color: '#CE6857', textAlign: 'center', writingDirection: 'ltr' }}>{optionTransliteration(conjugationIndex, item, option.label) || ' '}</T>
                     </View>}
                   </AnswerTextEntrance>
                 )}
@@ -797,9 +829,26 @@ const optionWaitingAnimatedStyle =
             </AnimatedTouchableOpacity>;
             })}</View>
         </View>
-      </ScrollView>
-      <Button disabled={!answered || !ready || sentencePlaying} label={index + 1 === deck.length ? ui.finish : ui.next} onPress={next}/>
-    </>}
+        </ScrollView>
+
+        <View
+          style={[
+            s.taskFooter,
+            compact && s.taskFooterCompact,
+          ]}
+        >
+          <Button
+            disabled={!answered || !ready || sentencePlaying}
+            label={index + 1 === deck.length ? ui.finish : ui.next}
+            onPress={next}
+            style={[
+              s.nextButtonFixed,
+              compact && s.compactNextButton,
+            ]}
+          />
+        </View>
+      </View>
+    )}
     {phase === 'result' && <ScrollView contentContainerStyle={s.scrollBody}><View style={s.card}><T style={s.section}>{ui.completed}</T><T style={s.note}>{ui.result}</T><T style={s.score}>{score}%</T><T style={s.translation}>{ui.correct}: {correct}   {ui.wrong}: {wrong}</T>{saveError && <T style={s.error}>{ui.saveError}</T>}</View><Button label={ui.again} onPress={() => setPhase('settings')}/><Button secondary label={ui.menu} onPress={goMenu}/></ScrollView>}
     <Modal visible={!!modal} transparent animationType="fade" onRequestClose={() => setModal(null)}><SafeAreaView style={s.overlay}><View style={[s.modalCard, modal === 'list' && { height: '88%' }]}><T style={s.section}>{ui[modal] || ui.list}</T>
       {modal === 'help' && <ScrollView><T style={[s.helpText, rtl && s.rtl]}>{modalHelp}</T></ScrollView>}
@@ -829,8 +878,8 @@ const settingsModal = StyleSheet.create({
     closeButton: { position: 'absolute', left: 16, top: '50%', marginTop: -22, width: 44, height: 44, borderRadius: 22, backgroundColor: 'rgba(255,255,255,0.22)', alignItems: 'center', justifyContent: 'center', zIndex: 5 },
     closeButtonIcon: { color: '#FFFDEF', fontSize: 38, lineHeight: 40, fontWeight: '500', marginTop: -3 },
     headerTextWrap: { width: '100%', alignItems: 'center', justifyContent: 'center', paddingHorizontal: 60 },
-    exerciseLabel: { color: 'rgba(255,253,239,0.82)', fontSize: 13, lineHeight: 16, fontWeight: '800', textAlign: 'center', marginTop: 3, marginBottom: 2 },
-    title: { marginTop: 0, marginBottom: 4, color: '#FFFDEF', fontSize: 20, lineHeight: 23, fontWeight: '900', textAlign: 'center' },
+    exerciseLabel: { color: 'rgba(255,253,239,0.82)', fontSize: 16, lineHeight: 16, fontWeight: '800', textAlign: 'center', marginTop: 5, marginBottom: 2 },
+    title: { marginTop: 10, marginBottom: 6, color: '#FFFDEF', fontSize: 20, lineHeight: 24, fontWeight: '700', textAlign: 'center' },
     scroll: { flex: 1 },
     scrollContent: { paddingHorizontal: 16, paddingBottom: 18 },
     settingsCard: { backgroundColor: '#FFFDEF', borderRadius: 18, paddingHorizontal: 14, paddingVertical: 14, shadowColor: '#000000', shadowOffset: { width: 0, height: 3 }, shadowOpacity: 0.14, shadowRadius: 5, elevation: 4 },
@@ -858,20 +907,44 @@ const settingsModal = StyleSheet.create({
     startButtonText: { color: '#FFFDEF', fontSize: 17, fontWeight: '900', textAlign: 'center' },
 });
 const s = StyleSheet.create({
-    screen: { flex: 1, backgroundColor: '#83A3CD' }, container: { flex: 1, paddingHorizontal: 16 }, wide: { width: 650, alignSelf: 'center' }, text: { color: '#333652', fontSize: 16, includeFontPadding: false }, white: { color: '#FFFDEF' }, row: { flexDirection: 'row', alignItems: 'center' }, header: { minHeight: 62, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }, logo: { width: 112, height: 60, resizeMode: 'contain' }, iconButton: { width: 40, height: 42, alignItems: 'center', justifyContent: 'center', borderRadius: 12 }, icon: { width: 30, height: 30, resizeMode: 'contain' }, activeIcon: { backgroundColor: '#F8E7ED' }, disabled: { opacity: 0.4 }, scrollBody: { flexGrow: 1, paddingBottom: 10 }, title: { color: '#FFFDEF', fontSize: 25, fontWeight: '800', textAlign: 'center', marginVertical: 16 }, taskTitle: { color: '#FFFDEF', fontSize: 15, fontWeight: '700', textAlign: 'center', marginBottom: 10 }, card: { backgroundColor: '#FFFDEF', borderRadius: 24, padding: 17, marginBottom: 12, shadowColor: '#333652', shadowOffset: { width: 0, height: 3 }, shadowOpacity: 0.12, shadowRadius: 5, elevation: 3 }, section: { fontSize: 20, fontWeight: '800', marginVertical: 10, textAlign: 'center' }, wrap: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center' }, wrapCenter: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', marginBottom: 5 }, chip: { backgroundColor: '#FFFFFF', borderWidth: 1, borderColor: '#83A3CD', borderRadius: 16, paddingHorizontal: 14, paddingVertical: 10, margin: 4 }, chipSelected: { backgroundColor: '#CE6857', borderColor: '#CE6857' }, badge: { backgroundColor: '#E6EEF8', borderRadius: 10, paddingVertical: 5, paddingHorizontal: 8, margin: 3, fontSize: 14, textAlign: 'center' }, button: { backgroundColor: '#CE6857', minHeight: 50, borderRadius: 26, justifyContent: 'center', alignItems: 'center', padding: 10, marginVertical: 6 }, buttonText: { color: '#FFFDEF', fontSize: 18, fontWeight: '800', textAlign: 'center' }, secondary: { backgroundColor: '#FFFDEF', borderWidth: 1, borderColor: '#D6DDE8' }, secondaryText: { color: '#333652' }, note: { fontSize: 14, color: '#687084', textAlign: 'center', marginVertical: 6, lineHeight: 20 }, whiteNote: { color: '#FFFDEF', fontSize: 14, textAlign: 'center', margin: 8 }, switchRow: { flexDirection: 'row', alignItems: 'center', marginTop: 15 }, progressBox: { backgroundColor: '#6C8EBB', borderRadius: 12, padding: 10, flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center' }, progressNumber: { color: '#FFFFFF', fontSize: 19, fontWeight: '800' }, track: { height: 6, backgroundColor: '#B6C9E2', borderRadius: 4, overflow: 'hidden', marginVertical: 9 }, fill: { height: 6, backgroundColor: '#CE6857' }, sentenceBox: { backgroundColor: '#EEF2F7', borderWidth: 1, borderColor: '#CDD9E9', borderRadius: 18, padding: 12, alignItems: 'center', justifyContent: 'center' }, hebrew: { fontSize: 29, lineHeight: 42, fontWeight: '700', textAlign: 'center', writingDirection: 'rtl' }, highlight: { color: '#A84F70' }, blank: { color: '#CE6857' }, translationSlot: { minHeight: 54, justifyContent: 'center', paddingVertical: 5 }, translation: { fontSize: 17, lineHeight: 24, textAlign: 'center' }, rtl: { writingDirection: 'rtl', textAlign: 'right' }, translitBox: { minHeight: 58, backgroundColor: '#F6F0E6', borderColor: '#D8C09F', borderWidth: 1, borderRadius: 16, flexDirection: 'row', alignItems: 'center', paddingHorizontal: 4, paddingVertical: 5 }, translit: { flex: 1, fontSize: 16, lineHeight: 22, fontWeight: '600', color: '#CE6857', textAlign: 'center', writingDirection: 'ltr' }, abc: { width: 40, minHeight: 40, alignItems: 'center', justifyContent: 'center' }, abcText: { fontSize: 13, fontWeight: '800', color: '#CE6857' }, bigSpeaker: { width: 84, height: 84, borderRadius: 42, backgroundColor: '#F6F0E6', alignItems: 'center', justifyContent: 'center' }, rotation: { flexDirection: 'row', justifyContent: 'flex-end', marginTop: 5 }, options: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between' }, option: { width: '48.7%', borderRadius: 18, borderWidth: 2, borderColor: '#83A3CD', backgroundColor: '#FFFFFF', justifyContent: 'center', alignItems: 'center', paddingHorizontal: 9, paddingVertical: 10, marginBottom: 9 }, optionHebrew: { fontSize: 27, lineHeight: 37, fontWeight: '700', textAlign: 'center', writingDirection: 'rtl' }, optionTranslation: { width: '100%', alignSelf: 'stretch', flexShrink: 0, fontSize: 16, lineHeight: 23, fontWeight: '600', textAlign: 'center', includeFontPadding: false }, optionWaiting: { backgroundColor: '#F3F5F8', borderColor: '#D5DCE5' }, optionTextWaiting: { color: '#AEB5C1' }, good: { backgroundColor: '#AFFFCA', borderColor: '#62B57D' }, bad: { backgroundColor: '#FFBCBC', borderColor: '#D86F6F' }, inactive: { backgroundColor: '#E4E7ED', borderColor: '#C9CED7' }, footerLink: { alignItems: 'center', paddingBottom: 8, paddingTop: 2 }, previewBanner: { backgroundColor: '#FFF0C8', color: '#71531B', padding: 8, borderRadius: 10, textAlign: 'center', fontSize: 14, marginBottom: 10 }, error: { color: '#A82E3F', textAlign: 'center', fontSize: 14, margin: 8 }, score: { fontSize: 52, fontWeight: '900', textAlign: 'center', color: '#CE6857', margin: 16 }, overlay: { flex: 1, backgroundColor: 'rgba(30,38,58,0.5)', justifyContent: 'center', padding: 18 }, modalCard: { backgroundColor: '#FFFDEF', borderRadius: 24, padding: 18, maxHeight: '88%' }, helpText: { fontSize: 17, lineHeight: 26, marginVertical: 10 }, listRow: { flexDirection: 'row', alignItems: 'center', borderBottomWidth: 1, borderBottomColor: '#D9DFE8', paddingVertical: 10 }, listHebrew: { fontSize: 19, textAlign: 'right', writingDirection: 'rtl' },
+    screen: { flex: 1, backgroundColor: '#83A3CD' },
+    container: { flex: 1, paddingHorizontal: 16 },
+    taskScreen: { flex: 1, minHeight: 0 },
+    taskScroll: { flex: 1, minHeight: 0 },
+    fullTaskScroll: { flex: 1, minHeight: 0 },
+    fullTaskScrollContent: { flexGrow: 1, paddingBottom: 6 },
+    fullTaskScrollContentCompact: { paddingTop: 5, paddingBottom: 4 },
+    taskFooter: {
+        flexShrink: 0,
+        paddingTop: 4,
+        paddingBottom: 10,
+        backgroundColor: '#83A3CD',
+    },
+    taskFooterCompact: {
+        paddingTop: 2,
+        paddingBottom: 7,
+    },
+    nextButtonFixed: {
+        marginTop: 0,
+        marginBottom: 0,
+    },
+    wide: { width: 650, alignSelf: 'center' }, text: { color: '#333652', fontSize: 16, includeFontPadding: false }, white: { color: '#FFFDEF' }, row: { flexDirection: 'row', alignItems: 'center' }, header: { minHeight: 62, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }, logo: { width: 112, height: 60, resizeMode: 'contain' }, iconButton: { width: 40, height: 42, alignItems: 'center', justifyContent: 'center', borderRadius: 12 }, icon: { width: 30, height: 30, resizeMode: 'contain' }, activeIcon: { backgroundColor: '#F8E7ED' }, disabled: { opacity: 0.4 }, scrollBody: { flexGrow: 1, paddingBottom: 16 }, title: { color: '#FFFDEF', fontSize: 25, fontWeight: '800', textAlign: 'center', marginVertical: 16 },
+    taskTitle: { color: '#FFFDEF', fontSize: 17, fontWeight: '700', textAlign: 'center', marginBottom: 8 }, taskTitleCompact: { fontSize: 15, lineHeight: 17, marginBottom: 10 }, card: { backgroundColor: '#FFFDEF', borderRadius: 24, padding: 17, marginBottom: 12, shadowColor: '#333652', shadowOffset: { width: 0, height: 3 }, shadowOpacity: 0.12, shadowRadius: 5, elevation: 3 }, section: { fontSize: 20, fontWeight: '800', marginVertical: 10, textAlign: 'center' }, wrap: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center' }, wrapCenter: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', marginBottom: 5 }, chip: { backgroundColor: '#FFFFFF', borderWidth: 1, borderColor: '#83A3CD', borderRadius: 16, paddingHorizontal: 14, paddingVertical: 10, margin: 4 }, chipSelected: { backgroundColor: '#CE6857', borderColor: '#CE6857' }, badge: { backgroundColor: '#E6EEF8', borderRadius: 10, paddingVertical: 5, paddingHorizontal: 8, margin: 3, fontSize: 14, textAlign: 'center' }, button: { backgroundColor: '#CE6857', minHeight: 50, borderRadius: 26, justifyContent: 'center', alignItems: 'center', padding: 10, marginVertical: 6 }, compactNextButton: { minHeight: 46, paddingVertical: 7, marginVertical: 0 }, buttonText: { color: '#FFFDEF', fontSize: 18, fontWeight: '800', textAlign: 'center' }, secondary: { backgroundColor: '#FFFDEF', borderWidth: 1, borderColor: '#D6DDE8' }, secondaryText: { color: '#333652' }, note: { fontSize: 14, color: '#687084', textAlign: 'center', marginVertical: 6, lineHeight: 20 }, whiteNote: { color: '#FFFDEF', fontSize: 14, textAlign: 'center', margin: 8 }, switchRow: { flexDirection: 'row', alignItems: 'center', marginTop: 15 }, progressBox: { backgroundColor: '#6C8EBB', borderRadius: 12, padding: 10, flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center' }, progressNumber: { color: '#FFFFFF', fontSize: 19, fontWeight: '800' }, track: { height: 6, backgroundColor: '#B6C9E2', borderRadius: 4, overflow: 'hidden', marginVertical: 9 }, fill: { height: 6, backgroundColor: '#CE6857' }, sentenceBox: { backgroundColor: '#EEF2F7', borderWidth: 1, borderColor: '#CDD9E9', borderRadius: 18, padding: 12, alignItems: 'center', justifyContent: 'center' }, hebrew: { fontSize: 29, lineHeight: 42, fontWeight: '700', textAlign: 'center', writingDirection: 'rtl' }, highlight: { color: '#A84F70' }, blank: { color: '#CE6857' }, translationSlot: { minHeight: 54, justifyContent: 'center', paddingVertical: 5 }, translation: { fontSize: 17, lineHeight: 24, textAlign: 'center' }, rtl: { writingDirection: 'rtl', textAlign: 'right' }, translitBox: { minHeight: 58, backgroundColor: '#F6F0E6', borderColor: '#D8C09F', borderWidth: 1, borderRadius: 16, flexDirection: 'row', alignItems: 'center', paddingHorizontal: 4, paddingVertical: 5 }, translit: { flex: 1, fontSize: 16, lineHeight: 22, fontWeight: '600', color: '#CE6857', textAlign: 'center', writingDirection: 'ltr' }, abc: { width: 40, minHeight: 40, alignItems: 'center', justifyContent: 'center' }, abcText: { fontSize: 13, fontWeight: '800', color: '#CE6857' }, bigSpeaker: { width: 84, height: 84, borderRadius: 42, backgroundColor: '#F6F0E6', alignItems: 'center', justifyContent: 'center' },
+    rotation: { flexDirection: 'row', justifyContent: 'flex-end', marginTop: 5, marginBottom: 5, }, rotationCompact: { marginTop: 1 }, options: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between' }, option: { width: '48.7%', borderRadius: 18, borderWidth: 2, borderColor: '#83A3CD', backgroundColor: '#FFFFFF', justifyContent: 'center', alignItems: 'center', paddingHorizontal: 9, paddingVertical: 10, marginBottom: 9 }, optionHebrew: { fontSize: 27, lineHeight: 37, fontWeight: '700', textAlign: 'center', writingDirection: 'rtl' }, optionTranslation: { width: '100%', alignSelf: 'stretch', flexShrink: 0, fontSize: 16, lineHeight: 23, fontWeight: '600', textAlign: 'center', includeFontPadding: false }, optionWaiting: { backgroundColor: '#F3F5F8', borderColor: '#D5DCE5' }, optionTextWaiting: { color: '#AEB5C1' }, good: { backgroundColor: '#AFFFCA', borderColor: '#62B57D' }, bad: { backgroundColor: '#FFBCBC', borderColor: '#D86F6F' }, inactive: { backgroundColor: '#E4E7ED', borderColor: '#C9CED7' }, footerLink: { alignItems: 'center', paddingBottom: 8, paddingTop: 2 }, previewBanner: { backgroundColor: '#FFF0C8', color: '#71531B', padding: 8, borderRadius: 10, textAlign: 'center', fontSize: 14, marginBottom: 10 }, error: { color: '#A82E3F', textAlign: 'center', fontSize: 14, margin: 8 }, score: { fontSize: 52, fontWeight: '900', textAlign: 'center', color: '#CE6857', margin: 16 }, overlay: { flex: 1, backgroundColor: 'rgba(30,38,58,0.5)', justifyContent: 'center', padding: 18 }, modalCard: { backgroundColor: '#FFFDEF', borderRadius: 24, padding: 18, maxHeight: '88%' }, helpText: { fontSize: 17, lineHeight: 26, marginVertical: 10 }, listRow: { flexDirection: 'row', alignItems: 'center', borderBottomWidth: 1, borderBottomColor: '#D9DFE8', paddingVertical: 10 }, listHebrew: { fontSize: 19, textAlign: 'right', writingDirection: 'rtl' },
 });
 // Header and session summary use the styles of PrepositionVerbExercise.
 const createTopStyles = compact => StyleSheet.create({
     topBar: {
         flexShrink: 0,
-        minHeight: compact ? 44 : 72,
+        minHeight: compact ? 50 : 76,
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
+        paddingBottom: 5,
     },
     logo: {
-        width: compact ? 90 : 130,
-        height: compact ? 44 : 84,
+        width: compact ? 108 : 140,
+        height: compact ? 48 : 72,
         resizeMode: 'contain',
     },
     topButtons: {
@@ -879,21 +952,22 @@ const createTopStyles = compact => StyleSheet.create({
         alignItems: 'center',
         gap: 7,
     },
-    topButtonIcon: {
-        width: 38,
-        height: 38,
-        resizeMode: 'contain',
-    },
+  topButtonIcon: {
+    // было около 38
+    width: compact ? 30 : 32,
+    height: compact ? 30 : 32,
+    resizeMode: 'contain',
+},
     progressContainer: {
         width: '100%',
-        minHeight: compact ? 42 : 54,
+        minHeight: compact ? 40 : 54,
         flexShrink: 0,
         flexDirection: 'row',
         alignItems: 'center',
         backgroundColor: '#6C8EBB',
         borderRadius: 10,
         marginTop: 0,
-        marginBottom: compact ? 4 : 8,
+        marginBottom: compact ? 6 : 8,
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.25,
@@ -938,6 +1012,7 @@ const createTopStyles = compact => StyleSheet.create({
         paddingHorizontal: 8,
         color: '#FFFFFF',
         fontSize: 20,
+        lineHeight: 27,
         fontWeight: 'bold',
         textAlign: 'center',
         backgroundColor: '#83A3CD',
@@ -946,7 +1021,7 @@ const createTopStyles = compact => StyleSheet.create({
     progressBarContainer: {
         width: '100%',
         flexShrink: 0,
-        marginBottom: compact ? 6 : 14,
+        marginBottom: compact ? 8 : 8,
     },
 });
 const LISTEN_AGAIN = { ru: 'Прослушать ещё раз', en: 'Listen again', fr: 'Écouter à nouveau', es: 'Escuchar de nuevo', pt: 'Ouvir novamente', ar: 'استمع مرة أخرى', am: 'እንደገና አዳምጥ' };
@@ -969,6 +1044,32 @@ function MovingBackdrop({ motion, colors, reverse = false, vivid = false }) {
     </Animated.View>)}
   </View>;
 }
+const card9Compact = StyleSheet.create({
+    hebrewBox: {
+        height: 72,
+        minHeight: 72,
+        maxHeight: 72,
+        padding: 6,
+        marginTop: 5,
+
+    },
+    translationBox: {
+        height: 50,
+        minHeight: 50,
+        maxHeight: 50,
+        marginTop: 7,
+        paddingVertical: 2,
+    },
+    translitBox: {
+        height: 50,
+        minHeight: 50,
+        maxHeight: 50,
+        marginTop: 7,
+        marginBottom: 5,
+        paddingVertical: 2,
+    },
+});
+
 const card9 = StyleSheet.create({
     backdrop: { ...StyleSheet.absoluteFillObject, overflow: 'hidden', borderRadius: 16 },
     field: { position: 'absolute', width: '140%', height: '240%' },
@@ -1117,4 +1218,3 @@ function AnswerTextEntrance({
         </Animated.View>
     );
 }
-   
