@@ -363,36 +363,12 @@ const button10TranslateY = useRef(new Animated.Value(250)).current;
         }),
       ]),
       Animated.parallel([
-  Animated.timing(button10Opacity, {
-    toValue: 1,
-    duration: 500,
-    useNativeDriver: true,
-  }),
-  Animated.timing(button10TranslateY, {
-    toValue: 0,
-    duration: 500,
-    useNativeDriver: true,
-  }),
-]),
-      Animated.parallel([
-        Animated.timing(button5Opacity, {
+        Animated.timing(button10Opacity, {
           toValue: 1,
           duration: 500,
           useNativeDriver: true,
         }),
-        Animated.timing(button5TranslateY, {
-          toValue: 0,
-          duration: 500,
-          useNativeDriver: true,
-        }),
-      ]),
-      Animated.parallel([
-        Animated.timing(button8Opacity, {
-          toValue: 1,
-          duration: 500,
-          useNativeDriver: true,
-        }),
-        Animated.timing(button8TranslateY, {
+        Animated.timing(button10TranslateY, {
           toValue: 0,
           duration: 500,
           useNativeDriver: true,
@@ -417,6 +393,32 @@ const button10TranslateY = useRef(new Animated.Value(250)).current;
           useNativeDriver: true,
         }),
         Animated.timing(button7TranslateY, {
+          toValue: 0,
+          duration: 500,
+          useNativeDriver: true,
+        }),
+      ]),
+      // Упражнение 9 — отдельный шаг анимации после упражнения 8.
+      Animated.parallel([
+        Animated.timing(button5Opacity, {
+          toValue: 1,
+          duration: 500,
+          useNativeDriver: true,
+        }),
+        Animated.timing(button5TranslateY, {
+          toValue: 0,
+          duration: 500,
+          useNativeDriver: true,
+        }),
+      ]),
+      // Упражнение 10 — следующий отдельный шаг.
+      Animated.parallel([
+        Animated.timing(button8Opacity, {
+          toValue: 1,
+          duration: 500,
+          useNativeDriver: true,
+        }),
+        Animated.timing(button8TranslateY, {
           toValue: 0,
           duration: 500,
           useNativeDriver: true,
@@ -1626,96 +1628,106 @@ const button10TranslateY = useRef(new Animated.Value(250)).current;
           </Animated.View>
 
           {/* УПРАЖНЕНИЯ 9 И 10 */}
-{[
-  {
-    screen: 'Exercise9',
-    statsKey: 'exercise9',
-    number: 9,
-    title: 'ГЛАГОЛ В ПРЕДЛОЖЕНИИ',
-  },
-  {
-    screen: 'Exercise10',
-    statsKey: 'exercise10',
-    number: 10,
-    title: 'УСЛЫШЬ И ПОЙМИ',
-  },
-].map(item => (
-  <Animated.View
-    key={item.screen}
-    style={[
-      styles.buttonContainer,
-      {
-        opacity: button7Opacity,
-        transform: [{ translateY: button7TranslateY }],
-      },
-      isLocked(item.screen) && lockStyle,
-    ]}
-  >
-    <TouchableOpacity
-      onPress={() => handlePress(item.screen)}
-      disabled={isLocked(item.screen)}
-      accessibilityRole="button"
-      accessibilityLabel={`Упражнение ${item.number}. ${item.title}`}
-      accessibilityState={{
-        disabled: isLocked(item.screen),
-      }}
-      style={styles.exerciseTouchable}
-    >
-      <View style={styles.upperPart1}>
-        <Text
-          style={styles.upperText1}
-          maxFontSizeMultiplier={1.2}
-        >
-          УПРАЖНЕНИЕ {item.number}
-        </Text>
+          {[
+            {
+              screen: 'Exercise9',
+              statsKey: 'exercise9',
+              number: 9,
+              title: 'ГЛАГОЛ В ПРЕДЛОЖЕНИИ',
+              opacity: button5Opacity,
+              translateY: button5TranslateY,
+            },
+            {
+              screen: 'Exercise10',
+              statsKey: 'exercise10',
+              number: 10,
+              title: 'УСЛЫШЬ И ПОЙМИ',
+              opacity: button8Opacity,
+              translateY: button8TranslateY,
+            },
+          ].map(item => (
+            <Animated.View
+              key={item.screen}
+              style={[
+                styles.buttonContainer,
+                styles.rootButtonContainer,
+                {
+                  opacity: item.opacity,
+                  transform: [{ translateY: item.translateY }],
+                },
+                isLocked(item.screen) && lockStyle,
+              ]}
+            >
+              <TouchableOpacity
+                style={styles.rootTouchable}
+                accessibilityRole="button"
+                accessibilityLabel={`Упражнение ${item.number}. ${item.title}. Новое упражнение`}
+                accessibilityState={{
+                  disabled: isLocked(item.screen),
+                }}
+                disabled={isLocked(item.screen)}
+                activeOpacity={0.8}
+                onPress={() => handlePress(item.screen)}
+              >
+                <View style={styles.rootHeading}>
+                  <Text
+                    style={styles.rootTitle}
+                    maxFontSizeMultiplier={1.2}
+                  >
+                    УПРАЖНЕНИЕ {item.number}
+                  </Text>
 
-        <Image
-          source={require('./star5.png')}
-          style={styles.image1}
-        />
-      </View>
+                  <View style={styles.rootNewBadge}>
+                    <Text
+                      style={styles.rootNewText}
+                      maxFontSizeMultiplier={1.2}
+                    >
+                      НОВОЕ УПРАЖНЕНИЕ
+                    </Text>
+                  </View>
+                </View>
 
-      <View style={styles.upperPart2}>
-        <Text
-          style={styles.upperText}
-          maxFontSizeMultiplier={1.2}
-        >
-          {item.title}
-        </Text>
-      </View>
+                <View style={styles.upperPart2}>
+                  <Text
+                    style={styles.upperText}
+                    maxFontSizeMultiplier={1.2}
+                  >
+                    {item.title}
+                  </Text>
+                </View>
 
-      <View style={styles.lowerRight}>
-        <Text
-          style={styles.lowerText}
-          maxFontSizeMultiplier={1.2}
-        >
-          СДЕЛАНО{' '}
-          <Text
-            style={styles.statValue}
-            maxFontSizeMultiplier={1.2}
-          >
-            {stats[item.statsKey]?.timesCompleted ?? 0}
-          </Text>
-        </Text>
+                <View style={[styles.lowerRight, styles.rootStats]}>
+                  <Text
+                    style={styles.lowerText}
+                    maxFontSizeMultiplier={1.2}
+                  >
+                    СДЕЛАНО{' '}
+                    <Text
+                      style={styles.statValue}
+                      maxFontSizeMultiplier={1.2}
+                    >
+                      {stats[item.statsKey]?.timesCompleted ?? 0}
+                    </Text>
+                  </Text>
 
-        <Text
-          style={styles.lowerText}
-          maxFontSizeMultiplier={1.2}
-        >
-          СРЕДНИЙ РЕЗУЛЬТАТ{' '}
-          <Text
-            style={styles.statValue}
-            maxFontSizeMultiplier={1.2}
-          >
-            {Number(
-              stats[item.statsKey]?.averageCompletionRate ?? 0
-            ).toFixed(2)}%
-          </Text>
-        </Text>
-      </View>
-    </TouchableOpacity>
-  </Animated.View>
-))}
+                  <Text
+                    style={styles.lowerText}
+                    maxFontSizeMultiplier={1.2}
+                  >
+                    СРЕДНИЙ РЕЗУЛЬТАТ{' '}
+                    <Text
+                      style={styles.statValue}
+                      maxFontSizeMultiplier={1.2}
+                    >
+                      {Number(
+                        stats[item.statsKey]?.averageCompletionRate ?? 0
+                      ).toFixed(2)}%
+                    </Text>
+                  </Text>
+                </View>
+              </TouchableOpacity>
+            </Animated.View>
+          ))}
 
           <Animated.View
             style={[

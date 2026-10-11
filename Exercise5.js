@@ -17,6 +17,7 @@ import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-nat
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as FirebaseAnalytics from './src/analytics/FirebaseAnalytics';
 
+
 const shuffleArray = (array) => {
   const shuffledArray = array.slice();
   for (let i = shuffledArray.length - 1; i > 0; i--) {
@@ -465,59 +466,11 @@ const playFeedbackSound = async (isCorrect) => {
   };
 
 
-  // useEffect(() => {
-  //   // Сбрасываем предыдущие звуки при изменении выбранного варианта
-  //   return () => {
-  //     correctSound?.unloadAsync();
-  //     incorrectSound?.unloadAsync();
-  //   };
-  // }, [optionsOrder]);
-
-
   const [currentPlayingSound, setCurrentPlayingSound] = useState(null); // Для отслеживания воспроизводимого звука
 
   const [feedbackSound, setFeedbackSound] = useState(null); // Звук правильности ответа
 const [optionSound, setOptionSound] = useState(null); // Звук правильной опции
-// const [soundEnabled, setSoundEnabled] = useState(true); // Флаг для включения/выключения звука
 
-// const playAudio = async (audioFileName, shouldRespectSoundToggle = true) => {
-//   try {
-//     // Проверяем, нужно ли учитывать состояние soundEnabled
-//     if (shouldRespectSoundToggle && !soundEnabled) {
-//       setIsAnimationActive(false); // Останавливаем анимацию, если звук отключен
-//       return;
-//     }
-
-//     const fileNameKey = audioFileName;
-//     const audioFile = sounds[fileNameKey];
-
-//     if (!audioFile) {
-//       console.error(`Audio file ${fileNameKey} not found.`);
-//       return null;
-//     }
-
-//     const { sound: newSound } = await Audio.Sound.createAsync(audioFile);
-//     setIsAnimationActive(true); // Включаем анимацию при воспроизведении звука
-
-//     await newSound.playAsync();
-    
-//     // Когда звук заканчивается, выключаем анимацию и сбрасываем её
-//     newSound.setOnPlaybackStatusUpdate((status) => {
-//       if (status.didJustFinish) {
-//         setIsAnimationActive(false); // Останавливаем анимацию после окончания звука
-//         animationRef.current?.reset(); // Сбрасываем анимацию
-//         await newSound.unloadAsync(); // Выгружаем аудио из памяти после завершения
-//       }
-//     });
-
-//     return newSound;
-//   } catch (error) {
-//     console.error('Error loading sound', error);
-//     setIsAnimationActive(false); // В случае ошибки анимацию также отключаем
-//     animationRef.current?.reset(); // Сбрасываем анимацию при ошибке
-//     return null;
-//   }
-// };
 
 const playAudio = async (audioFileName, shouldRespectSoundToggle = true) => {
   try {
@@ -785,10 +738,17 @@ const handleSpeakerPress = (mp3) => {
           </Text>
         </Animated.View>
       </Animated.View>
-
-      <Animated.View style={[styles.ProgressBarcontainer, { opacity: fadeAnim }]}>
-        <ProgressBar progress={progress} totalExercises={shuffledVerbs.length} />
-      </Animated.View>
+<Animated.View
+  style={[
+    styles.ProgressBarcontainer,
+    { opacity: fadeAnim },
+  ]}
+>
+  <ProgressBar
+    progress={progress}
+    totalExercises={Math.max(shuffledVerbs.length, 1)}
+  />
+</Animated.View>
 
       <Animated.Text style={[styles.title, { opacity: fadeAnim }]}maxFontSizeMultiplier={1.2}>ВЫБЕРИ ПЕРЕВОД</Animated.Text>
 

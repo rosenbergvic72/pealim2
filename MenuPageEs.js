@@ -126,23 +126,24 @@ export default function MenuPage({
     }, [navigation])
   );
 
-  useEffect(() => {
-    const onBackPress = () => {
-      navigation.reset({
-        index: 0,
-        routes: [{ name: 'LanguageSelectionPage' }],
-      });
-      return true;
-    };
+  useFocusEffect(
+    useCallback(() => {
+      const onBackPress = () => {
+        navigation.reset({
+          index: 0,
+          routes: [{ name: 'LanguageSelectionPage' }],
+        });
+        return true;
+      };
 
-    const backHandler =
-      BackHandler.addEventListener(
+      const backHandler = BackHandler.addEventListener(
         'hardwareBackPress',
         onBackPress
       );
 
-    return () => backHandler.remove();
-  }, [navigation]);
+      return () => backHandler.remove();
+    }, [navigation])
+  );
 
   const headerOpacity = useRef(new Animated.Value(0)).current;
   const titleOpacity = useRef(new Animated.Value(0)).current;
@@ -176,7 +177,11 @@ export default function MenuPage({
   const button9TranslateY = useRef(new Animated.Value(250)).current;
 
   const button10Opacity = useRef(new Animated.Value(0)).current;
-const button10TranslateY = useRef(new Animated.Value(250)).current;
+  const button10TranslateY = useRef(new Animated.Value(250)).current;
+  const button11Opacity = useRef(new Animated.Value(0)).current;
+  const button11TranslateY = useRef(new Animated.Value(250)).current;
+  const button12Opacity = useRef(new Animated.Value(0)).current;
+  const button12TranslateY = useRef(new Animated.Value(250)).current;
 
   const PREVIOUS_TOTAL_KEY = 'previousTotalExercises';
 
@@ -193,6 +198,8 @@ const button10TranslateY = useRef(new Animated.Value(250)).current;
       'exercise8Es',
       'exercise4Es',
       'exercise7Es',
+      'exercise9',
+      'exercise10',
     ];
 
     const statsData = {};
@@ -551,178 +558,52 @@ const button10TranslateY = useRef(new Animated.Value(250)).current;
 
     Animated.stagger(300, [
       Animated.parallel([
-        Animated.timing(
-          button1Opacity,
-          {
-            toValue: 1,
-            duration: 500,
-            useNativeDriver: true,
-          }
-        ),
-        Animated.timing(
-          button1TranslateY,
-          {
-            toValue: 0,
-            duration: 500,
-            useNativeDriver: true,
-          }
-        ),
+        Animated.timing(button1Opacity, { toValue: 1, duration: 500, useNativeDriver: true }),
+        Animated.timing(button1TranslateY, { toValue: 0, duration: 500, useNativeDriver: true }),
       ]),
       Animated.parallel([
-        Animated.timing(
-          button2Opacity,
-          {
-            toValue: 1,
-            duration: 500,
-            useNativeDriver: true,
-          }
-        ),
-        Animated.timing(
-          button2TranslateY,
-          {
-            toValue: 0,
-            duration: 500,
-            useNativeDriver: true,
-          }
-        ),
+        Animated.timing(button2Opacity, { toValue: 1, duration: 500, useNativeDriver: true }),
+        Animated.timing(button2TranslateY, { toValue: 0, duration: 500, useNativeDriver: true }),
       ]),
       Animated.parallel([
-        Animated.timing(
-          button3Opacity,
-          {
-            toValue: 1,
-            duration: 500,
-            useNativeDriver: true,
-          }
-        ),
-        Animated.timing(
-          button3TranslateY,
-          {
-            toValue: 0,
-            duration: 500,
-            useNativeDriver: true,
-          }
-        ),
+        Animated.timing(button3Opacity, { toValue: 1, duration: 500, useNativeDriver: true }),
+        Animated.timing(button3TranslateY, { toValue: 0, duration: 500, useNativeDriver: true }),
       ]),
       Animated.parallel([
-        Animated.timing(
-          button6Opacity,
-          {
-            toValue: 1,
-            duration: 500,
-            useNativeDriver: true,
-          }
-        ),
-        Animated.timing(
-          button6TranslateY,
-          {
-            toValue: 0,
-            duration: 500,
-            useNativeDriver: true,
-          }
-        ),
+        Animated.timing(button6Opacity, { toValue: 1, duration: 500, useNativeDriver: true }),
+        Animated.timing(button6TranslateY, { toValue: 0, duration: 500, useNativeDriver: true }),
       ]),
       Animated.parallel([
-  Animated.timing(button10Opacity, {
-    toValue: 1,
-    duration: 500,
-    useNativeDriver: true,
-  }),
-  Animated.timing(button10TranslateY, {
-    toValue: 0,
-    duration: 500,
-    useNativeDriver: true,
-  }),
-]),
-      Animated.parallel([
-        Animated.timing(
-          button5Opacity,
-          {
-            toValue: 1,
-            duration: 500,
-            useNativeDriver: true,
-          }
-        ),
-        Animated.timing(
-          button5TranslateY,
-          {
-            toValue: 0,
-            duration: 500,
-            useNativeDriver: true,
-          }
-        ),
+        Animated.timing(button10Opacity, { toValue: 1, duration: 500, useNativeDriver: true }),
+        Animated.timing(button10TranslateY, { toValue: 0, duration: 500, useNativeDriver: true }),
       ]),
       Animated.parallel([
-        Animated.timing(
-          button8Opacity,
-          {
-            toValue: 1,
-            duration: 500,
-            useNativeDriver: true,
-          }
-        ),
-        Animated.timing(
-          button8TranslateY,
-          {
-            toValue: 0,
-            duration: 500,
-            useNativeDriver: true,
-          }
-        ),
+        Animated.timing(button5Opacity, { toValue: 1, duration: 500, useNativeDriver: true }),
+        Animated.timing(button5TranslateY, { toValue: 0, duration: 500, useNativeDriver: true }),
       ]),
       Animated.parallel([
-        Animated.timing(
-          button4Opacity,
-          {
-            toValue: 1,
-            duration: 500,
-            useNativeDriver: true,
-          }
-        ),
-        Animated.timing(
-          button4TranslateY,
-          {
-            toValue: 0,
-            duration: 500,
-            useNativeDriver: true,
-          }
-        ),
+        Animated.timing(button8Opacity, { toValue: 1, duration: 500, useNativeDriver: true }),
+        Animated.timing(button8TranslateY, { toValue: 0, duration: 500, useNativeDriver: true }),
       ]),
       Animated.parallel([
-        Animated.timing(
-          button7Opacity,
-          {
-            toValue: 1,
-            duration: 500,
-            useNativeDriver: true,
-          }
-        ),
-        Animated.timing(
-          button7TranslateY,
-          {
-            toValue: 0,
-            duration: 500,
-            useNativeDriver: true,
-          }
-        ),
+        Animated.timing(button4Opacity, { toValue: 1, duration: 500, useNativeDriver: true }),
+        Animated.timing(button4TranslateY, { toValue: 0, duration: 500, useNativeDriver: true }),
       ]),
       Animated.parallel([
-        Animated.timing(
-          button9Opacity,
-          {
-            toValue: 1,
-            duration: 500,
-            useNativeDriver: true,
-          }
-        ),
-        Animated.timing(
-          button9TranslateY,
-          {
-            toValue: 0,
-            duration: 500,
-            useNativeDriver: true,
-          }
-        ),
+        Animated.timing(button7Opacity, { toValue: 1, duration: 500, useNativeDriver: true }),
+        Animated.timing(button7TranslateY, { toValue: 0, duration: 500, useNativeDriver: true }),
+      ]),
+      Animated.parallel([
+        Animated.timing(button11Opacity, { toValue: 1, duration: 500, useNativeDriver: true }),
+        Animated.timing(button11TranslateY, { toValue: 0, duration: 500, useNativeDriver: true }),
+      ]),
+      Animated.parallel([
+        Animated.timing(button12Opacity, { toValue: 1, duration: 500, useNativeDriver: true }),
+        Animated.timing(button12TranslateY, { toValue: 0, duration: 500, useNativeDriver: true }),
+      ]),
+      Animated.parallel([
+        Animated.timing(button9Opacity, { toValue: 1, duration: 500, useNativeDriver: true }),
+        Animated.timing(button9TranslateY, { toValue: 0, duration: 500, useNativeDriver: true }),
       ]),
     ]).start();
   };
@@ -732,17 +613,16 @@ const button10TranslateY = useRef(new Animated.Value(250)).current;
       return;
     }
 
-  if (
-  exercise === 'PrepositionExercise' ||
-  exercise === 'PrepositionVerbExercise' ||
-  exercise === 'RootVerbExercise'
-) {
-  navigation.navigate(exercise, {
-    language: 'es',
-  });
-
-  return;
-}
+    if (
+      exercise === 'PrepositionExercise' ||
+      exercise === 'PrepositionVerbExercise' ||
+      exercise === 'RootVerbExercise' ||
+      exercise === 'Exercise9' ||
+      exercise === 'Exercise10'
+    ) {
+      navigation.navigate(exercise, { language: 'es' });
+      return;
+    }
 
     setNavigateTo(exercise);
     setAnimationTriggered(true);
@@ -841,6 +721,16 @@ const button10TranslateY = useRef(new Animated.Value(250)).current;
             useNativeDriver: true,
           }
         ),
+        Animated.timing(button11Opacity, {
+          toValue: 0,
+          duration: 300,
+          useNativeDriver: true,
+        }),
+        Animated.timing(button12Opacity, {
+          toValue: 0,
+          duration: 300,
+          useNativeDriver: true,
+        }),
         Animated.timing(
           button9Opacity,
           {
@@ -2515,6 +2405,80 @@ const button10TranslateY = useRef(new Animated.Value(250)).current;
                       : 0}
                     %
                   </Text>
+                </Text>
+              </View>
+            </TouchableOpacity>
+          </Animated.View>
+
+          <Animated.View
+            style={[
+              styles.buttonContainer,
+              styles.rootButtonContainer,
+              { opacity: button11Opacity, transform: [{ translateY: button11TranslateY }] },
+              isLocked('Exercise9') && lockStyle,
+            ]}
+          >
+            <TouchableOpacity
+              style={styles.rootTouchable}
+              accessibilityRole="button"
+              accessibilityLabel="Ejercicio 9. Verbo en una oración. Nuevo ejercicio"
+              accessibilityState={{ disabled: isLocked('Exercise9') }}
+              disabled={isLocked('Exercise9')}
+              activeOpacity={0.8}
+              onPress={() => handlePress('Exercise9')}
+            >
+              <View style={styles.rootHeading}>
+                <Text style={styles.rootTitle} maxFontSizeMultiplier={1.2}>EJERCICIO 9</Text>
+                <View style={styles.rootNewBadge}>
+                  <Text style={styles.rootNewText} maxFontSizeMultiplier={1.2}>NUEVO EJERCICIO</Text>
+                </View>
+              </View>
+              <View style={styles.upperPart2}>
+                <Text style={styles.upperText} maxFontSizeMultiplier={1.2}>VERBO EN UNA ORACIÓN</Text>
+              </View>
+              <View style={[styles.lowerRight, styles.rootStats]}>
+                <Text style={styles.lowerText} maxFontSizeMultiplier={1.2}>
+                  COMPLETADO <Text style={styles.statValue}>{stats.exercise9?.timesCompleted ?? 0}</Text>
+                </Text>
+                <Text style={styles.lowerText} maxFontSizeMultiplier={1.2}>
+                  PUNTAJE PROMEDIO <Text style={styles.statValue}>{Number(stats.exercise9?.averageCompletionRate ?? 0).toFixed(2)}%</Text>
+                </Text>
+              </View>
+            </TouchableOpacity>
+          </Animated.View>
+
+          <Animated.View
+            style={[
+              styles.buttonContainer,
+              styles.rootButtonContainer,
+              { opacity: button12Opacity, transform: [{ translateY: button12TranslateY }] },
+              isLocked('Exercise10') && lockStyle,
+            ]}
+          >
+            <TouchableOpacity
+              style={styles.rootTouchable}
+              accessibilityRole="button"
+              accessibilityLabel="Ejercicio 10. Escucha y comprende. Nuevo ejercicio"
+              accessibilityState={{ disabled: isLocked('Exercise10') }}
+              disabled={isLocked('Exercise10')}
+              activeOpacity={0.8}
+              onPress={() => handlePress('Exercise10')}
+            >
+              <View style={styles.rootHeading}>
+                <Text style={styles.rootTitle} maxFontSizeMultiplier={1.2}>EJERCICIO 10</Text>
+                <View style={styles.rootNewBadge}>
+                  <Text style={styles.rootNewText} maxFontSizeMultiplier={1.2}>NUEVO EJERCICIO</Text>
+                </View>
+              </View>
+              <View style={styles.upperPart2}>
+                <Text style={styles.upperText} maxFontSizeMultiplier={1.2}>ESCUCHA Y COMPRENDE</Text>
+              </View>
+              <View style={[styles.lowerRight, styles.rootStats]}>
+                <Text style={styles.lowerText} maxFontSizeMultiplier={1.2}>
+                  COMPLETADO <Text style={styles.statValue}>{stats.exercise10?.timesCompleted ?? 0}</Text>
+                </Text>
+                <Text style={styles.lowerText} maxFontSizeMultiplier={1.2}>
+                  PUNTAJE PROMEDIO <Text style={styles.statValue}>{Number(stats.exercise10?.averageCompletionRate ?? 0).toFixed(2)}%</Text>
                 </Text>
               </View>
             </TouchableOpacity>

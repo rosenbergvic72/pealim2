@@ -293,10 +293,23 @@ export default function SentenceExercise({ navigation, route, mode = 9 }) {
         event.preventDefault();
         requestLeave(() => { leavingRef.current = true; navigation.dispatch(event.data.action); });
     }), [navigation, requestLeave]);
-    const goMenu = () => requestLeave(() => { leavingRef.current = true; if (navigation?.canGoBack?.())
-        navigation.goBack();
-    else
-        navigation?.navigate?.('Menu'); });
+    const menuRoute = {
+        ru: 'Menu',
+        en: 'MenuEn',
+        fr: 'MenuFr',
+        es: 'MenuEs',
+        pt: 'MenuPt',
+        ar: 'MenuAr',
+        am: 'MenuAm',
+    }[language] || 'Menu';
+
+    const goMenu = () => requestLeave(() => {
+        leavingRef.current = true;
+        if (navigation?.canGoBack?.())
+            navigation.goBack();
+        else
+            navigation?.navigate?.(menuRoute);
+    });
     const goSettings = () => requestLeave(() => { setModal(null); setPhase('settings'); });
     useEffect(() => {
         if (!modal)
@@ -786,7 +799,7 @@ const optionWaitingAnimatedStyle =
                         width: '100%',
                         alignSelf: 'stretch',
                         flexShrink: 0,
-                        fontSize: compact ? 14 : 15,
+                        fontSize: compact ? 13 : 14,
                         lineHeight: compact ? 18 : 20,
                         textAlign: 'center',
                         includeFontPadding: false,
@@ -929,14 +942,15 @@ const s = StyleSheet.create({
         marginBottom: 0,
     },
     wide: { width: 650, alignSelf: 'center' }, text: { color: '#333652', fontSize: 16, includeFontPadding: false }, white: { color: '#FFFDEF' }, row: { flexDirection: 'row', alignItems: 'center' }, header: { minHeight: 62, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }, logo: { width: 112, height: 60, resizeMode: 'contain' }, iconButton: { width: 40, height: 42, alignItems: 'center', justifyContent: 'center', borderRadius: 12 }, icon: { width: 30, height: 30, resizeMode: 'contain' }, activeIcon: { backgroundColor: '#F8E7ED' }, disabled: { opacity: 0.4 }, scrollBody: { flexGrow: 1, paddingBottom: 16 }, title: { color: '#FFFDEF', fontSize: 25, fontWeight: '800', textAlign: 'center', marginVertical: 16 },
-    taskTitle: { color: '#FFFDEF', fontSize: 17, fontWeight: '700', textAlign: 'center', marginBottom: 8 }, taskTitleCompact: { fontSize: 15, lineHeight: 17, marginBottom: 10 }, card: { backgroundColor: '#FFFDEF', borderRadius: 24, padding: 17, marginBottom: 12, shadowColor: '#333652', shadowOffset: { width: 0, height: 3 }, shadowOpacity: 0.12, shadowRadius: 5, elevation: 3 }, section: { fontSize: 20, fontWeight: '800', marginVertical: 10, textAlign: 'center' }, wrap: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center' }, wrapCenter: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', marginBottom: 5 }, chip: { backgroundColor: '#FFFFFF', borderWidth: 1, borderColor: '#83A3CD', borderRadius: 16, paddingHorizontal: 14, paddingVertical: 10, margin: 4 }, chipSelected: { backgroundColor: '#CE6857', borderColor: '#CE6857' }, badge: { backgroundColor: '#E6EEF8', borderRadius: 10, paddingVertical: 5, paddingHorizontal: 8, margin: 3, fontSize: 14, textAlign: 'center' }, button: { backgroundColor: '#CE6857', minHeight: 50, borderRadius: 26, justifyContent: 'center', alignItems: 'center', padding: 10, marginVertical: 6 }, compactNextButton: { minHeight: 46, paddingVertical: 7, marginVertical: 0 }, buttonText: { color: '#FFFDEF', fontSize: 18, fontWeight: '800', textAlign: 'center' }, secondary: { backgroundColor: '#FFFDEF', borderWidth: 1, borderColor: '#D6DDE8' }, secondaryText: { color: '#333652' }, note: { fontSize: 14, color: '#687084', textAlign: 'center', marginVertical: 6, lineHeight: 20 }, whiteNote: { color: '#FFFDEF', fontSize: 14, textAlign: 'center', margin: 8 }, switchRow: { flexDirection: 'row', alignItems: 'center', marginTop: 15 }, progressBox: { backgroundColor: '#6C8EBB', borderRadius: 12, padding: 10, flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center' }, progressNumber: { color: '#FFFFFF', fontSize: 19, fontWeight: '800' }, track: { height: 6, backgroundColor: '#B6C9E2', borderRadius: 4, overflow: 'hidden', marginVertical: 9 }, fill: { height: 6, backgroundColor: '#CE6857' }, sentenceBox: { backgroundColor: '#EEF2F7', borderWidth: 1, borderColor: '#CDD9E9', borderRadius: 18, padding: 12, alignItems: 'center', justifyContent: 'center' }, hebrew: { fontSize: 29, lineHeight: 42, fontWeight: '700', textAlign: 'center', writingDirection: 'rtl' }, highlight: { color: '#A84F70' }, blank: { color: '#CE6857' }, translationSlot: { minHeight: 54, justifyContent: 'center', paddingVertical: 5 }, translation: { fontSize: 17, lineHeight: 24, textAlign: 'center' }, rtl: { writingDirection: 'rtl', textAlign: 'right' }, translitBox: { minHeight: 58, backgroundColor: '#F6F0E6', borderColor: '#D8C09F', borderWidth: 1, borderRadius: 16, flexDirection: 'row', alignItems: 'center', paddingHorizontal: 4, paddingVertical: 5 }, translit: { flex: 1, fontSize: 16, lineHeight: 22, fontWeight: '600', color: '#CE6857', textAlign: 'center', writingDirection: 'ltr' }, abc: { width: 40, minHeight: 40, alignItems: 'center', justifyContent: 'center' }, abcText: { fontSize: 13, fontWeight: '800', color: '#CE6857' }, bigSpeaker: { width: 84, height: 84, borderRadius: 42, backgroundColor: '#F6F0E6', alignItems: 'center', justifyContent: 'center' },
+    taskTitle: { color: '#FFFDEF', fontSize: 16, fontWeight: '700', textAlign: 'center', marginBottom: 8 }, taskTitleCompact: { fontSize: 15, lineHeight: 17, marginBottom: 10 }, card: { backgroundColor: '#FFFDEF', borderRadius: 24, padding: 17, marginBottom: 12, shadowColor: '#333652', shadowOffset: { width: 0, height: 3 }, shadowOpacity: 0.12, shadowRadius: 5, elevation: 3 }, section: { fontSize: 20, fontWeight: '800', marginVertical: 10, textAlign: 'center' }, wrap: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center' }, wrapCenter: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', marginBottom: 5 }, chip: { backgroundColor: '#FFFFFF', borderWidth: 1, borderColor: '#83A3CD', borderRadius: 16, paddingHorizontal: 14, paddingVertical: 10, margin: 4 }, chipSelected: { backgroundColor: '#CE6857', borderColor: '#CE6857' }, badge: { backgroundColor: '#E6EEF8', borderRadius: 10, paddingVertical: 5, paddingHorizontal: 8, margin: 3, fontSize: 14, textAlign: 'center' }, button: { backgroundColor: '#CE6857', minHeight: 50, borderRadius: 26, justifyContent: 'center', alignItems: 'center', padding: 10, marginVertical: 6 }, compactNextButton: { minHeight: 46, paddingVertical: 7, marginVertical: 0 }, buttonText: { color: '#FFFDEF', fontSize: 18, fontWeight: '800', textAlign: 'center' }, secondary: { backgroundColor: '#FFFDEF', borderWidth: 1, borderColor: '#D6DDE8' }, secondaryText: { color: '#333652' }, note: { fontSize: 14, color: '#687084', textAlign: 'center', marginVertical: 6, lineHeight: 20 }, whiteNote: { color: '#FFFDEF', fontSize: 14, textAlign: 'center', margin: 8 }, switchRow: { flexDirection: 'row', alignItems: 'center', marginTop: 15 },
+    progressBox: { backgroundColor: '#6C8EBB', borderRadius: 12, padding: 10, flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center' }, progressNumber: { color: '#FFFFFF', fontSize: 19, fontWeight: '800' }, track: { height: 6, backgroundColor: '#B6C9E2', borderRadius: 4, overflow: 'hidden', marginVertical: 9 }, fill: { height: 6, backgroundColor: '#CE6857' }, sentenceBox: { backgroundColor: '#EEF2F7', borderWidth: 1, borderColor: '#CDD9E9', borderRadius: 18, padding: 12, alignItems: 'center', justifyContent: 'center' }, hebrew: { fontSize: 29, lineHeight: 42, fontWeight: '700', textAlign: 'center', writingDirection: 'rtl' }, highlight: { color: '#A84F70' }, blank: { color: '#CE6857' }, translationSlot: { minHeight: 54, justifyContent: 'center', paddingVertical: 5 }, translation: { fontSize: 17, lineHeight: 24, textAlign: 'center' }, rtl: { writingDirection: 'rtl', textAlign: 'right' }, translitBox: { minHeight: 58, backgroundColor: '#F6F0E6', borderColor: '#D8C09F', borderWidth: 1, borderRadius: 16, flexDirection: 'row', alignItems: 'center', paddingHorizontal: 4, paddingVertical: 5 }, translit: { flex: 1, fontSize: 16, lineHeight: 22, fontWeight: '600', color: '#CE6857', textAlign: 'center', writingDirection: 'ltr' }, abc: { width: 40, minHeight: 40, alignItems: 'center', justifyContent: 'center' }, abcText: { fontSize: 13, fontWeight: '800', color: '#CE6857' }, bigSpeaker: { width: 84, height: 84, borderRadius: 42, backgroundColor: '#F6F0E6', alignItems: 'center', justifyContent: 'center' },
     rotation: { flexDirection: 'row', justifyContent: 'flex-end', marginTop: 5, marginBottom: 5, }, rotationCompact: { marginTop: 1 }, options: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between' }, option: { width: '48.7%', borderRadius: 18, borderWidth: 2, borderColor: '#83A3CD', backgroundColor: '#FFFFFF', justifyContent: 'center', alignItems: 'center', paddingHorizontal: 9, paddingVertical: 10, marginBottom: 9 }, optionHebrew: { fontSize: 27, lineHeight: 37, fontWeight: '700', textAlign: 'center', writingDirection: 'rtl' }, optionTranslation: { width: '100%', alignSelf: 'stretch', flexShrink: 0, fontSize: 16, lineHeight: 23, fontWeight: '600', textAlign: 'center', includeFontPadding: false }, optionWaiting: { backgroundColor: '#F3F5F8', borderColor: '#D5DCE5' }, optionTextWaiting: { color: '#AEB5C1' }, good: { backgroundColor: '#AFFFCA', borderColor: '#62B57D' }, bad: { backgroundColor: '#FFBCBC', borderColor: '#D86F6F' }, inactive: { backgroundColor: '#E4E7ED', borderColor: '#C9CED7' }, footerLink: { alignItems: 'center', paddingBottom: 8, paddingTop: 2 }, previewBanner: { backgroundColor: '#FFF0C8', color: '#71531B', padding: 8, borderRadius: 10, textAlign: 'center', fontSize: 14, marginBottom: 10 }, error: { color: '#A82E3F', textAlign: 'center', fontSize: 14, margin: 8 }, score: { fontSize: 52, fontWeight: '900', textAlign: 'center', color: '#CE6857', margin: 16 }, overlay: { flex: 1, backgroundColor: 'rgba(30,38,58,0.5)', justifyContent: 'center', padding: 18 }, modalCard: { backgroundColor: '#FFFDEF', borderRadius: 24, padding: 18, maxHeight: '88%' }, helpText: { fontSize: 17, lineHeight: 26, marginVertical: 10 }, listRow: { flexDirection: 'row', alignItems: 'center', borderBottomWidth: 1, borderBottomColor: '#D9DFE8', paddingVertical: 10 }, listHebrew: { fontSize: 19, textAlign: 'right', writingDirection: 'rtl' },
 });
 // Header and session summary use the styles of PrepositionVerbExercise.
 const createTopStyles = compact => StyleSheet.create({
     topBar: {
         flexShrink: 0,
-        minHeight: compact ? 50 : 76,
+        minHeight: compact ? 50 : 70,
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
@@ -951,6 +965,7 @@ const createTopStyles = compact => StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         gap: 7,
+        // transform: [{ translateY: compact ? 4 : 10 }],
     },
   topButtonIcon: {
     // было около 38
@@ -960,7 +975,7 @@ const createTopStyles = compact => StyleSheet.create({
 },
     progressContainer: {
         width: '100%',
-        minHeight: compact ? 40 : 54,
+        minHeight: compact ? 40 : 50,
         flexShrink: 0,
         flexDirection: 'row',
         alignItems: 'center',
@@ -973,6 +988,7 @@ const createTopStyles = compact => StyleSheet.create({
         shadowOpacity: 0.25,
         shadowRadius: 4,
         elevation: 5,
+        marginTop: compact ? -4 : -10,
     },
     progressTextContainer: {
         flex: 1,

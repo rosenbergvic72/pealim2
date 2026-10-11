@@ -822,7 +822,8 @@ const renderHebrewDetails = (hebrewtext) => {
       </Animated.View>
 
       <Animated.View style={[styles.ProgressBarcontainer, { opacity: fadeAnim }]}>
-        <ProgressBar progress={progress} totalExercises={shuffledVerbs.length} />
+        <ProgressBar progress={progress} totalExercises={Math.max(shuffledVerbs.length, 1)}
+  />
       </Animated.View>
 
       <Animated.Text style={[styles.title, { opacity: fadeAnim }]} maxFontSizeMultiplier={1.2}>SELECIONE A BINYAN</Animated.Text>
