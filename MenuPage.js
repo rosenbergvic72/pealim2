@@ -24,10 +24,10 @@ import { useIap } from './src/iap/IapProvider';
 import StatsReportModalMulti from './StatsReportModalMulti';
 import Constants from 'expo-constants';
 import UpgradeBanner from './UpgradeBanner';
-
 const FONT_BOLD = 'mt-bold';
 const FONT_SEMIBOLD = 'mt-semibold';
-
+const APP_STORE_ID = '6759317787';
+const GOOGLE_PLAY_PACKAGE = 'com.rosenbergvictor72.pealim2';
 export default function MenuPage({
   route,
   hasPro: hasProFromGate,
@@ -37,25 +37,20 @@ export default function MenuPage({
 }) {
   const navigation = useNavigation();
   const { hasPro: hasProFromIap } = useIap();
-
   const hasPro =
     typeof hasProFromGate === 'boolean'
       ? hasProFromGate
       : hasProFromIap;
-
   const fullAccess =
     typeof hasFullAccess === 'boolean'
       ? hasFullAccess
       : hasPro;
-
   const trialActive =
     typeof internalTrialActive === 'boolean'
       ? internalTrialActive
       : !!route?.params?.internalTrialActive;
-
   const trialEndsAt =
     internalTrialEndsAt || route?.params?.internalTrialEndsAt || null;
-
   const [name, setName] = useState('');
   const [stats, setStats] = useState({});
   const [animationFinished, setAnimationFinished] = useState(false);
@@ -68,11 +63,9 @@ export default function MenuPage({
   const [activeDays, setActiveDays] = useState(0);
   const [statsAnimationFinished, setStatsAnimationFinished] = useState(false);
   const [isStatModalVisible, setIsStatModalVisible] = useState(false);
-
   const headerOpacity = useRef(new Animated.Value(0)).current;
   const titleOpacity = useRef(new Animated.Value(0)).current;
   const verbLibraryOpacity = useRef(new Animated.Value(0)).current;
-
   const button1Opacity = useRef(new Animated.Value(0)).current;
   const button1TranslateY = useRef(new Animated.Value(250)).current;
   const button2Opacity = useRef(new Animated.Value(0)).current;
@@ -93,17 +86,13 @@ export default function MenuPage({
   const button9TranslateY = useRef(new Animated.Value(250)).current;
   const button10Opacity = useRef(new Animated.Value(0)).current;
 const button10TranslateY = useRef(new Animated.Value(250)).current;
-
   const PREVIOUS_TOTAL_KEY = 'previousTotalExercises';
-
   useEffect(() => {
     navigation.setOptions({ headerLeft: () => null });
   }, [navigation]);
-
   useFocusEffect(
     useCallback(() => {
       setIsStatModalVisible(false);
-
       const backHandler = BackHandler.addEventListener(
         'hardwareBackPress',
         () => {
@@ -114,17 +103,14 @@ const button10TranslateY = useRef(new Animated.Value(250)).current;
           return true;
         }
       );
-
       return () => backHandler.remove();
     }, [navigation])
   );
-
   const saveExerciseDate = async () => {
     try {
       const today = new Date().toISOString().split('T')[0];
       const storedDates = await AsyncStorage.getItem('activeDays');
       const activeDates = storedDates ? JSON.parse(storedDates) : [];
-
       if (!activeDates.includes(today)) {
         activeDates.push(today);
         await AsyncStorage.setItem(
@@ -132,7 +118,6 @@ const button10TranslateY = useRef(new Animated.Value(250)).current;
           JSON.stringify(activeDates)
         );
       }
-
       const updatedDates = await AsyncStorage.getItem('activeDays');
       const parsed = updatedDates ? JSON.parse(updatedDates) : [];
       setActiveDays(new Set(parsed).size);
@@ -140,27 +125,22 @@ const button10TranslateY = useRef(new Animated.Value(250)).current;
       console.error('Ошибка при сохранении даты активности:', error);
     }
   };
-
   const calculateTotalStats = async statsData => {
     try {
       let totalCompleted = 0;
       let totalRate = 0;
       let count = 0;
       const uniqueDays = new Set();
-
       for (const key in statsData) {
         totalCompleted += statsData[key].timesCompleted;
-
         if (statsData[key].timesCompleted > 0) {
           totalRate += statsData[key].averageCompletionRate;
           count++;
         }
       }
-
       const storedDates = await AsyncStorage.getItem('activeDays');
       const activeDates = storedDates ? JSON.parse(storedDates) : [];
       activeDates.forEach(date => uniqueDays.add(date));
-
       setTotalExercisesCompleted(totalCompleted);
       setAverageCompletionRate(
         count > 0 ? (totalRate / count).toFixed(2) : 0
@@ -170,7 +150,6 @@ const button10TranslateY = useRef(new Animated.Value(250)).current;
       console.error('Ошибка при вычислении статистики:', error);
     }
   };
-
   const fetchStatistics = async () => {
     const exerciseIds = [
       'exercise1',
@@ -187,12 +166,9 @@ const button10TranslateY = useRef(new Animated.Value(250)).current;
        'exercise9',
       'exercise10',
     ];
-
     const statsData = {};
-
     for (const id of exerciseIds) {
       const stat = await getStatistics(id);
-
       statsData[id] = {
         timesCompleted: Number(stat?.timesCompleted ?? 0),
         averageCompletionRate: Number(
@@ -200,21 +176,16 @@ const button10TranslateY = useRef(new Animated.Value(250)).current;
         ),
       };
     }
-
     setStats(statsData);
-
     const totalCompletedNow = Object.values(statsData).reduce(
       (sum, stat) => sum + (stat?.timesCompleted || 0),
       0
     );
-
     try {
       const storedPrev = await AsyncStorage.getItem(PREVIOUS_TOTAL_KEY);
       const previousTotal = storedPrev ? parseInt(storedPrev, 10) : 0;
-
       if (totalCompletedNow > previousTotal) {
         await saveExerciseDate();
-
         try {
           await ensureMarkedToday();
         } catch (error) {
@@ -224,14 +195,12 @@ const button10TranslateY = useRef(new Animated.Value(250)).current;
         const today = new Date().toISOString().slice(0, 10);
         const storedDates = await AsyncStorage.getItem('activeDays');
         const activeDates = storedDates ? JSON.parse(storedDates) : [];
-
         if (activeDates.includes(today)) {
           try {
             await ensureMarkedToday();
           } catch {}
         }
       }
-
       await AsyncStorage.setItem(
         PREVIOUS_TOTAL_KEY,
         totalCompletedNow.toString()
@@ -239,22 +208,18 @@ const button10TranslateY = useRef(new Animated.Value(250)).current;
     } catch (error) {
       console.error('Ошибка previousTotalExercises:', error);
     }
-
     await calculateTotalStats(statsData);
   };
-
   useFocusEffect(
     useCallback(() => {
       fetchStatistics().catch(error =>
         console.error('Ошибка загрузки статистики:', error)
       );
-
       setAnimationFinished(false);
       setAnimationTriggered(false);
       setNavigateTo(null);
     }, [])
   );
-
   useEffect(() => {
     const loadActiveDays = async () => {
       try {
@@ -265,10 +230,8 @@ const button10TranslateY = useRef(new Animated.Value(250)).current;
         console.error('Ошибка при загрузке активных дней:', error);
       }
     };
-
     loadActiveDays();
   }, []);
-
   useEffect(() => {
     const getName = async () => {
       try {
@@ -278,41 +241,34 @@ const button10TranslateY = useRef(new Animated.Value(250)).current;
         console.log('Ошибка загрузки имени:', error);
       }
     };
-
     getName();
   }, []);
-
   const highlightedButtonStyle = {
     backgroundColor: '#367088',
     borderWidth: 4,
     borderColor: '#bd462a',
   };
-
   const hardlightedButtonStyle = {
     backgroundColor: '#2D4769',
     borderWidth: 4,
     borderColor: '#bd462a',
   };
-
   const startAnimations = () => {
     Animated.timing(headerOpacity, {
       toValue: 1,
       duration: 1000,
       useNativeDriver: true,
     }).start();
-
     Animated.timing(verbLibraryOpacity, {
       toValue: 1,
       duration: 280,
       useNativeDriver: true,
     }).start();
-
     Animated.timing(titleOpacity, {
       toValue: 1,
       duration: 1000,
       useNativeDriver: true,
     }).start();
-
     Animated.stagger(300, [
       Animated.parallel([
         Animated.timing(button1Opacity, {
@@ -438,18 +394,14 @@ const button10TranslateY = useRef(new Animated.Value(250)).current;
       ]),
     ]).start();
   };
-
   const isFreeName = screenName =>
     screenName === 'Exercise1' ||
     screenName === 'Exercise2' ||
     screenName === 'PrepositionExercise';
-
   const isLocked = screenName =>
     !__DEV__ && !fullAccess && !isFreeName(screenName);
-
   const handlePress = exercise => {
     if (isLocked(exercise)) return;
-
     if (
       exercise === 'PrepositionExercise' ||
       exercise === 'PrepositionVerbExercise' ||
@@ -460,16 +412,12 @@ const button10TranslateY = useRef(new Animated.Value(250)).current;
       navigation.navigate(exercise, { language: 'ru' });
       return;
     }
-
     setNavigateTo(exercise);
     setAnimationTriggered(true);
   };
-
   useEffect(() => {
     if (!animationTriggered) return;
-
     let timer;
-
     const animation = Animated.stagger(100, [
       Animated.timing(headerOpacity, {
         toValue: 0,
@@ -537,10 +485,8 @@ const button10TranslateY = useRef(new Animated.Value(250)).current;
         useNativeDriver: true,
       }),
     ]);
-
     animation.start(({ finished }) => {
       if (!finished) return;
-
       timer = setTimeout(() => {
         if (navigateTo) {
           navigation.navigate(navigateTo);
@@ -548,31 +494,25 @@ const button10TranslateY = useRef(new Animated.Value(250)).current;
         }
       }, 100);
     });
-
     return () => {
       animation.stop();
       clearTimeout(timer);
     };
   }, [animationTriggered, navigateTo, navigation]);
-
   useEffect(() => {
     if (!statsAnimationFinished) {
       const timer = setTimeout(
         () => setStatsAnimationFinished(true),
         3500
       );
-
       return () => clearTimeout(timer);
     }
   }, [statsAnimationFinished]);
-
   const handleReportBug = useCallback(async () => {
     const to = 'verbify2025@gmail.com';
-
     const subject = encodeURIComponent(
       'Сообщение об ошибке в базе Verbify'
     );
-
     const body = encodeURIComponent([
       'Спасибо, что пользуетесь приложением VERBIFY и помогаете делать его лучше!',
       '',
@@ -631,9 +571,7 @@ const button10TranslateY = useRef(new Animated.Value(250)).current;
       `Версия приложения: ${Constants?.expoConfig?.version || 'unknown'}`,
       `Платформа: ${Platform.OS} (${Platform.Version})`,
     ].join('\n'));
-
     const mailtoUrl = `mailto:${to}?subject=${subject}&body=${body}`;
-
     try {
       if (await Linking.canOpenURL(mailtoUrl)) {
         await Linking.openURL(mailtoUrl);
@@ -645,14 +583,39 @@ const button10TranslateY = useRef(new Animated.Value(250)).current;
       }
     } catch (error) {
       console.warn('Error opening mail app', error);
-
       Alert.alert(
         'Ошибка',
         'Не удалось открыть почтовый клиент. Пожалуйста, отправьте письмо вручную на адрес: verbify2025@gmail.com'
       );
     }
   }, []);
-
+  const openVerbifyStore = useCallback(async (review = false) => {
+    const androidPackage =
+      Constants?.expoConfig?.android?.package || GOOGLE_PLAY_PACKAGE;
+    const url =
+      Platform.OS === 'ios'
+        ? review
+          ? `https://apps.apple.com/il/app/verbify-hebrew-verb-trainer/id${APP_STORE_ID}?action=write-review`
+          : `https://apps.apple.com/il/app/verbify-hebrew-verb-trainer/id${APP_STORE_ID}`
+        : review
+          ? `https://play.google.com/store/apps/details?id=${androidPackage}&showAllReviews=true`
+          : `https://play.google.com/store/apps/details?id=${androidPackage}`;
+    try {
+      await Linking.openURL(url);
+    } catch (error) {
+      console.warn('Error opening app store', error);
+      Alert.alert(
+        'Ошибка',
+        'Не удалось открыть магазин приложений. Попробуйте ещё раз позже.'
+      );
+    }
+  }, []);
+  const handleCheckUpdate = useCallback(() => {
+    openVerbifyStore(false);
+  }, [openVerbifyStore]);
+  const handleRateApp = useCallback(() => {
+    openVerbifyStore(true);
+  }, [openVerbifyStore]);
  if (!animationFinished) {
     return (
       <View style={styles.animationContainer}>
@@ -669,13 +632,11 @@ const button10TranslateY = useRef(new Animated.Value(250)).current;
       </View>
     );
   }
-
   const lockStyle = {
     opacity: 0.45,
     backgroundColor: '#6f7f90',
     borderColor: '#9aa6b2',
   };
-
   return (
     <View style={{ flex: 1 }}>
       <ScrollView style={styles.container}>
@@ -689,7 +650,6 @@ const button10TranslateY = useRef(new Animated.Value(250)).current;
             source={require('./VERBIFY.png')}
             style={styles.image}
           />
-
           <Text
             style={styles.greeting}
             maxFontSizeMultiplier={1.2}
@@ -697,7 +657,6 @@ const button10TranslateY = useRef(new Animated.Value(250)).current;
             Привет, {name}!
           </Text>
         </Animated.View>
-
         <TouchableOpacity
           activeOpacity={0.9}
           onPress={() => setIsStatModalVisible(true)}
@@ -724,7 +683,6 @@ const button10TranslateY = useRef(new Animated.Value(250)).current;
                   source={require('./STAT2.png')}
                   style={styles.statsImage}
                 />
-
                 <FadeInView style={styles.statsTextContainer}>
                   <View style={styles.statsRow}>
                     <Text
@@ -733,7 +691,6 @@ const button10TranslateY = useRef(new Animated.Value(250)).current;
                     >
                       ВЫПОЛНЕНО УПРАЖНЕНИЙ
                     </Text>
-
                     <View style={styles.statsBox}>
                    <Text
   style={styles.statsValue}
@@ -743,7 +700,6 @@ const button10TranslateY = useRef(new Animated.Value(250)).current;
                       </Text>
                     </View>
                   </View>
-
                   <View style={styles.statsRow}>
                     <Text
                       style={styles.statsText}
@@ -751,7 +707,6 @@ const button10TranslateY = useRef(new Animated.Value(250)).current;
                     >
                       СРЕДНИЙ РЕЗУЛЬТАТ
                     </Text>
-
                     <View style={styles.statsBox}>
                     <Text
   style={styles.statsValue}
@@ -761,7 +716,6 @@ const button10TranslateY = useRef(new Animated.Value(250)).current;
                       </Text>
                     </View>
                   </View>
-
                   <View style={styles.statsRow}>
                     <Text
                       style={styles.statsText}
@@ -769,7 +723,6 @@ const button10TranslateY = useRef(new Animated.Value(250)).current;
                     >
                       ДНЕЙ ЗАНЯТИЙ
                     </Text>
-
                     <View style={styles.statsBox}>
                     <Text
   style={styles.statsValue}
@@ -784,7 +737,6 @@ const button10TranslateY = useRef(new Animated.Value(250)).current;
             )}
           </Animated.View>
         </TouchableOpacity>
-
         <View>
           <Animated.View
             style={[
@@ -804,7 +756,6 @@ const button10TranslateY = useRef(new Animated.Value(250)).current;
                 >
                   КАРТОЧКИ ГЛАГОЛОВ
                 </Text>
-
                 <Text
                   style={styles.verbLibrarySubtitle}
                   maxFontSizeMultiplier={1.2}
@@ -814,14 +765,12 @@ const button10TranslateY = useRef(new Animated.Value(250)).current;
               </View>
             </TouchableOpacity>
           </Animated.View>
-
           <Animated.Text
             style={[styles.titleText, { opacity: titleOpacity }]}
             maxFontSizeMultiplier={1.2}
           >
             ВЫБЕРИ УПРАЖНЕНИЕ
           </Animated.Text>
-
           {/* УПРАЖНЕНИЕ 1 */}
           <Animated.View
             style={[
@@ -843,13 +792,11 @@ const button10TranslateY = useRef(new Animated.Value(250)).current;
                 >
                   УПРАЖНЕНИЕ  1
                 </Text>
-
                 <Image
                   source={require('./star1.png')}
                   style={styles.image1}
                 />
               </View>
-
               <View style={styles.upperPart2}>
                 <Text
                   style={styles.upperText}
@@ -858,7 +805,6 @@ const button10TranslateY = useRef(new Animated.Value(250)).current;
                   КАРТОЧКИ ГЛАГОЛОВ ИВРИТ-РУССКИЙ
                 </Text>
               </View>
-
               <View style={styles.lowerRight}>
                 <Text
                   style={styles.lowerText}
@@ -872,7 +818,6 @@ const button10TranslateY = useRef(new Animated.Value(250)).current;
                     {stats.exercise1?.timesCompleted ?? 0}
                   </Text>
                 </Text>
-
                 <Text
                   style={styles.lowerText}
                   maxFontSizeMultiplier={1.2}
@@ -890,7 +835,6 @@ const button10TranslateY = useRef(new Animated.Value(250)).current;
               </View>
             </TouchableOpacity>
           </Animated.View>
-
           {/* УПРАЖНЕНИЕ 2 */}
           <Animated.View
             style={[
@@ -912,13 +856,11 @@ const button10TranslateY = useRef(new Animated.Value(250)).current;
                 >
                   УПРАЖНЕНИЕ  2
                 </Text>
-
                 <Image
                   source={require('./star2.png')}
                   style={styles.image1}
                 />
               </View>
-
               <View style={styles.upperPart2}>
                 <Text
                   style={styles.upperText}
@@ -927,7 +869,6 @@ const button10TranslateY = useRef(new Animated.Value(250)).current;
                   КАРТОЧКИ ГЛАГОЛОВ РУССКИЙ-ИВРИТ
                 </Text>
               </View>
-
               <View style={styles.lowerRight}>
                 <Text
                   style={styles.lowerText}
@@ -941,7 +882,6 @@ const button10TranslateY = useRef(new Animated.Value(250)).current;
                     {stats.exercise2?.timesCompleted ?? 0}
                   </Text>
                 </Text>
-
                 <Text
                   style={styles.lowerText}
                   maxFontSizeMultiplier={1.2}
@@ -959,7 +899,6 @@ const button10TranslateY = useRef(new Animated.Value(250)).current;
               </View>
             </TouchableOpacity>
           </Animated.View>
-
           {/* ПРЕДЛОГИ 1 */}
           <Animated.View
             style={[
@@ -982,7 +921,6 @@ const button10TranslateY = useRef(new Animated.Value(250)).current;
                 >
                   ПРЕДЛОГИ 1
                 </Text>
-
                 <View style={styles.newExerciseBadge}>
                   <Text
                     style={styles.newExerciseText}
@@ -992,7 +930,6 @@ const button10TranslateY = useRef(new Animated.Value(250)).current;
                   </Text>
                 </View>
               </View>
-
               <View style={styles.upperPart2}>
                 <Text
                   style={styles.upperText}
@@ -1001,7 +938,6 @@ const button10TranslateY = useRef(new Animated.Value(250)).current;
                   МЕСТОИМЕННЫЕ ПРЕДЛОГИ
                 </Text>
               </View>
-
               <View style={styles.lowerRight}>
                 <Text
                   style={styles.lowerText}
@@ -1015,7 +951,6 @@ const button10TranslateY = useRef(new Animated.Value(250)).current;
                     {stats.prepositionPronouns?.timesCompleted ?? 0}
                   </Text>
                 </Text>
-
                 <Text
                   style={styles.lowerText}
                   maxFontSizeMultiplier={1.2}
@@ -1033,7 +968,6 @@ const button10TranslateY = useRef(new Animated.Value(250)).current;
               </View>
             </TouchableOpacity>
           </Animated.View>
-
           <UpgradeBanner
             hasPro={hasPro}
             navigation={navigation}
@@ -1045,7 +979,6 @@ const button10TranslateY = useRef(new Animated.Value(250)).current;
               transform: [{ translateY: button3TranslateY }],
             }}
           />
-
           {/* УПРАЖНЕНИЕ 3 */}
           <Animated.View
             style={[
@@ -1068,13 +1001,11 @@ const button10TranslateY = useRef(new Animated.Value(250)).current;
                 >
                   УПРАЖНЕНИЕ  3
                 </Text>
-
                 <Image
                   source={require('./star3.png')}
                   style={styles.image1}
                 />
               </View>
-
               <View style={styles.upperPart2}>
                 <Text
                   style={styles.upperText}
@@ -1083,7 +1014,6 @@ const button10TranslateY = useRef(new Animated.Value(250)).current;
                   ОПРЕДЕЛИ БИНЬЯН ГЛАГОЛА
                 </Text>
               </View>
-
               <View style={styles.lowerRight}>
                 <Text
                   style={styles.lowerText}
@@ -1097,7 +1027,6 @@ const button10TranslateY = useRef(new Animated.Value(250)).current;
                     {stats.exercise3?.timesCompleted ?? 0}
                   </Text>
                 </Text>
-
                 <Text
                   style={styles.lowerText}
                   maxFontSizeMultiplier={1.2}
@@ -1115,7 +1044,6 @@ const button10TranslateY = useRef(new Animated.Value(250)).current;
               </View>
             </TouchableOpacity>
           </Animated.View>
-
           {/* УПРАЖНЕНИЕ 4 */}
           <Animated.View
             style={[
@@ -1138,13 +1066,11 @@ const button10TranslateY = useRef(new Animated.Value(250)).current;
                 >
                   УПРАЖНЕНИЕ  4
                 </Text>
-
                 <Image
                   source={require('./star3.png')}
                   style={styles.image1}
                 />
               </View>
-
               <View style={styles.upperPart2}>
                 <Text
                   style={styles.upperText}
@@ -1153,7 +1079,6 @@ const button10TranslateY = useRef(new Animated.Value(250)).current;
                   ПОВЕЛИТЕЛЬНОЕ НАКЛОНЕНИЕ
                 </Text>
               </View>
-
               <View style={styles.lowerRight}>
                 <Text
                   style={styles.lowerText}
@@ -1167,7 +1092,6 @@ const button10TranslateY = useRef(new Animated.Value(250)).current;
                     {stats.exercise5?.timesCompleted ?? 0}
                   </Text>
                 </Text>
-
                 <Text
                   style={styles.lowerText}
                   maxFontSizeMultiplier={1.2}
@@ -1185,7 +1109,6 @@ const button10TranslateY = useRef(new Animated.Value(250)).current;
               </View>
             </TouchableOpacity>
           </Animated.View>
-
           {/* КОРНИ И БИНЬЯНЫ */}
           <Animated.View
             style={[
@@ -1216,7 +1139,6 @@ const button10TranslateY = useRef(new Animated.Value(250)).current;
                 >
                   КОРНИ И БИНЬЯНЫ
                 </Text>
-
                 <View style={styles.rootNewBadge}>
                   <Text
                     style={styles.rootNewText}
@@ -1226,7 +1148,6 @@ const button10TranslateY = useRef(new Animated.Value(250)).current;
                   </Text>
                 </View>
               </View>
-
               <View style={styles.upperPart2}>
                 <Text
                   style={styles.upperText}
@@ -1235,7 +1156,6 @@ const button10TranslateY = useRef(new Animated.Value(250)).current;
                   ОДНОКОРЕННЫЕ ГЛАГОЛЫ
                 </Text>
               </View>
-
               <View style={[styles.lowerRight, styles.rootStats]}>
                 <Text
                   style={styles.lowerText}
@@ -1249,7 +1169,6 @@ const button10TranslateY = useRef(new Animated.Value(250)).current;
                     {stats.rootFamilies?.timesCompleted ?? 0}
                   </Text>
                 </Text>
-
                 <Text
                   style={styles.lowerText}
                   maxFontSizeMultiplier={1.2}
@@ -1267,7 +1186,6 @@ const button10TranslateY = useRef(new Animated.Value(250)).current;
               </View>
             </TouchableOpacity>
           </Animated.View>
-
           {/* УПРАЖНЕНИЕ 5 */}
           <Animated.View
             style={[
@@ -1291,13 +1209,11 @@ const button10TranslateY = useRef(new Animated.Value(250)).current;
                 >
                   УПРАЖНЕНИЕ  5
                 </Text>
-
                 <Image
                   source={require('./star4.png')}
                   style={styles.image1}
                 />
               </View>
-
               <View style={styles.upperPart2}>
                 <Text
                   style={styles.upperText}
@@ -1306,7 +1222,6 @@ const button10TranslateY = useRef(new Animated.Value(250)).current;
                   СПРЯЖЕНИЕ ГЛАГОЛА РУССКИЙ-ИВРИТ
                 </Text>
               </View>
-
               <View style={styles.lowerRight}>
                 <Text
                   style={styles.lowerText}
@@ -1320,7 +1235,6 @@ const button10TranslateY = useRef(new Animated.Value(250)).current;
                     {stats.exercise6?.timesCompleted ?? 0}
                   </Text>
                 </Text>
-
                 <Text
                   style={styles.lowerText}
                   maxFontSizeMultiplier={1.2}
@@ -1338,7 +1252,6 @@ const button10TranslateY = useRef(new Animated.Value(250)).current;
               </View>
             </TouchableOpacity>
           </Animated.View>
-
           {/* УПРАЖНЕНИЕ 6 */}
           <Animated.View
             style={[
@@ -1362,13 +1275,11 @@ const button10TranslateY = useRef(new Animated.Value(250)).current;
                 >
                   УПРАЖНЕНИЕ  6
                 </Text>
-
                 <Image
                   source={require('./star4.png')}
                   style={styles.image1}
                 />
               </View>
-
               <View style={styles.upperPart2}>
                 <Text
                   style={styles.upperText}
@@ -1377,7 +1288,6 @@ const button10TranslateY = useRef(new Animated.Value(250)).current;
                   СПРЯЖЕНИЕ ГЛАГОЛА ИВРИТ-РУССКИЙ
                 </Text>
               </View>
-
               <View style={styles.lowerRight}>
                 <Text
                   style={styles.lowerText}
@@ -1391,7 +1301,6 @@ const button10TranslateY = useRef(new Animated.Value(250)).current;
                     {stats.exercise8?.timesCompleted ?? 0}
                   </Text>
                 </Text>
-
                 <Text
                   style={styles.lowerText}
                   maxFontSizeMultiplier={1.2}
@@ -1409,7 +1318,6 @@ const button10TranslateY = useRef(new Animated.Value(250)).current;
               </View>
             </TouchableOpacity>
           </Animated.View>
-
           {/* ПРЕДЛОГИ 2 */}
           <Animated.View
             style={[
@@ -1433,7 +1341,6 @@ const button10TranslateY = useRef(new Animated.Value(250)).current;
                 >
                   ПРЕДЛОГИ 2
                 </Text>
-
                 <View style={styles.newExerciseBadge}>
                   <Text
                     style={styles.newExerciseText}
@@ -1443,7 +1350,6 @@ const button10TranslateY = useRef(new Animated.Value(250)).current;
                   </Text>
                 </View>
               </View>
-
               <View style={styles.upperPart2}>
                 <Text
                   style={styles.upperText}
@@ -1452,7 +1358,6 @@ const button10TranslateY = useRef(new Animated.Value(250)).current;
                   ПРЕДЛОГИ И ПРЕДЛОГИ-ПРИСТАВКИ
                 </Text>
               </View>
-
               <View style={styles.lowerRight}>
                 <Text
                   style={styles.lowerText}
@@ -1466,7 +1371,6 @@ const button10TranslateY = useRef(new Animated.Value(250)).current;
                     {stats.prepositionAfterVerbs?.timesCompleted ?? 0}
                   </Text>
                 </Text>
-
                 <Text
                   style={styles.lowerText}
                   maxFontSizeMultiplier={1.2}
@@ -1484,7 +1388,6 @@ const button10TranslateY = useRef(new Animated.Value(250)).current;
               </View>
             </TouchableOpacity>
           </Animated.View>
-
           {/* УПРАЖНЕНИЕ 7 */}
           <Animated.View
             style={[
@@ -1508,13 +1411,11 @@ const button10TranslateY = useRef(new Animated.Value(250)).current;
                 >
                   УПРАЖНЕНИЕ  7
                 </Text>
-
                 <Image
                   source={require('./star5.png')}
                   style={styles.image1}
                 />
               </View>
-
               <View style={styles.upperPart2}>
                 <Text
                   style={styles.upperText}
@@ -1523,7 +1424,6 @@ const button10TranslateY = useRef(new Animated.Value(250)).current;
                   СПРЯЖЕНИЕ ГЛАГОЛОВ РУССКИЙ-ИВРИТ
                 </Text>
               </View>
-
               <View style={styles.lowerRight}>
                 <Text
                   style={styles.lowerText}
@@ -1537,7 +1437,6 @@ const button10TranslateY = useRef(new Animated.Value(250)).current;
                     {stats.exercise4?.timesCompleted ?? 0}
                   </Text>
                 </Text>
-
                 <Text
                   style={styles.lowerText}
                   maxFontSizeMultiplier={1.2}
@@ -1555,7 +1454,6 @@ const button10TranslateY = useRef(new Animated.Value(250)).current;
               </View>
             </TouchableOpacity>
           </Animated.View>
-
           {/* УПРАЖНЕНИЕ 8 */}
           <Animated.View
             style={[
@@ -1579,13 +1477,11 @@ const button10TranslateY = useRef(new Animated.Value(250)).current;
                 >
                   УПРАЖНЕНИЕ  8
                 </Text>
-
                 <Image
                   source={require('./star5.png')}
                   style={styles.image1}
                 />
               </View>
-
               <View style={styles.upperPart2}>
                 <Text
                   style={styles.upperText}
@@ -1594,7 +1490,6 @@ const button10TranslateY = useRef(new Animated.Value(250)).current;
                   СПРЯЖЕНИЕ ГЛАГОЛОВ ИВРИТ-РУССКИЙ
                 </Text>
               </View>
-
               <View style={styles.lowerRight}>
                 <Text
                   style={styles.lowerText}
@@ -1608,7 +1503,6 @@ const button10TranslateY = useRef(new Animated.Value(250)).current;
                     {stats.exercise7?.timesCompleted ?? 0}
                   </Text>
                 </Text>
-
                 <Text
                   style={styles.lowerText}
                   maxFontSizeMultiplier={1.2}
@@ -1626,7 +1520,6 @@ const button10TranslateY = useRef(new Animated.Value(250)).current;
               </View>
             </TouchableOpacity>
           </Animated.View>
-
           {/* УПРАЖНЕНИЯ 9 И 10 */}
           {[
             {
@@ -1676,7 +1569,6 @@ const button10TranslateY = useRef(new Animated.Value(250)).current;
                   >
                     УПРАЖНЕНИЕ {item.number}
                   </Text>
-
                   <View style={styles.rootNewBadge}>
                     <Text
                       style={styles.rootNewText}
@@ -1686,7 +1578,6 @@ const button10TranslateY = useRef(new Animated.Value(250)).current;
                     </Text>
                   </View>
                 </View>
-
                 <View style={styles.upperPart2}>
                   <Text
                     style={styles.upperText}
@@ -1695,7 +1586,6 @@ const button10TranslateY = useRef(new Animated.Value(250)).current;
                     {item.title}
                   </Text>
                 </View>
-
                 <View style={[styles.lowerRight, styles.rootStats]}>
                   <Text
                     style={styles.lowerText}
@@ -1709,7 +1599,6 @@ const button10TranslateY = useRef(new Animated.Value(250)).current;
                       {stats[item.statsKey]?.timesCompleted ?? 0}
                     </Text>
                   </Text>
-
                   <Text
                     style={styles.lowerText}
                     maxFontSizeMultiplier={1.2}
@@ -1728,7 +1617,6 @@ const button10TranslateY = useRef(new Animated.Value(250)).current;
               </TouchableOpacity>
             </Animated.View>
           ))}
-
           <Animated.View
             style={[
               styles.infoWrap,
@@ -1746,7 +1634,6 @@ const button10TranslateY = useRef(new Animated.Value(250)).current;
                 source={require('./quest.png')}
                 style={styles.infoIcon}
               />
-
               <Text
                 style={styles.infoText}
                 numberOfLines={2}
@@ -1757,12 +1644,10 @@ const button10TranslateY = useRef(new Animated.Value(250)).current;
               </Text>
             </TouchableOpacity>
           </Animated.View>
-
           <AppDescriptionModal
             visible={isModalVisible}
             onToggle={() => setIsModalVisible(false)}
           />
-
           <Animated.View
             style={[
               styles.infoWrap,
@@ -1780,7 +1665,6 @@ const button10TranslateY = useRef(new Animated.Value(250)).current;
                 source={require('./about4.png')}
                 style={styles.infoIcon}
               />
-
               <Text
                 style={styles.infoText}
                 numberOfLines={2}
@@ -1791,12 +1675,10 @@ const button10TranslateY = useRef(new Animated.Value(250)).current;
               </Text>
             </TouchableOpacity>
           </Animated.View>
-
           <AppInfoModal
             visible={isInfoModalVisible}
             onToggle={() => setIsInfoModalVisible(false)}
           />
-
           <Animated.View
             style={[
               styles.infoWrap,
@@ -1820,14 +1702,44 @@ const button10TranslateY = useRef(new Animated.Value(250)).current;
               </Text>
             </TouchableOpacity>
           </Animated.View>
-
-
-
-
-
+        <Animated.View
+          style={[
+            styles.storeActionsWrap,
+            {
+              opacity: button9Opacity,
+              transform: [{ translateY: button7TranslateY }],
+            },
+          ]}
+        >
+          <TouchableOpacity
+            activeOpacity={0.82}
+            style={[styles.storeActionButton, styles.updateStoreButton]}
+            onPress={handleCheckUpdate}
+          >
+            <Text
+              style={styles.storeActionText}
+              numberOfLines={2}
+              maxFontSizeMultiplier={1.2}
+            >
+              ПРОВЕРИТЬ ОБНОВЛЕНИЯ
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            activeOpacity={0.82}
+            style={[styles.storeActionButton, styles.rateStoreButton]}
+            onPress={handleRateApp}
+          >
+            <Text
+              style={styles.storeActionText}
+              numberOfLines={2}
+              maxFontSizeMultiplier={1.2}
+            >
+              ПОСТАВИТЬ ОЦЕНКУ
+            </Text>
+          </TouchableOpacity>
+        </Animated.View>
         </View>
       </ScrollView>
-
       <StatsReportModalMulti
         visible={isStatModalVisible}
         onClose={() => setIsStatModalVisible(false)}
@@ -1836,7 +1748,6 @@ const button10TranslateY = useRef(new Animated.Value(250)).current;
     </View>
   );
 }
-
 const styles = StyleSheet.create({
   statsContainer: {
     flexDirection: 'row',
@@ -1849,26 +1760,22 @@ const styles = StyleSheet.create({
     borderColor: '#2D4769',
     height: 90,
   },
-
   statsImage: {
     width: 80,
     height: 80,
     marginRight: 12,
     marginLeft: 10,
   },
-
   statsTextContainer: {
     flex: 1,
     marginTop: 5,
   },
-
   statsRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: 5,
   },
-
   statsText: {
     fontSize: 11,
     fontWeight: 'bold',
@@ -1877,7 +1784,6 @@ const styles = StyleSheet.create({
     marginRight: 8,
     flex: 1,
   },
-
   statsBox: {
     minWidth: 50,
     height: 20,
@@ -1887,7 +1793,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-
   statsValue: {
     fontSize: 11,
     fontWeight: 'bold',
@@ -1904,20 +1809,17 @@ const styles = StyleSheet.create({
     paddingVertical: 0,
     backgroundColor: '#f0f0f0',
   },
-
   headerContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: -5,
   },
-
   image: {
     width: 90,
     height: 90,
     marginRight: 20,
     marginLeft: 5,
   },
-
   greeting: {
     fontSize: 16,
     fontWeight: 'bold',
@@ -1927,13 +1829,11 @@ const styles = StyleSheet.create({
     minWidth: 0,
     marginRight: 10,
   },
-
   verbLibraryContainer: {
     width: '100%',
     marginTop: 12,
     marginBottom: 2,
   },
-
   verbLibraryButton: {
     width: '100%',
     minHeight: 82,
@@ -1951,13 +1851,11 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 3 },
     elevation: 5,
   },
-
   verbLibraryTextContainer: {
     width: '100%',
     alignItems: 'center',
     justifyContent: 'center',
   },
-
   verbLibraryTitle: {
     color: '#FFFDEF',
     fontSize: 17,
@@ -1965,7 +1863,6 @@ const styles = StyleSheet.create({
     fontWeight: '900',
     textAlign: 'center',
   },
-
   verbLibrarySubtitle: {
     marginTop: 2,
     color: '#E8EEF7',
@@ -1974,7 +1871,6 @@ const styles = StyleSheet.create({
     fontWeight: '800',
     textAlign: 'center',
   },
-
   titleText: {
     fontSize: 18,
     fontWeight: 'bold',
@@ -1983,7 +1879,6 @@ const styles = StyleSheet.create({
     color: '#2D4769',
     marginTop: 10,
   },
-
   buttonContainer: {
     width: '100%',
     alignItems: 'center',
@@ -1994,11 +1889,9 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     position: 'relative',
   },
-
   exerciseTouchable: {
     width: '100%',
   },
-
   upperPart1: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -2008,7 +1901,6 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     columnGap: 8,
   },
-
   upperPart2: {
     flexDirection: 'row',
     justifyContent: 'center',
@@ -2016,7 +1908,6 @@ const styles = StyleSheet.create({
     width: '100%',
     paddingHorizontal: 10,
   },
-
   upperText1: {
     fontSize: 10,
     fontFamily: FONT_BOLD,
@@ -2030,7 +1921,6 @@ const styles = StyleSheet.create({
     flexShrink: 1,
     maxWidth: '100%',
   },
-
   upperText: {
     fontSize: 13,
     fontWeight: 'bold',
@@ -2040,7 +1930,6 @@ const styles = StyleSheet.create({
     width: '100%',
     lineHeight: 18,
   },
-
   lowerRight: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -2050,7 +1939,6 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     gap: 6,
   },
-
   lowerText: {
     fontSize: 10,
     textAlign: 'center',
@@ -2064,7 +1952,6 @@ const styles = StyleSheet.create({
     flexShrink: 1,
     lineHeight: 17,
   },
-
   image1: {
     width: 100,
     height: 25,
@@ -2075,7 +1962,6 @@ const styles = StyleSheet.create({
     flexShrink: 0,
     resizeMode: 'contain',
   },
-
   statValue: {
     color: 'red',
     fontWeight: 'bold',
@@ -2083,30 +1969,25 @@ const styles = StyleSheet.create({
     fontSize: 12,
     lineHeight: 17,
   },
-
   animationContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#f0f0f0',
   },
-
   lottie: {
     width: 300,
     height: 300,
   },
-
   statsAnimation: {
     width: '100%',
     height: 90,
   },
-
   infoWrap: {
     width: '100%',
     alignItems: 'center',
     marginBottom: 10,
   },
-
   infoButton: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -2120,13 +2001,11 @@ const styles = StyleSheet.create({
     minHeight: 52,
     width: '100%',
   },
-
   infoIcon: {
     width: 24,
     height: 24,
     marginRight: 12,
   },
-
   infoText: {
     flexShrink: 1,
     textAlign: 'center',
@@ -2140,16 +2019,45 @@ const styles = StyleSheet.create({
     marginBottom: 0,
     marginLeft: 0,
   },
-
   bugReportButton: {
     backgroundColor: '#bd462a',
     borderColor: '#2D4769',
   },
-
   bugReportText: {
     color: 'white',
   },
-
+  storeActionsWrap: {
+    width: '100%',
+    flexDirection: 'row',
+    gap: 8,
+    marginBottom: 18,
+  },
+  storeActionButton: {
+    flex: 1,
+    minHeight: 52,
+    paddingVertical: 10,
+    paddingHorizontal: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 10,
+    borderWidth: 3,
+  },
+  updateStoreButton: {
+    backgroundColor: '#2D4769',
+    borderColor: '#367088',
+  },
+  rateStoreButton: {
+    backgroundColor: '#367088',
+    borderColor: '#2D4769',
+  },
+  storeActionText: {
+    color: 'white',
+    fontSize: 12,
+    lineHeight: 16,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    includeFontPadding: false,
+  },
   prepositionButtonContainer: {
     borderWidth: 3,
     borderColor: '#ccff3e',
@@ -2160,7 +2068,6 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     elevation: 8,
   },
-
   newExerciseBadge: {
     backgroundColor: '#E85D4A',
     borderRadius: 5,
@@ -2173,7 +2080,6 @@ const styles = StyleSheet.create({
     maxWidth: '100%',
     flexShrink: 1,
   },
-
   newExerciseText: {
     color: '#FFFFFF',
     fontSize: 10,
@@ -2181,7 +2087,6 @@ const styles = StyleSheet.create({
     fontWeight: '900',
     textAlign: 'center',
   },
-
   rootButtonContainer: {
     backgroundColor: '#70558F',
     borderWidth: 3,
@@ -2192,11 +2097,9 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     elevation: 8,
   },
-
   rootTouchable: {
     width: '100%',
   },
-
   rootHeading: {
     flexDirection: 'row',
     flexWrap: 'wrap',
@@ -2206,7 +2109,6 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     paddingHorizontal: 10,
   },
-
   rootTitle: {
     flexShrink: 1,
     color: '#2D4769',
@@ -2218,7 +2120,6 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     maxWidth: '100%',
   },
-
   rootNewBadge: {
     alignSelf: 'flex-start',
     paddingHorizontal: 8,
@@ -2228,7 +2129,6 @@ const styles = StyleSheet.create({
     maxWidth: '100%',
     flexShrink: 1,
   },
-
   rootNewText: {
     color: '#49345F',
     fontSize: 10,
@@ -2236,9 +2136,8 @@ const styles = StyleSheet.create({
     fontWeight: '900',
     textAlign: 'center',
   },
-
   rootStats: {
     flexWrap: 'wrap',
     gap: 6,
   },
-});           
+});
