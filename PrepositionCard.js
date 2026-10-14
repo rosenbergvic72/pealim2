@@ -855,26 +855,24 @@ const PrepositionCard = ({
 const styles = StyleSheet.create({
   /* ---------- card ---------- */
 
-  card: {
-    flex: 1,
+card: {
+  width: '100%',
+  backgroundColor: '#FFFDEF',
+  borderRadius: 24,
 
-    backgroundColor: '#FFFDEF',
+  paddingHorizontal: 18,
+  paddingTop: 18,
+  paddingBottom: 20,
 
-    borderRadius: 24,
-
-    padding: 18,
-
-    shadowColor: '#000',
-    shadowOpacity: 0.15,
-    shadowRadius: 12,
-
-    shadowOffset: {
-      width: 0,
-      height: 5,
-    },
-
-    elevation: 5,
+  shadowColor: '#000',
+  shadowOpacity: 0.08,
+  shadowRadius: 6,
+  shadowOffset: {
+    width: 0,
+    height: 2,
   },
+  elevation: 2,
+},
 
   /* =====================================================
      PROMPT
@@ -1066,7 +1064,7 @@ const styles = StyleSheet.create({
 
     justifyContent: 'space-between',
 
-    marginTop: 38,
+    marginTop: 24,
 
     rowGap: 12,
   },

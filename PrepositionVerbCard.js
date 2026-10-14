@@ -1082,19 +1082,23 @@ const CardBody = ({
 
 const createStyles = IS_SHORT_SCREEN =>
   StyleSheet.create({
-    card: {
-      flexGrow: 1,
-      flexShrink: 0,
-      flexBasis: 'auto',
-      minHeight: 0,
-      backgroundColor: '#FFFDEF',
-      borderRadius: 24,
-      shadowColor: '#000',
-      shadowOpacity: 0.15,
-      shadowRadius: 12,
-      shadowOffset: { width: 0, height: 5 },
-      elevation: 5,
-    },
+card: {
+  // flexGrow: 1,
+  // flexShrink: 0,
+  flexBasis: 'auto',
+  // minHeight: 0,
+  backgroundColor: '#FFFDEF',
+  borderRadius: 24,
+  paddingTop: 8,
+    paddingBottom: 5,
+
+  shadowColor: '#000',
+  shadowOpacity: 0.07,
+  shadowRadius: 6,
+  shadowOffset: { width: 0, height: 2 },
+  elevation: 2,
+  
+},
 
     content: {
       width: '100%',
