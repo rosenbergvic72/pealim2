@@ -1,80 +1,119 @@
 import React, { useEffect } from 'react';
 import {
-  Modal,
+  SafeAreaView,
   View,
   Text,
   StyleSheet,
   TouchableOpacity,
   FlatList,
-  Vibration,
   Image,
-  Platform,
 } from 'react-native';
-import FadeInView from './api/FadeInView';
 import { Audio } from 'expo-av';
+
 import sounds from './Soundss';
 import soundsconj from './soundconj';
 
-const titles = {
-  ru: 'Глаголы в этом упражнении',
-  en: 'Verbs in this exercise',
-  fr: 'Verbes dans cet exercice',
-  es: 'Verbos en este ejercicio',
-  pt: 'Verbos neste exercício',
-  ar: 'الأفعال في هذا التمرين',
-  am: 'ግሶች በዚህ ልምምድ',
-  he: 'פעלים בתרגיל הזה',
+const UI = {
+  ru: {
+    title: 'Глаголы в этом упражнении',
+    count: 'Количество глаголов',
+    start: 'НАЧАТЬ',
+    back: 'НАЗАД',
+    items: 'глаголов',
+  },
+  en: {
+    title: 'Verbs in this exercise',
+    count: 'Number of verbs',
+    start: 'START',
+    back: 'BACK',
+    items: 'verbs',
+  },
+  fr: {
+    title: 'Verbes dans cet exercice',
+    count: 'Nombre de verbes',
+    start: 'COMMENCER',
+    back: 'RETOUR',
+    items: 'verbes',
+  },
+  es: {
+    title: 'Verbos en este ejercicio',
+    count: 'Número de verbos',
+    start: 'EMPEZAR',
+    back: 'VOLVER',
+    items: 'verbos',
+  },
+  pt: {
+    title: 'Verbos neste exercício',
+    count: 'Número de verbos',
+    start: 'COMEÇAR',
+    back: 'VOLTAR',
+    items: 'verbos',
+  },
+  ar: {
+    title: 'الأفعال في هذا التمرين',
+    count: 'عدد الأفعال',
+    start: 'ابدأ',
+    back: 'رجوع',
+    items: 'أفعال',
+  },
+  am: {
+    title: 'በዚህ ልምምድ ውስጥ ያሉ ግሶች',
+    count: 'የግሶች ብዛት',
+    start: 'ጀምር',
+    back: 'ተመለስ',
+    items: 'ግሶች',
+  },
+  he: {
+    title: 'פעלים בתרגיל הזה',
+    count: 'מספר פעלים',
+    start: 'התחלה',
+    back: 'חזרה',
+    items: 'פעלים',
+  },
 };
 
-const buttonTexts = {
-  ru: 'Начать упражнение',
-  en: 'Start Exercise',
-  fr: 'Commencer l’exercice',
-  es: 'Comenzar ejercicio',
-  pt: 'Começar exercício',
-  ar: 'ابدأ التمرين',
-  am: 'ልምምዱን ጀምር',
-  he: 'התחל תרגול',
-};
-
-const closeTexts = {
-  ru: 'Закрыть',
-  en: 'Close',
-  fr: 'Fermer',
-  es: 'Cerrar',
-  pt: 'Fechar',
-  ar: 'إغلاق',
-  am: 'ዝጋ',
-  he: 'סגור',
-};
-
-const countLabelTexts = {
-  ru: 'Количество глаголов',
-  en: 'Number of verbs',
-  fr: 'Nombre de verbes',
-  es: 'Número de verbos',
-  pt: 'Número de verbos',
-  ar: 'عدد الأفعال',
-  am: 'የግሶች ብዛት',
-  he: 'מספר פעלים',
-};
-
-const isRTL = (lang) => ['ar', 'am', 'he'].includes(lang);
-
-const languageMap = {
-  русский: 'ru',
+const LANGUAGE_ALIASES = {
+  ru: 'ru',
+  russian: 'ru',
   русский: 'ru',
+  русский: 'ru',
+  en: 'en',
   english: 'en',
+  fr: 'fr',
+  french: 'fr',
   français: 'fr',
+  francais: 'fr',
+  es: 'es',
+  spanish: 'es',
   español: 'es',
+  espanol: 'es',
+  pt: 'pt',
+  portuguese: 'pt',
   português: 'pt',
+  portugues: 'pt',
+  'pt-pt': 'pt',
+  ar: 'ar',
+  arabic: 'ar',
+  arab: 'ar',
   العربية: 'ar',
+  am: 'am',
+  amharic: 'am',
   አማርኛ: 'am',
+  he: 'he',
+  hebrew: 'he',
+  iw: 'he',
   עברית: 'he',
 };
 
+const normalizeLanguage = value => {
+  const key = String(value || '').trim().toLowerCase();
+  return LANGUAGE_ALIASES[key] || 'en';
+};
+
+const isRTL = lang => lang === 'ar' || lang === 'he';
+const COUNT_OPTIONS = [8, 12, 18, 24];
 const cachedListSounds = {};
-const norm = (s) => String(s || '').trim().replace(/\.mp3$/i, '');
+const norm = value => String(value || '').trim().replace(/\.mp3$/i, '');
 
 async function ensureAudioMode() {
   try {
@@ -86,10 +125,26 @@ async function ensureAudioMode() {
   } catch {}
 }
 
+async function unloadCachedListSounds() {
+  const entries = Object.entries(cachedListSounds);
+  for (const [key, sound] of entries) {
+    try {
+      const status = await sound.getStatusAsync();
+      if (status?.isLoaded) {
+        await sound.unloadAsync();
+      }
+    } catch {}
+    delete cachedListSounds[key];
+  }
+}
+
 async function playForItem(item) {
   const keyInf = norm(item?.mp3Inf);
   const keyConj = norm(item?.mp3Conj);
-  const file = (keyInf && sounds?.[keyInf]) || (keyConj && soundsconj?.[keyConj]);
+  const file =
+    (keyInf && sounds?.[keyInf]) ||
+    (keyConj && soundsconj?.[keyConj]);
+
   if (!file) return;
 
   await ensureAudioMode();
@@ -97,26 +152,29 @@ async function playForItem(item) {
 
   try {
     if (!cachedListSounds[cacheKey]) {
-      const s = new Audio.Sound();
-      await s.loadAsync(file);
-      cachedListSounds[cacheKey] = s;
+      const soundObject = new Audio.Sound();
+      await soundObject.loadAsync(file);
+      cachedListSounds[cacheKey] = soundObject;
     }
 
     const sound = cachedListSounds[cacheKey];
     await sound.replayAsync();
 
-    sound.setOnPlaybackStatusUpdate(async (st) => {
-      if (st.didJustFinish) {
-        try {
-          await sound.unloadAsync();
-        } catch {}
+    sound.setOnPlaybackStatusUpdate(async status => {
+      if (!status.didJustFinish) return;
+
+      try {
+        await sound.unloadAsync();
+      } catch {}
+
+      if (cachedListSounds[cacheKey] === sound) {
         delete cachedListSounds[cacheKey];
       }
     });
-  } catch {}
+  } catch (error) {
+    console.log('[VerbListModal] audio error:', error);
+  }
 }
-
-const COUNT_OPTIONS = [8, 12, 18, 24];
 
 const VerbListModal = ({
   visible,
@@ -128,214 +186,352 @@ const VerbListModal = ({
   selectedCount = 12,
   onSelectCount,
 }) => {
-  if (!visible) return null;
-
-  const fallbackLang = 'en';
-  const normalizedInput = String(language || '').toLowerCase().trim();
-  const langKey = languageMap[normalizedInput] || normalizedInput || fallbackLang;
-
-  const title = titles[langKey] || titles[fallbackLang];
-  const buttonText = buttonTexts[langKey] || buttonTexts[fallbackLang];
-  const closeText = closeTexts[langKey] || closeTexts[fallbackLang];
-  const countLabel = countLabelTexts[langKey] || countLabelTexts[fallbackLang];
+  const lang = normalizeLanguage(language);
+  const text = UI[lang] || UI.en;
+  const rtl = isRTL(lang);
 
   useEffect(() => {
-    Vibration.vibrate(100);
+    return () => {
+      unloadCachedListSounds();
+    };
   }, []);
 
+  if (!visible) return null;
+
   return (
-    <Modal
-      visible
-      animationType="slide"
-      transparent
-      presentationStyle="overFullScreen"
-      onRequestClose={onClose}
-    >
-      <FadeInView style={styles.overlay}>
-        <View style={[styles.container, Platform.OS === 'ios' && styles.containerIOS]}>
-          <Text style={[styles.title, isRTL(langKey) && { textAlign: 'right' }]} maxFontSizeMultiplier={1.2}>
-            {title}
+    <SafeAreaView style={styles.safeArea}>
+      {/* <View style={styles.header}>
+        <TouchableOpacity
+          accessibilityRole="button"
+          accessibilityLabel={text.back}
+          onPress={onClose}
+          style={styles.backButton}
+          activeOpacity={0.8}
+        >
+          <Text style={styles.backIcon}>‹</Text>
+        </TouchableOpacity>
+
+        <View style={styles.headerTextWrap}>
+          <Text
+            numberOfLines={2}
+            adjustsFontSizeToFit
+            minimumFontScale={0.75}
+            style={[styles.title, rtl && styles.rtlText]}
+            maxFontSizeMultiplier={1.2}
+          >
+            {text.title}
           </Text>
-
-          <View style={styles.countBlock}>
-            <Text
-              style={[styles.countLabel, isRTL(langKey) && { textAlign: 'right' }]}
-              maxFontSizeMultiplier={1.2}
-            >
-              {countLabel}
-            </Text>
-
-            <View style={styles.countButtonsRow}>
-              {COUNT_OPTIONS.map((count) => {
-                const active = selectedCount === count;
-                return (
-                  <TouchableOpacity
-                    key={count}
-                    style={[styles.countButton, active && styles.countButtonActive]}
-                    onPress={() => onSelectCount?.(count)}
-                  >
-                    <Text style={[styles.countButtonText, active && styles.countButtonTextActive]}>
-                      {count}
-                    </Text>
-                  </TouchableOpacity>
-                );
-              })}
-            </View>
-          </View>
-
-          <FlatList
-            data={verbs}
-            keyExtractor={(item, idx) =>
-              `${norm(item?.mp3Inf) || norm(item?.mp3Conj)}_${item?.hebrewtext || ''}_${idx}`
-            }
-            renderItem={({ item }) => {
-              const isPinned = pinnedIds.includes(item?.hebrewtext);
-
-              return (
-                <View style={styles.bubble}>
-                  <View style={styles.verbLeft}>
-                    <Text style={styles.entext} maxFontSizeMultiplier={1.2}>
-                      {item?.entext}
-                    </Text>
-
-                    {isPinned && (
-                      <Image
-                        source={require('./gant2.png')}
-                        style={styles.pinnedIcon}
-                      />
-                    )}
-                  </View>
-
-                  <View style={styles.verbRight}>
-                    <TouchableOpacity onPress={() => playForItem(item)} style={styles.speakerButton}>
-                      <Image source={require('./speaker6.png')} style={styles.speakerIcon} />
-                    </TouchableOpacity>
-
-                    <Text style={styles.hebrew} maxFontSizeMultiplier={1.2}>
-                      {item?.hebrewtext}
-                    </Text>
-                    <Text style={styles.translit} maxFontSizeMultiplier={1.2}>
-                      {item?.translit}
-                    </Text>
-                  </View>
-                </View>
-              );
-            }}
-          />
-
-          <TouchableOpacity onPress={onStartExercise} style={styles.button}>
-            <Text style={styles.buttonText}>{buttonText}</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity onPress={onClose} style={styles.closeLink}>
-            <Text style={styles.closeText}>{closeText}</Text>
-          </TouchableOpacity>
         </View>
-      </FadeInView>
-    </Modal>
+      </View> */}
+
+      <View style={styles.countCard}>
+        <Text
+          style={[styles.sectionTitle, rtl && styles.rtlText]}
+          maxFontSizeMultiplier={1.2}
+        >
+          {text.count}
+        </Text>
+
+        <View style={styles.countButtonsRow}>
+          {COUNT_OPTIONS.map(count => {
+            const active = selectedCount === count;
+
+            return (
+              <TouchableOpacity
+                key={count}
+                accessibilityRole="button"
+                accessibilityState={{ selected: active }}
+                style={[
+                  styles.countButton,
+                  active && styles.countButtonActive,
+                ]}
+                onPress={() => onSelectCount?.(count)}
+                activeOpacity={0.82}
+              >
+                <Text
+                  style={[
+                    styles.countButtonText,
+                    active && styles.countButtonTextActive,
+                  ]}
+                  maxFontSizeMultiplier={1.1}
+                >
+                  {count}
+                </Text>
+              </TouchableOpacity>
+            );
+          })}
+        </View>
+      </View>
+
+      <View style={styles.listHeader}>
+        <Text style={[styles.listTitle, rtl && styles.rtlText]}>
+          {text.title}
+        </Text>
+        <View style={styles.countBadge}>
+          <Text style={styles.countBadgeText}>
+            {verbs.length} {text.items}
+          </Text>
+        </View>
+      </View>
+
+      <FlatList
+        style={styles.list}
+        contentContainerStyle={styles.listContent}
+        data={verbs}
+        showsVerticalScrollIndicator={false}
+        keyExtractor={(item, index) =>
+          `${item?.key || norm(item?.mp3Inf) || norm(item?.mp3Conj) || item?.hebrewtext || 'verb'}_${index}`
+        }
+        renderItem={({ item }) => {
+          const pinned = pinnedIds.includes(item?.hebrewtext);
+
+          return (
+            <View style={styles.verbCard}>
+              <View style={styles.translationWrap}>
+                <Text
+                  style={[styles.translation, rtl && styles.rtlText]}
+                  maxFontSizeMultiplier={1.2}
+                >
+                  {item?.entext}
+                </Text>
+
+                {pinned && (
+                  <Image
+                    source={require('./gant2.png')}
+                    style={styles.pinnedIcon}
+                  />
+                )}
+              </View>
+
+              <View style={styles.hebrewWrap}>
+                <TouchableOpacity
+                  onPress={() => playForItem(item)}
+                  style={styles.speakerButton}
+                  activeOpacity={0.75}
+                >
+                  <Image
+                    source={require('./speaker6.png')}
+                    style={styles.speakerIcon}
+                  />
+                </TouchableOpacity>
+
+                <Text
+                  style={styles.hebrew}
+                  maxFontSizeMultiplier={1.2}
+                >
+                  {item?.hebrewtext}
+                </Text>
+
+                <Text
+                  style={styles.translit}
+                  maxFontSizeMultiplier={1.2}
+                >
+                  {item?.translit}
+                </Text>
+              </View>
+            </View>
+          );
+        }}
+      />
+
+      <View style={styles.footer}>
+        <TouchableOpacity
+          onPress={onStartExercise}
+          style={styles.startButton}
+          activeOpacity={0.85}
+        >
+          <Text style={styles.startButtonText} maxFontSizeMultiplier={1.1}>
+            {text.start}
+          </Text>
+        </TouchableOpacity>
+      </View>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
-  overlay: {
+  safeArea: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.6)',
-    justifyContent: 'center',
-    alignItems: 'center',
+    backgroundColor: '#83A3CD',
   },
 
-  container: {
-    backgroundColor: '#fff',
-    width: '96%',
-    height: '92%',
-    borderRadius: 10,
-    padding: 20,
+  header: {
+    minHeight: 64,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 2,
+    position: 'relative',
   },
-  containerIOS: {
-    height: '84%',
+
+  backButton: {
+    position: 'absolute',
+    left: 16,
+    top: '50%',
+    marginTop: -22,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: 'rgba(255,255,255,0.22)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 5,
+  },
+
+  backIcon: {
+    color: '#FFFDEF',
+    fontSize: 38,
+    lineHeight: 40,
+    fontWeight: '500',
+    marginTop: -3,
+  },
+
+  headerTextWrap: {
+    width: '100%',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 60,
   },
 
   title: {
-    fontWeight: 'bold',
-    fontSize: 16,
-    marginBottom: 12,
+    color: '#FFFDEF',
+    fontSize: 20,
+    lineHeight: 23,
+    fontWeight: '900',
     textAlign: 'center',
-    backgroundColor: '#C3D2EB',
-    borderRadius: 8,
-    color: '#003366',
-    padding: 12,
   },
 
-  countBlock: {
-    marginBottom: 14,
+  rtlText: {
+    writingDirection: 'rtl',
+    textAlign: 'right',
   },
 
-  countLabel: {
+  countCard: {
+    marginTop: 10,
+    marginHorizontal: 16,
+    marginBottom: 10,
+    backgroundColor: '#FFFDEF',
+    borderRadius: 18,
+    paddingHorizontal: 14,
+    paddingVertical: 14,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.14,
+    shadowRadius: 5,
+    elevation: 4,
+  },
+
+  sectionTitle: {
+    color: '#333652',
     fontSize: 15,
-    fontWeight: 'bold',
-    color: '#2F4766',
-    textAlign: 'center',
-    marginBottom: 8,
+    lineHeight: 18,
+    fontWeight: '900',
+    marginBottom: 10,
+    textAlign: 'left',
   },
 
   countButtonsRow: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     gap: 8,
   },
 
   countButton: {
     flex: 1,
-    backgroundColor: '#E7EDF5',
-    borderRadius: 10,
-    paddingVertical: 10,
+    height: 40,
+    borderWidth: 2,
+    borderColor: '#D7DCE6',
+    borderRadius: 14,
+    backgroundColor: '#FFFFFF',
     alignItems: 'center',
-    borderWidth: 1,
-    borderColor: '#C7D3E0',
+    justifyContent: 'center',
   },
 
   countButtonActive: {
-    backgroundColor: '#4A6491',
-    borderColor: '#4A6491',
+    borderColor: '#CE6857',
+    backgroundColor: '#CE6857',
   },
 
   countButtonText: {
+    color: '#333652',
     fontSize: 16,
-    fontWeight: 'bold',
-    color: '#35506F',
+    fontWeight: '900',
   },
 
   countButtonTextActive: {
-    color: '#fff',
+    color: '#FFFDEF',
   },
 
-  bubble: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    backgroundColor: '#F2F4F8',
-    borderRadius: 12,
-    paddingVertical: 6,
-    paddingHorizontal: 15,
-    marginBottom: 10,
-  },
-
-  verbLeft: {
-    flex: 1,
+  listHeader: {
+    minHeight: 34,
+    marginHorizontal: 16,
+    marginBottom: 7,
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+
+  listTitle: {
+    flex: 1,
+    color: '#FFFDEF',
+    fontSize: 15,
+    lineHeight: 19,
+    fontWeight: '900',
+  },
+
+  countBadge: {
+    marginLeft: 8,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 14,
+    backgroundColor: 'rgba(255,255,255,0.22)',
+  },
+
+  countBadgeText: {
+    color: '#FFFFFF',
+    fontSize: 12,
+    fontWeight: '800',
+  },
+
+  list: {
+    flex: 1,
+  },
+
+  listContent: {
+    paddingHorizontal: 16,
+    paddingBottom: 10,
+  },
+
+  verbCard: {
+    minHeight: 66,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: '#FFFDEF',
+    borderRadius: 16,
+    paddingVertical: 8,
+    paddingHorizontal: 14,
+    marginBottom: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+
+  translationWrap: {
+    flex: 1.2,
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingRight: 8,
     gap: 6,
   },
 
-  verbRight: {
-    flex: 1,
-    alignItems: 'flex-end',
-    position: 'relative',
-  },
-
-  entext: {
+  translation: {
+    flexShrink: 1,
+    color: '#333652',
     fontSize: 14,
-    fontWeight: 'bold',
-    color: '#333',
+    lineHeight: 18,
+    fontWeight: '800',
   },
 
   pinnedIcon: {
@@ -345,53 +541,75 @@ const styles = StyleSheet.create({
     opacity: 0.9,
   },
 
+  hebrewWrap: {
+    flex: 1,
+    minHeight: 48,
+    alignItems: 'flex-end',
+    justifyContent: 'center',
+    paddingRight: 31,
+    position: 'relative',
+  },
+
   hebrew: {
-    fontWeight: 'bold',
-    fontSize: 18,
     color: '#2F4766',
-    marginRight: 30,
+    fontWeight: '900',
+    fontSize: 19,
+    lineHeight: 24,
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
 
   translit: {
-    fontStyle: 'italic',
-    color: '#C03A2B',
+    color: '#CE6857',
     fontSize: 14,
-    fontWeight: 'bold',
-    marginRight: 30,
+    lineHeight: 18,
+    fontWeight: '700',
+    fontStyle: 'italic',
+    textAlign: 'right',
   },
 
   speakerButton: {
     position: 'absolute',
     right: 0,
     top: '50%',
-    transform: [{ translateY: -11 }],
+    marginTop: -12,
+    width: 24,
+    height: 24,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
+
   speakerIcon: {
     width: 22,
     height: 22,
+    resizeMode: 'contain',
   },
 
-  button: {
-    backgroundColor: '#4A6491',
-    padding: 12,
-    marginTop: 20,
-    borderRadius: 8,
+  footer: {
+    paddingHorizontal: 16,
+    paddingTop: 8,
+    paddingBottom: 8,
+    backgroundColor: '#83A3CD',
   },
-  buttonText: {
+
+  startButton: {
+    minHeight: 54,
+    borderRadius: 27,
+    backgroundColor: '#CE6857',
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.14,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+
+  startButtonText: {
+    color: '#FFFDEF',
+    fontSize: 17,
+    fontWeight: '900',
     textAlign: 'center',
-    color: '#fff',
-    fontWeight: 'bold',
-    fontSize: 18,
-  },
-
-  closeLink: {
-    marginTop: 10,
-    alignSelf: 'center',
-  },
-  closeText: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#4A6491',
   },
 });
 

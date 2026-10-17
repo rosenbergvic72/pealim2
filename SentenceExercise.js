@@ -500,17 +500,9 @@ export default function SentenceExercise({ navigation, route, mode = 9 }) {
         stopAll(); changeSettings({ sound: enabled }); };
     const header = (<View style={topStyles.topBar}>
       <TouchableOpacity onPress={goMenu} accessibilityRole="button" accessibilityLabel={ui.menu} activeOpacity={0.7}>
-        <Image
+<Image
   source={ICONS.logo}
-  style={[
-    topStyles.logo,
-    mode === 9 && {
-      width: Math.min(
-        compact ? 108 : 140,
-        Math.max(76, width - (compact ? 220 : 250))
-      ),
-    },
-  ]}
+  style={topStyles.logo}
 />
       </TouchableOpacity>
       <View style={topStyles.topButtons}>
@@ -559,7 +551,10 @@ export default function SentenceExercise({ navigation, route, mode = 9 }) {
     const rotationItems = parsed.items.filter(x => rotationMatches(x));
     const rotationCount = filter => parsed.items.filter(x => rotationMatches(x, filter)).length;
     const reveal = answered;
-    const optionHeight = mode === 9 ? (compact ? 74 : 84) : (compact ? 50 : 60);
+    const optionHeight =
+  mode === 9
+    ? (compact ? 74 : 84)
+    : (compact ? 56 : 60);
 const optionWaitingAnimatedStyle =
     mode === 10 && !answered
         ? {
@@ -685,7 +680,20 @@ const optionWaitingAnimatedStyle =
                 <View style={[card9.translitBox, compact && card9Compact.translitBox]}>
                     <MovingBackdrop motion={cardMotion} colors={['230,179,121', '226,151,167']}/>
                     <ScrollView style={{ flex: 1, alignSelf: 'stretch', zIndex: 1 }} contentContainerStyle={{ flexGrow: 1, justifyContent: 'center', paddingHorizontal: 10 }} nestedScrollEnabled bounces={false} showsVerticalScrollIndicator={false} accessibilityElementsHidden={!answered} importantForAccessibility={!answered ? 'no-hide-descendants' : 'auto'}>
-                      <T style={[s.translit, card9.front, { flex: 0, fontSize: 15, lineHeight: 20 }, !answered && { opacity: 0 }]}>{item.translit}</T>
+                      <T
+  style={[
+    s.translit,
+    card9.front,
+    {
+      flex: 0,
+      fontSize: 17,
+      lineHeight: 23,
+    },
+    !answered && { opacity: 0 }
+  ]}
+>
+  {item.translit}
+</T>
                     </ScrollView>
                 </View>
               </>) : (<>
@@ -799,8 +807,8 @@ const optionWaitingAnimatedStyle =
                         width: '100%',
                         alignSelf: 'stretch',
                         flexShrink: 0,
-                        fontSize: compact ? 13 : 14,
-                        lineHeight: compact ? 18 : 20,
+                        fontSize: compact ? 15 : 14,
+                        lineHeight: compact ? 20 : 20,
                         textAlign: 'center',
                         includeFontPadding: false,
                         paddingVertical: 0,
@@ -834,7 +842,16 @@ const optionWaitingAnimatedStyle =
                       {option.label}
                     </T>
                     {settings.showTranslation !== false && <View style={{ width: '100%', minHeight: compact ? 27 : 32, justifyContent: 'center', zIndex: 1 }} accessibilityElementsHidden={settings.showTranslation === false} importantForAccessibility={settings.showTranslation === false ? 'no-hide-descendants' : 'auto'}>
-                      <T style={{ fontSize: compact ? 13 : 14, lineHeight: compact ? 15 : 16, fontWeight: '700', color: '#CE6857', textAlign: 'center', writingDirection: 'ltr' }}>{optionTransliteration(conjugationIndex, item, option.label) || ' '}</T>
+                      <T
+    style={{
+      fontSize: compact ? 15 : 16,
+      lineHeight: compact ? 18 : 20,
+      fontWeight: '700',
+      color: '#CE6857',
+      textAlign: 'center',
+      writingDirection: 'ltr'
+    }}
+  > {optionTransliteration(conjugationIndex, item, option.label) || ' '}</T>
                     </View>}
                   </AnswerTextEntrance>
                 )}
@@ -914,7 +931,7 @@ const settingsModal = StyleSheet.create({
     helpText: { marginTop: 9, color: '#73788F', fontSize: 14, lineHeight: 20, fontWeight: '600', textAlign: 'center' },
     emptyCard: { marginTop: 10, minHeight: 80, borderRadius: 16, backgroundColor: '#FFFDEF', alignItems: 'center', justifyContent: 'center', padding: 14 },
     emptyText: { color: '#A82E3F', fontSize: 14, lineHeight: 20, fontWeight: '700', textAlign: 'center' },
-    bottomBar: { flexShrink: 0, paddingHorizontal: 16, paddingTop: 8, paddingBottom: 8, backgroundColor: '#83A3CD', shadowColor: '#000000', shadowOffset: { width: 0, height: -2 }, shadowOpacity: 0.1, shadowRadius: 4, elevation: 8 },
+    bottomBar: { flexShrink: 0, paddingHorizontal: 16, paddingTop: 8, paddingBottom: 8, backgroundColor: '#83A3CD' },
     startButton: { minHeight: 52, borderRadius: 26, backgroundColor: '#CE6857', alignItems: 'center', justifyContent: 'center' },
     startButtonDisabled: { opacity: 0.4 },
     startButtonText: { color: '#FFFDEF', fontSize: 17, fontWeight: '900', textAlign: 'center' },
@@ -948,32 +965,36 @@ const s = StyleSheet.create({
 });
 // Header and session summary use the styles of PrepositionVerbExercise.
 const createTopStyles = compact => StyleSheet.create({
-    topBar: {
-        flexShrink: 0,
-        minHeight: compact ? 50 : 70,
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        paddingBottom: 5,
-    },
-    logo: {
-        width: compact ? 108 : 140,
-        height: compact ? 48 : 72,
-        resizeMode: 'contain',
-    },
-    topButtons: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 7,
-        // transform: [{ translateY: compact ? 4 : 10 }],
-    },
-  topButtonIcon: {
-    // было около 38
-    width: compact ? 30 : 32,
-    height: compact ? 30 : 32,
-    resizeMode: 'contain',
-},
-    progressContainer: {
+  topBar:{
+    flexShrink:0,
+    flexDirection:'row',
+    justifyContent:'space-between',
+    alignItems:'center',
+    width:'100%',
+    paddingTop:0,
+  },
+
+  logo:{
+    width:74,
+    height:74,
+    marginLeft:8,
+    resizeMode:'contain',
+  },
+
+  topButtons:{
+    flexDirection:'row',
+    alignItems:'center',
+    gap:8,
+    marginRight:8,
+  },
+
+  topButtonIcon:{
+    width:38,
+    height:38,
+    resizeMode:'contain',
+  },
+
+  progressContainer:{
         width: '100%',
         minHeight: compact ? 40 : 50,
         flexShrink: 0,
@@ -1062,24 +1083,24 @@ function MovingBackdrop({ motion, colors, reverse = false, vivid = false }) {
 }
 const card9Compact = StyleSheet.create({
     hebrewBox: {
-        height: 72,
-        minHeight: 72,
-        maxHeight: 72,
+        height:86,
+        minHeight: 86,
+        maxHeight: 86,
         padding: 6,
         marginTop: 5,
 
     },
     translationBox: {
-        height: 50,
-        minHeight: 50,
-        maxHeight: 50,
+        height: 64,
+        minHeight: 64,
+        maxHeight: 64,
         marginTop: 7,
         paddingVertical: 2,
     },
     translitBox: {
-        height: 50,
-        minHeight: 50,
-        maxHeight: 50,
+        height: 58,
+        minHeight: 58,
+       maxHeight: 58,
         marginTop: 7,
         marginBottom: 5,
         paddingVertical: 2,
@@ -1106,24 +1127,39 @@ const card9 = StyleSheet.create({
     replayLottie: { width: 36, height: 36, transform: [{ scale: 0.66 }] },
 });
 function TranslationText({ text, rtl }) {
-    return <T
-      numberOfLines={2}
-      adjustsFontSizeToFit
-      minimumFontScale={0.68}
-      style={[
-          s.translation,
-          {
-              width: '100%',
-              alignSelf: 'stretch',
-              fontSize: 16,
-              lineHeight: 22,
-              textAlign: 'center',
-          },
-          card9.front,
-          rtl && s.rtl,
-      ]}>
-      {text}
-    </T>;
+  // Measure line breaks at the normal font size first. A two-line translation
+  // must not shrink just because it cannot fit on a single line.
+  const [needsThreeLines, setNeedsThreeLines] = useState(false);
+  useEffect(() => setNeedsThreeLines(false), [text, rtl]);
+  const baseStyle = [
+    s.translation,
+    {
+      width: '100%',
+      alignSelf: 'stretch',
+      fontSize: 18,
+      lineHeight: 24,
+      textAlign: 'center',
+    },
+    card9.front,
+    rtl && s.rtl,
+  ];
+  return <View style={{ width: '100%', justifyContent: 'center' }}>
+    <T
+      accessible={false}
+      importantForAccessibility="no"
+      onTextLayout={event => {
+        const threeLines = event.nativeEvent.lines.length > 2;
+        setNeedsThreeLines(previous => previous === threeLines ? previous : threeLines);
+      }}
+      style={[baseStyle, { position: 'absolute', opacity: 0, pointerEvents: 'none' }]}
+    >{text}</T>
+    <T
+      numberOfLines={needsThreeLines ? 3 : 2}
+      adjustsFontSizeToFit={needsThreeLines}
+      minimumFontScale={0.8}
+      style={[baseStyle, needsThreeLines && { fontSize: 15, lineHeight: 17 }]}
+    >{text}</T>
+  </View>;
 }
 
 // Measure the actual Hebrew word with the same font and system scaling as the sentence.

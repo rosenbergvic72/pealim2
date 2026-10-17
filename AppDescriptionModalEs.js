@@ -62,107 +62,142 @@ const AppDescriptionModal = ({ visible, onToggle }) => {
               </View>
 
               {/* Título */}
-              <Text style={styles.modalTitle}>DESCRIPCIÓN DE LA APLICACIÓN</Text>
+<Text style={styles.modalTitle}>DESCRIPCIÓN DE LA APLICACIÓN</Text>
 
-              <Text style={styles.modalText}>
-                Este es un{' '}
-                <Text style={[styles.bold, styles.highlightMain]}>
-                  entrenador y herramienta eficaz
-                </Text>{' '}
-                para aquellos que ya están estudiando hebreo,
-                tienen{' '}
-                <Text style={[styles.bold, styles.highlightMain]}>
-                  conocimientos básicos
-                </Text>
-                , quieren{' '}
-                <Text style={[styles.bold, styles.highlightMain]}>
-                  aprender a conjugar verbos rápida y correctamente
-                </Text>{' '}
-                o{' '}
-                <Text style={[styles.bold, styles.highlightMain]}>
-                  mejorar esta habilidad
-                </Text>
-                .
-                La aplicación también es útil para{' '}
-                <Text style={[styles.bold, styles.highlightAccent]}>
-                  principiantes
-                </Text>
-                , ya que incluye ejercicios para{' '}
-                <Text style={[styles.bold, styles.highlightMain]}>
-                  memorizar verbos
-                </Text>
-                , sus formas,{' '}
-                <Text style={[styles.bold, styles.highlightAccent]}>
-                  binyanim
-                </Text>{' '}
-                y{' '}
-                <Text style={[styles.bold, styles.highlightAccent]}>
-                  practicar el uso del modo imperativo (imperativos)
-                </Text>
-                .
-              </Text>
+<Text style={styles.modalText}>
+  Verbify es una{' '}
+  <Text style={[styles.bold, styles.highlightMain]}>
+    herramienta práctica para entrenar y aprender los verbos en hebreo
+  </Text>
+  . Ayuda a memorizar verbos, comprender los binyanim, practicar la conjugación,
+  aprender combinaciones de verbos y preposiciones y utilizar correctamente
+  los verbos dentro de frases.
+</Text>
 
-              {/* Ejercicios Principales */}
-              <Text style={styles.modalTitle}>EJERCICIOS PRINCIPALES</Text>
+<Text style={styles.modalText}>
+  La aplicación es adecuada tanto para quienes ya tienen{' '}
+  <Text style={[styles.bold, styles.highlightMain]}>
+    conocimientos básicos de hebreo
+  </Text>
+  , como para principiantes que quieren aprender poco a poco los verbos
+  más frecuentes y sus diferentes formas.
+</Text>
 
-              <Text style={styles.modalText}>
-                <Text style={[styles.bold, styles.highlightMain]}>
-                  La conjugación de verbos es una parte clave de la aplicación.
-                </Text>
-              </Text>
+{/* Tarjetas de verbos */}
+<Text style={styles.modalTitle}>TARJETAS DE VERBOS</Text>
 
-              <Text style={styles.listItem}>
-                <Text style={[styles.bold, styles.highlightExercise]}>
-                  • Ejercicios 5 y 6 -
-                </Text>{' '}
-                estas son las tareas principales para practicar la conjugación. Recomendamos hacerlas regularmente hasta que la habilidad se vuelva automática.
-              </Text>
+<Text style={styles.listItem}>
+  <Text style={[styles.bold, styles.highlightExercise]}>
+    • Tarjetas de verbos —
+  </Text>{' '}
+  una forma rápida y cómoda de consultar un verbo, su traducción,
+  su binyan y sus diferentes formas de conjugación.
+</Text>
 
-              <Text style={styles.listItem}>
-                <Text style={[styles.bold, styles.highlightExercise]}>
-                  • Ejercicios 7 y 8 -
-                </Text>{' '}
-                versiones avanzadas de los ejercicios 5 y 6. Están diseñados para aquellos que ya han logrado resultados seguros y desean llevar su práctica al siguiente nivel.
-              </Text>
+{/* Ejercicios */}
+<Text style={styles.modalTitle}>EJERCICIOS</Text>
 
-              <Text style={styles.listItem}>
-                <Text style={[styles.bold, styles.highlightTip]}>
-                  • Consejo:
-                </Text>{' '}
-                primero practica la conjugación en los ejercicios 5 y 6, ¡luego pasa a los más complejos 7 y 8!
-              </Text>
+<Text style={styles.listItem}>
+  <Text style={[styles.bold, styles.highlightExercise]}>
+    • Ejercicios 1 y 2 —
+  </Text>{' '}
+  ayudan a memorizar más de 400 verbos esenciales en hebreo y a relacionar
+  cada verbo escrito con su significado.
+</Text>
 
-              <Text style={styles.modalText}>
-                <Text style={[styles.bold, styles.highlightMain]}>
-                  Ejercicios para aprender los conceptos básicos.
-                </Text>
-              </Text>
+<Text style={styles.listItem}>
+  <Text style={[styles.bold, styles.highlightExercise]}>
+    • Ejercicio 3 —
+  </Text>{' '}
+  práctica para identificar el binyan de un verbo hebreo.
+</Text>
 
-              <Text style={styles.listItem}>
-                <Text style={[styles.bold, styles.highlightExercise]}>
-                  • Ejercicios 1 y 2 -
-                </Text>{' '}
-                ayudan a memorizar alrededor de 400 verbos clave y sus formas básicas.
-              </Text>
-              <Text style={styles.listItem}>
-                <Text style={[styles.bold, styles.highlightExercise]}>
-                  • Ejercicio 3 -
-                </Text>{' '}
-                practica la determinación del binyan de un verbo (se requieren conocimientos básicos).
-              </Text>
-              <Text style={styles.listItem}>
-                <Text style={[styles.bold, styles.highlightExercise]}>
-                  • Ejercicio 4 -
-                </Text>{' '}
-                entrenador para practicar el modo imperativo en hebreo.
-              </Text>
+<Text style={styles.listItem}>
+  <Text style={[styles.bold, styles.highlightExercise]}>
+    • Ejercicio 4 —
+  </Text>{' '}
+  práctica del imperativo en hebreo.
+</Text>
 
-              {/* Bloque final */}
-              <Text style={styles.finalText}>
-                <Text style={[styles.bold, styles.highlightFinal]}>
-                  ¡La práctica constante de ejercicios sienta una base sólida para el uso correcto de los verbos y sus conjugaciones en el lenguaje hablado cotidiano!
-                </Text>
-              </Text>
+<Text style={styles.listItem}>
+  <Text style={[styles.bold, styles.highlightExercise]}>
+    • Ejercicios 5 y 6 —
+  </Text>{' '}
+  ejercicios principales para practicar la conjugación de los verbos en hebreo.
+  La práctica regular ayuda a elegir de forma automática la forma correcta
+  del verbo.
+</Text>
+
+<Text style={styles.listItem}>
+  <Text style={[styles.bold, styles.highlightExercise]}>
+    • Ejercicios 7 y 8 —
+  </Text>{' '}
+  práctica de conjugación más avanzada para quienes ya dominan
+  los ejercicios básicos.
+</Text>
+
+<Text style={styles.listItem}>
+  <Text style={[styles.bold, styles.highlightExercise]}>
+    • Ejercicio 9 «El verbo en la oración» —
+  </Text>{' '}
+  elige la forma correcta del verbo según el contexto de la frase.
+  Presta atención al tiempo, la persona, el número y el género.
+</Text>
+
+<Text style={styles.listItem}>
+  <Text style={[styles.bold, styles.highlightExercise]}>
+    • Ejercicio 10 «Escucha y comprende» —
+  </Text>{' '}
+  escucha frases en hebreo y elige la traducción correcta.
+  Este ejercicio desarrolla la comprensión auditiva.
+</Text>
+
+{/* Preposiciones */}
+<Text style={styles.modalTitle}>VERBOS Y PREPOSICIONES</Text>
+
+<Text style={styles.listItem}>
+  <Text style={[styles.bold, styles.highlightExercise]}>
+    • «Preposiciones 1» —
+  </Text>{' '}
+  práctica de las preposiciones más frecuentes que se utilizan con verbos
+  en el hebreo cotidiano.
+</Text>
+
+<Text style={styles.listItem}>
+  <Text style={[styles.bold, styles.highlightExercise]}>
+    • «Preposiciones 2» —
+  </Text>{' '}
+  práctica más avanzada de combinaciones de verbos y preposiciones.
+  Ayuda a aprender combinaciones naturales en lugar de palabras aisladas.
+</Text>
+
+{/* Verbos con la misma raíz */}
+<Text style={styles.modalTitle}>VERBOS DE LA MISMA RAÍZ</Text>
+
+<Text style={styles.listItem}>
+  <Text style={[styles.bold, styles.highlightExercise]}>
+    • «Verbos de la misma raíz» —
+  </Text>{' '}
+  compara verbos que comparten la misma raíz en diferentes binyanim y observa
+  cómo un cambio de binyan puede cambiar el significado del verbo.
+</Text>
+
+{/* Consejo */}
+<Text style={styles.listItem}>
+  <Text style={[styles.bold, styles.highlightTip]}>• Consejo:</Text>{' '}
+  empieza aprendiendo los verbos y sus formas básicas, y después continúa
+  con la conjugación, las preposiciones y las frases. De esta forma,
+  las formas correctas se vuelven cada vez más rápidas y automáticas.
+</Text>
+
+{/* Bloque final */}
+<Text style={styles.finalText}>
+  <Text style={[styles.bold, styles.highlightFinal]}>
+    La práctica regular con Verbify te ayuda no solo a memorizar los verbos
+    en hebreo, sino también a reconocer sus formas más rápidamente,
+    utilizarlos correctamente en frases y comprender mejor el hebreo hablado.
+  </Text>
+</Text>
 
             </ScrollView>
 

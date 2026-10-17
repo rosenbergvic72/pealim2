@@ -143,16 +143,16 @@ const translations = {
 const windowHeight = Dimensions.get('window').height;
 
 const languageMap = {
-  русский: 'ru',
-  english: 'en',
-  français: 'fr',
-  español: 'es',
-  português: 'pt',
-  العربية: 'ar',
-  አማርኛ: 'am',
+  ru: 'ru', russian: 'ru', русский: 'ru',
+  en: 'en', english: 'en',
+  fr: 'fr', french: 'fr', français: 'fr', francais: 'fr',
+  es: 'es', spanish: 'es', español: 'es', espanol: 'es',
+  pt: 'pt', portuguese: 'pt', português: 'pt', portugues: 'pt', 'pt-pt': 'pt', 'pt-br': 'pt',
+  ar: 'ar', arabic: 'ar', العربية: 'ar',
+  am: 'am', amharic: 'am', አማርኛ: 'am',
 };
 
-const TaskDescriptionModal6 = ({ visible, onToggle, language }) => {
+const TaskDescriptionModal8 = ({ visible, onToggle, language }) => {
   // ✅ iOS: если закрыто — не монтируем вообще
   if (!visible) return null;
 
@@ -419,4 +419,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default TaskDescriptionModal6;
+export default TaskDescriptionModal8;

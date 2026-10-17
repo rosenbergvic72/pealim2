@@ -59,107 +59,141 @@ const AppDescriptionModal = ({ visible, onToggle }) => {
                 <Image source={require('./VERBIFY.png')} style={styles.logo} />
               </View>
 
-              <Text style={styles.modalTitle}>APP DESCRIPTION</Text>
+              {/* Title */}
+<Text style={styles.modalTitle}>APP DESCRIPTION</Text>
 
-              <Text style={styles.modalText}>
-                This is an{' '}
-                <Text style={[styles.bold, styles.highlightMain]}>
-                  effective trainer and tool
-                </Text>{' '}
-                for those who are already studying Hebrew,
-                have{' '}
-                <Text style={[styles.bold, styles.highlightMain]}>
-                  basic knowledge
-                </Text>
-                , want to
-                <Text style={[styles.bold, styles.highlightMain]}>
-                  {' '}learn to conjugate verbs quickly and correctly
-                </Text>{' '}
-                or{' '}
-                <Text style={[styles.bold, styles.highlightMain]}>
-                  improve this skill
-                </Text>
-                .
-                The application is also useful for{' '}
-                <Text style={[styles.bold, styles.highlightAccent]}>
-                  beginners
-                </Text>
-                , as it includes exercises for{' '}
-                <Text style={[styles.bold, styles.highlightMain]}>
-                  memorizing verbs
-                </Text>
-                , their forms,{' '}
-                <Text style={[styles.bold, styles.highlightAccent]}>
-                  binyanim
-                </Text>{' '}
-                and{' '}
-                <Text style={[styles.bold, styles.highlightAccent]}>
-                  practicing the use of the imperative mood
-                </Text>
-                .
-              </Text>
+<Text style={styles.modalText}>
+  Verbify is a{' '}
+  <Text style={[styles.bold, styles.highlightMain]}>
+    practical trainer and learning tool for Hebrew verbs
+  </Text>
+  . It helps you memorize verbs, understand binyanim, practise conjugation,
+  learn verb-preposition combinations, and use verbs correctly in sentences.
+</Text>
 
-              <Text style={styles.modalTitle}>MAIN EXERCISES</Text>
+<Text style={styles.modalText}>
+  The app is suitable both for learners who already have{' '}
+  <Text style={[styles.bold, styles.highlightMain]}>
+    basic knowledge of Hebrew
+  </Text>
+  , and for beginners who want to gradually master common verbs
+  and their forms.
+</Text>
 
-              <Text style={styles.modalText}>
-                <Text style={[styles.bold, styles.highlightMain]}>
-                  Verb conjugation is a key part of the application.
-                </Text>
-              </Text>
+{/* Verb Cards */}
+<Text style={styles.modalTitle}>VERB CARDS</Text>
 
-              <Text style={styles.listItem}>
-                <Text style={[styles.bold, styles.highlightExercise]}>
-                  • Exercises 5 and 6 -
-                </Text>{' '}
-                practice conjugation regularly until it's automatic.
-              </Text>
+<Text style={styles.listItem}>
+  <Text style={[styles.bold, styles.highlightExercise]}>
+    • Verb Cards —
+  </Text>{' '}
+  a quick and convenient way to review a verb, its translation,
+  binyan, and conjugation forms.
+</Text>
 
-              <Text style={styles.listItem}>
-                <Text style={[styles.bold, styles.highlightExercise]}>
-                  • Exercises 7 and 8 -
-                </Text>{' '}
-                advanced versions of 5 and 6.
-              </Text>
+{/* Main Exercises */}
+<Text style={styles.modalTitle}>EXERCISES</Text>
 
-              <Text style={styles.listItem}>
-                <Text style={[styles.bold, styles.highlightTip]}>
-                  • Tip:
-                </Text>{' '}
-                master 5 and 6 before moving to 7 and 8.
-              </Text>
+<Text style={styles.listItem}>
+  <Text style={[styles.bold, styles.highlightExercise]}>
+    • Exercises 1 and 2 —
+  </Text>{' '}
+  help you memorize more than 400 essential Hebrew verbs and connect
+  each written verb with its meaning.
+</Text>
 
-              <Text style={styles.modalText}>
-                <Text style={[styles.bold, styles.highlightMain]}>
-                  Basic learning exercises:
-                </Text>
-              </Text>
+<Text style={styles.listItem}>
+  <Text style={[styles.bold, styles.highlightExercise]}>
+    • Exercise 3 —
+  </Text>{' '}
+  practise identifying the binyan of a Hebrew verb.
+</Text>
 
-              <Text style={styles.listItem}>
-                <Text style={[styles.bold, styles.highlightExercise]}>
-                  • Exercises 1 and 2 -
-                </Text>{' '}
-                help memorize about 400 key verbs.
-              </Text>
+<Text style={styles.listItem}>
+  <Text style={[styles.bold, styles.highlightExercise]}>
+    • Exercise 4 —
+  </Text>{' '}
+  practise the Hebrew imperative.
+</Text>
 
-              <Text style={styles.listItem}>
-                <Text style={[styles.bold, styles.highlightExercise]}>
-                  • Exercise 3 -
-                </Text>{' '}
-                practice identifying the binyan (basic knowledge needed).
-              </Text>
+<Text style={styles.listItem}>
+  <Text style={[styles.bold, styles.highlightExercise]}>
+    • Exercises 5 and 6 —
+  </Text>{' '}
+  core exercises for practising Hebrew verb conjugation.
+  Regular practice helps make choosing the correct verb form automatic.
+</Text>
 
-              <Text style={styles.listItem}>
-                <Text style={[styles.bold, styles.highlightExercise]}>
-                  • Exercise 4 -
-                </Text>{' '}
-                trainer for the imperative mood in Hebrew.
-              </Text>
+<Text style={styles.listItem}>
+  <Text style={[styles.bold, styles.highlightExercise]}>
+    • Exercises 7 and 8 —
+  </Text>{' '}
+  more advanced conjugation practice for learners who are already
+  comfortable with the basic exercises.
+</Text>
 
-              <Text style={styles.finalText}>
-                <Text style={[styles.bold, styles.highlightFinal]}>
-                  Constant exercise lays a solid foundation for the correct use of verbs in everyday speech!
-                </Text>
-              </Text>
+<Text style={styles.listItem}>
+  <Text style={[styles.bold, styles.highlightExercise]}>
+    • Exercise 9 “Verb in a Sentence” —
+  </Text>{' '}
+  choose the correct verb form according to the context of the sentence.
+  Pay attention to tense, person, number, and gender.
+</Text>
+
+<Text style={styles.listItem}>
+  <Text style={[styles.bold, styles.highlightExercise]}>
+    • Exercise 10 “Listen and Understand” —
+  </Text>{' '}
+  listen to Hebrew sentences and choose the correct translation.
+  This exercise develops listening comprehension.
+</Text>
+
+{/* Prepositions */}
+<Text style={styles.modalTitle}>VERBS AND PREPOSITIONS</Text>
+
+<Text style={styles.listItem}>
+  <Text style={[styles.bold, styles.highlightExercise]}>
+    • “Prepositions 1” —
+  </Text>{' '}
+  practise the most common prepositions used with verbs
+  in everyday Hebrew.
+</Text>
+
+<Text style={styles.listItem}>
+  <Text style={[styles.bold, styles.highlightExercise]}>
+    • “Prepositions 2” —
+  </Text>{' '}
+  more advanced practice with verb-preposition combinations.
+  It helps you learn natural combinations instead of isolated words.
+</Text>
+
+{/* Same-root Verbs */}
+<Text style={styles.modalTitle}>SAME-ROOT VERBS</Text>
+
+<Text style={styles.listItem}>
+  <Text style={[styles.bold, styles.highlightExercise]}>
+    • “Same-root Verbs” —
+  </Text>{' '}
+  compare verbs that share the same root across different binyanim
+  and see how a change in binyan can change the meaning of the verb.
+</Text>
+
+{/* Tip */}
+<Text style={styles.listItem}>
+  <Text style={[styles.bold, styles.highlightTip]}>• Tip:</Text>{' '}
+  start by learning verbs and their basic forms, then move on to conjugation,
+  prepositions, and sentences. This way, correct verb forms gradually become
+  faster and more automatic.
+</Text>
+
+{/* Final block */}
+<Text style={styles.finalText}>
+  <Text style={[styles.bold, styles.highlightFinal]}>
+    Regular practice with Verbify helps you not only memorize Hebrew verbs,
+    but also recognize their forms faster, use them correctly in sentences,
+    and understand spoken Hebrew more confidently.
+  </Text>
+</Text>
             </ScrollView>
 
             {/* Fixed Close Button */}

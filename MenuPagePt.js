@@ -24,13 +24,11 @@ import { ensureMarkedToday } from './serverPush';
 import { useIap } from './src/iap/IapProvider';
 import StatsReportModalMulti from './StatsReportModalMulti';
 import UpgradeBanner from './UpgradeBanner';
-
 const FREE_ROUTES_PT = new Set([
-  'Exercise1Pt',
-  'Exercise2Pt',
+  'Exercise1',
+  'Exercise2',
   'PrepositionExercise',
 ]);
-
 const localstyle = StyleSheet.create({
   button: {
     marginVertical: 10,
@@ -53,7 +51,6 @@ const localstyle = StyleSheet.create({
     color: 'white',
   },
 });
-
 export default function MenuPage({
   route,
   hasPro: hasProFromGate,
@@ -63,35 +60,28 @@ export default function MenuPage({
 }) {
   const navigation = useNavigation();
   const { hasPro: hasProFromIap } = useIap();
-
   const hasPro =
     typeof hasProFromGate === 'boolean'
       ? hasProFromGate
       : hasProFromIap;
-
   const fullAccess =
     typeof hasFullAccess === 'boolean'
       ? hasFullAccess
       : hasPro;
-
   const trialActive =
     typeof internalTrialActive === 'boolean'
       ? internalTrialActive
       : !!route?.params?.internalTrialActive;
-
   const trialEndsAt =
     internalTrialEndsAt ||
     route?.params?.internalTrialEndsAt ||
     null;
-
   const lockStyle = {
     opacity: 0.45,
     backgroundColor: '#6f7f90',
   };
-
   const isLocked = routeName =>
   !__DEV__ && !fullAccess && !FREE_ROUTES_PT.has(routeName);
-
   const [name, setName] = useState('');
   const [stats, setStats] = useState({});
   const [animationFinished, setAnimationFinished] = useState(false);
@@ -106,11 +96,9 @@ export default function MenuPage({
   const [exitConfirmationVisible, setExitConfirmationVisible] = useState(false);
   const [isStatModalVisible, setIsStatModalVisible] = useState(false);
   const [isDescriptionModalVisible, setIsDescriptionModalVisible] = useState(false);
-
   useEffect(() => {
     navigation.setOptions({ headerLeft: () => null });
   }, [navigation]);
-
   useFocusEffect(
     useCallback(() => {
       setExitConfirmationVisible(false);
@@ -118,13 +106,11 @@ export default function MenuPage({
       setIsDescriptionModalVisible(false);
     }, [])
   );
-
   useFocusEffect(
     useCallback(() => {
       console.log('Current Stack:', navigation.getState());
     }, [navigation])
   );
-
   useFocusEffect(
     useCallback(() => {
       const onBackPress = () => {
@@ -134,56 +120,41 @@ export default function MenuPage({
         });
         return true;
       };
-
       const backHandler = BackHandler.addEventListener(
         'hardwareBackPress',
         onBackPress
       );
-
       return () => backHandler.remove();
     }, [navigation])
   );
-
   const headerOpacity = useRef(new Animated.Value(0)).current;
   const titleOpacity = useRef(new Animated.Value(0)).current;
-  const verbLibraryOpacity = useRef(new Animated.Value(0)).current;   
-
+  const verbLibraryOpacity = useRef(new Animated.Value(0)).current;
   const button1Opacity = useRef(new Animated.Value(0)).current;
   const button1TranslateY = useRef(new Animated.Value(250)).current;
-
   const button2Opacity = useRef(new Animated.Value(0)).current;
   const button2TranslateY = useRef(new Animated.Value(250)).current;
-
   const button3Opacity = useRef(new Animated.Value(0)).current;
   const button3TranslateY = useRef(new Animated.Value(250)).current;
-
   const button4Opacity = useRef(new Animated.Value(0)).current;
   const button4TranslateY = useRef(new Animated.Value(250)).current;
-
   const button5Opacity = useRef(new Animated.Value(0)).current;
   const button5TranslateY = useRef(new Animated.Value(250)).current;
-
   const button6Opacity = useRef(new Animated.Value(0)).current;
   const button6TranslateY = useRef(new Animated.Value(250)).current;
-
   const button7Opacity = useRef(new Animated.Value(0)).current;
   const button7TranslateY = useRef(new Animated.Value(250)).current;
-
   const button8Opacity = useRef(new Animated.Value(0)).current;
   const button8TranslateY = useRef(new Animated.Value(250)).current;
-
   const button9Opacity = useRef(new Animated.Value(0)).current;
   const button9TranslateY = useRef(new Animated.Value(250)).current;
-
   const button10Opacity = useRef(new Animated.Value(0)).current;
   const button10TranslateY = useRef(new Animated.Value(250)).current;
   const button11Opacity = useRef(new Animated.Value(0)).current;
   const button11TranslateY = useRef(new Animated.Value(250)).current;
   const button12Opacity = useRef(new Animated.Value(0)).current;
   const button12TranslateY = useRef(new Animated.Value(250)).current;
-
   const PREVIOUS_TOTAL_KEY = 'previousTotalExercises';
-
   const fetchStatistics = async () => {
     const exerciseIds = [
       'exercise1Pt',
@@ -200,12 +171,9 @@ export default function MenuPage({
       'exercise9',
       'exercise10',
     ];
-
     const statsData = {};
-
     for (let id of exerciseIds) {
       const stat = await getStatistics(id);
-
       statsData[id] = stat
         ? {
             timesCompleted: stat.timesCompleted ?? 0,
@@ -216,21 +184,16 @@ export default function MenuPage({
             averageCompletionRate: 0,
           };
     }
-
     setStats(statsData);
-
     const totalCompletedNow = Object.values(statsData).reduce(
       (sum, stat) => sum + (stat?.timesCompleted || 0),
       0
     );
-
     try {
       const storedPrev = await AsyncStorage.getItem(PREVIOUS_TOTAL_KEY);
       const previousTotal = storedPrev ? parseInt(storedPrev, 10) : 0;
-
       if (totalCompletedNow > previousTotal) {
         await saveExerciseDate();
-
         try {
           await ensureMarkedToday().catch(e =>
             console.log('mark today failed', e)
@@ -248,7 +211,6 @@ export default function MenuPage({
         const activeDates = storedDates
           ? JSON.parse(storedDates)
           : [];
-
         if (activeDates.includes(today)) {
           try {
             await ensureMarkedToday();
@@ -263,7 +225,6 @@ export default function MenuPage({
           }
         }
       }
-
       await AsyncStorage.setItem(
         PREVIOUS_TOTAL_KEY,
         totalCompletedNow.toString()
@@ -274,42 +235,32 @@ export default function MenuPage({
         error
       );
     }
-
     await calculateTotalStats(statsData);
   };
-
   const calculateTotalStats = async statsData => {
     try {
       let totalCompleted = 0;
       let totalRate = 0;
       let count = 0;
       let uniqueDays = new Set();
-
       for (let key in statsData) {
         totalCompleted += statsData[key].timesCompleted;
-
         if (statsData[key].timesCompleted > 0) {
           totalRate += statsData[key].averageCompletionRate;
           count++;
         }
       }
-
       const storedDates = await AsyncStorage.getItem('activeDays');
-
       let activeDates = storedDates
         ? JSON.parse(storedDates)
         : [];
-
       activeDates.forEach(date => uniqueDays.add(date));
-
       setTotalExercisesCompleted(totalCompleted);
-
       setAverageCompletionRate(
         count > 0
           ? (totalRate / count).toFixed(2)
           : 0
       );
-
       setActiveDays(uniqueDays.size);
     } catch (error) {
       console.error(
@@ -318,37 +269,28 @@ export default function MenuPage({
       );
     }
   };
-
   const saveExerciseDate = async () => {
     try {
       const today = new Date().toISOString().split('T')[0];
-
       const storedDates = await AsyncStorage.getItem('activeDays');
-
       let activeDates = storedDates
         ? JSON.parse(storedDates)
         : [];
-
       if (!activeDates.includes(today)) {
         activeDates.push(today);
-
         await AsyncStorage.setItem(
           'activeDays',
           JSON.stringify(activeDates)
         );
-
         console.log('✅ День добавлен:', today);
       } else {
         console.log('ℹ️ День уже есть, не добавляем.');
       }
-
       const updatedDates =
         await AsyncStorage.getItem('activeDays');
-
       let parsed = updatedDates
         ? JSON.parse(updatedDates)
         : [];
-
       setActiveDays(new Set(parsed).size);
     } catch (error) {
       console.error(
@@ -357,26 +299,21 @@ export default function MenuPage({
       );
     }
   };
-
   const highlightedButtonStyle = {
     backgroundColor: '#367088',
     borderWidth: 4,
     borderColor: '#bd462a',
   };
-
   const hardlightedButtonStyle = {
     backgroundColor: '#2D4769',
     borderWidth: 4,
     borderColor: '#bd462a',
   };
-
   const handleReportBug = useCallback(async () => {
     const to = 'verbify2025@gmail.com';
-
     const subject = encodeURIComponent(
       'Reportar um erro na base Verbify'
     );
-
     const body = encodeURIComponent(
       [
         'Obrigado por usar o aplicativo VERBIFY e nos ajudar a melhorá-lo!',
@@ -439,14 +376,11 @@ export default function MenuPage({
         `Plataforma: ${Platform.OS} (${Platform.Version})`,
       ].join('\n')
     );
-
     const mailtoUrl =
       `mailto:${to}?subject=${subject}&body=${body}`;
-
     try {
       const canOpen =
         await Linking.canOpenURL(mailtoUrl);
-
       if (!canOpen) {
         Alert.alert(
           'Erro',
@@ -454,21 +388,18 @@ export default function MenuPage({
         );
         return;
       }
-
       await Linking.openURL(mailtoUrl);
     } catch (e) {
       console.log(
         'Error while opening mail app:',
         e
       );
-
       Alert.alert(
         'Erro',
         'Ocorreu um erro ao abrir o aplicativo de e-mail.'
       );
     }
   }, []);
-
   useFocusEffect(
     useCallback(() => {
       fetchStatistics();
@@ -477,20 +408,16 @@ export default function MenuPage({
       setNavigateTo(null);
     }, [])
   );
-
   useEffect(() => {
     const getName = async () => {
       const storedName =
         await AsyncStorage.getItem('name');
-
       if (storedName) {
         setName(storedName);
       }
     };
-
     getName();
   }, []);
-
   const startAnimations = () => {
     Animated.timing(
       headerOpacity,
@@ -500,13 +427,11 @@ export default function MenuPage({
         useNativeDriver: true,
       }
     ).start();
-
       Animated.timing(verbLibraryOpacity, {
     toValue: 1,
     duration: 280,
     useNativeDriver: true,
   }).start();
-
     Animated.timing(
       titleOpacity,
       {
@@ -515,7 +440,6 @@ export default function MenuPage({
         useNativeDriver: true,
       }
     ).start();
-
     Animated.stagger(300, [
       Animated.parallel([
         Animated.timing(button1Opacity, { toValue: 1, duration: 500, useNativeDriver: true }),
@@ -567,27 +491,10 @@ export default function MenuPage({
       ]),
     ]).start();
   };
-
   const handlePress = exercise => {
-    if (isLocked(exercise)) {
-      return;
-    }
-
-    if (
-      exercise === 'PrepositionExercise' ||
-      exercise === 'PrepositionVerbExercise' ||
-      exercise === 'RootVerbExercise' ||
-      exercise === 'Exercise9' ||
-      exercise === 'Exercise10'
-    ) {
-      navigation.navigate(exercise, { language: 'pt' });
-      return;
-    }
-
-    setNavigateTo(exercise);
-    setAnimationTriggered(true);
+    if (isLocked(exercise)) return;
+    navigation.navigate(exercise, { language: 'pt' });
   };
-
   useEffect(() => {
     if (animationTriggered) {
       Animated.stagger(100, [
@@ -680,18 +587,15 @@ export default function MenuPage({
     navigateTo,
     navigation,
   ]);
-
   useEffect(() => {
     if (!statsAnimationFinished) {
       const timer = setTimeout(
         () => setStatsAnimationFinished(true),
         3500
       );
-
       return () => clearTimeout(timer);
     }
   }, [statsAnimationFinished]);
-
   if (!animationFinished) {
     return (
       <View style={styles.animationContainer}>
@@ -701,7 +605,6 @@ export default function MenuPage({
           loop={false}
           onAnimationFinish={() => {
             setAnimationFinished(true);
-
             if (!navigateTo) {
               startAnimations();
             }
@@ -711,7 +614,6 @@ export default function MenuPage({
       </View>
     );
   }
-
   return (
     <View style={{ flex: 1 }}>
       <ScrollView style={styles.container}>
@@ -725,7 +627,6 @@ export default function MenuPage({
             source={require('./VERBIFY.png')}
             style={styles.image}
           />
-
           <Text
             style={styles.greeting}
             maxFontSizeMultiplier={1.2}
@@ -733,7 +634,6 @@ export default function MenuPage({
             Olá, {name}!
           </Text>
         </Animated.View>
-
         <TouchableOpacity
           activeOpacity={0.9}
           onPress={() =>
@@ -762,7 +662,6 @@ export default function MenuPage({
                   source={require('./STAT2.png')}
                   style={styles.statsImage}
                 />
-
                 <FadeInView
                   style={styles.statsTextContainer}
                 >
@@ -773,7 +672,6 @@ export default function MenuPage({
                     >
                       EXERCÍCIOS CONCLUÍDOS
                     </Text>
-
                     <View style={styles.statsBox}>
                       <Text
                         style={styles.statsValue}
@@ -783,7 +681,6 @@ export default function MenuPage({
                       </Text>
                     </View>
                   </View>
-
                   <View style={styles.statsRow}>
                     <Text
                       style={styles.statsText}
@@ -791,7 +688,6 @@ export default function MenuPage({
                     >
                       RESULTADO MÉDIO
                     </Text>
-
                     <View style={styles.statsBox}>
                       <Text
                         style={styles.statsValue}
@@ -801,7 +697,6 @@ export default function MenuPage({
                       </Text>
                     </View>
                   </View>
-
                   <View style={styles.statsRow}>
                     <Text
                       style={styles.statsText}
@@ -809,7 +704,6 @@ export default function MenuPage({
                     >
                       DIAS DE TREINO
                     </Text>
-
                     <View style={styles.statsBox}>
                       <Text
                         style={styles.statsValue}
@@ -824,9 +718,7 @@ export default function MenuPage({
             )}
           </Animated.View>
         </TouchableOpacity>
-
       <View style={styles.content}>
-
   {/* BIBLIOTECA DE VERBOS */}
   <Animated.View
     style={[
@@ -846,7 +738,6 @@ export default function MenuPage({
         >
           FICHAS DE VERBOS
         </Text>
-
         <Text
           style={styles.verbLibrarySubtitle}
           maxFontSizeMultiplier={1.2}
@@ -856,14 +747,12 @@ export default function MenuPage({
       </View>
     </TouchableOpacity>
   </Animated.View>
-
   <Animated.Text
     style={[styles.titleText, { opacity: titleOpacity }]}
     maxFontSizeMultiplier={1.2}
   >
     ESCOLHA UM EXERCÍCIO
   </Animated.Text>
-
           {/* 1 */}
           <Animated.View
             style={[
@@ -881,7 +770,7 @@ export default function MenuPage({
           >
             <TouchableOpacity
               onPress={() =>
-                handlePress('Exercise1Pt')
+                handlePress('Exercise1')
               }
             >
               <View style={styles.upperPart1}>
@@ -891,13 +780,11 @@ export default function MenuPage({
                 >
                   EXERCÍCIO 1
                 </Text>
-
                 <Image
                   source={require('./star1.png')}
                   style={styles.image1}
                 />
               </View>
-
               <View style={styles.upperPart2}>
                 <Text
                   style={styles.upperText}
@@ -906,7 +793,6 @@ export default function MenuPage({
                   CARTÕES DE VERBOS HEBRAICO-PORTUGUÊS
                 </Text>
               </View>
-
               <View style={styles.lowerRight}>
                 <Text
                   style={styles.lowerText}
@@ -920,7 +806,6 @@ export default function MenuPage({
                       : 0}
                   </Text>
                 </Text>
-
                 <Text
                   style={styles.lowerText}
                   maxFontSizeMultiplier={1.2}
@@ -940,7 +825,6 @@ export default function MenuPage({
               </View>
             </TouchableOpacity>
           </Animated.View>
-
           {/* 2 */}
           <Animated.View
             style={[
@@ -958,7 +842,7 @@ export default function MenuPage({
           >
             <TouchableOpacity
               onPress={() =>
-                handlePress('Exercise2Pt')
+                handlePress('Exercise2')
               }
             >
               <View style={styles.upperPart1}>
@@ -968,13 +852,11 @@ export default function MenuPage({
                 >
                   EXERCÍCIO 2
                 </Text>
-
                 <Image
                   source={require('./star2.png')}
                   style={styles.image1}
                 />
               </View>
-
               <View style={styles.upperPart2}>
                 <Text
                   style={styles.upperText}
@@ -983,7 +865,6 @@ export default function MenuPage({
                   CARTÕES DE VERBOS PORTUGUÊS-HEBRAICO
                 </Text>
               </View>
-
               <View style={styles.lowerRight}>
                 <Text
                   style={styles.lowerText}
@@ -997,7 +878,6 @@ export default function MenuPage({
                       : 0}
                   </Text>
                 </Text>
-
                 <Text
                   style={styles.lowerText}
                   maxFontSizeMultiplier={1.2}
@@ -1017,7 +897,6 @@ export default function MenuPage({
               </View>
             </TouchableOpacity>
           </Animated.View>
-
           {/* PREPOSIÇÕES 1 — GRÁTIS */}
           <Animated.View
             style={[
@@ -1048,7 +927,6 @@ export default function MenuPage({
                 >
                   PREPOSIÇÕES 1
                 </Text>
-
                 <Text
                   style={[
                     styles.upperText1,
@@ -1059,7 +937,6 @@ export default function MenuPage({
                   NOVO EXERCÍCIO
                 </Text>
               </View>
-
               <View style={styles.upperPart2}>
                 <Text
                   style={styles.upperText}
@@ -1068,7 +945,6 @@ export default function MenuPage({
                   PREPOSIÇÕES COM SUFIXOS PRONOMINAIS
                 </Text>
               </View>
-
               <View style={styles.lowerRight}>
                 <Text
                   style={styles.lowerText}
@@ -1083,7 +959,6 @@ export default function MenuPage({
                       : 0}
                   </Text>
                 </Text>
-
                 <Text
                   style={styles.lowerText}
                   maxFontSizeMultiplier={1.2}
@@ -1101,7 +976,6 @@ export default function MenuPage({
               </View>
             </TouchableOpacity>
           </Animated.View>
-
           <UpgradeBanner
             hasPro={hasPro}
             navigation={navigation}
@@ -1118,7 +992,6 @@ export default function MenuPage({
               ],
             }}
           />
-
           {/* 3 */}
           <Animated.View
             style={[
@@ -1132,13 +1005,13 @@ export default function MenuPage({
                   },
                 ],
               },
-              isLocked('Exercise3Pt') &&
+              isLocked('Exercise3') &&
                 lockStyle,
             ]}
           >
             <TouchableOpacity
               onPress={() =>
-                handlePress('Exercise3Pt')
+                handlePress('Exercise3')
               }
             >
               <View style={styles.upperPart1}>
@@ -1148,13 +1021,11 @@ export default function MenuPage({
                 >
                   EXERCÍCIO 3
                 </Text>
-
                 <Image
                   source={require('./star3.png')}
                   style={styles.image1}
                 />
               </View>
-
               <View style={styles.upperPart2}>
                 <Text
                   style={styles.upperText}
@@ -1163,7 +1034,6 @@ export default function MenuPage({
                   IDENTIFICAR O BINYAN
                 </Text>
               </View>
-
               <View style={styles.lowerRight}>
                 <Text
                   style={styles.lowerText}
@@ -1177,7 +1047,6 @@ export default function MenuPage({
                       : 0}
                   </Text>
                 </Text>
-
                 <Text
                   style={styles.lowerText}
                   maxFontSizeMultiplier={1.2}
@@ -1197,7 +1066,6 @@ export default function MenuPage({
               </View>
             </TouchableOpacity>
           </Animated.View>
-
           {/* 4 */}
           <Animated.View
             style={[
@@ -1211,13 +1079,13 @@ export default function MenuPage({
                   },
                 ],
               },
-              isLocked('Exercise5Pt') &&
+              isLocked('Exercise5') &&
                 lockStyle,
             ]}
           >
             <TouchableOpacity
               onPress={() =>
-                handlePress('Exercise5Pt')
+                handlePress('Exercise5')
               }
             >
               <View style={styles.upperPart1}>
@@ -1227,13 +1095,11 @@ export default function MenuPage({
                 >
                   EXERCÍCIO 4
                 </Text>
-
                 <Image
                   source={require('./star3.png')}
                   style={styles.image1}
                 />
               </View>
-
               <View style={styles.upperPart2}>
                 <Text
                   style={styles.upperText}
@@ -1242,7 +1108,6 @@ export default function MenuPage({
                   MODO IMPERATIVO
                 </Text>
               </View>
-
               <View style={styles.lowerRight}>
                 <Text
                   style={styles.lowerText}
@@ -1256,7 +1121,6 @@ export default function MenuPage({
                       : 0}
                   </Text>
                 </Text>
-
                 <Text
                   style={styles.lowerText}
                   maxFontSizeMultiplier={1.2}
@@ -1276,7 +1140,6 @@ export default function MenuPage({
               </View>
             </TouchableOpacity>
           </Animated.View>
-
           {/* RAÍZES E BINYANIM */}
 <Animated.View
   style={[
@@ -1302,20 +1165,17 @@ export default function MenuPage({
       <Text style={styles.rootTitle} maxFontSizeMultiplier={1.2}>
         RAÍZES E BINYANIM
       </Text>
-
       <View style={styles.rootNewBadge}>
         <Text style={styles.rootNewText} maxFontSizeMultiplier={1.2}>
           NOVO EXERCÍCIO
         </Text>
       </View>
     </View>
-
     <View style={styles.upperPart2}>
       <Text style={styles.upperText} maxFontSizeMultiplier={1.2}>
         VERBOS DA MESMA RAIZ
       </Text>
     </View>
-
     <View style={[styles.lowerRight, styles.rootStats]}>
       <Text style={styles.lowerText} maxFontSizeMultiplier={1.2}>
         CONCLUÍDO{' '}
@@ -1323,7 +1183,6 @@ export default function MenuPage({
           {stats.rootFamilies?.timesCompleted ?? 0}
         </Text>
       </Text>
-
       <Text style={styles.lowerText} maxFontSizeMultiplier={1.2}>
         PONTUAÇÃO MÉDIA{' '}
         <Text style={styles.statValue}>
@@ -1335,7 +1194,6 @@ export default function MenuPage({
     </View>
   </TouchableOpacity>
 </Animated.View>
-
           {/* 5 */}
           <Animated.View
             style={[
@@ -1350,13 +1208,13 @@ export default function MenuPage({
                   },
                 ],
               },
-              isLocked('Exercise6Pt') &&
+              isLocked('Exercise6') &&
                 lockStyle,
             ]}
           >
             <TouchableOpacity
               onPress={() =>
-                handlePress('Exercise6Pt')
+                handlePress('Exercise6')
               }
             >
               <View style={styles.upperPart1}>
@@ -1366,13 +1224,11 @@ export default function MenuPage({
                 >
                   EXERCÍCIO 5
                 </Text>
-
                 <Image
                   source={require('./star4.png')}
                   style={styles.image1}
                 />
               </View>
-
               <View style={styles.upperPart2}>
                 <Text
                   style={styles.upperText}
@@ -1381,7 +1237,6 @@ export default function MenuPage({
                   CONJUGAÇÃO DE VERBOS PORTUGUÊS-HEBRAICO
                 </Text>
               </View>
-
               <View style={styles.lowerRight}>
                 <Text
                   style={styles.lowerText}
@@ -1395,7 +1250,6 @@ export default function MenuPage({
                       : 0}
                   </Text>
                 </Text>
-
                 <Text
                   style={styles.lowerText}
                   maxFontSizeMultiplier={1.2}
@@ -1415,7 +1269,6 @@ export default function MenuPage({
               </View>
             </TouchableOpacity>
           </Animated.View>
-
           {/* 6 */}
           <Animated.View
             style={[
@@ -1430,13 +1283,13 @@ export default function MenuPage({
                   },
                 ],
               },
-              isLocked('Exercise8Pt') &&
+              isLocked('Exercise8') &&
                 lockStyle,
             ]}
           >
             <TouchableOpacity
               onPress={() =>
-                handlePress('Exercise8Pt')
+                handlePress('Exercise8')
               }
             >
               <View style={styles.upperPart1}>
@@ -1446,13 +1299,11 @@ export default function MenuPage({
                 >
                   EXERCÍCIO 6
                 </Text>
-
                 <Image
                   source={require('./star4.png')}
                   style={styles.image1}
                 />
               </View>
-
               <View style={styles.upperPart2}>
                 <Text
                   style={styles.upperText}
@@ -1461,7 +1312,6 @@ export default function MenuPage({
                   CONJUGAÇÃO DE VERBOS HEBRAICO-PORTUGUÊS
                 </Text>
               </View>
-
               <View style={styles.lowerRight}>
                 <Text
                   style={styles.lowerText}
@@ -1475,7 +1325,6 @@ export default function MenuPage({
                       : 0}
                   </Text>
                 </Text>
-
                 <Text
                   style={styles.lowerText}
                   maxFontSizeMultiplier={1.2}
@@ -1495,7 +1344,6 @@ export default function MenuPage({
               </View>
             </TouchableOpacity>
           </Animated.View>
-
           {/* PREPOSIÇÕES 2 — PAGO */}
           <Animated.View
             style={[
@@ -1529,7 +1377,6 @@ export default function MenuPage({
                 >
                   PREPOSIÇÕES 2
                 </Text>
-
                 <Text
                   style={[
                     styles.upperText1,
@@ -1545,7 +1392,6 @@ export default function MenuPage({
                   NOVO EXERCÍCIO
                 </Text>
               </View>
-
               <View style={styles.upperPart2}>
                 <Text
                   style={styles.upperText}
@@ -1555,7 +1401,6 @@ export default function MenuPage({
                   VERBOS E PREPOSIÇÕES
                 </Text>
               </View>
-
               <View style={styles.lowerRight}>
                 <Text
                   style={styles.lowerText}
@@ -1573,7 +1418,6 @@ export default function MenuPage({
                       : 0}
                   </Text>
                 </Text>
-
                 <Text
                   style={styles.lowerText}
                   maxFontSizeMultiplier={1.2}
@@ -1597,7 +1441,6 @@ export default function MenuPage({
               </View>
             </TouchableOpacity>
           </Animated.View>
-
           {/* 7 */}
           <Animated.View
             style={[
@@ -1612,13 +1455,13 @@ export default function MenuPage({
                   },
                 ],
               },
-              isLocked('Exercise4Pt') &&
+              isLocked('Exercise4') &&
                 lockStyle,
             ]}
           >
             <TouchableOpacity
               onPress={() =>
-                handlePress('Exercise4Pt')
+                handlePress('Exercise4')
               }
             >
               <View style={styles.upperPart1}>
@@ -1628,13 +1471,11 @@ export default function MenuPage({
                 >
                   EXERCÍCIO 7
                 </Text>
-
                 <Image
                   source={require('./star5.png')}
                   style={styles.image1}
                 />
               </View>
-
               <View style={styles.upperPart2}>
                 <Text
                   style={styles.upperText}
@@ -1643,7 +1484,6 @@ export default function MenuPage({
                   CONJUGAÇÃO DE VERBOS PORTUGUÊS-HEBRAICO
                 </Text>
               </View>
-
               <View style={styles.lowerRight}>
                 <Text
                   style={styles.lowerText}
@@ -1657,7 +1497,6 @@ export default function MenuPage({
                       : 0}
                   </Text>
                 </Text>
-
                 <Text
                   style={styles.lowerText}
                   maxFontSizeMultiplier={1.2}
@@ -1677,7 +1516,6 @@ export default function MenuPage({
               </View>
             </TouchableOpacity>
           </Animated.View>
-
           {/* 8 */}
           <Animated.View
             style={[
@@ -1692,13 +1530,13 @@ export default function MenuPage({
                   },
                 ],
               },
-              isLocked('Exercise7Pt') &&
+              isLocked('Exercise7') &&
                 lockStyle,
             ]}
           >
             <TouchableOpacity
               onPress={() =>
-                handlePress('Exercise7Pt')
+                handlePress('Exercise7')
               }
             >
               <View style={styles.upperPart1}>
@@ -1708,13 +1546,11 @@ export default function MenuPage({
                 >
                   EXERCÍCIO 8
                 </Text>
-
                 <Image
                   source={require('./star5.png')}
                   style={styles.image1}
                 />
               </View>
-
               <View style={styles.upperPart2}>
                 <Text
                   style={styles.upperText}
@@ -1723,7 +1559,6 @@ export default function MenuPage({
                   CONJUGAÇÃO DE VERBOS HEBRAICO-PORTUGUÊS
                 </Text>
               </View>
-
               <View style={styles.lowerRight}>
                 <Text
                   style={styles.lowerText}
@@ -1737,7 +1572,6 @@ export default function MenuPage({
                       : 0}
                   </Text>
                 </Text>
-
                 <Text
                   style={styles.lowerText}
                   maxFontSizeMultiplier={1.2}
@@ -1757,7 +1591,6 @@ export default function MenuPage({
               </View>
             </TouchableOpacity>
           </Animated.View>
-
           {/* 9–10 */}
           {[
             { screen: 'Exercise9', statsKey: 'exercise9', number: 9, title: 'VERBO EM UMA FRASE', opacity: button11Opacity, translateY: button11TranslateY },
@@ -1807,7 +1640,6 @@ export default function MenuPage({
               </TouchableOpacity>
             </Animated.View>
           ))}
-
           {/* DESCRIPTION */}
           <Animated.View
             style={[
@@ -1833,7 +1665,6 @@ export default function MenuPage({
                 source={require('./quest.png')}
                 style={styles.infoIcon}
               />
-
               <Text
                 style={styles.infoText}
                 numberOfLines={2}
@@ -1844,14 +1675,12 @@ export default function MenuPage({
               </Text>
             </TouchableOpacity>
           </Animated.View>
-
           <AppDescriptionModal
             visible={isModalVisible}
             onToggle={() =>
               setIsModalVisible(false)
             }
           />
-
           {/* ABOUT */}
           <Animated.View
             style={[
@@ -1877,7 +1706,6 @@ export default function MenuPage({
                 source={require('./about4.png')}
                 style={styles.infoIcon}
               />
-
               <Text
                 style={styles.infoText}
                 numberOfLines={2}
@@ -1888,14 +1716,12 @@ export default function MenuPage({
               </Text>
             </TouchableOpacity>
           </Animated.View>
-
           <AppInfoModal
             visible={isInfoModalVisible}
             onToggle={() =>
               setIsInfoModalVisible(false)
             }
           />
-
           {/* REPORT BUG */}
           <Animated.View
             style={[
@@ -1934,7 +1760,6 @@ export default function MenuPage({
           </Animated.View>
         </View>
       </ScrollView>
-
       <StatsReportModalMulti
         visible={isStatModalVisible}
         onClose={() =>
@@ -1945,7 +1770,6 @@ export default function MenuPage({
     </View>
   );
 }
-
 const styles = StyleSheet.create({
   buttonIcon: {
     width: 30,
@@ -1953,7 +1777,6 @@ const styles = StyleSheet.create({
     position: 'absolute',
     left: 30,
   },
-
   statsContainer: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -1965,26 +1788,22 @@ const styles = StyleSheet.create({
     borderColor: '#2D4769',
     height: 90,
   },
-
   statsImage: {
     width: 80,
     height: 80,
     marginRight: 12,
     marginLeft: 10,
   },
-
   statsTextContainer: {
     flex: 1,
     marginTop: 5,
   },
-
   statsRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: 5,
   },
-
   statsText: {
     fontSize: 11,
     fontWeight: 'bold',
@@ -1993,7 +1812,6 @@ const styles = StyleSheet.create({
     marginRight: 8,
     flex: 1,
   },
-
   statsBox: {
     minWidth: 50,
     height: 20,
@@ -2003,7 +1821,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-
   statsValue: {
     fontSize: 11,
     fontWeight: 'bold',
@@ -2014,59 +1831,48 @@ const styles = StyleSheet.create({
     textAlignVertical: 'center',
     marginTop: -1,
   },
-
   container: {
     flex: 1,
     paddingHorizontal: 10,
     paddingVertical: 0,
     backgroundColor: '#f0f0f0',
   },
-
   title: {
     alignItems: 'center',
   },
-
   headerContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: -5,
   },
-
   image: {
     width: 90,
     height: 90,
     marginRight: 20,
     marginLeft: 5,
   },
-
   greeting: {
     fontSize: 16,
     fontWeight: 'bold',
     color: '#2D4769',
     marginLeft: 10,
   },
-
   verbLibraryContainer:{
   width:'100%',
   marginTop:12,
   marginBottom:2,
 },
-
 verbLibraryButton:{
   width:'100%',
   minHeight:82,
   alignItems:'center',
   justifyContent:'center',
-
   backgroundColor:'#83A3CD',
-
   borderRadius:12,
   borderWidth:3,
   borderColor:'#2D4769',
-
   paddingHorizontal:14,
   paddingVertical:7,
-
   shadowColor:'#000',
   shadowOpacity:0.15,
   shadowRadius:6,
@@ -2076,13 +1882,11 @@ verbLibraryButton:{
   },
   elevation:5,
 },
-
 verbLibraryTextContainer:{
   width:'100%',
   alignItems:'center',
   justifyContent:'center',
 },
-
 verbLibraryTitle:{
   color:'#FFFDEF',
   fontSize:17,
@@ -2090,7 +1894,6 @@ verbLibraryTitle:{
   fontWeight:'900',
   textAlign:'center',
 },
-
 verbLibrarySubtitle:{
   marginTop:2,
   color:'#E8EEF7',
@@ -2099,7 +1902,6 @@ verbLibrarySubtitle:{
   fontWeight:'800',
   textAlign:'center',
 },
-
   titleText: {
     fontSize: 18,
     fontWeight: 'bold',
@@ -2108,7 +1910,6 @@ verbLibrarySubtitle:{
     color: '#2D4769',
     marginTop: 10,
   },
-
   titleText1: {
     fontSize: 14,
     fontWeight: 'bold',
@@ -2117,7 +1918,6 @@ verbLibrarySubtitle:{
     color: 'white',
     marginTop: 10,
   },
-
   buttonContainer: {
     width: '100%',
     alignItems: 'center',
@@ -2127,7 +1927,6 @@ verbLibrarySubtitle:{
     borderRadius: 10,
     marginBottom: 10,
   },
-
   buttonContainer1: {
     flexDirection: 'row',
     width: '100%',
@@ -2142,21 +1941,18 @@ verbLibrarySubtitle:{
     borderWidth: 3,
     borderColor: '#bd462a',
   },
-
   upperPart1: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     width: '96%',
   },
-
   upperPart2: {
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
     width: '100%',
   },
-
   upperText1: {
     fontSize: 10,
     fontWeight: 'bold',
@@ -2167,7 +1963,6 @@ verbLibrarySubtitle:{
     marginBottom: 10,
     marginLeft: 10,
   },
-
   upperText: {
     fontSize: 13,
     fontWeight: 'bold',
@@ -2175,7 +1970,6 @@ verbLibrarySubtitle:{
     marginBottom: 10,
     textAlign: 'center',
   },
-
   lowerRight: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -2183,7 +1977,6 @@ verbLibrarySubtitle:{
     paddingHorizontal: 10,
     alignItems: 'center',
   },
-
   lowerText: {
     fontSize: 10,
     textAlign: 'center',
@@ -2194,7 +1987,6 @@ verbLibrarySubtitle:{
     fontWeight: 'bold',
     marginLeft: 1,
   },
-
   image1: {
     width: 100,
     height: 25,
@@ -2202,37 +1994,31 @@ verbLibrarySubtitle:{
     marginRight: 10,
     marginTop: -5,
   },
-
   statValue: {
     color: 'red',
     fontWeight: 'bold',
     textAlignVertical: 'center',
     fontSize: 12,
   },
-
   animationContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#f0f0f0',
   },
-
   lottie: {
     width: 300,
     height: 300,
   },
-
   statsAnimation: {
     width: '100%',
     height: '150%',
   },
-
   infoWrap: {
     width: '100%',
     alignItems: 'center',
     marginBottom: 10,
   },
-
   infoButton: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -2246,13 +2032,11 @@ verbLibrarySubtitle:{
     minHeight: 52,
     width: '100%',
   },
-
   infoIcon: {
     width: 24,
     height: 24,
     marginRight: 12,
   },
-
   infoText: {
     flexShrink: 1,
     textAlign: 'center',
@@ -2266,7 +2050,6 @@ verbLibrarySubtitle:{
     marginBottom: 0,
     marginLeft: 0,
   },
-
   prepositionButtonContainer: {
     backgroundColor: '#3F7C78',
     borderWidth: 3,
@@ -2280,7 +2063,6 @@ verbLibrarySubtitle:{
     },
     elevation: 8,
   },
-
   newExerciseBadge: {
     backgroundColor: '#E85D4A',
     color: '#FFFFFF',
@@ -2299,11 +2081,9 @@ verbLibrarySubtitle:{
   shadowOffset: { width: 0, height: 2 },
   elevation: 8,
 },
-
 rootTouchable: {
   width: '100%',
 },
-
 rootHeading: {
   flexDirection: 'row',
   flexWrap: 'wrap',
@@ -2313,7 +2093,6 @@ rootHeading: {
   marginBottom: 10,
   paddingHorizontal: 10,
 },
-
 rootTitle: {
   flexShrink: 1,
   color: '#2D4769',
@@ -2325,7 +2104,6 @@ rootTitle: {
   borderRadius: 5,
   maxWidth: '100%',
 },
-
 rootNewBadge: {
   alignSelf: 'flex-start',
   paddingHorizontal: 8,
@@ -2335,7 +2113,6 @@ rootNewBadge: {
   maxWidth: '100%',
   flexShrink: 1,
 },
-
 rootNewText: {
   color: '#49345F',
   fontSize: 10,
@@ -2343,7 +2120,6 @@ rootNewText: {
   fontWeight: '900',
   textAlign: 'center',
 },
-
 rootStats: {
   flexWrap: 'wrap',
   gap: 6,

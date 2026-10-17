@@ -62,107 +62,144 @@ const AppDescriptionModal = ({ visible, onToggle }) => {
               </View>
 
               {/* Titre */}
-              <Text style={styles.modalTitle}>DESCRIPTION DE L'APPLICATION</Text>
+<Text style={styles.modalTitle}>DESCRIPTION DE L’APPLICATION</Text>
 
-              <Text style={styles.modalText}>
-                C'est un{' '}
-                <Text style={[styles.bold, styles.highlightMain]}>
-                  outil et entraîneur efficace
-                </Text>{' '}
-                pour ceux qui étudient déjà l'hébreu,
-                ont des{' '}
-                <Text style={[styles.bold, styles.highlightMain]}>
-                  connaissances de base
-                </Text>
-                , veulent{' '}
-                <Text style={[styles.bold, styles.highlightMain]}>
-                  apprendre à conjuguer les verbes rapidement et correctement
-                </Text>{' '}
-                ou{' '}
-                <Text style={[styles.bold, styles.highlightMain]}>
-                  améliorer cette compétence
-                </Text>
-                .
-                L'application est également utile pour les{' '}
-                <Text style={[styles.bold, styles.highlightAccent]}>
-                  débutants
-                </Text>
-                , car elle comprend des exercices pour{' '}
-                <Text style={[styles.bold, styles.highlightMain]}>
-                  mémoriser les verbes
-                </Text>
-                , leurs formes, les{' '}
-                <Text style={[styles.bold, styles.highlightAccent]}>
-                  binyanim
-                </Text>{' '}
-                et{' '}
-                <Text style={[styles.bold, styles.highlightAccent]}>
-                  pratiquer l'utilisation de l'impératif (impératifs)
-                </Text>
-                .
-              </Text>
+<Text style={styles.modalText}>
+  Verbify est un{' '}
+  <Text style={[styles.bold, styles.highlightMain]}>
+    outil pratique d’entraînement et d’apprentissage des verbes hébreux
+  </Text>
+  . Il aide à mémoriser les verbes, à comprendre les binyanim, à pratiquer
+  la conjugaison, à apprendre les associations entre verbes et prépositions
+  et à utiliser correctement les verbes dans des phrases.
+</Text>
 
-              {/* Exercices Principaux */}
-              <Text style={styles.modalTitle}>EXERCICES PRINCIPAUX</Text>
+<Text style={styles.modalText}>
+  L’application convient aussi bien aux personnes qui possèdent déjà{' '}
+  <Text style={[styles.bold, styles.highlightMain]}>
+    des connaissances de base en hébreu
+  </Text>
+  , qu’aux débutants qui souhaitent apprendre progressivement les verbes
+  les plus courants et leurs différentes formes.
+</Text>
 
-              <Text style={styles.modalText}>
-                <Text style={[styles.bold, styles.highlightMain]}>
-                  La conjugaison des verbes est une partie clé de l'application.
-                </Text>
-              </Text>
+{/* Fiches de verbes */}
+<Text style={styles.modalTitle}>FICHES DE VERBES</Text>
 
-              <Text style={styles.listItem}>
-                <Text style={[styles.bold, styles.highlightExercise]}>
-                  • Exercices 5 et 6 -
-                </Text>{' '}
-                ce sont les tâches principales pour pratiquer la conjugaison. Nous recommandons de les faire régulièrement jusqu'à ce que la compétence devienne automatique.
-              </Text>
+<Text style={styles.listItem}>
+  <Text style={[styles.bold, styles.highlightExercise]}>
+    • Fiches de verbes —
+  </Text>{' '}
+  un moyen rapide et pratique de consulter un verbe, sa traduction,
+  son binyan et ses différentes formes de conjugaison.
+</Text>
 
-              <Text style={styles.listItem}>
-                <Text style={[styles.bold, styles.highlightExercise]}>
-                  • Exercices 7 et 8 -
-                </Text>{' '}
-                versions avancées des exercices 5 et 6. Ils sont conçus pour ceux qui ont déjà obtenu des résultats confiants et souhaitent faire passer leur pratique au niveau supérieur.
-              </Text>
+{/* Exercices */}
+<Text style={styles.modalTitle}>EXERCICES</Text>
 
-              <Text style={styles.listItem}>
-                <Text style={[styles.bold, styles.highlightTip]}>
-                  • Conseil :
-                </Text>{' '}
-                pratiquez d'abord la conjugaison dans les exercices 5 et 6, puis passez aux exercices 7 et 8 plus complexes !
-              </Text>
+<Text style={styles.listItem}>
+  <Text style={[styles.bold, styles.highlightExercise]}>
+    • Exercices 1 et 2 —
+  </Text>{' '}
+  aident à mémoriser plus de 400 verbes hébreux essentiels et à associer
+  chaque verbe écrit à sa signification.
+</Text>
 
-              <Text style={styles.modalText}>
-                <Text style={[styles.bold, styles.highlightMain]}>
-                  Exercices pour apprendre les bases.
-                </Text>
-              </Text>
+<Text style={styles.listItem}>
+  <Text style={[styles.bold, styles.highlightExercise]}>
+    • Exercice 3 —
+  </Text>{' '}
+  entraînement à l’identification du binyan d’un verbe hébreu.
+</Text>
 
-              <Text style={styles.listItem}>
-                <Text style={[styles.bold, styles.highlightExercise]}>
-                  • Exercices 1 et 2 -
-                </Text>{' '}
-                aident à mémoriser environ 400 verbes clés et leurs formes de base.
-              </Text>
-              <Text style={styles.listItem}>
-                <Text style={[styles.bold, styles.highlightExercise]}>
-                  • Exercice 3 -
-                </Text>{' '}
-                pratique la détermination du binyan d'un verbe (connaissances de base requises).
-              </Text>
-              <Text style={styles.listItem}>
-                <Text style={[styles.bold, styles.highlightExercise]}>
-                  • Exercice 4 -
-                </Text>{' '}
-                entraîneur pour pratiquer l'impératif en hébreu.
-              </Text>
+<Text style={styles.listItem}>
+  <Text style={[styles.bold, styles.highlightExercise]}>
+    • Exercice 4 —
+  </Text>{' '}
+  entraînement à l’impératif en hébreu.
+</Text>
 
-              {/* Bloc final */}
-              <Text style={styles.finalText}>
-                <Text style={[styles.bold, styles.highlightFinal]}>
-                  La pratique constante des exercices jette des bases solides pour l'utilisation correcte des verbes et de leurs conjugaisons dans la langue parlée quotidienne !
-                </Text>
-              </Text>
+<Text style={styles.listItem}>
+  <Text style={[styles.bold, styles.highlightExercise]}>
+    • Exercices 5 et 6 —
+  </Text>{' '}
+  exercices principaux pour pratiquer la conjugaison des verbes hébreux.
+  Un entraînement régulier aide à choisir automatiquement la bonne forme
+  du verbe.
+</Text>
+
+<Text style={styles.listItem}>
+  <Text style={[styles.bold, styles.highlightExercise]}>
+    • Exercices 7 et 8 —
+  </Text>{' '}
+  exercices de conjugaison plus avancés pour les utilisateurs qui maîtrisent
+  déjà les exercices de base.
+</Text>
+
+<Text style={styles.listItem}>
+  <Text style={[styles.bold, styles.highlightExercise]}>
+    • Exercice 9 « Le verbe dans la phrase » —
+  </Text>{' '}
+  choisissez la forme correcte du verbe en fonction du contexte de la phrase.
+  Faites attention au temps, à la personne, au nombre et au genre.
+</Text>
+
+<Text style={styles.listItem}>
+  <Text style={[styles.bold, styles.highlightExercise]}>
+    • Exercice 10 « Écouter et comprendre » —
+  </Text>{' '}
+  écoutez des phrases en hébreu et choisissez la traduction correcte.
+  Cet exercice développe la compréhension orale.
+</Text>
+
+{/* Prépositions */}
+<Text style={styles.modalTitle}>VERBES ET PRÉPOSITIONS</Text>
+
+<Text style={styles.listItem}>
+  <Text style={[styles.bold, styles.highlightExercise]}>
+    • « Prépositions 1 » —
+  </Text>{' '}
+  entraînement aux prépositions les plus courantes utilisées avec les verbes
+  dans l’hébreu de tous les jours.
+</Text>
+
+<Text style={styles.listItem}>
+  <Text style={[styles.bold, styles.highlightExercise]}>
+    • « Prépositions 2 » —
+  </Text>{' '}
+  pratique plus avancée des associations entre verbes et prépositions.
+  Elle permet d’apprendre des combinaisons naturelles plutôt que des mots
+  isolés.
+</Text>
+
+{/* Verbes de la même racine */}
+<Text style={styles.modalTitle}>VERBES DE LA MÊME RACINE</Text>
+
+<Text style={styles.listItem}>
+  <Text style={[styles.bold, styles.highlightExercise]}>
+    • « Verbes de la même racine » —
+  </Text>{' '}
+  comparez des verbes ayant la même racine dans différents binyanim et
+  observez comment le changement de binyan peut modifier le sens du verbe.
+</Text>
+
+{/* Conseil */}
+<Text style={styles.listItem}>
+  <Text style={[styles.bold, styles.highlightTip]}>• Conseil :</Text>{' '}
+  commencez par apprendre les verbes et leurs formes de base, puis passez
+  à la conjugaison, aux prépositions et aux phrases. Ainsi, les formes
+  correctes deviennent progressivement plus rapides et plus automatiques.
+</Text>
+
+{/* Bloc final */}
+<Text style={styles.finalText}>
+  <Text style={[styles.bold, styles.highlightFinal]}>
+    Une pratique régulière avec Verbify vous aide non seulement à mémoriser
+    les verbes hébreux, mais aussi à reconnaître plus rapidement leurs formes,
+    à les utiliser correctement dans des phrases et à mieux comprendre
+    l’hébreu parlé.
+  </Text>
+</Text>
 
             </ScrollView>
 

@@ -4022,30 +4022,19 @@ settingsLoadingScreen: {
 
 
 
-  topBar: {
+topBar: {
+  minHeight: 64,
+  flexShrink: 0,
+  flexDirection: 'row',
+  alignItems: 'center',
+  justifyContent: 'space-between',
+},
 
-    minHeight: 72,
-    flexShrink: 0,
-
-    flexDirection: 'row',
-
-    alignItems: 'center',
-
-    justifyContent: 'space-between',
-
-  },
-
-
-
-  logo: {
-
-    width: 130,
-
-    height: 84,
-
-    resizeMode: 'contain',
-
-  },
+logo: {
+  width: 110,
+  height: 68,
+  resizeMode: 'contain',
+},
 
 
 
@@ -4062,13 +4051,9 @@ settingsLoadingScreen: {
 
 
 topButtonIcon: {
-
-  width: 38,
-
-  height: 38,
-
+  width: 36,
+  height: 36,
   resizeMode: 'contain',
-
 },
 
 
@@ -4093,7 +4078,7 @@ topButtonIcon: {
 
 
 
-  marginTop: 4,
+  marginTop: 0,
 
   marginBottom: 10,
 

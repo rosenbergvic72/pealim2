@@ -195,13 +195,13 @@ const translations = {
 const windowHeight = Dimensions.get('window').height;
 
 const languageMap = {
-  русский: 'ru',
-  english: 'en',
-  français: 'fr',
-  español: 'es',
-  português: 'pt',
-  العربية: 'ar',
-  አማርኛ: 'am',
+  ru: 'ru', russian: 'ru', русский: 'ru',
+  en: 'en', english: 'en',
+  fr: 'fr', french: 'fr', français: 'fr', francais: 'fr',
+  es: 'es', spanish: 'es', español: 'es', espanol: 'es',
+  pt: 'pt', portuguese: 'pt', português: 'pt', portugues: 'pt',
+  ar: 'ar', arabic: 'ar', العربية: 'ar',
+  am: 'am', amharic: 'am', አማርኛ: 'am',
 };
 
 const TaskDescriptionModal6 = ({

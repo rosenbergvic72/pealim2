@@ -24,13 +24,11 @@ import { AR_TEXT, AR_TEXT_BOLD } from './arText';
 import StatsReportModalMulti from './StatsReportModalMulti';
 import Constants from 'expo-constants';
 import UpgradeBanner from './UpgradeBanner';
-
 const FREE_ROUTES_AR = new Set([
-  'Exercise1Ar',
-  'Exercise2Ar',
+  'Exercise1',
+  'Exercise2',
   'PrepositionExercise',
 ]);
-
 const localstyle = StyleSheet.create({
   button: {
     marginVertical: 10,
@@ -53,7 +51,6 @@ const localstyle = StyleSheet.create({
     color: 'white',
   },
 });
-
 export default function MenuPage({
   route,
   hasPro: hasProFromGate,
@@ -63,35 +60,28 @@ export default function MenuPage({
 }) {
   const navigation = useNavigation();
   const { hasPro: hasProFromIap } = useIap();
-
   const hasPro =
     typeof hasProFromGate === 'boolean'
       ? hasProFromGate
       : hasProFromIap;
-
   const fullAccess =
     typeof hasFullAccess === 'boolean'
       ? hasFullAccess
       : hasPro;
-
   const trialActive =
     typeof internalTrialActive === 'boolean'
       ? internalTrialActive
       : !!route?.params?.internalTrialActive;
-
   const trialEndsAt =
     internalTrialEndsAt ||
     route?.params?.internalTrialEndsAt ||
     null;
-
   const lockStyle = {
     opacity: 0.45,
     backgroundColor: '#6f7f90',
   };
-
   const isLocked = routeName =>
   !__DEV__ && !fullAccess && !FREE_ROUTES_AR.has(routeName);
-
   const [name, setName] = useState('');
   const [stats, setStats] = useState({});
   const [animationFinished, setAnimationFinished] = useState(false);
@@ -106,11 +96,9 @@ export default function MenuPage({
   const [exitConfirmationVisible, setExitConfirmationVisible] = useState(false);
   const [isStatModalVisible, setIsStatModalVisible] = useState(false);
   const [isDescriptionModalVisible, setIsDescriptionModalVisible] = useState(false);
-
   useEffect(() => {
     navigation.setOptions({ headerLeft: () => null });
   }, [navigation]);
-
   useFocusEffect(
     useCallback(() => {
       setExitConfirmationVisible(false);
@@ -118,13 +106,11 @@ export default function MenuPage({
       setIsDescriptionModalVisible(false);
     }, [])
   );
-
   useFocusEffect(
     useCallback(() => {
       console.log('Current Stack:', navigation.getState());
     }, [navigation])
   );
-
   useFocusEffect(
     useCallback(() => {
       const onBackPress = () => {
@@ -134,56 +120,41 @@ export default function MenuPage({
         });
         return true;
       };
-
       const backHandler = BackHandler.addEventListener(
         'hardwareBackPress',
         onBackPress
       );
-
       return () => backHandler.remove();
     }, [navigation])
   );
-
   const headerOpacity = useRef(new Animated.Value(0)).current;
   const titleOpacity = useRef(new Animated.Value(0)).current;
   const verbLibraryOpacity = useRef(new Animated.Value(0)).current;
-
   const button1Opacity = useRef(new Animated.Value(0)).current;
   const button1TranslateY = useRef(new Animated.Value(250)).current;
-
   const button2Opacity = useRef(new Animated.Value(0)).current;
   const button2TranslateY = useRef(new Animated.Value(250)).current;
-
   const button3Opacity = useRef(new Animated.Value(0)).current;
   const button3TranslateY = useRef(new Animated.Value(250)).current;
-
   const button4Opacity = useRef(new Animated.Value(0)).current;
   const button4TranslateY = useRef(new Animated.Value(250)).current;
-
   const button5Opacity = useRef(new Animated.Value(0)).current;
   const button5TranslateY = useRef(new Animated.Value(250)).current;
-
   const button6Opacity = useRef(new Animated.Value(0)).current;
   const button6TranslateY = useRef(new Animated.Value(250)).current;
-
   const button7Opacity = useRef(new Animated.Value(0)).current;
   const button7TranslateY = useRef(new Animated.Value(250)).current;
-
   const button8Opacity = useRef(new Animated.Value(0)).current;
   const button8TranslateY = useRef(new Animated.Value(250)).current;
-
   const button9Opacity = useRef(new Animated.Value(0)).current;
   const button9TranslateY = useRef(new Animated.Value(250)).current;
-
   const button10Opacity = useRef(new Animated.Value(0)).current;
   const button10TranslateY = useRef(new Animated.Value(250)).current;
   const button11Opacity = useRef(new Animated.Value(0)).current;
   const button11TranslateY = useRef(new Animated.Value(250)).current;
   const button12Opacity = useRef(new Animated.Value(0)).current;
   const button12TranslateY = useRef(new Animated.Value(250)).current;
-
   const PREVIOUS_TOTAL_KEY = 'previousTotalExercises';
-
   const fetchStatistics = async () => {
     const exerciseIds = [
       'exercise1Ar',
@@ -200,12 +171,9 @@ export default function MenuPage({
       'exercise9',
       'exercise10',
     ];
-
     const statsData = {};
-
     for (let id of exerciseIds) {
       const stat = await getStatistics(id);
-
       statsData[id] = stat
         ? {
             timesCompleted: stat.timesCompleted ?? 0,
@@ -216,39 +184,31 @@ export default function MenuPage({
             averageCompletionRate: 0,
           };
     }
-
     setStats(statsData);
-
     const totalCompletedNow = Object.values(statsData).reduce(
       (sum, stat) => sum + (stat?.timesCompleted || 0),
       0
     );
-
     try {
       const storedPrev = await AsyncStorage.getItem(PREVIOUS_TOTAL_KEY);
       const previousTotal = storedPrev ? parseInt(storedPrev, 10) : 0;
-
       if (totalCompletedNow > previousTotal) {
         await saveExerciseDate();
-
         try {
           await ensureMarkedToday().catch(() => {});
         } catch {}
       } else {
         const today = new Date().toISOString().slice(0, 10);
         const storedDates = await AsyncStorage.getItem('activeDays');
-
         const activeDates = storedDates
           ? JSON.parse(storedDates)
           : [];
-
         if (activeDates.includes(today)) {
           try {
             await ensureMarkedToday();
           } catch {}
         }
       }
-
       await AsyncStorage.setItem(
         PREVIOUS_TOTAL_KEY,
         String(totalCompletedNow)
@@ -259,47 +219,37 @@ export default function MenuPage({
         error
       );
     }
-
     await calculateTotalStats(statsData);
   };
-
   const calculateTotalStats = async statsData => {
     try {
       let totalCompleted = 0;
       let totalRate = 0;
       let count = 0;
       let uniqueDays = new Set();
-
       for (let key in statsData) {
         totalCompleted += statsData[key].timesCompleted;
-
         if (statsData[key].timesCompleted > 0) {
           totalRate += statsData[key].averageCompletionRate;
           count++;
         }
       }
-
       const storedDates =
         await AsyncStorage.getItem('activeDays');
-
       let activeDates = storedDates
         ? JSON.parse(storedDates)
         : [];
-
       activeDates.forEach(d =>
         uniqueDays.add(d)
       );
-
       setTotalExercisesCompleted(
         totalCompleted
       );
-
       setAverageCompletionRate(
         count > 0
           ? (totalRate / count).toFixed(2)
           : 0
       );
-
       setActiveDays(uniqueDays.size);
     } catch (e) {
       console.error(
@@ -308,41 +258,33 @@ export default function MenuPage({
       );
     }
   };
-
   const saveExerciseDate = async () => {
     try {
       const today =
         new Date()
           .toISOString()
           .split('T')[0];
-
       const storedDates =
         await AsyncStorage.getItem(
           'activeDays'
         );
-
       let activeDates = storedDates
         ? JSON.parse(storedDates)
         : [];
-
       if (!activeDates.includes(today)) {
         activeDates.push(today);
-
         await AsyncStorage.setItem(
           'activeDays',
           JSON.stringify(activeDates)
         );
       }
-
       const updated =
         await AsyncStorage.getItem(
           'activeDays'
         );
-
       let parsed = updated
         ? JSON.parse(updated)
         : [];
-
       setActiveDays(
         new Set(parsed).size
       );
@@ -353,19 +295,16 @@ export default function MenuPage({
       );
     }
   };
-
   const highlightedButtonStyle = {
     backgroundColor: '#367088',
     borderWidth: 4,
     borderColor: '#bd462a',
   };
-
   const hardlightedButtonStyle = {
     backgroundColor: '#2D4769',
     borderWidth: 4,
     borderColor: '#bd462a',
   };
-
   useFocusEffect(
     useCallback(() => {
       fetchStatistics();
@@ -374,20 +313,16 @@ export default function MenuPage({
       setNavigateTo(null);
     }, [])
   );
-
   useEffect(() => {
     const getName = async () => {
       const storedName =
         await AsyncStorage.getItem('name');
-
       if (storedName) {
         setName(storedName);
       }
     };
-
     getName();
   }, []);
-
   const startAnimations = () => {
     Animated.timing(
       headerOpacity,
@@ -397,13 +332,11 @@ export default function MenuPage({
         useNativeDriver: true,
       }
     ).start();
-
     Animated.timing(verbLibraryOpacity, {
     toValue: 1,
     duration: 280,
     useNativeDriver: true,
   }).start();
-
     Animated.timing(
       titleOpacity,
       {
@@ -412,7 +345,6 @@ export default function MenuPage({
         useNativeDriver: true,
       }
     ).start();
-
     Animated.stagger(300, [
       Animated.parallel([
         Animated.timing(button1Opacity, { toValue: 1, duration: 500, useNativeDriver: true }),
@@ -464,27 +396,10 @@ export default function MenuPage({
       ]),
     ]).start();
   };
-
   const handlePress = exercise => {
-    if (isLocked(exercise)) {
-      return;
-    }
-
-    if (
-      exercise === 'PrepositionExercise' ||
-      exercise === 'PrepositionVerbExercise' ||
-      exercise === 'RootVerbExercise' ||
-      exercise === 'Exercise9' ||
-      exercise === 'Exercise10'
-    ) {
-      navigation.navigate(exercise, { language: 'ar' });
-      return;
-    }
-
-    setNavigateTo(exercise);
-    setAnimationTriggered(true);
+    if (isLocked(exercise)) return;
+    navigation.navigate(exercise, { language: 'ar' });
   };
-
   useEffect(() => {
     if (animationTriggered) {
       Animated.stagger(100, [
@@ -581,7 +496,6 @@ export default function MenuPage({
     navigateTo,
     navigation,
   ]);
-
   useEffect(() => {
     if (!statsAnimationFinished) {
       const timer = setTimeout(
@@ -591,21 +505,17 @@ export default function MenuPage({
           ),
         3500
       );
-
       return () =>
         clearTimeout(timer);
     }
   }, [statsAnimationFinished]);
-
   const handleReportBug = useCallback(async () => {
     const to =
       'verbify2025@gmail.com';
-
     const subject =
       encodeURIComponent(
         'تقرير خطأ في تطبيق VERBIFY)'
       );
-
     const body =
       encodeURIComponent(
         [
@@ -672,14 +582,11 @@ export default function MenuPage({
           } (${Platform.Version})`,
         ].join('\n')
       );
-
     const url =
       `mailto:${to}?subject=${subject}&body=${body}`;
-
     try {
       const canOpen =
         await Linking.canOpenURL(url);
-
       if (canOpen) {
         await Linking.openURL(url);
       } else {
@@ -694,7 +601,6 @@ export default function MenuPage({
       );
     }
   }, []);
-
   if (!animationFinished) {
     return (
       <View
@@ -710,7 +616,6 @@ export default function MenuPage({
             setAnimationFinished(
               true
             );
-
             if (!navigateTo) {
               startAnimations();
             }
@@ -720,7 +625,6 @@ export default function MenuPage({
       </View>
     );
   }
-
   return (
     <View style={{ flex: 1 }}>
       <ScrollView
@@ -739,7 +643,6 @@ export default function MenuPage({
             source={require('./VERBIFY.png')}
             style={styles.image}
           />
-
           <Text
             style={styles.greeting}
             maxFontSizeMultiplier={
@@ -749,7 +652,6 @@ export default function MenuPage({
             أهلًا, {name}!
           </Text>
         </Animated.View>
-
         <TouchableOpacity
           activeOpacity={0.9}
           onPress={() =>
@@ -789,7 +691,6 @@ export default function MenuPage({
                     styles.statsImage
                   }
                 />
-
                 <FadeInView
                   style={
                     styles.statsTextContainer
@@ -810,7 +711,6 @@ export default function MenuPage({
                     >
                       التمارين المنجزة
                     </Text>
-
                     <View
                       style={
                         styles.statsBox
@@ -830,7 +730,6 @@ export default function MenuPage({
                       </Text>
                     </View>
                   </View>
-
                   <View
                     style={
                       styles.statsRow
@@ -846,7 +745,6 @@ export default function MenuPage({
                     >
                       متوسط النتائج
                     </Text>
-
                     <View
                       style={
                         styles.statsBox
@@ -867,7 +765,6 @@ export default function MenuPage({
                       </Text>
                     </View>
                   </View>
-
                   <View
                     style={
                       styles.statsRow
@@ -883,7 +780,6 @@ export default function MenuPage({
                     >
                       أيام التدريب
                     </Text>
-
                     <View
                       style={
                         styles.statsBox
@@ -906,9 +802,7 @@ export default function MenuPage({
             )}
           </Animated.View>
         </TouchableOpacity>
-
       <View style={styles.content}>
-
   {/* مكتبة الأفعال */}
   <Animated.View
     style={[
@@ -928,7 +822,6 @@ export default function MenuPage({
         >
           بطاقات الأفعال
         </Text>
-
         <Text
           style={styles.verbLibrarySubtitle}
           maxFontSizeMultiplier={1.2}
@@ -938,14 +831,12 @@ export default function MenuPage({
       </View>
     </TouchableOpacity>
   </Animated.View>
-
   <Animated.Text
     style={[styles.titleText, { opacity: titleOpacity }]}
     maxFontSizeMultiplier={1.2}
   >
     اختر تمرينًا
   </Animated.Text>
-
           {/* 1 */}
           <Animated.View
             style={[
@@ -965,7 +856,7 @@ export default function MenuPage({
             <TouchableOpacity
               onPress={() =>
                 handlePress(
-                  'Exercise1Ar'
+                  'Exercise1'
                 )
               }
             >
@@ -984,7 +875,6 @@ export default function MenuPage({
                 >
                   التمرين 1
                 </Text>
-
                 <Image
                   source={require('./star1.png')}
                   style={
@@ -992,7 +882,6 @@ export default function MenuPage({
                   }
                 />
               </View>
-
               <View
                 style={
                   styles.upperPart2
@@ -1009,7 +898,6 @@ export default function MenuPage({
                   بطاقات الأفعال من العبرية إلى العربية
                 </Text>
               </View>
-
               <View
                 style={
                   styles.lowerRight
@@ -1039,7 +927,6 @@ export default function MenuPage({
                       : 0}
                   </Text>
                 </Text>
-
                 <Text
                   style={
                     styles.lowerText
@@ -1069,7 +956,6 @@ export default function MenuPage({
               </View>
             </TouchableOpacity>
           </Animated.View>
-
           {/* 2 */}
           <Animated.View
             style={[
@@ -1089,7 +975,7 @@ export default function MenuPage({
             <TouchableOpacity
               onPress={() =>
                 handlePress(
-                  'Exercise2Ar'
+                  'Exercise2'
                 )
               }
             >
@@ -1108,7 +994,6 @@ export default function MenuPage({
                 >
                   التمرين 2
                 </Text>
-
                 <Image
                   source={require('./star2.png')}
                   style={
@@ -1116,7 +1001,6 @@ export default function MenuPage({
                   }
                 />
               </View>
-
               <View
                 style={
                   styles.upperPart2
@@ -1133,7 +1017,6 @@ export default function MenuPage({
                   بطاقات الأفعال من العربية إلى العبرية
                 </Text>
               </View>
-
               <View
                 style={
                   styles.lowerRight
@@ -1163,7 +1046,6 @@ export default function MenuPage({
                       : 0}
                   </Text>
                 </Text>
-
                 <Text
                   style={
                     styles.lowerText
@@ -1193,7 +1075,6 @@ export default function MenuPage({
               </View>
             </TouchableOpacity>
           </Animated.View>
-
           {/* حروف الجر 1 — FREE */}
           <Animated.View
             style={[
@@ -1237,7 +1118,6 @@ export default function MenuPage({
                 >
                   حروف الجر 1
                 </Text>
-
                 <Text
                   style={[
                     styles.upperText1,
@@ -1254,7 +1134,6 @@ export default function MenuPage({
                   جديد
                 </Text>
               </View>
-
               <View
                 style={
                   styles.upperPart2
@@ -1277,7 +1156,6 @@ export default function MenuPage({
                   حروف الجر مع اللواحق الضميرية
                 </Text>
               </View>
-
               <View
                 style={
                   styles.lowerRight
@@ -1311,7 +1189,6 @@ export default function MenuPage({
                       : 0}
                   </Text>
                 </Text>
-
                 <Text
                   style={[
                     styles.lowerText,
@@ -1344,7 +1221,6 @@ export default function MenuPage({
               </View>
             </TouchableOpacity>
           </Animated.View>
-
           <UpgradeBanner
             hasPro={hasPro}
             navigation={navigation}
@@ -1366,7 +1242,6 @@ export default function MenuPage({
               ],
             }}
           />
-
           {/* 3 */}
           <Animated.View
             style={[
@@ -1382,14 +1257,14 @@ export default function MenuPage({
                 ],
               },
               isLocked(
-                'Exercise3Ar'
+                'Exercise3'
               ) && lockStyle,
             ]}
           >
             <TouchableOpacity
               onPress={() =>
                 handlePress(
-                  'Exercise3Ar'
+                  'Exercise3'
                 )
               }
             >
@@ -1408,7 +1283,6 @@ export default function MenuPage({
                 >
                   التمرين 3
                 </Text>
-
                 <Image
                   source={require('./star3.png')}
                   style={
@@ -1416,7 +1290,6 @@ export default function MenuPage({
                   }
                 />
               </View>
-
               <View
                 style={
                   styles.upperPart2
@@ -1433,7 +1306,6 @@ export default function MenuPage({
                   تحديد بنية الفعل
                 </Text>
               </View>
-
               <View
                 style={
                   styles.lowerRight
@@ -1463,7 +1335,6 @@ export default function MenuPage({
                       : 0}
                   </Text>
                 </Text>
-
                 <Text
                   style={
                     styles.lowerText
@@ -1493,7 +1364,6 @@ export default function MenuPage({
               </View>
             </TouchableOpacity>
           </Animated.View>
-
           {/* 4 */}
           <Animated.View
             style={[
@@ -1509,14 +1379,14 @@ export default function MenuPage({
                 ],
               },
               isLocked(
-                'Exercise5Ar'
+                'Exercise5'
               ) && lockStyle,
             ]}
           >
             <TouchableOpacity
               onPress={() =>
                 handlePress(
-                  'Exercise5Ar'
+                  'Exercise5'
                 )
               }
             >
@@ -1535,7 +1405,6 @@ export default function MenuPage({
                 >
                   التمرين 4
                 </Text>
-
                 <Image
                   source={require('./star3.png')}
                   style={
@@ -1543,7 +1412,6 @@ export default function MenuPage({
                   }
                 />
               </View>
-
               <View
                 style={
                   styles.upperPart2
@@ -1562,7 +1430,6 @@ export default function MenuPage({
                   صيغة الأمر
                 </Text>
               </View>
-
               <View
                 style={
                   styles.lowerRight
@@ -1592,7 +1459,6 @@ export default function MenuPage({
                       : 0}
                   </Text>
                 </Text>
-
                 <Text
                   style={
                     styles.lowerText
@@ -1622,7 +1488,6 @@ export default function MenuPage({
               </View>
             </TouchableOpacity>
           </Animated.View>
-
           {/* الجذور والأوزان */}
 <Animated.View
   style={[
@@ -1651,7 +1516,6 @@ export default function MenuPage({
       >
         الجذور والأوزان
       </Text>
-
       <View style={styles.rootNewBadge}>
         <Text
           style={styles.rootNewText}
@@ -1661,7 +1525,6 @@ export default function MenuPage({
         </Text>
       </View>
     </View>
-
     <View style={styles.upperPart2}>
       <Text
         style={styles.upperText}
@@ -1670,7 +1533,6 @@ export default function MenuPage({
         أفعال من الجذر نفسه
       </Text>
     </View>
-
     <View style={[styles.lowerRight, styles.rootStats]}>
       <Text
         style={styles.lowerText}
@@ -1681,7 +1543,6 @@ export default function MenuPage({
           {stats.rootFamilies?.timesCompleted ?? 0}
         </Text>
       </Text>
-
       <Text
         style={styles.lowerText}
         maxFontSizeMultiplier={1.2}
@@ -1696,7 +1557,6 @@ export default function MenuPage({
     </View>
   </TouchableOpacity>
 </Animated.View>
-
           {/* 5 */}
           <Animated.View
             style={[
@@ -1713,14 +1573,14 @@ export default function MenuPage({
                 ],
               },
               isLocked(
-                'Exercise6Ar'
+                'Exercise6'
               ) && lockStyle,
             ]}
           >
             <TouchableOpacity
               onPress={() =>
                 handlePress(
-                  'Exercise6Ar'
+                  'Exercise6'
                 )
               }
             >
@@ -1739,7 +1599,6 @@ export default function MenuPage({
                 >
                   التمرين 5
                 </Text>
-
                 <Image
                   source={require('./star4.png')}
                   style={
@@ -1747,7 +1606,6 @@ export default function MenuPage({
                   }
                 />
               </View>
-
               <View
                 style={
                   styles.upperPart2
@@ -1764,7 +1622,6 @@ export default function MenuPage({
                   تصريف الأفعال من العربية إلى العبرية
                 </Text>
               </View>
-
               <View
                 style={
                   styles.lowerRight
@@ -1794,7 +1651,6 @@ export default function MenuPage({
                       : 0}
                   </Text>
                 </Text>
-
                 <Text
                   style={
                     styles.lowerText
@@ -1824,7 +1680,6 @@ export default function MenuPage({
               </View>
             </TouchableOpacity>
           </Animated.View>
-
           {/* 6 */}
           <Animated.View
             style={[
@@ -1841,14 +1696,14 @@ export default function MenuPage({
                 ],
               },
               isLocked(
-                'Exercise8Ar'
+                'Exercise8'
               ) && lockStyle,
             ]}
           >
             <TouchableOpacity
               onPress={() =>
                 handlePress(
-                  'Exercise8Ar'
+                  'Exercise8'
                 )
               }
             >
@@ -1867,7 +1722,6 @@ export default function MenuPage({
                 >
                   التمرين 6
                 </Text>
-
                 <Image
                   source={require('./star4.png')}
                   style={
@@ -1875,7 +1729,6 @@ export default function MenuPage({
                   }
                 />
               </View>
-
               <View
                 style={
                   styles.upperPart2
@@ -1892,7 +1745,6 @@ export default function MenuPage({
                   تصريف الأفعال من العبرية إلى العربية
                 </Text>
               </View>
-
               <View
                 style={
                   styles.lowerRight
@@ -1922,7 +1774,6 @@ export default function MenuPage({
                       : 0}
                   </Text>
                 </Text>
-
                 <Text
                   style={
                     styles.lowerText
@@ -1952,7 +1803,6 @@ export default function MenuPage({
               </View>
             </TouchableOpacity>
           </Animated.View>
-
           {/* حروف الجر 2 — PAID */}
           <Animated.View
             style={[
@@ -1999,7 +1849,6 @@ export default function MenuPage({
                 >
                   حروف الجر 2
                 </Text>
-
                 <Text
                   style={[
                     styles.upperText1,
@@ -2019,7 +1868,6 @@ export default function MenuPage({
                   جديد
                 </Text>
               </View>
-
               <View
                 style={
                   styles.upperPart2
@@ -2043,7 +1891,6 @@ export default function MenuPage({
                   حروف الجر بعد الأفعال وحروف الجر المتصلة
                 </Text>
               </View>
-
               <View
                 style={
                   styles.lowerRight
@@ -2080,7 +1927,6 @@ export default function MenuPage({
                       : 0}
                   </Text>
                 </Text>
-
                 <Text
                   style={[
                     styles.lowerText,
@@ -2119,7 +1965,6 @@ export default function MenuPage({
               </View>
             </TouchableOpacity>
           </Animated.View>
-
           {/* 7 */}
           <Animated.View
             style={[
@@ -2136,14 +1981,14 @@ export default function MenuPage({
                 ],
               },
               isLocked(
-                'Exercise4Ar'
+                'Exercise4'
               ) && lockStyle,
             ]}
           >
             <TouchableOpacity
               onPress={() =>
                 handlePress(
-                  'Exercise4Ar'
+                  'Exercise4'
                 )
               }
             >
@@ -2162,7 +2007,6 @@ export default function MenuPage({
                 >
                   التمرين 7
                 </Text>
-
                 <Image
                   source={require('./star5.png')}
                   style={
@@ -2170,7 +2014,6 @@ export default function MenuPage({
                   }
                 />
               </View>
-
               <View
                 style={
                   styles.upperPart2
@@ -2187,7 +2030,6 @@ export default function MenuPage({
                   تصريف الأفعال من العربية إلى العبرية
                 </Text>
               </View>
-
               <View
                 style={
                   styles.lowerRight
@@ -2217,7 +2059,6 @@ export default function MenuPage({
                       : 0}
                   </Text>
                 </Text>
-
                 <Text
                   style={
                     styles.lowerText
@@ -2247,7 +2088,6 @@ export default function MenuPage({
               </View>
             </TouchableOpacity>
           </Animated.View>
-
           {/* 8 */}
           <Animated.View
             style={[
@@ -2264,14 +2104,14 @@ export default function MenuPage({
                 ],
               },
               isLocked(
-                'Exercise7Ar'
+                'Exercise7'
               ) && lockStyle,
             ]}
           >
             <TouchableOpacity
               onPress={() =>
                 handlePress(
-                  'Exercise7Ar'
+                  'Exercise7'
                 )
               }
             >
@@ -2290,7 +2130,6 @@ export default function MenuPage({
                 >
                   التمرين 8
                 </Text>
-
                 <Image
                   source={require('./star5.png')}
                   style={
@@ -2298,7 +2137,6 @@ export default function MenuPage({
                   }
                 />
               </View>
-
               <View
                 style={
                   styles.upperPart2
@@ -2315,7 +2153,6 @@ export default function MenuPage({
                   تصريف الأفعال من العبرية إلى العربية
                 </Text>
               </View>
-
               <View
                 style={
                   styles.lowerRight
@@ -2345,7 +2182,6 @@ export default function MenuPage({
                       : 0}
                   </Text>
                 </Text>
-
                 <Text
                   style={
                     styles.lowerText
@@ -2375,7 +2211,6 @@ export default function MenuPage({
               </View>
             </TouchableOpacity>
           </Animated.View>
-
           {/* 9–10 */}
           {[
             { screen: 'Exercise9', statsKey: 'exercise9', number: 9, title: 'الفعل في الجملة', opacity: button11Opacity, translateY: button11TranslateY },
@@ -2430,7 +2265,6 @@ export default function MenuPage({
               </TouchableOpacity>
             </Animated.View>
           ))}
-
           {/* DESCRIPTION */}
           <Animated.View
             style={[
@@ -2463,7 +2297,6 @@ export default function MenuPage({
                   styles.infoIcon
                 }
               />
-
               <Text
                 style={
                   styles.infoText
@@ -2478,7 +2311,6 @@ export default function MenuPage({
               </Text>
             </TouchableOpacity>
           </Animated.View>
-
           <AppDescriptionModal
             visible={
               isModalVisible
@@ -2489,7 +2321,6 @@ export default function MenuPage({
               )
             }
           />
-
           {/* ABOUT */}
           <Animated.View
             style={[
@@ -2522,7 +2353,6 @@ export default function MenuPage({
                   styles.infoIcon
                 }
               />
-
               <Text
                 style={
                   styles.infoText
@@ -2537,7 +2367,6 @@ export default function MenuPage({
               </Text>
             </TouchableOpacity>
           </Animated.View>
-
           <AppInfoModal
             visible={
               isInfoModalVisible
@@ -2548,7 +2377,6 @@ export default function MenuPage({
               )
             }
           />
-
           {/* REPORT BUG */}
           <Animated.View
             style={[
@@ -2595,7 +2423,6 @@ export default function MenuPage({
           </Animated.View>
         </View>
       </ScrollView>
-
       <StatsReportModalMulti
         visible={
           isStatModalVisible
@@ -2610,7 +2437,6 @@ export default function MenuPage({
     </View>
   );
 }
-
 const styles = StyleSheet.create({
   buttonIcon: {
     width: 30,
@@ -2618,7 +2444,6 @@ const styles = StyleSheet.create({
     position: 'absolute',
     left: 30,
   },
-
   statsContainer: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -2630,26 +2455,22 @@ const styles = StyleSheet.create({
     borderColor: '#2D4769',
     height: 90,
   },
-
   statsImage: {
     width: 80,
     height: 80,
     marginRight: 12,
     marginLeft: 10,
   },
-
   statsTextContainer: {
     flex: 1,
     marginTop: 5,
   },
-
   statsRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: 1,
   },
-
   statsText: {
     fontSize: 11,
     color: 'white',
@@ -2659,7 +2480,6 @@ const styles = StyleSheet.create({
     lineHeight: 18,
     ...AR_TEXT_BOLD,
   },
-
   statsBox: {
     minWidth: 50,
     height: 20,
@@ -2670,7 +2490,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 3,
   },
-
   statsValue: {
     fontSize: 11,
     fontWeight: 'bold',
@@ -2681,31 +2500,26 @@ const styles = StyleSheet.create({
     textAlignVertical: 'center',
     marginTop: -1,
   },
-
   container: {
     flex: 1,
     paddingHorizontal: 10,
     paddingVertical: 0,
     backgroundColor: '#f0f0f0',
   },
-
   title: {
     alignItems: 'center',
   },
-
   headerContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: -5,
   },
-
   image: {
     width: 90,
     height: 90,
     marginRight: 20,
     marginLeft: 5,
   },
-
   greeting: {
     fontSize: 20,
     color: '#2D4769',
@@ -2713,28 +2527,22 @@ const styles = StyleSheet.create({
     lineHeight: 24,
     ...AR_TEXT_BOLD,
   },
-
   verbLibraryContainer:{
   width:'100%',
   marginTop:12,
   marginBottom:2,
 },
-
 verbLibraryButton:{
   width:'100%',
   minHeight:82,
   alignItems:'center',
   justifyContent:'center',
-
   backgroundColor:'#83A3CD',
-
   borderRadius:12,
   borderWidth:3,
   borderColor:'#2D4769',
-
   paddingHorizontal:14,
   paddingVertical:7,
-
   shadowColor:'#000',
   shadowOpacity:0.15,
   shadowRadius:6,
@@ -2744,13 +2552,11 @@ verbLibraryButton:{
   },
   elevation:5,
 },
-
 verbLibraryTextContainer:{
   width:'100%',
   alignItems:'center',
   justifyContent:'center',
 },
-
 verbLibraryTitle:{
   color:'#FFFDEF',
   fontSize:17,
@@ -2758,7 +2564,6 @@ verbLibraryTitle:{
   fontWeight:'900',
   textAlign:'center',
 },
-
 verbLibrarySubtitle:{
   marginTop:2,
   color:'#E8EEF7',
@@ -2767,7 +2572,6 @@ verbLibrarySubtitle:{
   fontWeight:'800',
   textAlign:'center',
 },
-
   titleText: {
     fontSize: 21,
     textAlign: 'center',
@@ -2777,7 +2581,6 @@ verbLibrarySubtitle:{
     lineHeight: 28,
     ...AR_TEXT_BOLD,
   },
-
   titleText1: {
     fontSize: 16,
     textAlign: 'center',
@@ -2787,7 +2590,6 @@ verbLibrarySubtitle:{
     lineHeight: 20,
     ...AR_TEXT_BOLD,
   },
-
   buttonContainer: {
     width: '100%',
     alignItems: 'center',
@@ -2797,7 +2599,6 @@ verbLibrarySubtitle:{
     borderRadius: 10,
     marginBottom: 10,
   },
-
   buttonContainer1: {
     flexDirection: 'row',
     width: '100%',
@@ -2812,14 +2613,12 @@ verbLibrarySubtitle:{
     borderWidth: 3,
     borderColor: '#bd462a',
   },
-
   upperPart1: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     width: '96%',
   },
-
   upperPart2: {
     flexDirection: 'row',
     justifyContent: 'center',
@@ -2828,7 +2627,6 @@ verbLibrarySubtitle:{
     paddingHorizontal: 8,
     flexWrap: 'wrap',
   },
-
   upperText1: {
     fontSize: 12,
     color: '#2D4769',
@@ -2840,7 +2638,6 @@ verbLibrarySubtitle:{
     lineHeight: 12,
     ...AR_TEXT_BOLD,
   },
-
   upperText: {
     fontSize: 15,
     color: 'white',
@@ -2850,7 +2647,6 @@ verbLibrarySubtitle:{
     flexShrink: 1,
     ...AR_TEXT_BOLD,
   },
-
   lowerRight: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -2858,7 +2654,6 @@ verbLibrarySubtitle:{
     paddingHorizontal: 10,
     alignItems: 'center',
   },
-
   lowerText: {
     fontSize: 12,
     textAlign: 'center',
@@ -2869,7 +2664,6 @@ verbLibrarySubtitle:{
     lineHeight: 18,
     ...AR_TEXT_BOLD,
   },
-
   image1: {
     width: 100,
     height: 25,
@@ -2877,37 +2671,31 @@ verbLibrarySubtitle:{
     marginRight: 10,
     marginTop: -5,
   },
-
   statValue: {
     color: 'red',
     fontWeight: 'bold',
     textAlignVertical: 'center',
     fontSize: 12,
   },
-
   animationContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#f0f0f0',
   },
-
   lottie: {
     width: 300,
     height: 300,
   },
-
   statsAnimation: {
     width: '100%',
     height: '150%',
   },
-
   infoWrap: {
     width: '100%',
     alignItems: 'center',
     marginBottom: 10,
   },
-
   infoButton: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -2921,13 +2709,11 @@ verbLibrarySubtitle:{
     minHeight: 52,
     width: '100%',
   },
-
   infoIcon: {
     width: 24,
     height: 24,
     marginRight: 12,
   },
-
   infoText: {
     flexShrink: 1,
     textAlign: 'center',
@@ -2941,7 +2727,6 @@ verbLibrarySubtitle:{
     marginLeft: 0,
     ...AR_TEXT_BOLD,
   },
-
   prepositionButtonContainer: {
     backgroundColor: '#3F7C78',
     borderWidth: 3,
@@ -2955,7 +2740,6 @@ verbLibrarySubtitle:{
     },
     elevation: 8,
   },
-
   newExerciseBadge: {
     backgroundColor: '#E85D4A',
     color: '#FFFFFF',
@@ -2974,11 +2758,9 @@ verbLibrarySubtitle:{
   shadowOffset: { width: 0, height: 2 },
   elevation: 8,
 },
-
 rootTouchable: {
   width: '100%',
 },
-
 rootHeading: {
   flexDirection: 'row',
   flexWrap: 'wrap',
@@ -2988,7 +2770,6 @@ rootHeading: {
   marginBottom: 10,
   paddingHorizontal: 10,
 },
-
 rootTitle: {
   flexShrink: 1,
   color: '#2D4769',
@@ -3002,7 +2783,6 @@ rootTitle: {
   writingDirection: 'rtl',
   textAlign: 'right',
 },
-
 rootNewBadge: {
   alignSelf: 'flex-start',
   paddingHorizontal: 8,
@@ -3012,7 +2792,6 @@ rootNewBadge: {
   maxWidth: '100%',
   flexShrink: 1,
 },
-
 rootNewText: {
   color: '#49345F',
   fontSize: 10,
@@ -3021,7 +2800,6 @@ rootNewText: {
   textAlign: 'center',
   writingDirection: 'rtl',
 },
-
 rootStats: {
   flexWrap: 'wrap',
   gap: 6,

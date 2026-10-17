@@ -61,109 +61,143 @@ const AppDescriptionModal = ({ visible, onToggle }) => {
               </View>
 
               {/* العنوان */}
-              <Text style={styles.modalTitle}>وصف التطبيق</Text>
+<Text style={styles.modalTitle}>وصف التطبيق</Text>
 
-              <Text style={styles.modalText}>
-                هذا{' '}
-                <Text style={[styles.bold, styles.highlightMain]}>
-                  مدرب وأداة فعالة
-                </Text>{' '}
-                لأولئك الذين يدرسون العبرية بالفعل،
-                لديهم{' '}
-                <Text style={[styles.bold, styles.highlightMain]}>
-                  معرفة أساسية،
-                </Text>{' '}
-                يريدون
-                <Text style={[styles.bold, styles.highlightMain]}>
-                  تعلم تصريف الأفعال بسرعة وبشكل صحيح
-                </Text>{' '}
-                أو{' '}
-                <Text style={[styles.bold, styles.highlightMain]}>
-                  تحسين هذه المهارة
-                </Text>
-                .
-                التطبيق مفيد أيضًا{' '}
-                <Text style={[styles.bold, styles.highlightAccent]}>
-                  للمبتدئين
-                </Text>
-                ، حيث يتضمن تمارين
-                <Text style={[styles.bold, styles.highlightMain]}>
-                  لحفظ الأفعال
-                </Text>
-                ، وأشكالها،{' '}
-                <Text style={[styles.bold, styles.highlightAccent]}>
-                  والأبنية
-                </Text>{' '}
-                و
-                <Text style={[styles.bold, styles.highlightAccent]}>
-                  التدريب على استخدام صيغة الأمر (الأوامر)
-                </Text>
-                .
-              </Text>
+<Text style={styles.modalText}>
+  Verbify هو{' '}
+  <Text style={[styles.bold, styles.highlightMain]}>
+    أداة عملية لتعلّم الأفعال العبرية والتدرّب عليها
+  </Text>
+  . يساعدك على حفظ الأفعال، وفهم الأوزان، والتدرّب على التصريف،
+  وتعلّم ارتباط الأفعال بحروف الجر، واستخدام الأفعال بشكل صحيح
+  داخل الجمل.
+</Text>
 
-              {/* التمارين الرئيسية */}
-              <Text style={styles.modalTitle}>التمارين الرئيسية</Text>
+<Text style={styles.modalText}>
+  يناسب التطبيق من لديهم بالفعل{' '}
+  <Text style={[styles.bold, styles.highlightMain]}>
+    معرفة أساسية باللغة العبرية
+  </Text>
+  ، كما يناسب المبتدئين الذين يريدون تعلّم الأفعال الأكثر شيوعًا
+  وأشكالها المختلفة تدريجيًا.
+</Text>
 
-              <Text style={styles.modalText}>
-                <Text style={[styles.bold, styles.highlightMain]}>
-                  تصريف الأفعال هو جزء رئيسي من التطبيق.
-                </Text>
-              </Text>
+{/* بطاقات الأفعال */}
+<Text style={styles.modalTitle}>بطاقات الأفعال</Text>
 
-              <Text style={styles.listItem}>
-                <Text style={[styles.bold, styles.highlightExercise]}>
-                  • التمرينان 5 و 6 -
-                </Text>{' '}
-                هما المهام الرئيسية لممارسة التصريف. نوصي بتنفيذها بانتظام حتى تصبح المهارة تلقائية.
-              </Text>
+<Text style={styles.listItem}>
+  <Text style={[styles.bold, styles.highlightExercise]}>
+    • بطاقات الأفعال —
+  </Text>{' '}
+  طريقة سريعة ومريحة لمراجعة الفعل وترجمته ووزنه
+  وأشكال تصريفه المختلفة.
+</Text>
 
-              <Text style={styles.listItem}>
-                <Text style={[styles.bold, styles.highlightExercise]}>
-                  • التمرينان 7 و 8 -
-                </Text>{' '}
-                إصدارات متقدمة من التمرينين 5 و 6. وهي مصممة لأولئك الذين حققوا بالفعل نتائج واثقة ويريدون الارتقاء بممارستهم إلى المستوى التالي.
-              </Text>
+{/* التمارين */}
+<Text style={styles.modalTitle}>التمارين</Text>
 
-              <Text style={styles.listItem}>
-                <Text style={[styles.bold, styles.highlightTip]}>
-                  • نصيحة:
-                </Text>{' '}
-                مارس أولاً التصريف في التمرينين 5 و 6، ثم انتقل إلى التمرينين 7 و 8 الأكثر تعقيدًا!
-              </Text>
+<Text style={styles.listItem}>
+  <Text style={[styles.bold, styles.highlightExercise]}>
+    • التمرينان 1 و2 —
+  </Text>{' '}
+  يساعدان على حفظ أكثر من 400 فعل عبري أساسي وربط
+  كل فعل مكتوب بمعناه.
+</Text>
 
-              <Text style={styles.modalText}>
-                <Text style={[styles.bold, styles.highlightMain]}>
-                  تمارين لتعلم الأساسيات.
-                </Text>
-              </Text>
+<Text style={styles.listItem}>
+  <Text style={[styles.bold, styles.highlightExercise]}>
+    • التمرين 3 —
+  </Text>{' '}
+  تدريب على تحديد وزن الفعل العبري.
+</Text>
 
-              <Text style={styles.listItem}>
-                <Text style={[styles.bold, styles.highlightExercise]}>
-                  • التمرينان 1 و 2 -
-                </Text>{' '}
-                يساعدان على حفظ حوالي 400 فعل رئيسي وأشكاله الأساسية.
-              </Text>
+<Text style={styles.listItem}>
+  <Text style={[styles.bold, styles.highlightExercise]}>
+    • التمرين 4 —
+  </Text>{' '}
+  تدريب على صيغة الأمر في اللغة العبرية.
+</Text>
 
-              <Text style={styles.listItem}>
-                <Text style={[styles.bold, styles.highlightExercise]}>
-                  • التمرين 3 -
-                </Text>{' '}
-                التدريب على تحديد بنية الفعل (المعرفة الأساسية مطلوبة).
-              </Text>
+<Text style={styles.listItem}>
+  <Text style={[styles.bold, styles.highlightExercise]}>
+    • التمرينان 5 و6 —
+  </Text>{' '}
+  التمارين الأساسية للتدرّب على تصريف الأفعال العبرية.
+  يساعد التدريب المنتظم على اختيار الصيغة الصحيحة للفعل
+  بصورة أسرع وتلقائية.
+</Text>
 
-              <Text style={styles.listItem}>
-                <Text style={[styles.bold, styles.highlightExercise]}>
-                  • التمرين 4 -
-                </Text>{' '}
-                مدرب لممارسة صيغة الأمر في العبرية.
-              </Text>
+<Text style={styles.listItem}>
+  <Text style={[styles.bold, styles.highlightExercise]}>
+    • التمرينان 7 و8 —
+  </Text>{' '}
+  تدريب أكثر تقدّمًا على التصريف لمن أصبحوا متمكنين
+  من التمارين الأساسية.
+</Text>
 
-              {/* الكتلة النهائية */}
-              <Text style={styles.finalText}>
-                <Text style={[styles.bold, styles.highlightFinal]}>
-                  الممارسة المستمرة للتمارين تضع أساسًا متينًا للاستخدام الصحيح للأفعال وتصريفها في الكلام اليومي!
-                </Text>
-              </Text>
+<Text style={styles.listItem}>
+  <Text style={[styles.bold, styles.highlightExercise]}>
+    • التمرين 9 «الفعل في الجملة» —
+  </Text>{' '}
+  اختر الصيغة الصحيحة للفعل وفقًا لسياق الجملة.
+  انتبه إلى الزمن والشخص والعدد والجنس.
+</Text>
+
+<Text style={styles.listItem}>
+  <Text style={[styles.bold, styles.highlightExercise]}>
+    • التمرين 10 «استمع وافهم» —
+  </Text>{' '}
+  استمع إلى جمل باللغة العبرية واختر الترجمة الصحيحة.
+  يساعد هذا التمرين على تطوير فهم اللغة المسموعة.
+</Text>
+
+{/* الأفعال وحروف الجر */}
+<Text style={styles.modalTitle}>الأفعال وحروف الجر</Text>
+
+<Text style={styles.listItem}>
+  <Text style={[styles.bold, styles.highlightExercise]}>
+    • «حروف الجر 1» —
+  </Text>{' '}
+  تدريب على أكثر حروف الجر شيوعًا التي تُستخدم مع الأفعال
+  في العبرية اليومية.
+</Text>
+
+<Text style={styles.listItem}>
+  <Text style={[styles.bold, styles.highlightExercise]}>
+    • «حروف الجر 2» —
+  </Text>{' '}
+  تدريب أكثر تقدّمًا على تراكيب الأفعال مع حروف الجر.
+  يساعدك على تعلّم التراكيب الطبيعية بدلًا من حفظ الكلمات
+  بشكل منفصل.
+</Text>
+
+{/* الأفعال من الجذر نفسه */}
+<Text style={styles.modalTitle}>أفعال من الجذر نفسه</Text>
+
+<Text style={styles.listItem}>
+  <Text style={[styles.bold, styles.highlightExercise]}>
+    • «أفعال من الجذر نفسه» —
+  </Text>{' '}
+  قارن بين أفعال تشترك في الجذر نفسه ولكنها تأتي في أوزان مختلفة،
+  ولاحظ كيف يمكن أن يؤدي تغيّر الوزن إلى تغيّر معنى الفعل.
+</Text>
+
+{/* نصيحة */}
+<Text style={styles.listItem}>
+  <Text style={[styles.bold, styles.highlightTip]}>• نصيحة:</Text>{' '}
+  ابدأ بتعلّم الأفعال وأشكالها الأساسية، ثم انتقل إلى التصريف
+  وحروف الجر والجمل. بهذه الطريقة تصبح الصيغ الصحيحة أسرع
+  وأسهل في التعرّف عليها واستخدامها تلقائيًا.
+</Text>
+
+{/* النص الختامي */}
+<Text style={styles.finalText}>
+  <Text style={[styles.bold, styles.highlightFinal]}>
+    يساعدك التدريب المنتظم مع Verbify ليس فقط على حفظ الأفعال العبرية،
+    بل أيضًا على التعرّف على أشكالها بسرعة أكبر، واستخدامها بشكل صحيح
+    داخل الجمل، وفهم العبرية المنطوقة بصورة أفضل.
+  </Text>
+</Text>
             </ScrollView>
 
             {/* Fixed Close Button */}

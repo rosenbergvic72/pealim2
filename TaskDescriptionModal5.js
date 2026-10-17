@@ -129,21 +129,21 @@ const translations = {
 const windowHeight = Dimensions.get('window').height;
 
 const languageMap = {
-  русский: 'ru',
-  english: 'en',
-  français: 'fr',
-  español: 'es',
-  português: 'pt',
-  العربية: 'ar',
-  አማርኛ: 'am',
+  ru: 'ru', russian: 'ru', русский: 'ru',
+  en: 'en', english: 'en',
+  fr: 'fr', french: 'fr', français: 'fr', francais: 'fr',
+  es: 'es', spanish: 'es', español: 'es', espanol: 'es',
+  pt: 'pt', portuguese: 'pt', português: 'pt', portugues: 'pt', 'pt-pt': 'pt', 'pt-br': 'pt',
+  ar: 'ar', arabic: 'ar', العربية: 'ar',
+  am: 'am', amharic: 'am', አማርኛ: 'am',
 };
 
-const TaskDescriptionModal4 = ({ visible, onToggle, language }) => {
+const TaskDescriptionModal5 = ({ visible, onToggle, language }) => {
   // ✅ iOS: если закрыто — не монтируем
   if (!visible) return null;
 
-  const normalizedInput = (language || '').toLowerCase().trim();
-  const langCode = languageMap[normalizedInput] || 'en';
+  const normalizedInput = String(language || 'ru').toLowerCase().trim().replace('_', '-');
+  const langCode = languageMap[normalizedInput] || languageMap[normalizedInput.split('-')[0]] || 'ru';
   const t = translations[langCode] || translations.en;
 
   return (
@@ -391,4 +391,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default TaskDescriptionModal4;
+export default TaskDescriptionModal5;

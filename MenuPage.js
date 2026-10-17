@@ -402,18 +402,7 @@ const button10TranslateY = useRef(new Animated.Value(250)).current;
     !__DEV__ && !fullAccess && !isFreeName(screenName);
   const handlePress = exercise => {
     if (isLocked(exercise)) return;
-    if (
-      exercise === 'PrepositionExercise' ||
-      exercise === 'PrepositionVerbExercise' ||
-      exercise === 'RootVerbExercise' ||
-      exercise === 'Exercise9' ||
-      exercise === 'Exercise10'
-    ) {
-      navigation.navigate(exercise, { language: 'ru' });
-      return;
-    }
-    setNavigateTo(exercise);
-    setAnimationTriggered(true);
+    navigation.navigate(exercise, { language: 'ru' });
   };
   useEffect(() => {
     if (!animationTriggered) return;

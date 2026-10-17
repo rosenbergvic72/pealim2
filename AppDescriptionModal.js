@@ -60,106 +60,141 @@ const AppDescriptionModal = ({ visible, onToggle }) => {
                 <Image source={require('./VERBIFY.png')} style={styles.logo} />
               </View>
 
-              {/* Заголовок */}
-              <Text style={styles.modalTitle}>ОПИСАНИЕ ПРИЛОЖЕНИЯ</Text>
+    {/* Заголовок */}
+<Text style={styles.modalTitle}>ОПИСАНИЕ ПРИЛОЖЕНИЯ</Text>
 
-              <Text style={styles.modalText}>
-                Это{' '}
-                <Text style={[styles.bold, styles.highlightMain]}>
-                  эффективный тренажер и инструмент
-                </Text>{' '}
-                для тех, кто уже изучает иврит, обладает{' '}
-                <Text style={[styles.bold, styles.highlightMain]}>
-                  базовыми знаниями
-                </Text>
-                , хочет{' '}
-                <Text style={[styles.bold, styles.highlightMain]}>
-                  научиться быстро и правильно спрягать глаголы
-                </Text>{' '}
-                или{' '}
-                <Text style={[styles.bold, styles.highlightMain]}>
-                  совершенствовать этот навык
-                </Text>
-                . Приложение также полезно{' '}
-                <Text style={[styles.bold, styles.highlightAccent]}>
-                  начинающим
-                </Text>
-                , так как включает упражнения для{' '}
-                <Text style={[styles.bold, styles.highlightMain]}>
-                  запоминания глаголов
-                </Text>
-                , их форм,{' '}
-                <Text style={[styles.bold, styles.highlightAccent]}>биньянов</Text> и{' '}
-                <Text style={[styles.bold, styles.highlightAccent]}>
-                  тренировки использования повелительного наклонения (императивов)
-                </Text>
-                .
-              </Text>
+<Text style={styles.modalText}>
+  Verbify — это{' '}
+  <Text style={[styles.bold, styles.highlightMain]}>
+    тренажёр и практический инструмент для изучения глаголов иврита
+  </Text>
+  . Он помогает запоминать глаголы, понимать биньяны, тренировать спряжение,
+  употребление предлогов и использование глаголов в предложениях.
+</Text>
 
-              {/* Основные упражнения */}
-              <Text style={styles.modalTitle}>ОСНОВНЫЕ УПРАЖНЕНИЯ</Text>
+<Text style={styles.modalText}>
+  Приложение подходит как тем, кто уже имеет{' '}
+  <Text style={[styles.bold, styles.highlightMain]}>
+    базовые знания иврита
+  </Text>
+  , так и начинающим, которые хотят постепенно освоить наиболее употребительные
+  глаголы и их формы.
+</Text>
 
-              <Text style={styles.modalText}>
-                <Text style={[styles.bold, styles.highlightMain]}>
-                  Спряжение глаголов – ключевая часть приложения.
-                </Text>
-              </Text>
+{/* Карточки глаголов */}
+<Text style={styles.modalTitle}>КАРТОЧКИ ГЛАГОЛОВ</Text>
 
-              <Text style={styles.listItem}>
-                <Text style={[styles.bold, styles.highlightExercise]}>
-                  • Упражнения 5 и 6 –
-                </Text>{' '}
-                это основные задания для тренировки спряжения. Рекомендуем регулярно выполнять их, пока
-                навык не станет автоматическим.
-              </Text>
+<Text style={styles.listItem}>
+  <Text style={[styles.bold, styles.highlightExercise]}>
+    • Карточки глаголов —
+  </Text>{' '}
+  удобный способ быстро посмотреть информацию о глаголе, его переводе,
+  биньяне и формах спряжения.
+</Text>
 
-              <Text style={styles.listItem}>
-                <Text style={[styles.bold, styles.highlightExercise]}>
-                  • Упражнения 7 и 8 –
-                </Text>{' '}
-                усложненные версии упражнений 5 и 6. Они предназначены для тех, кто уже достиг уверенных
-                результатов и хочет вывести свою практику на новый уровень.
-              </Text>
+{/* Основные упражнения */}
+<Text style={styles.modalTitle}>УПРАЖНЕНИЯ</Text>
 
-              <Text style={styles.listItem}>
-                <Text style={[styles.bold, styles.highlightTip]}>• Совет:</Text>{' '}
-                сначала отработайте спряжение в упражнениях 5 и 6, а затем переходите к более сложным 7 и 8!
-              </Text>
+<Text style={styles.listItem}>
+  <Text style={[styles.bold, styles.highlightExercise]}>
+    • Упражнения 1 и 2 —
+  </Text>{' '}
+  помогают запоминать более 400 основных глаголов иврита и связывать
+  написание глагола с его переводом.
+</Text>
 
-              <Text style={styles.modalText}>
-                <Text style={[styles.bold, styles.highlightMain]}>
-                  Упражнения для изучения основ.
-                </Text>
-              </Text>
+<Text style={styles.listItem}>
+  <Text style={[styles.bold, styles.highlightExercise]}>
+    • Упражнение 3 —
+  </Text>{' '}
+  тренировка определения биньяна глагола.
+</Text>
 
-              <Text style={styles.listItem}>
-                <Text style={[styles.bold, styles.highlightExercise]}>
-                  • Упражнения 1 и 2 –
-                </Text>{' '}
-                помогают запомнить более 400 ключевых глаголов и их основные формы.
-              </Text>
+<Text style={styles.listItem}>
+  <Text style={[styles.bold, styles.highlightExercise]}>
+    • Упражнение 4 —
+  </Text>{' '}
+  тренировка повелительного наклонения в иврите.
+</Text>
 
-              <Text style={styles.listItem}>
-                <Text style={[styles.bold, styles.highlightExercise]}>
-                  • Упражнение 3 –
-                </Text>{' '}
-                тренировка определения биньяна глагола (необходимы базовые знания).
-              </Text>
+<Text style={styles.listItem}>
+  <Text style={[styles.bold, styles.highlightExercise]}>
+    • Упражнения 5 и 6 —
+  </Text>{' '}
+  основные упражнения для тренировки спряжения глаголов.
+  Регулярная практика помогает довести выбор правильной формы до автоматизма.
+</Text>
 
-              <Text style={styles.listItem}>
-                <Text style={[styles.bold, styles.highlightExercise]}>
-                  • Упражнение 4 –
-                </Text>{' '}
-                тренажер для отработки повелительного наклонения в иврите.
-              </Text>
+<Text style={styles.listItem}>
+  <Text style={[styles.bold, styles.highlightExercise]}>
+    • Упражнения 7 и 8 —
+  </Text>{' '}
+  более сложная практика спряжения для тех, кто уже уверенно справляется
+  с базовыми заданиями.
+</Text>
 
-              {/* Финальный блок */}
-              <Text style={styles.finalText}>
-                <Text style={[styles.bold, styles.highlightFinal]}>
-                  Постоянное выполнение упражнений закладывает прочную основу для правильного применения
-                  глаголов и их спряжений в повседневной речи!
-                </Text>
-              </Text>
+<Text style={styles.listItem}>
+  <Text style={[styles.bold, styles.highlightExercise]}>
+    • Упражнение 9 «Глагол в предложении» —
+  </Text>{' '}
+  выберите правильную форму глагола по контексту предложения.
+  Здесь важно учитывать время, лицо, число и род.
+</Text>
+
+<Text style={styles.listItem}>
+  <Text style={[styles.bold, styles.highlightExercise]}>
+    • Упражнение 10 «Услышь и пойми» —
+  </Text>{' '}
+  слушайте предложения на иврите и выбирайте правильный перевод.
+  Упражнение развивает понимание речи на слух.
+</Text>
+
+{/* Предлоги */}
+<Text style={styles.modalTitle}>ГЛАГОЛЫ И ПРЕДЛОГИ</Text>
+
+<Text style={styles.listItem}>
+  <Text style={[styles.bold, styles.highlightExercise]}>
+    • «Предлоги 1» —
+  </Text>{' '}
+  тренировка основных предлогов, которые употребляются с глаголами
+  в повседневном иврите.
+</Text>
+
+<Text style={styles.listItem}>
+  <Text style={[styles.bold, styles.highlightExercise]}>
+    • «Предлоги 2» —
+  </Text>{' '}
+  более сложная практика сочетаний глаголов и предлогов.
+  Она помогает запоминать не отдельные слова, а естественные конструкции.
+</Text>
+
+{/* Однокоренные глаголы */}
+<Text style={styles.modalTitle}>ОДНОКОРЕННЫЕ ГЛАГОЛЫ</Text>
+
+<Text style={styles.listItem}>
+  <Text style={[styles.bold, styles.highlightExercise]}>
+    • «Однокоренные глаголы» —
+  </Text>{' '}
+  сравнивайте глаголы с одним корнем в разных биньянах и наблюдайте,
+  как изменение биньяна связано с изменением значения глагола.
+</Text>
+
+{/* Совет */}
+<Text style={styles.listItem}>
+  <Text style={[styles.bold, styles.highlightTip]}>• Совет:</Text>{' '}
+  начинайте с запоминания глаголов и базовых форм, затем переходите
+  к спряжению, предлогам и предложениям. Так новые формы постепенно
+  начинают использоваться автоматически.
+</Text>
+
+{/* Финальный блок */}
+<Text style={styles.finalText}>
+  <Text style={[styles.bold, styles.highlightFinal]}>
+    Регулярная практика в Verbify помогает не только запоминать глаголы,
+    но и быстрее узнавать их формы, правильно использовать их в предложениях
+    и лучше понимать живой иврит.
+  </Text>
+</Text>
             </ScrollView>
 
             {/* Кнопка закрытия */}

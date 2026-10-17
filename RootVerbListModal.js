@@ -823,11 +823,6 @@ const styles = StyleSheet.create({
     paddingTop: 6,
     paddingBottom: 10,
     backgroundColor: COLORS.background,
-    shadowColor: COLORS.shadow,
-    shadowOffset: { width: 0, height: -2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 8,
   },
   startButton: {
     width: '100%',

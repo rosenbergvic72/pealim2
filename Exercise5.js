@@ -890,20 +890,20 @@ const styles = StyleSheet.create({
     paddingTop: 0,
     paddingBottom: 0,
   },
-  logoImage: {
-    width: 90,
-    height: 90,
-    marginLeft: 10,
-  },
+logoImage:{
+  width:74,
+  height:74,
+  marginLeft:8
+},
   buttonContainer: {
     flexDirection: 'row',
     marginRight: 10,
   },
-  buttonImage: {
-    width: 44,
-    height: 44,
-    marginLeft: 10,
-  },
+buttonImage:{
+  width:38,
+  height:38,
+  marginLeft:8
+},
   title: {
     fontSize: 18,
     fontWeight: 'bold',

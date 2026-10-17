@@ -61,100 +61,149 @@ const AppDescriptionModal = ({ visible, onToggle }) => {
               </View>
 
               {/* ርዕስ */}
-              <Text style={styles.modalTitle}>የመተግበሪያ መግለጫ</Text>
+<Text style={styles.modalTitle}>የመተግበሪያው መግለጫ</Text>
 
-              <Text style={styles.modalText}>
-                ይህ{' '}
-                <Text style={[styles.bold, styles.highlightMain]}>
-                  ውጤታማ አሰልጣኝ እና መሣሪያ
-                </Text>{' '}
-                ቀድሞውኑ ዕብራይስጥን ለሚማሩ፣
-                <Text style={[styles.bold, styles.highlightMain]}>መሠረታዊ ዕውቀት</Text>{' '}
-                ላላቸው፣
-                <Text style={[styles.bold, styles.highlightMain]}>
-                  ግሦችን በፍጥነት እና በትክክል ማጣመር ለመማር
-                </Text>{' '}
-                ወይም{' '}
-                <Text style={[styles.bold, styles.highlightMain]}>
-                  ይህን ችሎታ ለማሻሻል
-                </Text>{' '}
-                ለሚፈልጉ ነው። መተግበሪያው{' '}
-                <Text style={[styles.bold, styles.highlightAccent]}>ለጀማሪዎች</Text>{' '}
-                ጠቃሚ ነው፣ ምክንያቱም{' '}
-                <Text style={[styles.bold, styles.highlightMain]}>ግሦችን</Text>፣ ቅርጾቻቸውን፣{' '}
-                <Text style={[styles.bold, styles.highlightAccent]}>ቢንያኖችን</Text> እና
-                <Text style={[styles.bold, styles.highlightAccent]}>
-                  {' '}
-                 ትዕዛዞችን (አስገዳጅዎችን) አጠቃቀምን ለመለማመድ
-                </Text>{' '}
-                መልመጃዎችን ያካትታል።
-              </Text>
+<Text style={styles.modalText}>
+  Verbify{' '}
+  <Text style={[styles.bold, styles.highlightMain]}>
+    የዕብራይስጥ ግሶችን ለመማርና ለመለማመድ የሚረዳ ተግባራዊ መሣሪያ
+  </Text>
+  {' '}ነው። ግሶችን ለማስታወስ፣ ቢንያኒምን ለመረዳት፣
+  የግስ ማጣመርን ለመለማመድ፣ ግሶችን ከመስተዋድዶች ጋር
+  በትክክል ለመጠቀም እና ግሶችን በዓረፍተ ነገሮች ውስጥ
+  በትክክል ለመጠቀም ይረዳል።
+</Text>
 
-              {/* ዋና ልምምዶች */}
-              <Text style={styles.modalTitle}>ዋና ልምምዶች</Text>
+<Text style={styles.modalText}>
+  መተግበሪያው{' '}
+  <Text style={[styles.bold, styles.highlightMain]}>
+    መሠረታዊ የዕብራይስጥ እውቀት
+  </Text>
+  {' '}ላላቸው ተማሪዎችም ሆነ በጣም የተለመዱ ግሶችን
+  እና የተለያዩ ቅርጾቻቸውን ቀስ በቀስ ለመማር ለሚፈልጉ
+  ጀማሪዎች ተስማሚ ነው።
+</Text>
 
-              <Text style={styles.modalText}>
-                <Text style={[styles.bold, styles.highlightMain]}>
-                  የግሶች ውህደት የመተግበሪያው ዋና አካል ነው።
-                </Text>
-              </Text>
+{/* የግስ ካርዶች */}
+<Text style={styles.modalTitle}>የግስ ካርዶች</Text>
 
-              <Text style={styles.listItem}>
-                <Text style={[styles.bold, styles.highlightExercise]}>
-                  • መልመጃዎች 5 እና 6 -
-                </Text>{' '}
-                ለውህደት ልምምድ ዋና ተግባራት ናቸው። ችሎታው በራስ-ሰር እስኪሆን ድረስ በየጊዜው እንዲሰሩ
-                እንመክራለን።
-              </Text>
+<Text style={styles.listItem}>
+  <Text style={[styles.bold, styles.highlightExercise]}>
+    • የግስ ካርዶች —
+  </Text>{' '}
+  አንድን ግስ፣ ትርጉሙን፣ ቢንያኑን እና የተለያዩ
+  የማጣመር ቅርጾቹን በፍጥነት ለመመልከት የሚረዳ
+  ቀላልና ምቹ መንገድ ነው።
+</Text>
 
-              <Text style={styles.listItem}>
-                <Text style={[styles.bold, styles.highlightExercise]}>
-                  • መልመጃዎች 7 እና 8 -
-                </Text>{' '}
-                የ 5 እና 6 መልመጃዎች የላቁ ስሪቶች ናቸው። እነሱ ቀድሞውኑ በራስ መተማመን ያላቸው ውጤቶችን
-                ላገኙ እና ልምዳቸውን ወደ ቀጣዩ ደረጃ ለማድረስ ለሚፈልጉ የተነደፉ ናቸው።
-              </Text>
+{/* ልምምዶች */}
+<Text style={styles.modalTitle}>ልምምዶች</Text>
 
-              <Text style={styles.listItem}>
-                <Text style={[styles.bold, styles.highlightTip]}>• ጠቃሚ ምክር:</Text>{' '}
-                በመጀመሪያ በ 5 እና 6 መልመጃዎች ውስጥ ውህደትን ይለማመዱ, ከዚያም ወደ ውስብስብ 7 እና 8
-                ይሂዱ!
-              </Text>
+<Text style={styles.listItem}>
+  <Text style={[styles.bold, styles.highlightExercise]}>
+    • ልምምድ 1 እና 2 —
+  </Text>{' '}
+  ከ400 በላይ አስፈላጊ የዕብራይስጥ ግሶችን ለማስታወስ
+  እና የተጻፈውን ግስ ከትርጉሙ ጋር ለማገናኘት ይረዳሉ።
+</Text>
 
-              <Text style={styles.modalText}>
-                <Text style={[styles.bold, styles.highlightMain]}>
-                  መሠረታዊ ነገሮችን ለመማር መልመጃዎች።
-                </Text>
-              </Text>
+<Text style={styles.listItem}>
+  <Text style={[styles.bold, styles.highlightExercise]}>
+    • ልምምድ 3 —
+  </Text>{' '}
+  የዕብራይስጥ ግስ ቢንያን ለመለየት የሚደረግ ልምምድ ነው።
+</Text>
 
-              <Text style={styles.listItem}>
-                <Text style={[styles.bold, styles.highlightExercise]}>
-                  • መልመጃዎች 1 እና 2 -
-                </Text>{' '}
-                ወደ 400 የሚጠጉ ቁልፍ ግሦችን እና መሰረታዊ ቅርጾቻቸውን ለማስታወስ ይረዳሉ።
-              </Text>
+<Text style={styles.listItem}>
+  <Text style={[styles.bold, styles.highlightExercise]}>
+    • ልምምድ 4 —
+  </Text>{' '}
+  በዕብራይስጥ የትእዛዝ ቅርጽን ለመለማመድ የሚረዳ ልምምድ ነው።
+</Text>
 
-              <Text style={styles.listItem}>
-                <Text style={[styles.bold, styles.highlightExercise]}>
-                  • መልመጃ 3 -
-                </Text>{' '}
-                የግስን ቢንያን ለመወሰን ልምምድ (መሠረታዊ ዕውቀት ያስፈልጋል)።
-              </Text>
+<Text style={styles.listItem}>
+  <Text style={[styles.bold, styles.highlightExercise]}>
+    • ልምምድ 5 እና 6 —
+  </Text>{' '}
+  የዕብራይስጥ ግሶችን ማጣመር ለመለማመድ ዋና ልምምዶች ናቸው።
+  መደበኛ ልምምድ ትክክለኛውን የግስ ቅርጽ በፍጥነትና
+  በራስ-ሰር ለመምረጥ ይረዳል።
+</Text>
 
-              <Text style={styles.listItem}>
-                <Text style={[styles.bold, styles.highlightExercise]}>
-                  • መልመጃ 4 -
-                </Text>{' '}
-                በዕብራይስጥ ውስጥ ትዕዛዞችን ለመለማመድ አሰልጣኝ።
-              </Text>
+<Text style={styles.listItem}>
+  <Text style={[styles.bold, styles.highlightExercise]}>
+    • ልምምድ 7 እና 8 —
+  </Text>{' '}
+  መሠረታዊ ልምምዶቹን በደንብ ለሚችሉ ተማሪዎች
+  የበለጠ የላቀ የግስ ማጣመር ልምምድ ናቸው።
+</Text>
 
-              {/* የመጨረሻ ብሎክ */}
-              <Text style={styles.finalText}>
-                <Text style={[styles.bold, styles.highlightFinal]}>
-                  የተከታታይ መልመጃዎች አፈፃፀም በዕለት ተዕለት ንግግር ውስጥ የግሦችን እና ውህደቶቻቸውን ትክክለኛ
-                  አጠቃቀም ጠንካራ መሠረት ይጥላል!
-                </Text>
-              </Text>
+<Text style={styles.listItem}>
+  <Text style={[styles.bold, styles.highlightExercise]}>
+    • ልምምድ 9 «ግስ በዓረፍተ ነገር ውስጥ» —
+  </Text>{' '}
+  በዓረፍተ ነገሩ አውድ መሠረት ትክክለኛውን የግስ ቅርጽ
+  ይምረጡ። ጊዜን፣ ሰውን፣ ቁጥርን እና ጾታን ያስተውሉ።
+</Text>
+
+<Text style={styles.listItem}>
+  <Text style={[styles.bold, styles.highlightExercise]}>
+    • ልምምድ 10 «አዳምጥ እና ተረዳ» —
+  </Text>{' '}
+  የዕብራይስጥ ዓረፍተ ነገሮችን ያዳምጡና ትክክለኛውን
+  ትርጉም ይምረጡ። ይህ ልምምድ የመስማት ግንዛቤን ያዳብራል።
+</Text>
+
+{/* ግሶች እና መስተዋድዶች */}
+<Text style={styles.modalTitle}>ግሶች እና መስተዋድዶች</Text>
+
+<Text style={styles.listItem}>
+  <Text style={[styles.bold, styles.highlightExercise]}>
+    • «መስተዋድዶች 1» —
+  </Text>{' '}
+  በዕለታዊ ዕብራይስጥ ከግሶች ጋር በብዛት የሚጠቀሙ
+  መስተዋድዶችን ለመለማመድ ይረዳል።
+</Text>
+
+<Text style={styles.listItem}>
+  <Text style={[styles.bold, styles.highlightExercise]}>
+    • «መስተዋድዶች 2» —
+  </Text>{' '}
+  ግሶችን ከመስተዋድዶች ጋር በማጣመር የሚደረግ
+  የበለጠ የላቀ ልምምድ ነው። ቃላትን በተናጠል
+  ከማስታወስ ይልቅ ተፈጥሯዊ ጥምረቶችን ለመማር ይረዳል።
+</Text>
+
+{/* አንድ ሥር ያላቸው ግሶች */}
+<Text style={styles.modalTitle}>አንድ ሥር ያላቸው ግሶች</Text>
+
+<Text style={styles.listItem}>
+  <Text style={[styles.bold, styles.highlightExercise]}>
+    • «አንድ ሥር ያላቸው ግሶች» —
+  </Text>{' '}
+  አንድ ሥር የሚጋሩ ግሶችን በተለያዩ ቢንያኒም ውስጥ
+  ያነጻጽሩ እና የቢንያን ለውጥ የግሱን ትርጉም
+  እንዴት ሊቀይር እንደሚችል ይመልከቱ።
+</Text>
+
+{/* ምክር */}
+<Text style={styles.listItem}>
+  <Text style={[styles.bold, styles.highlightTip]}>• ምክር፦</Text>{' '}
+  መጀመሪያ ግሶችንና መሠረታዊ ቅርጾቻቸውን ይማሩ፣
+  ከዚያም ወደ ማጣመር፣ መስተዋድዶች እና ዓረፍተ ነገሮች
+  ይሂዱ። በዚህ መንገድ ትክክለኛዎቹን ቅርጾች ማወቅና
+  መጠቀም ቀስ በቀስ ፈጣንና ተፈጥሯዊ ይሆናል።
+</Text>
+
+{/* የመጨረሻ ጽሑፍ */}
+<Text style={styles.finalText}>
+  <Text style={[styles.bold, styles.highlightFinal]}>
+    በVerbify መደበኛ ልምምድ የዕብራይስጥ ግሶችን ለማስታወስ
+    ብቻ ሳይሆን ቅርጾቻቸውን በፍጥነት ለመለየት፣
+    በዓረፍተ ነገሮች ውስጥ በትክክል ለመጠቀም
+    እና የሚነገር ዕብራይስጥን በተሻለ ሁኔታ ለመረዳት ይረዳል።
+  </Text>
+</Text>
             </ScrollView>
 
             {/* Fixed Close Button */}
