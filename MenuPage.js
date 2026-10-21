@@ -85,7 +85,9 @@ export default function MenuPage({
   const button9Opacity = useRef(new Animated.Value(0)).current;
   const button9TranslateY = useRef(new Animated.Value(250)).current;
   const button10Opacity = useRef(new Animated.Value(0)).current;
+  const button11Opacity = useRef(new Animated.Value(0)).current;
 const button10TranslateY = useRef(new Animated.Value(250)).current;
+  const button11TranslateY = useRef(new Animated.Value(250)).current;
   const PREVIOUS_TOTAL_KEY = 'previousTotalExercises';
   useEffect(() => {
     navigation.setOptions({ headerLeft: () => null });
@@ -165,6 +167,7 @@ const button10TranslateY = useRef(new Animated.Value(250)).current;
       'exercise7',
        'exercise9',
       'exercise10',
+       'exercise11',
     ];
     const statsData = {};
     for (const id of exerciseIds) {
@@ -391,6 +394,11 @@ const button10TranslateY = useRef(new Animated.Value(250)).current;
           duration: 500,
           useNativeDriver: true,
         }),
+      ]),
+      // Упражнение 11 — следующий шаг после упражнения 10.
+      Animated.parallel([
+        Animated.timing(button11Opacity, {toValue: 1, duration: 500, useNativeDriver: true}),
+        Animated.timing(button11TranslateY, {toValue: 0, duration: 500, useNativeDriver: true}),
       ]),
     ]).start();
   };
@@ -1509,7 +1517,7 @@ const button10TranslateY = useRef(new Animated.Value(250)).current;
               </View>
             </TouchableOpacity>
           </Animated.View>
-          {/* УПРАЖНЕНИЯ 9 И 10 */}
+          {/* УПРАЖНЕНИЯ 9, 10 И 11 */}
           {[
             {
               screen: 'Exercise9',
@@ -1526,6 +1534,14 @@ const button10TranslateY = useRef(new Animated.Value(250)).current;
               title: 'УСЛЫШЬ И ПОЙМИ',
               opacity: button8Opacity,
               translateY: button8TranslateY,
+            },
+            {
+              screen: 'Exercise11',
+              statsKey: 'exercise11',
+              number: 11,
+              title: 'СОБЕРИ ГЛАГОЛ',
+              opacity: button11Opacity,
+              translateY: button11TranslateY,
             },
           ].map(item => (
             <Animated.View

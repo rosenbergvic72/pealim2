@@ -4796,6 +4796,8 @@ option.disabled
 
 style={styles.optionText}
 
+numberOfLines={0}
+
 maxFontSizeMultiplier={1.2}
 
 >
@@ -5288,9 +5290,11 @@ color:'#152039',
 
 fontWeight:'bold',
 
-flexShrink:1,
+flexShrink:0,
 
-lineHeight:19
+lineHeight:20,
+
+width:'100%'
 
 },
 

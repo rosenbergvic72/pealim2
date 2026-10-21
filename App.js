@@ -55,6 +55,7 @@ import Exercise8Screen from './Exercise8Screen';
 import RootVerbExercise from './RootVerbExercise';
 import Exercise9 from './Exercise9';
 import Exercise10 from './Exercise10';
+import Exercise11 from './Exercise11';
 import ChatBotModal from './api/ChatBotModal';
 import { ExerciseAIProvider, useExerciseAI } from './ExerciseAIContext';
 // IAP и Paywall
@@ -113,6 +114,7 @@ const Exercise7ScreenG = gate(Exercise7Screen);
 const Exercise8ScreenG = gate(Exercise8Screen);
 const Exercise9G = gate(Exercise9);
 const Exercise10G = gate(Exercise10);
+const Exercise11G = gate(Exercise11);
 // Legacy route names do NOT match the visible exercise numbers after Exercise 3.
 // Keep the historical route names so menu/access/navigation behavior stays compatible:
 // visible 3 -> Exercise3
@@ -564,7 +566,9 @@ function AppInner() {
     'Exercise9', 'Exercise10', 'RootVerbExercise',
     'PrepositionVerbExercise', 'PrepositionExercise', 'VerbDetails', 'VerbLibrary',
   ];
-  const bottomBg = isMenuRoute
+  const bottomBg = currentRouteName === 'Exercise11'
+    ? '#AFC1D0' // Same as Exercise11 screen and transparent keyboard footer.
+    : isMenuRoute
     ? '#F0F0F0'
     : blueRoutes.includes(currentRouteName) ||
       (oldExerciseRoutes.includes(currentRouteName) && currentBottomSafeAreaStage === 'settings')
@@ -1420,6 +1424,19 @@ cardStyle:{backgroundColor:'#83A3CD'}
     animationEnabled: false,
     gestureEnabled: false,
     cardStyle: { backgroundColor: '#83A3CD' },
+  }}
+/>
+<Stack.Screen
+  name="Exercise11"
+  component={Exercise11G}
+  options={{
+    header: props => (
+      <SentenceExerciseHeader {...props} exerciseNumber={11} />
+    ),
+    headerShown: true,
+    animationEnabled: false,
+    gestureEnabled: false,
+    cardStyle: { backgroundColor: '#F6F8FD' },
   }}
 />
           </Stack.Navigator>

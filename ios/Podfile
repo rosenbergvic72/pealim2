@@ -77,6 +77,7 @@ target 'Verbify' do
       end
     end
 
+    
     installer.target_installation_results.pod_target_installation_results
       .each do |pod_name, target_installation_result|
       target_installation_result.resource_bundle_targets.each do |resource_bundle_target|
@@ -85,5 +86,21 @@ target 'Verbify' do
         end
       end
     end
+
+    # Fix old iOS deployment targets in CocoaPods
+    minimum_ios = Gem::Version.new('15.1')
+
+    installer.pods_project.targets.each do |pod_target|
+      pod_target.build_configurations.each do |config|
+        current = config.build_settings['IPHONEOS_DEPLOYMENT_TARGET']
+
+        next unless current.to_s.match?(/\A\d+(?:\.\d+)*\z/)
+
+        if Gem::Version.new(current.to_s) < minimum_ios
+          config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '15.1'
+        end
+      end
+    end
+
   end
 end

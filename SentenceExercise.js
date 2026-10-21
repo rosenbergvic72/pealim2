@@ -3,6 +3,7 @@ import { ActivityIndicator, Alert, Animated, AppState, Easing, FlatList, Image, 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect, useIsFocused } from '@react-navigation/native';
 import { updateStatistics, getStatistics } from './stat';
+import * as FirebaseAnalytics from './src/analytics/FirebaseAnalytics';
 import sentenceData from './sentences.json';
 import conjugationData from './verbs6RU.json';
 import { buildConjugationIndex, optionAudioKey, optionTransliteration } from './sentenceOptionTranslit';
@@ -160,6 +161,16 @@ export default function SentenceExercise({ navigation, route, mode = 9 }) {
     const parsed = useMemo(() => normalizeData(sentenceData), []);
     const storageKey = `exercise${mode}_settings_v1`, exerciseId = `exercise${mode}`;
     const [language, setLanguage] = useState('en'), [loaded, setLoaded] = useState(false);
+    // Firebase Analytics: track one opening per screen focus after language is loaded.
+    const exerciseAnalyticsLoggedRef = useRef(false);
+    useFocusEffect(useCallback(() => {
+        if (!loaded || exerciseAnalyticsLoggedRef.current)
+            return;
+        exerciseAnalyticsLoggedRef.current = true;
+        const eventName = `exercise${mode}${normalizeLanguage(language)}`;
+        FirebaseAnalytics.logFirebaseEvent(eventName, { screen: eventName });
+        return () => { exerciseAnalyticsLoggedRef.current = false; };
+    }, [loaded, language, mode]));
     const [settings, setSettings] = useState(DEFAULTS), settingsRef = useRef(DEFAULTS), writeQueue = useRef(Promise.resolve());
     const [phase, setPhase] = useState('settings'), [deck, setDeck] = useState([]), [index, setIndex] = useState(0);
     const [selected, setSelected] = useState(null), [answered, setAnswered] = useState(false), [ready, setReady] = useState(false);

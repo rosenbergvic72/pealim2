@@ -142,6 +142,8 @@ export default function MenuPage({
   const button9Opacity = useRef(new Animated.Value(0)).current;
   const button9TranslateY = useRef(new Animated.Value(250)).current;
   const button10Opacity = useRef(new Animated.Value(0)).current;
+  const button11Opacity = useRef(new Animated.Value(0)).current;
+  const button11TranslateY = useRef(new Animated.Value(250)).current;
 const button10TranslateY = useRef(new Animated.Value(250)).current;
   const PREVIOUS_TOTAL_KEY = 'previousTotalExercises';
   const fetchStatistics = async () => {
@@ -159,6 +161,7 @@ const button10TranslateY = useRef(new Animated.Value(250)).current;
       'exercise7En',
       'exercise9',
       'exercise10',
+      'exercise11',
     ];
     const statsData = {};
     for (let id of exerciseIds) {
@@ -478,6 +481,19 @@ const button10TranslateY = useRef(new Animated.Value(250)).current;
           useNativeDriver: true,
         }),
       ]),
+      // Exercise 11 — new exercise, after Exercise 10.
+      Animated.parallel([
+        Animated.timing(button11Opacity, {
+          toValue: 1,
+          duration: 500,
+          useNativeDriver: true,
+        }),
+        Animated.timing(button11TranslateY, {
+          toValue: 0,
+          duration: 500,
+          useNativeDriver: true,
+        }),
+      ]),
     ]).start();
   };
   const handlePress = exercise => {
@@ -544,6 +560,11 @@ useEffect(() => {
       useNativeDriver: true,
     }),
     Animated.timing(button8Opacity, {
+      toValue: 0,
+      duration: 300,
+      useNativeDriver: true,
+    }),
+    Animated.timing(button11Opacity, {
       toValue: 0,
       duration: 300,
       useNativeDriver: true,
@@ -763,26 +784,26 @@ useEffect(() => {
               { opacity: button1Opacity, transform: [{ translateY: button1TranslateY }] },
             ]}
           >
-            <TouchableOpacity onPress={() => handlePress('Exercise1')}>
+            <TouchableOpacity style={styles.rootTouchable} onPress={() => handlePress('Exercise1')}>
               <View style={styles.upperPart1}>
-                <Text style={styles.upperText1} maxFontSizeMultiplier={1.2}>
+                <Text style={styles.upperText1} numberOfLines={0} maxFontSizeMultiplier={1.2}>
                   EXERCISE 1
                 </Text>
                 <Image source={require('./star1.png')} style={styles.image1} />
               </View>
               <View style={styles.upperPart2}>
-                <Text style={styles.upperText} maxFontSizeMultiplier={1.2}>
+                <Text style={styles.upperText} numberOfLines={0} maxFontSizeMultiplier={1.2}>
                   VERB CARDS HEBREW - ENGLISH
                 </Text>
               </View>
               <View style={styles.lowerRight}>
-                <Text style={styles.lowerText} maxFontSizeMultiplier={1.2}>
+                <Text style={styles.lowerText} numberOfLines={0} maxFontSizeMultiplier={1.2}>
                   COMPLETED{' '}
                   <Text style={styles.statValue}>
                     {stats['exercise1En'] ? stats['exercise1En'].timesCompleted : 0}
                   </Text>
                 </Text>
-                <Text style={styles.lowerText} maxFontSizeMultiplier={1.2}>
+                <Text style={styles.lowerText} numberOfLines={0} maxFontSizeMultiplier={1.2}>
                   AVERAGE SCORE{' '}
                   <Text style={styles.statValue}>
                     {stats['exercise1En']
@@ -800,26 +821,26 @@ useEffect(() => {
               { opacity: button2Opacity, transform: [{ translateY: button2TranslateY }] },
             ]}
           >
-            <TouchableOpacity onPress={() => handlePress('Exercise2')}>
+            <TouchableOpacity style={styles.rootTouchable} onPress={() => handlePress('Exercise2')}>
               <View style={styles.upperPart1}>
-                <Text style={styles.upperText1} maxFontSizeMultiplier={1.2}>
+                <Text style={styles.upperText1} numberOfLines={0} maxFontSizeMultiplier={1.2}>
                   EXERCISE 2
                 </Text>
                 <Image source={require('./star2.png')} style={styles.image1} />
               </View>
               <View style={styles.upperPart2}>
-                <Text style={styles.upperText} maxFontSizeMultiplier={1.2}>
+                <Text style={styles.upperText} numberOfLines={0} maxFontSizeMultiplier={1.2}>
                   VERB CARDS ENGLISH - HEBREW
                 </Text>
               </View>
               <View style={styles.lowerRight}>
-                <Text style={styles.lowerText} maxFontSizeMultiplier={1.2}>
+                <Text style={styles.lowerText} numberOfLines={0} maxFontSizeMultiplier={1.2}>
                   COMPLETED{' '}
                   <Text style={styles.statValue}>
                     {stats['exercise2En'] ? stats['exercise2En'].timesCompleted : 0}
                   </Text>
                 </Text>
-                <Text style={styles.lowerText} maxFontSizeMultiplier={1.2}>
+                <Text style={styles.lowerText} numberOfLines={0} maxFontSizeMultiplier={1.2}>
                   AVERAGE SCORE{' '}
                   <Text style={styles.statValue}>
                     {stats['exercise2En']
@@ -841,9 +862,9 @@ useEffect(() => {
               },
             ]}
           >
-            <TouchableOpacity onPress={() => handlePress('PrepositionExercise')}>
+            <TouchableOpacity style={styles.rootTouchable} onPress={() => handlePress('PrepositionExercise')}>
               <View style={styles.upperPart1}>
-                <Text style={styles.upperText1} maxFontSizeMultiplier={1.2}>
+                <Text style={styles.upperText1} numberOfLines={0} maxFontSizeMultiplier={1.2}>
                   PREPOSITIONS 1
                 </Text>
                 <Text
@@ -861,12 +882,12 @@ useEffect(() => {
                 </Text>
               </View>
               <View style={styles.upperPart2}>
-                <Text style={styles.upperText} maxFontSizeMultiplier={1.2}>
+                <Text style={styles.upperText} numberOfLines={0} maxFontSizeMultiplier={1.2}>
                   PRONOMINAL PREPOSITIONS
                 </Text>
               </View>
               <View style={styles.lowerRight}>
-                <Text style={styles.lowerText} maxFontSizeMultiplier={1.2}>
+                <Text style={styles.lowerText} numberOfLines={0} maxFontSizeMultiplier={1.2}>
                   COMPLETED{' '}
                   <Text style={styles.statValue}>
                     {stats['prepositionPronouns']
@@ -874,7 +895,7 @@ useEffect(() => {
                       : 0}
                   </Text>
                 </Text>
-                <Text style={styles.lowerText} maxFontSizeMultiplier={1.2}>
+                <Text style={styles.lowerText} numberOfLines={0} maxFontSizeMultiplier={1.2}>
                   AVERAGE SCORE{' '}
                   <Text style={styles.statValue}>
                     {stats['prepositionPronouns']
@@ -904,26 +925,26 @@ useEffect(() => {
               isLocked('Exercise3') && lockStyle,
             ]}
           >
-            <TouchableOpacity onPress={() => handlePress('Exercise3')}>
+            <TouchableOpacity style={styles.rootTouchable} onPress={() => handlePress('Exercise3')}>
               <View style={styles.upperPart1}>
-                <Text style={styles.upperText1} maxFontSizeMultiplier={1.2}>
+                <Text style={styles.upperText1} numberOfLines={0} maxFontSizeMultiplier={1.2}>
                   EXERCISE 3
                 </Text>
                 <Image source={require('./star3.png')} style={styles.image1} />
               </View>
               <View style={styles.upperPart2}>
-                <Text style={styles.upperText} maxFontSizeMultiplier={1.2}>
+                <Text style={styles.upperText} numberOfLines={0} maxFontSizeMultiplier={1.2}>
                   DETERMINE THE VERB BINYAN
                 </Text>
               </View>
               <View style={styles.lowerRight}>
-                <Text style={styles.lowerText} maxFontSizeMultiplier={1.2}>
+                <Text style={styles.lowerText} numberOfLines={0} maxFontSizeMultiplier={1.2}>
                   COMPLETED{' '}
                   <Text style={styles.statValue}>
                     {stats['exercise3En'] ? stats['exercise3En'].timesCompleted : 0}
                   </Text>
                 </Text>
-                <Text style={styles.lowerText} maxFontSizeMultiplier={1.2}>
+                <Text style={styles.lowerText} numberOfLines={0} maxFontSizeMultiplier={1.2}>
                   AVERAGE SCORE{' '}
                   <Text style={styles.statValue}>
                     {stats['exercise3En']
@@ -942,26 +963,26 @@ useEffect(() => {
               isLocked('Exercise5') && lockStyle,
             ]}
           >
-            <TouchableOpacity onPress={() => handlePress('Exercise5')}>
+            <TouchableOpacity style={styles.rootTouchable} onPress={() => handlePress('Exercise5')}>
               <View style={styles.upperPart1}>
-                <Text style={styles.upperText1} maxFontSizeMultiplier={1.2}>
+                <Text style={styles.upperText1} numberOfLines={0} maxFontSizeMultiplier={1.2}>
                   EXERCISE 4
                 </Text>
                 <Image source={require('./star3.png')} style={styles.image1} />
               </View>
               <View style={styles.upperPart2}>
-                <Text style={styles.upperText} maxFontSizeMultiplier={1.2}>
+                <Text style={styles.upperText} numberOfLines={0} maxFontSizeMultiplier={1.2}>
                   IMPERATIVE MOOD
                 </Text>
               </View>
               <View style={styles.lowerRight}>
-                <Text style={styles.lowerText} maxFontSizeMultiplier={1.2}>
+                <Text style={styles.lowerText} numberOfLines={0} maxFontSizeMultiplier={1.2}>
                   COMPLETED{' '}
                   <Text style={styles.statValue}>
                     {stats['exercise5En'] ? stats['exercise5En'].timesCompleted : 0}
                   </Text>
                 </Text>
-                <Text style={styles.lowerText} maxFontSizeMultiplier={1.2}>
+                <Text style={styles.lowerText} numberOfLines={0} maxFontSizeMultiplier={1.2}>
                   AVERAGE SCORE{' '}
                   <Text style={styles.statValue}>
                     {stats['exercise5En']
@@ -997,7 +1018,7 @@ useEffect(() => {
   >
     <View style={styles.rootHeading}>
       <Text
-        style={styles.rootTitle}
+        style={styles.rootTitle} numberOfLines={0}
         maxFontSizeMultiplier={1.2}
       >
         ROOTS & BINYANIM
@@ -1013,7 +1034,7 @@ useEffect(() => {
     </View>
     <View style={styles.upperPart2}>
       <Text
-        style={styles.upperText}
+        style={styles.upperText} numberOfLines={0}
         maxFontSizeMultiplier={1.2}
       >
         VERBS FROM THE SAME ROOT
@@ -1021,7 +1042,7 @@ useEffect(() => {
     </View>
     <View style={[styles.lowerRight, styles.rootStats]}>
       <Text
-        style={styles.lowerText}
+        style={styles.lowerText} numberOfLines={0}
         maxFontSizeMultiplier={1.2}
       >
         COMPLETED{' '}
@@ -1033,7 +1054,7 @@ useEffect(() => {
         </Text>
       </Text>
       <Text
-        style={styles.lowerText}
+        style={styles.lowerText} numberOfLines={0}
         maxFontSizeMultiplier={1.2}
       >
         AVERAGE SCORE{' '}
@@ -1058,26 +1079,26 @@ useEffect(() => {
               isLocked('Exercise6') && lockStyle,
             ]}
           >
-            <TouchableOpacity onPress={() => handlePress('Exercise6')}>
+            <TouchableOpacity style={styles.rootTouchable} onPress={() => handlePress('Exercise6')}>
               <View style={styles.upperPart1}>
-                <Text style={styles.upperText1} maxFontSizeMultiplier={1.2}>
+                <Text style={styles.upperText1} numberOfLines={0} maxFontSizeMultiplier={1.2}>
                   EXERCISE 5
                 </Text>
                 <Image source={require('./star4.png')} style={styles.image1} />
               </View>
               <View style={styles.upperPart2}>
-                <Text style={styles.upperText} maxFontSizeMultiplier={1.2}>
+                <Text style={styles.upperText} numberOfLines={0} maxFontSizeMultiplier={1.2}>
                   CONJUGATION ENGLISH - HEBREW
                 </Text>
               </View>
               <View style={styles.lowerRight}>
-                <Text style={styles.lowerText} maxFontSizeMultiplier={1.2}>
+                <Text style={styles.lowerText} numberOfLines={0} maxFontSizeMultiplier={1.2}>
                   COMPLETED{' '}
                   <Text style={styles.statValue}>
                     {stats['exercise6En'] ? stats['exercise6En'].timesCompleted : 0}
                   </Text>
                 </Text>
-                <Text style={styles.lowerText} maxFontSizeMultiplier={1.2}>
+                <Text style={styles.lowerText} numberOfLines={0} maxFontSizeMultiplier={1.2}>
                   AVERAGE SCORE{' '}
                   <Text style={styles.statValue}>
                     {stats['exercise6En']
@@ -1097,26 +1118,26 @@ useEffect(() => {
               isLocked('Exercise8') && lockStyle,
             ]}
           >
-            <TouchableOpacity onPress={() => handlePress('Exercise8')}>
+            <TouchableOpacity style={styles.rootTouchable} onPress={() => handlePress('Exercise8')}>
               <View style={styles.upperPart1}>
-                <Text style={styles.upperText1} maxFontSizeMultiplier={1.2}>
+                <Text style={styles.upperText1} numberOfLines={0} maxFontSizeMultiplier={1.2}>
                   EXERCISE 6
                 </Text>
                 <Image source={require('./star4.png')} style={styles.image1} />
               </View>
               <View style={styles.upperPart2}>
-                <Text style={styles.upperText} maxFontSizeMultiplier={1.2}>
+                <Text style={styles.upperText} numberOfLines={0} maxFontSizeMultiplier={1.2}>
                   CONJUGATION HEBREW - ENGLISH
                 </Text>
               </View>
               <View style={styles.lowerRight}>
-                <Text style={styles.lowerText} maxFontSizeMultiplier={1.2}>
+                <Text style={styles.lowerText} numberOfLines={0} maxFontSizeMultiplier={1.2}>
                   COMPLETED{' '}
                   <Text style={styles.statValue}>
                     {stats['exercise8En'] ? stats['exercise8En'].timesCompleted : 0}
                   </Text>
                 </Text>
-                <Text style={styles.lowerText} maxFontSizeMultiplier={1.2}>
+                <Text style={styles.lowerText} numberOfLines={0} maxFontSizeMultiplier={1.2}>
                   AVERAGE SCORE{' '}
                   <Text style={styles.statValue}>
                     {stats['exercise8En']
@@ -1139,9 +1160,9 @@ useEffect(() => {
               isLocked('PrepositionVerbExercise') && lockStyle,
             ]}
           >
-            <TouchableOpacity onPress={() => handlePress('PrepositionVerbExercise')}>
+            <TouchableOpacity style={styles.rootTouchable} onPress={() => handlePress('PrepositionVerbExercise')}>
               <View style={styles.upperPart1}>
-                <Text style={styles.upperText1} maxFontSizeMultiplier={1.2}>
+                <Text style={styles.upperText1} numberOfLines={0} maxFontSizeMultiplier={1.2}>
                   PREPOSITIONS 2
                 </Text>
                 <Text
@@ -1159,12 +1180,12 @@ useEffect(() => {
                 </Text>
               </View>
               <View style={styles.upperPart2}>
-                <Text style={styles.upperText} maxFontSizeMultiplier={1.2}>
+                <Text style={styles.upperText} numberOfLines={0} maxFontSizeMultiplier={1.2}>
                   VERB PREPOSITIONS
                 </Text>
               </View>
               <View style={styles.lowerRight}>
-                <Text style={styles.lowerText} maxFontSizeMultiplier={1.2}>
+                <Text style={styles.lowerText} numberOfLines={0} maxFontSizeMultiplier={1.2}>
                   COMPLETED{' '}
                   <Text style={styles.statValue}>
                     {stats['prepositionAfterVerbs']
@@ -1172,7 +1193,7 @@ useEffect(() => {
                       : 0}
                   </Text>
                 </Text>
-                <Text style={styles.lowerText} maxFontSizeMultiplier={1.2}>
+                <Text style={styles.lowerText} numberOfLines={0} maxFontSizeMultiplier={1.2}>
                   AVERAGE SCORE{' '}
                   <Text style={styles.statValue}>
                     {stats['prepositionAfterVerbs']
@@ -1192,26 +1213,26 @@ useEffect(() => {
               isLocked('Exercise4') && lockStyle,
             ]}
           >
-            <TouchableOpacity onPress={() => handlePress('Exercise4')}>
+            <TouchableOpacity style={styles.rootTouchable} onPress={() => handlePress('Exercise4')}>
               <View style={styles.upperPart1}>
-                <Text style={styles.upperText1} maxFontSizeMultiplier={1.2}>
+                <Text style={styles.upperText1} numberOfLines={0} maxFontSizeMultiplier={1.2}>
                   EXERCISE 7
                 </Text>
                 <Image source={require('./star5.png')} style={styles.image1} />
               </View>
               <View style={styles.upperPart2}>
-                <Text style={styles.upperText} maxFontSizeMultiplier={1.2}>
+                <Text style={styles.upperText} numberOfLines={0} maxFontSizeMultiplier={1.2}>
                   CONJUGATION ENGLISH - HEBREW
                 </Text>
               </View>
               <View style={styles.lowerRight}>
-                <Text style={styles.lowerText} maxFontSizeMultiplier={1.2}>
+                <Text style={styles.lowerText} numberOfLines={0} maxFontSizeMultiplier={1.2}>
                   COMPLETED{' '}
                   <Text style={styles.statValue}>
                     {stats['exercise4En'] ? stats['exercise4En'].timesCompleted : 0}
                   </Text>
                 </Text>
-                <Text style={styles.lowerText} maxFontSizeMultiplier={1.2}>
+                <Text style={styles.lowerText} numberOfLines={0} maxFontSizeMultiplier={1.2}>
                   AVERAGE SCORE{' '}
                   <Text style={styles.statValue}>
                     {stats['exercise4En']
@@ -1231,26 +1252,26 @@ useEffect(() => {
               isLocked('Exercise7') && lockStyle,
             ]}
           >
-            <TouchableOpacity onPress={() => handlePress('Exercise7')}>
+            <TouchableOpacity style={styles.rootTouchable} onPress={() => handlePress('Exercise7')}>
               <View style={styles.upperPart1}>
-                <Text style={styles.upperText1} maxFontSizeMultiplier={1.2}>
+                <Text style={styles.upperText1} numberOfLines={0} maxFontSizeMultiplier={1.2}>
                   EXERCISE 8
                 </Text>
                 <Image source={require('./star5.png')} style={styles.image1} />
               </View>
               <View style={styles.upperPart2}>
-                <Text style={styles.upperText} maxFontSizeMultiplier={1.2}>
+                <Text style={styles.upperText} numberOfLines={0} maxFontSizeMultiplier={1.2}>
                   CONJUGATION HEBREW - ENGLISH
                 </Text>
               </View>
               <View style={styles.lowerRight}>
-                <Text style={styles.lowerText} maxFontSizeMultiplier={1.2}>
+                <Text style={styles.lowerText} numberOfLines={0} maxFontSizeMultiplier={1.2}>
                   COMPLETED{' '}
                   <Text style={styles.statValue}>
                     {stats['exercise7En'] ? stats['exercise7En'].timesCompleted : 0}
                   </Text>
                 </Text>
-                <Text style={styles.lowerText} maxFontSizeMultiplier={1.2}>
+                <Text style={styles.lowerText} numberOfLines={0} maxFontSizeMultiplier={1.2}>
                   AVERAGE SCORE{' '}
                   <Text style={styles.statValue}>
                     {stats['exercise7En']
@@ -1279,6 +1300,14 @@ useEffect(() => {
               opacity: button8Opacity,
               translateY: button8TranslateY,
             },
+            {
+              screen: 'Exercise11',
+              statsKey: 'exercise11',
+              number: 11,
+              title: 'BUILD THE VERB',
+              opacity: button11Opacity,
+              translateY: button11TranslateY,
+            },
           ].map(item => (
             <Animated.View
               key={item.screen}
@@ -1305,7 +1334,7 @@ useEffect(() => {
               >
                 <View style={styles.rootHeading}>
                   <Text
-                    style={styles.rootTitle}
+                    style={styles.rootTitle} numberOfLines={0}
                     maxFontSizeMultiplier={1.2}
                   >
                     EXERCISE {item.number}
@@ -1321,7 +1350,7 @@ useEffect(() => {
                 </View>
                 <View style={styles.upperPart2}>
                   <Text
-                    style={styles.upperText}
+                    style={styles.upperText} numberOfLines={0}
                     maxFontSizeMultiplier={1.2}
                   >
                     {item.title}
@@ -1329,7 +1358,7 @@ useEffect(() => {
                 </View>
                 <View style={[styles.lowerRight, styles.rootStats]}>
                   <Text
-                    style={styles.lowerText}
+                    style={styles.lowerText} numberOfLines={0}
                     maxFontSizeMultiplier={1.2}
                   >
                     COMPLETED{' '}
@@ -1341,7 +1370,7 @@ useEffect(() => {
                     </Text>
                   </Text>
                   <Text
-                    style={styles.lowerText}
+                    style={styles.lowerText} numberOfLines={0}
                     maxFontSizeMultiplier={1.2}
                   >
                     AVERAGE SCORE{' '}
@@ -1631,6 +1660,8 @@ verbLibrarySubtitle:{
     width: '100%',
   },
   upperText1: {
+    flexShrink: 1,
+    lineHeight: 15,
     fontSize: 10,
     fontWeight: 'bold',
     color: '#2D4769',
@@ -1641,6 +1672,10 @@ verbLibrarySubtitle:{
     marginLeft: 10,
   },
   upperText: {
+    width: '100%',
+    flexShrink: 0,
+    paddingHorizontal: 10,
+    lineHeight: 20,
     fontSize: 14,
     fontWeight: 'bold',
     color: 'white',
@@ -1648,6 +1683,9 @@ verbLibrarySubtitle:{
     textAlign: 'center',
   },
   lowerRight: {
+    flexWrap: 'wrap',
+    rowGap: 6,
+    columnGap: 6,
     flexDirection: 'row',
     justifyContent: 'space-between',
     width: '100%',
@@ -1655,6 +1693,9 @@ verbLibrarySubtitle:{
     alignItems: 'center',
   },
   lowerText: {
+    maxWidth: '100%',
+    flexShrink: 0,
+    lineHeight: 18,
     fontSize: 10,
     textAlign: 'center',
     backgroundColor: 'white',
@@ -1665,6 +1706,7 @@ verbLibrarySubtitle:{
     marginLeft: 1,
   },
   image1: {
+    flexShrink: 0,
     width: 100,
     height: 25,
     marginLeft: 10,

@@ -154,6 +154,8 @@ export default function MenuPage({
   const button11TranslateY = useRef(new Animated.Value(250)).current;
   const button12Opacity = useRef(new Animated.Value(0)).current;
   const button12TranslateY = useRef(new Animated.Value(250)).current;
+  const button13Opacity = useRef(new Animated.Value(0)).current;
+  const button13TranslateY = useRef(new Animated.Value(250)).current;
   const PREVIOUS_TOTAL_KEY = 'previousTotalExercises';
   const fetchStatistics = async () => {
     const exerciseIds = [
@@ -170,6 +172,7 @@ export default function MenuPage({
       'exercise7Am',
       'exercise9',
       'exercise10',
+      'exercise11',
     ];
     const statsData = {};
     for (let id of exerciseIds) {
@@ -471,6 +474,10 @@ export default function MenuPage({
         Animated.timing(button12TranslateY, { toValue: 0, duration: 500, useNativeDriver: true }),
       ]),
       Animated.parallel([
+        Animated.timing(button13Opacity, { toValue: 1, duration: 500, useNativeDriver: true }),
+        Animated.timing(button13TranslateY, { toValue: 0, duration: 500, useNativeDriver: true }),
+      ]),
+      Animated.parallel([
         Animated.timing(button9Opacity, { toValue: 1, duration: 500, useNativeDriver: true }),
         Animated.timing(button9TranslateY, { toValue: 0, duration: 500, useNativeDriver: true }),
       ]),
@@ -549,6 +556,11 @@ export default function MenuPage({
           useNativeDriver: true,
         }),
         Animated.timing(button12Opacity, {
+          toValue: 0,
+          duration: 300,
+          useNativeDriver: true,
+        }),
+        Animated.timing(button13Opacity, {
           toValue: 0,
           duration: 300,
           useNativeDriver: true,
@@ -1576,10 +1588,11 @@ export default function MenuPage({
               </View>
             </TouchableOpacity>
           </Animated.View>
-          {/* 9–10 */}
+          {/* 9–11 */}
           {[
             { screen: 'Exercise9', statsKey: 'exercise9', number: 9, title: 'ግስ በአረፍተ ነገር', opacity: button11Opacity, translateY: button11TranslateY },
             { screen: 'Exercise10', statsKey: 'exercise10', number: 10, title: 'ያዳምጡ እና ይረዱ', opacity: button12Opacity, translateY: button12TranslateY },
+            { screen: 'Exercise11', statsKey: 'exercise11', number: 11, title: 'ግሱን ይገንቡ', opacity: button13Opacity, translateY: button13TranslateY },
           ].map(item => (
             <Animated.View
               key={item.screen}

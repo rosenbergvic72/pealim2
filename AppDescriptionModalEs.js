@@ -152,6 +152,22 @@ const AppDescriptionModal = ({ visible, onToggle }) => {
   Este ejercicio desarrolla la comprensión auditiva.
 </Text>
 
+
+{/* Ejercicio 11 */}
+<Text style={styles.listItem}>
+  <Text style={[styles.bold, styles.highlightExercise]}>
+    • Ejercicio 11 «Forma el verbo» —
+  </Text>{' '}
+  construye las formas verbales en hebreo seleccionando
+  las letras en el orden correcto. El infinitivo, la
+  raíz y el binyán te ayudan a recordar la forma adecuada,
+  mientras que tres intentos ofrecen pistas progresivas.
+  Esta práctica fortalece la memoria, mejora la ortografía
+  y te ayuda a formar verbos sin depender de respuestas
+  de opción múltiple.
+</Text>
+
+
 {/* Preposiciones */}
 <Text style={styles.modalTitle}>VERBOS Y PREPOSICIONES</Text>
 

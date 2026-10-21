@@ -152,6 +152,23 @@ const AppDescriptionModal = ({ visible, onToggle }) => {
   Cet exercice développe la compréhension orale.
 </Text>
 
+
+{/* Exercice 11 */}
+<Text style={styles.listItem}>
+  <Text style={[styles.bold, styles.highlightExercise]}>
+    • Exercice 11 « Composez le verbe » —
+  </Text>{' '}
+  reconstituez vous-même les formes verbales en hébreu
+  en sélectionnant les lettres dans le bon ordre.
+  L’infinitif, la racine et le binyan vous aident à
+  retrouver la forme correcte, tandis que trois
+  tentatives proposent des indices progressifs.
+  Cet entraînement renforce la mémorisation, améliore
+  l’orthographe et développe la capacité à produire
+  les verbes sans choix de réponses.
+</Text>
+
+
 {/* Prépositions */}
 <Text style={styles.modalTitle}>VERBES ET PRÉPOSITIONS</Text>
 

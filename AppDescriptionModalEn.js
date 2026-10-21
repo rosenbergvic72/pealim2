@@ -148,6 +148,21 @@ const AppDescriptionModal = ({ visible, onToggle }) => {
   This exercise develops listening comprehension.
 </Text>
 
+
+{/* Exercise 11 */}
+<Text style={styles.listItem}>
+  <Text style={[styles.bold, styles.highlightExercise]}>
+    • Exercise 11 “Build the Verb” —
+  </Text>{' '}
+  build Hebrew verb forms yourself by selecting letters
+  in the correct order. The infinitive, root, and binyan
+  help you recall the right form, while three attempts
+  gradually reveal hints. This practice strengthens
+  memory, improves spelling, and helps you produce verb
+  forms without relying on multiple-choice answers.
+</Text>
+
+
 {/* Prepositions */}
 <Text style={styles.modalTitle}>VERBS AND PREPOSITIONS</Text>
 

@@ -152,6 +152,22 @@ const AppDescriptionModal = ({ visible, onToggle }) => {
   Este exercício desenvolve a compreensão auditiva.
 </Text>
 
+
+{/* Exercício 11 */}
+<Text style={styles.listItem}>
+  <Text style={[styles.bold, styles.highlightExercise]}>
+    • Exercício 11 «Monte o verbo» —
+  </Text>{' '}
+  forme você mesmo as conjugações dos verbos em hebraico,
+  selecionando as letras na ordem correta. O infinitivo,
+  a raiz e o binyan ajudam a lembrar a forma certa,
+  enquanto três tentativas oferecem dicas progressivas.
+  Esta prática fortalece a memória, melhora a escrita
+  e ajuda a formar verbos sem depender de alternativas
+  prontas.
+</Text>
+
+
 {/* Preposições */}
 <Text style={styles.modalTitle}>VERBOS E PREPOSIÇÕES</Text>
 
