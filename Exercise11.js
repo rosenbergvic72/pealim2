@@ -443,7 +443,21 @@ export default function Exercise11({navigation,route}) {
   if(!wasSelected) opposite.delete(formId);
   saveSettings({[name]:[...selected],[other]:[...opposite]});
  };
- const translation=item?.[LANG_FIELDS[language]]||item?.[FALLBACK_FIELDS[language]]||item?.entext||item?.english||'';
+ // Some rows have an abbreviated display field (e.g. "You" instead of
+ // "You will ..."). Prefer the fuller version only when it is an extension
+ // of the same text; never substitute a different grammatical meaning.
+ const translation=(()=>{
+  const localized=String(item?.[LANG_FIELDS[language]]||'').trim();
+  const alternate=String(item?.[FALLBACK_FIELDS[language]]||'').trim();
+  const candidates=[localized,alternate].filter(Boolean);
+  if(candidates.length===2){
+   const [a,b]=candidates;
+   const short=a.length<=b.length?a:b;
+   const long=a.length>b.length?a:b;
+   if(long.toLocaleLowerCase().startsWith(short.toLocaleLowerCase()) && long.length>short.length) return long;
+  }
+  return localized||alternate||item?.entext||item?.english||'';
+ })();
  const showHelp=()=>Alert.alert(lang.name,lang.help);
  const goToMenu=()=>{
   if(navigation?.canGoBack?.()){navigation.goBack();return;}
@@ -477,7 +491,7 @@ export default function Exercise11({navigation,route}) {
  const renderVerbCells=entries=>entries.slice().reverse().map(({ch,i})=><View key={`verb-${i}`} style={[s.slot,slotWidthStyle,finished&&(awarded>0?s.slotGood:s.slotBad)]}><Text style={[s.slotText,boxWidth<30&&{fontSize:19}]}>{finished&&awarded===0?ch:typed[i]||' '}</Text></View>);
  const hint=stage>=1;const allowed=new Set(listOfLetters);const fullTranslit=String(item?.translit||'').trim()||'—';
  return <SafeAreaView style={s.screen} edges={phase==='settings'?['top','left','right']:['left','right']}>
-  <View style={[s.page, Platform.OS==='ios'&&{paddingBottom:5+safeInsets.bottom}]}>
+  <View style={[s.page, Platform.OS==='ios'?{paddingBottom:5+safeInsets.bottom}:{paddingBottom:Math.max(5,safeInsets.bottom)}]}>
    {phase==='task'&&<View style={[s.topBar,compactScreen&&s.smallTopBar]}>
      <TouchableOpacity accessibilityRole="button" accessibilityLabel={lang.menu} onPress={()=>Alert.alert(lang.exitTitle,undefined,[{text:lang.cancel,style:'cancel'},{text:lang.exit,style:'destructive',onPress:()=>setPhase('settings')}])}>
        <Image source={ASSETS.logo} style={[s.logo,compactScreen&&s.smallLogo]}/>
@@ -492,19 +506,19 @@ export default function Exercise11({navigation,route}) {
      </View>
    </View>}
    {phase==='settings'&&<><View style={s.panel}><Text style={s.label}>{lang.count}</Text><View style={s.choiceRow}>{COUNTS.map(n=><TouchableOpacity key={n} onPress={()=>saveSettings({count:n})} style={[s.choice,settings.count===n&&s.choiceActive]}><Text style={s.choiceText}>{n}</Text></TouchableOpacity>)}</View><Text style={s.detail}>{lang.available}: {pool.length} / {all.length}</Text><Text style={s.help}>{shortIntro}</Text></View><TouchableOpacity disabled={!pool.length} onPress={begin} style={s.primary}><Text style={s.primaryText}>{lang.begin}</Text></TouchableOpacity></>}
-   {phase==='task'&&item&&<><View style={[s.progressBox,compactScreen&&s.smallProgress]}>
+   {phase==='task'&&item&&<><View style={[s.progressBox,compactScreen&&s.smallProgress,Platform.OS==='android'&&s.androidProgressBox]}>
       <View style={s.progressLeft}><Text style={s.progressLabel}>{lang.correctCount}: {correct}</Text><Text style={s.progressLabel}>{lang.wrongCount}: {wrong}</Text></View>
       <View style={s.progressNumberWrap}><Text style={s.progressNumber}>{Math.max(0,deck.length-index-(finished?1:0))}</Text></View>
       <View style={s.progressPercentWrap}><Text style={s.progressPercent}>{Math.round((earned+(finished?0:0))/Math.max(1,(index+(finished?1:0))*100)*100)}%</Text></View>
-    </View><View style={[s.progressBarWrap,compactScreen&&s.smallProgressBarWrap]}><ProgressBar progress={index+(finished?1:0)} totalExercises={deck.length}/></View>
+    </View><View style={[s.progressBarWrap,compactScreen&&s.smallProgressBarWrap,Platform.OS==='android'&&s.androidProgressBarWrap]}><ProgressBar progress={index+(finished?1:0)} totalExercises={deck.length}/></View>
     <ScrollView style={s.taskContent} contentContainerStyle={s.taskContentInner} keyboardShouldPersistTaps="always">
-    <View style={[s.card,s.animatedCard,compactScreen&&s.smallVerbCard]}>
+    <View style={[s.card,s.animatedCard,compactScreen&&s.smallVerbCard,Platform.OS==='android'&&s.androidVerbCard]}>
       <DynamicCardBackdrop motion={cardMotion} colors={['126,177,226','174,197,231']}/>
-      <View style={[s.verbTwoColumns,compactScreen&&s.smallVerbColumns]}>
+      <View style={[s.verbTwoColumns,compactScreen&&s.smallVerbColumns,Platform.OS==='android'&&s.androidVerbColumns]}>
         {/* Left column: infinitive, meaning, transliteration */}
         <View style={s.verbWordColumn}>
           <Text numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.73} style={[s.compactInfinitive,compactScreen&&s.smallInfinitive]}>{item.infinitive}</Text>
-          <Text numberOfLines={2} adjustsFontSizeToFit minimumFontScale={0.75} style={[s.compactMeaning,compactScreen&&s.smallMeaning]}>{item[FALLBACK_FIELDS[language]]||item.english||''}</Text>
+          <Text numberOfLines={Platform.OS==='android'?2:1} adjustsFontSizeToFit minimumFontScale={0.75} style={[s.compactMeaning,compactScreen&&s.smallMeaning]}>{item[FALLBACK_FIELDS[language]]||item.english||''}</Text>
           <Text numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.75} style={[s.compactTranslit,compactScreen&&s.smallTranslit]}>{getInfo(item)?.transliteration||item.transliteration||'—'}</Text>
         </View>
         {/* Right column: grammatical information */}
@@ -536,22 +550,22 @@ export default function Exercise11({navigation,route}) {
       </View>
       </View>
     </View>
-    <View style={[s.taskTitleOutsideCard,compactScreen&&s.smallTaskTitleOutside]}><Text style={s.taskPromptTitle}>{lang.meaning}</Text></View>
-    <View style={[s.answerCard,compactScreen&&s.smallAnswerCard]}>
+    <View style={[s.taskTitleOutsideCard,compactScreen&&s.smallTaskTitleOutside,Platform.OS==='android'&&s.androidTaskTitle]}><Text style={s.taskPromptTitle}>{lang.meaning}</Text></View>
+    <View style={[s.answerCard,compactScreen&&s.smallAnswerCard,Platform.OS==='android'&&s.androidAnswerCard]}>
       <DynamicCardBackdrop motion={cardMotion} colors={['185,155,218','226,166,187']} reverse/>
-      <View style={s.prompt}>
-      <View style={s.translationRow} onLayout={e=>{const w=e.nativeEvent.layout.width;setTranslationRowWidth(old=>Math.abs(old-w)>0.5?w:old);}}>
-        <View style={s.centeredTranslationWrap}>
-          <Text numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.55} ellipsizeMode="clip" onLayout={e=>{const w=e.nativeEvent.layout.width;setTranslationTextWidth(old=>Math.abs(old-w)>0.5?w:old);}} style={[s.translation,rtl&&{writingDirection:'rtl'}]}>{translation}</Text>
-        </View>
+      <View style={[s.prompt,Platform.OS==='android'&&s.androidPrompt]}>
+      <View style={s.translationRow}>
         {!!GENDER_ICONS[item.gender]&&<Image
           source={GENDER_ICONS[item.gender]}
-          style={[s.genderIconBesideText,{
-            left:translationRowWidth>0&&translationTextWidth>0
-              ?Math.max(2,(translationRowWidth-translationTextWidth)/2-45)
-              :2
-          }]}
+          style={s.genderIconBesideText}
         />}
+        <View style={s.centeredTranslationWrap}>
+          <Text
+             numberOfLines={2}
+             ellipsizeMode="tail"
+             style={[s.translation,rtl&&{writingDirection:'rtl'}]}
+           >{translation}</Text>
+        </View>
       </View>
       <View style={s.hintPlaceholder}>{(stage===2||finished)&&<View style={s.promptTranslitRow}>
         <Text style={s.promptTranslit}>{fullTranslit}</Text>
@@ -560,25 +574,25 @@ export default function Exercise11({navigation,route}) {
         </TouchableOpacity>
       </View>}</View>
     </View>
-    <View style={s.phraseArea}>
-      <View style={s.phraseLine}>
+    <View style={[s.phraseArea,Platform.OS==='android'&&s.androidPhraseArea]}>
+      <View style={[s.phraseLine,Platform.OS==='android'&&s.androidPhraseLine]}>
         <View style={[s.slots,{flexShrink:0,flexWrap:'nowrap'}]}>{renderVerbCells(firstLetters)}</View>
         {!!pronounLetters.length&&<View style={[s.fixedSlots,{flexShrink:0,flexWrap:'nowrap',marginLeft:firstLetters.length?wordGap:0}]}>
           {pronounLetters.slice().reverse().map((ch,i)=><View key={`pron-${i}`} style={[s.slot,s.slotFixed,slotWidthStyle]}><Text style={[s.slotText,boxWidth<30&&{fontSize:19}]}>{ch}</Text></View>)}
         </View>}
       </View>
-      <View style={s.phraseLine}>
+      <View style={[s.phraseLine,Platform.OS==='android'&&s.androidPhraseLine]}>
         <ScrollView horizontal showsHorizontalScrollIndicator={false} bounces={false} contentContainerStyle={{flexGrow:1,justifyContent:'center',alignItems:'center'}}>
           <View style={[s.slots,{flexShrink:0,flexWrap:'nowrap'}]}>{renderVerbCells(secondLetters)}</View>
         </ScrollView>
       </View>
     </View>
     </View>
-    <View style={s.message}>{finished?<Text style={[s.status,awarded>0?s.goodText:s.badText]}>{awarded>0?`${lang.right} +${awarded}%`:`${lang.lost} ${target}`}</Text>:stage===1?<Text style={s.badText}>{lang.wrong}</Text>:stage===2?<Text style={s.badText}>{lang.last}</Text>:<Text style={s.detail}>1 / 3 · 100%</Text>}</View>
+    <View style={[s.message,Platform.OS==='android'&&s.androidMessage]}>{finished?<Text style={[s.status,awarded>0?s.goodText:s.badText]}>{awarded>0?`${lang.right} +${awarded}%`:`${lang.lost} ${target}`}</Text>:stage===1?<Text style={s.badText}>{lang.wrong}</Text>:stage===2?<Text style={s.badText}>{lang.last}</Text>:<Text style={s.detail}>1 / 3 · 100%</Text>}</View>
     </ScrollView>
-    <View style={[s.fixedFooter,compactScreen&&s.smallFooter]}>
-    <View style={s.keyboard}>{ROWS.map((row,i)=><View style={s.keyRow} key={i}>{[...row].map((letter,j)=>{const enabled=!hint||allowed.has(letter);return <TouchableOpacity key={j} disabled={!enabled||finished||typed.length===listOfLetters.length} onPress={()=>setTyped(old=>[...old,letter])} style={[s.key,hint&&allowed.has(letter)&&s.keyHint,!enabled&&s.keyDisabled]}><Text style={[s.keyText,!enabled&&s.keyTextDisabled]}>{letter}</Text></TouchableOpacity>;})}{i===0&&<TouchableOpacity accessibilityRole="button" accessibilityLabel={lang.remove} disabled={!typed.length||finished} onPress={()=>setTyped(old=>old.slice(0,-1))} style={[s.key,s.backspaceKey,(!typed.length||finished)&&s.dim]}><Text style={s.backspaceIcon}>⌫</Text></TouchableOpacity>}</View>)}</View>
-    <TouchableOpacity disabled={!finished&&typed.length!==listOfLetters.length} onPress={finished?advance:check} style={[s.primary,!finished&&typed.length!==listOfLetters.length&&s.dim]}><Text style={s.primaryText}>{finished?(index+1===deck.length?lang.finish:lang.next):lang.check}</Text></TouchableOpacity>
+    <View style={[s.fixedFooter,compactScreen&&s.smallFooter,Platform.OS==='android'&&s.androidFooter]}>
+    <View style={[s.keyboard,compactScreen&&s.compactKeyboard]}>{ROWS.map((row,i)=><View style={s.keyRow} key={i}>{[...row].map((letter,j)=>{const enabled=!hint||allowed.has(letter);return <TouchableOpacity key={j} disabled={!enabled||finished||typed.length===listOfLetters.length} onPress={()=>setTyped(old=>[...old,letter])} style={[s.key,compactScreen&&s.compactKey,hint&&allowed.has(letter)&&s.keyHint,!enabled&&s.keyDisabled]}><Text style={[s.keyText,!enabled&&s.keyTextDisabled]}>{letter}</Text></TouchableOpacity>;})}{i===0&&<TouchableOpacity accessibilityRole="button" accessibilityLabel={lang.remove} disabled={!typed.length||finished} onPress={()=>setTyped(old=>old.slice(0,-1))} style={[s.key,compactScreen&&s.compactKey,s.backspaceKey,(!typed.length||finished)&&s.dim]}><Text style={s.backspaceIcon}>⌫</Text></TouchableOpacity>}</View>)}</View>
+    <TouchableOpacity disabled={!finished&&typed.length!==listOfLetters.length} onPress={finished?advance:check} style={[s.primary,compactScreen&&s.compactFooterButton,!finished&&typed.length!==listOfLetters.length&&s.dim]}><Text style={s.primaryText}>{finished?(index+1===deck.length?lang.finish:lang.next):lang.check}</Text></TouchableOpacity>
     </View>
    </>}
    {phase==='result'&&<View style={s.resultCenter}><View style={[s.panel,s.resultPanel]}><Text style={s.resultTitle}>{lang.score}</Text><Text style={s.resultNumber}>{Math.round(totalsRef.current.earned/deck.length)}%</Text><Text style={s.resultSub}>✓ {correct}     ✕ {wrong}     {correct+wrong} / {deck.length}</Text><TouchableOpacity onPress={begin} style={s.primary}><Text style={s.primaryText}>{lang.repeat}</Text></TouchableOpacity><TouchableOpacity onPress={goToMenu} style={s.secondary}><Text style={s.eraseText}>{lang.menu}</Text></TouchableOpacity></View></View>}
@@ -614,7 +628,7 @@ function DynamicCardBackdrop({motion,colors,reverse=false}){
   </Animated.View>)}
  </View>;
 }
-const s=StyleSheet.create({screen:{flex:1,backgroundColor:'#AFC1D0'},scroll:{paddingHorizontal:12,paddingTop:4,paddingBottom:30},header:{flexDirection:'row',alignItems:'center',justifyContent:'space-between',marginBottom:12},back:{fontSize:36,color:'#526D9D'},title:{fontSize:20,fontWeight:'700',color:'#263A5A'},sound:{fontSize:22},panel:{backgroundColor:'#FFFDEF',borderRadius:17,padding:18,marginBottom:14},label:{fontWeight:'700',color:'#435978',fontSize:15},choiceRow:{flexDirection:'row',gap:9,marginVertical:12},choice:{flex:1,padding:12,borderRadius:9,backgroundColor:'#EAF0FA',alignItems:'center'},choiceActive:{backgroundColor:'#91BFEF'},choiceText:{fontSize:16,fontWeight:'700',color:'#253C62'},detail:{color:'#6D7C94',fontSize:13},help:{color:'#445570',lineHeight:22,marginTop:20},primary:{backgroundColor:'#377ACB',borderRadius:13,paddingVertical:15,alignItems:'center',marginTop:12},primaryText:{color:'#fff',fontWeight:'800',fontSize:16},dim:{opacity:0.4},progress:{flexDirection:'row',justifyContent:'space-between',marginVertical:8},progressText:{fontWeight:'700',color:'#637797'},track:{height:5,backgroundColor:'#DCE5F2',borderRadius:4,overflow:'hidden',marginBottom:13},trackFill:{height:5,backgroundColor:'#3986D0'},topBar:{flexDirection:'row',justifyContent:'space-between',alignItems:'center',width:'100%',minHeight:74},logo:{width:74,height:74,resizeMode:'contain',marginLeft:8},topButtons:{flexDirection:'row',alignItems:'center',gap:8,marginRight:8},topIcon:{width:38,height:38,resizeMode:'contain'},progressBox:{flexDirection:'row',alignItems:'center',backgroundColor:'#6C8EBB',borderRadius:10,minHeight:48,marginTop:-7,marginBottom:8,shadowColor:'#000',shadowOffset:{width:0,height:2},shadowOpacity:0.25,shadowRadius:4,elevation:5},progressLeft:{flex:1,justifyContent:'center',paddingLeft:14},progressLabel:{color:'#FFFFFF',fontSize:12,lineHeight:17},progressNumberWrap:{backgroundColor:'#83A3CD',marginRight:10,paddingHorizontal:8,borderRadius:10,minWidth:44,alignItems:'center'},progressNumber:{color:'#FFFFFF',fontSize:20,fontWeight:'bold'},progressPercentWrap:{backgroundColor:'#83A3CD',marginRight:10,paddingHorizontal:8,borderRadius:10,minWidth:68,alignItems:'center'},progressPercent:{color:'#FFFFFF',fontSize:20,fontWeight:'bold'},progressBarWrap:{marginBottom:8},speakerIcon:{width:26,height:26,resizeMode:'contain'},translitHint:{flexDirection:'row',alignItems:'center',justifyContent:'center',gap:12,flexWrap:'wrap'},backspaceKey:{backgroundColor:'#E0E9F5',borderColor:'#83A3CD'},backspaceIcon:{fontSize:28,color:'#375D90',fontWeight:'700'},card:{borderWidth:1,borderColor:'#CCD9E9',backgroundColor:'#EEF2F7',padding:15,borderRadius:16,alignItems:'center'},cardHeading:{fontSize:11,fontWeight:'700',letterSpacing:1,color:'#6A83A8'},infinitive:{fontSize:32,fontWeight:'700',color:'#2A4468',marginTop:7},meaning:{fontSize:14,fontWeight:'400',color:'#3E5475',marginVertical:6},meta:{fontSize:13,color:'#586F8D',marginTop:4},grid:{flexDirection:'row',gap:14,marginTop:7},listen:{padding:8,marginTop:6},listenText:{fontSize:13,color:'#3269AB',fontWeight:'700'},tools:{width:'100%',flexDirection:'row',justifyContent:'space-around',borderTopWidth:1,borderTopColor:'#C4D6F0',marginTop:8,paddingTop:8},toolText:{fontSize:12,color:'#53739E'},prompt:{minHeight:74,alignItems:'center',justifyContent:'center',padding:8},promptHint:{color:'#7890AF',fontSize:12},translation:{fontSize:21,fontWeight:'700',color:'#293B5E',textAlign:'center',marginTop:5},pronoun:{fontSize:21,color:'#2A436B',marginTop:4},phraseSlots:{flexDirection:'row',justifyContent:'center',alignItems:'center',gap:19,marginVertical:8,flexWrap:'wrap'},slots:{flexDirection:'row',justifyContent:'center',gap:3},fixedSlots:{flexDirection:'row',justifyContent:'center',gap:3},slotFixed:{backgroundColor:'#E2EAF6',borderColor:'#B9CBE3'},slot:{minWidth:34,height:43,borderRadius:8,borderWidth:1,borderColor:'#AEBED2',backgroundColor:'#FFF',justifyContent:'center',alignItems:'center',paddingHorizontal:3},slotText:{fontSize:22,fontWeight:'700',color:'#2E4061'},slotGood:{backgroundColor:'#E0F6E8',borderColor:'#4BA86C'},slotBad:{backgroundColor:'#FFF0EC',borderColor:'#D87269'},message:{minHeight:52,justifyContent:'center',alignItems:'center'},status:{fontSize:15,fontWeight:'700',textAlign:'center'},goodText:{color:'#238253',fontWeight:'700',textAlign:'center'},badText:{color:'#C2574C',fontWeight:'700',textAlign:'center'},keyboard:{gap:4,marginTop:5},keyRow:{flexDirection:'row',justifyContent:'center',gap:3},key:{flex:1,height:42,maxWidth:44,borderRadius:7,backgroundColor:'#FFF',borderWidth:1,borderColor:'#D5DBE7',justifyContent:'center',alignItems:'center'},keyHint:{backgroundColor:'#D7F1E0',borderColor:'#60B180'},keyDisabled:{backgroundColor:'#EAEDF3',opacity:0.28},keyText:{fontSize:20,fontWeight:'600',color:'#344764'},keyTextDisabled:{color:'#A4ADBE'},erase:{alignSelf:'flex-end',marginTop:10,borderRadius:8,borderWidth:1,borderColor:'#D4DEEB',paddingHorizontal:15,paddingVertical:9,backgroundColor:'#FFF'},eraseText:{fontSize:14,color:'#43648E',fontWeight:'700'},resultTitle:{textAlign:'center',fontSize:22,fontWeight:'700',color:'#2F4B70'},resultNumber:{fontSize:58,color:'#3786C6',fontWeight:'800',textAlign:'center',margin:20},resultSub:{color:'#556D8A',fontSize:18,textAlign:'center',marginBottom:16},secondary:{alignItems:'center',padding:16},
+const s=StyleSheet.create({screen:{flex:1,backgroundColor:'#AFC1D0'},scroll:{paddingHorizontal:12,paddingTop:4,paddingBottom:30},header:{flexDirection:'row',alignItems:'center',justifyContent:'space-between',marginBottom:12},back:{fontSize:36,color:'#526D9D'},title:{fontSize:20,fontWeight:'700',color:'#263A5A'},sound:{fontSize:22},panel:{backgroundColor:'#FFFDEF',borderRadius:17,padding:18,marginBottom:14},label:{fontWeight:'700',color:'#435978',fontSize:15},choiceRow:{flexDirection:'row',gap:9,marginVertical:12},choice:{flex:1,padding:12,borderRadius:9,backgroundColor:'#EAF0FA',alignItems:'center'},choiceActive:{backgroundColor:'#91BFEF'},choiceText:{fontSize:16,fontWeight:'700',color:'#253C62'},detail:{color:'#6D7C94',fontSize:12},help:{color:'#445570',lineHeight:22,marginTop:20},primary:{backgroundColor:'#377ACB',borderRadius:13,paddingVertical:15,alignItems:'center',marginTop:12},primaryText:{color:'#fff',fontWeight:'800',fontSize:16},dim:{opacity:0.4},progress:{flexDirection:'row',justifyContent:'space-between',marginVertical:8},progressText:{fontWeight:'700',color:'#637797'},track:{height:5,backgroundColor:'#DCE5F2',borderRadius:4,overflow:'hidden',marginBottom:13},trackFill:{height:5,backgroundColor:'#3986D0'},topBar:{flexDirection:'row',justifyContent:'space-between',alignItems:'center',width:'100%',minHeight:74},logo:{width:74,height:74,resizeMode:'contain',marginLeft:8},topButtons:{flexDirection:'row',alignItems:'center',gap:8,marginRight:8},topIcon:{width:38,height:38,resizeMode:'contain'},progressBox:{flexDirection:'row',alignItems:'center',backgroundColor:'#6C8EBB',borderRadius:10,minHeight:48,marginTop:-7,marginBottom:8,shadowColor:'#000',shadowOffset:{width:0,height:2},shadowOpacity:0.25,shadowRadius:4,elevation:5},progressLeft:{flex:1,justifyContent:'center',paddingLeft:14},progressLabel:{color:'#FFFFFF',fontSize:12,lineHeight:17},progressNumberWrap:{backgroundColor:'#83A3CD',marginRight:10,paddingHorizontal:8,borderRadius:10,minWidth:44,alignItems:'center'},progressNumber:{color:'#FFFFFF',fontSize:20,fontWeight:'bold'},progressPercentWrap:{backgroundColor:'#83A3CD',marginRight:10,paddingHorizontal:8,borderRadius:10,minWidth:68,alignItems:'center'},progressPercent:{color:'#FFFFFF',fontSize:20,fontWeight:'bold'},progressBarWrap:{marginBottom:8},speakerIcon:{width:26,height:26,resizeMode:'contain'},translitHint:{flexDirection:'row',alignItems:'center',justifyContent:'center',gap:12,flexWrap:'wrap'},backspaceKey:{backgroundColor:'#E0E9F5',borderColor:'#83A3CD'},backspaceIcon:{fontSize:28,color:'#375D90',fontWeight:'700'},card:{borderWidth:1,borderColor:'#CCD9E9',backgroundColor:'#EEF2F7',padding:15,borderRadius:16,alignItems:'center'},cardHeading:{fontSize:11,fontWeight:'700',letterSpacing:1,color:'#6A83A8'},infinitive:{fontSize:32,fontWeight:'700',color:'#2A4468',marginTop:7},meaning:{fontSize:14,fontWeight:'400',color:'#3E5475',marginVertical:6},meta:{fontSize:13,color:'#586F8D',marginTop:4},grid:{flexDirection:'row',gap:14,marginTop:7},listen:{padding:8,marginTop:6},listenText:{fontSize:13,color:'#3269AB',fontWeight:'700'},tools:{width:'100%',flexDirection:'row',justifyContent:'space-around',borderTopWidth:1,borderTopColor:'#C4D6F0',marginTop:8,paddingTop:8},toolText:{fontSize:12,color:'#53739E'},prompt:{minHeight:74,alignItems:'center',justifyContent:'center',padding:8},promptHint:{color:'#7890AF',fontSize:12},translation:{fontSize:21,fontWeight:'700',color:'#293B5E',textAlign:'center',marginTop:5},pronoun:{fontSize:21,color:'#2A436B',marginTop:4},phraseSlots:{flexDirection:'row',justifyContent:'center',alignItems:'center',gap:19,marginVertical:8,flexWrap:'wrap'},slots:{flexDirection:'row',justifyContent:'center',gap:3},fixedSlots:{flexDirection:'row',justifyContent:'center',gap:3},slotFixed:{backgroundColor:'#E2EAF6',borderColor:'#B9CBE3'},slot:{minWidth:34,height:43,borderRadius:8,borderWidth:1,borderColor:'#AEBED2',backgroundColor:'#FFF',justifyContent:'center',alignItems:'center',paddingHorizontal:3},slotText:{fontSize:22,fontWeight:'700',color:'#2E4061'},slotGood:{backgroundColor:'#E0F6E8',borderColor:'#4BA86C'},slotBad:{backgroundColor:'#FFF0EC',borderColor:'#D87269'},message:{minHeight:52,justifyContent:'center',alignItems:'center'},status:{fontSize:15,fontWeight:'700',textAlign:'center'},goodText:{color:'#238253',fontWeight:'700',textAlign:'center'},badText:{color:'#C2574C',fontWeight:'700',textAlign:'center'},keyboard:{gap:4,marginTop:5},keyRow:{flexDirection:'row',justifyContent:'center',gap:3},key:{flex:1,height:42,maxWidth:44,borderRadius:7,backgroundColor:'#FFF',borderWidth:1,borderColor:'#D5DBE7',justifyContent:'center',alignItems:'center'},keyHint:{backgroundColor:'#D7F1E0',borderColor:'#60B180'},keyDisabled:{backgroundColor:'#EAEDF3',opacity:0.28},keyText:{fontSize:20,fontWeight:'600',color:'#344764'},keyTextDisabled:{color:'#A4ADBE'},erase:{alignSelf:'flex-end',marginTop:10,borderRadius:8,borderWidth:1,borderColor:'#D4DEEB',paddingHorizontal:15,paddingVertical:9,backgroundColor:'#FFF'},eraseText:{fontSize:14,color:'#43648E',fontWeight:'700'},resultTitle:{textAlign:'center',fontSize:22,fontWeight:'700',color:'#2F4B70'},resultNumber:{fontSize:58,color:'#3786C6',fontWeight:'800',textAlign:'center',margin:20},resultSub:{color:'#556D8A',fontSize:18,textAlign:'center',marginBottom:16},secondary:{alignItems:'center',padding:16},
 card:{borderWidth:1,borderColor:'#BDD1E7',backgroundColor:'#F0F5FB',paddingHorizontal:12,paddingTop:9,paddingBottom:8,borderRadius:15,alignItems:'center'},
 cardHeading:{fontSize:10,fontWeight:'700',letterSpacing:0.6,color:'#6D83A1',marginBottom:2},
 cardMainRow:{width:'100%',flexDirection:'row',justifyContent:'center',alignItems:'center',paddingHorizontal:12},
@@ -641,7 +655,7 @@ promptSpeaker:{padding:3},
 phraseSlots:{flexDirection:'row',justifyContent:'center',alignItems:'center',gap:19,marginVertical:8,flexWrap:'wrap'}
 ,page:{flex:1,paddingHorizontal:12,paddingTop:4,paddingBottom:5},
 taskContent:{flex:1},taskContentInner:{paddingBottom:8,flexGrow:0},
-fixedFooter:{flexShrink:0,paddingBottom:0,paddingTop:0,marginBottom:-32,backgroundColor:'transparent'},
+fixedFooter:{flexShrink:0,paddingBottom:0,paddingTop:0,marginBottom:0,backgroundColor:'transparent'},
 card:{borderWidth:1,borderColor:'#BDD1E7',backgroundColor:'#F0F5FB',paddingHorizontal:12,paddingTop:8,paddingBottom:7,borderRadius:15,alignItems:'center'},
 infinitive:{fontSize:35,fontWeight:'700',color:'#254A79',marginTop:0},
 metaValue:{fontSize:18,color:'#304F7C',fontWeight:'700'},
@@ -704,10 +718,10 @@ taskPromptTitle:{fontSize:16,lineHeight:22,fontFamily:'mt-bold',fontWeight:'800'
 answerCard:{backgroundColor:'#F3EFF9',borderWidth:1,borderColor:'#C4C7E2',borderRadius:15,overflow:'hidden',paddingTop:4,paddingBottom:10,paddingHorizontal:7,position:'relative'},
 // Compact task card, retaining two full rows of Hebrew cells and a permanent hint slot.
 prompt:{height:74,minHeight:74,alignItems:'center',justifyContent:'center',paddingHorizontal:6,paddingVertical:0,backgroundColor:'transparent',borderWidth:0,marginTop:0,borderRadius:0},
-translationRow:{width:'100%',minHeight:32,justifyContent:'center',alignItems:'center',marginTop:0,paddingHorizontal:4},
-centeredTranslationWrap:{alignSelf:'center',alignItems:'center',justifyContent:'center',maxWidth:'82%',position:'relative'},
-genderIconBesideText:{position:'absolute',width:25,height:25,resizeMode:'contain',top:'50%',transform:[{translateY:-12.5}],zIndex:2},
-translation:{fontSize:23,lineHeight:28,fontWeight:'700',color:'#253C67',textAlign:'center',marginTop:0},
+translationRow:{width:'100%',minHeight:49,justifyContent:'center',alignItems:'center',marginTop:0,paddingHorizontal:0,position:'relative'},
+centeredTranslationWrap:{width:'100%',paddingHorizontal:52,alignSelf:'center',alignItems:'center',justifyContent:'center'},
+genderIconBesideText:{position:'absolute',left:2,width:40,height:40,resizeMode:'contain',top:'50%',transform:[{translateY:-20}],zIndex:2},
+translation:{width:'100%',flexShrink:1,fontSize:23,lineHeight:28,fontWeight:'700',color:'#253C67',textAlign:'center',marginTop:0,includeFontPadding:false},
 hintPlaceholder:{height:30,justifyContent:'center',alignItems:'center',width:'100%'},
 phraseArea:{height:104,minHeight:104,justifyContent:'center',marginTop:3,marginBottom:2},
 phraseLine:{height:46,flexDirection:'row',alignItems:'center',justifyContent:'center'},
@@ -718,9 +732,9 @@ verbInfoColumn:{position:'absolute',right:0,width:'39%',width:'39%',justifyConte
 verbWordColumn:{position:'absolute',left:0,width:'58%',flex:1,minWidth:0,alignItems:'center',justifyContent:'center',gap:2,paddingHorizontal:3},
 compactMetaPill:{minHeight:31,borderRadius:9,paddingVertical:2,paddingHorizontal:5,alignItems:'center',justifyContent:'center'},
 compactMetaValue:{fontSize:16,lineHeight:19,color:'#304F7C',fontWeight:'700',textAlign:'center'},
-compactInfinitive:{fontSize:30,lineHeight:39,fontWeight:'700',color:'#204D86',textAlign:'center',width:'100%'},
-compactMeaning:{fontSize:18,lineHeight:20,fontWeight:'700',color:'#8350A0',textAlign:'center',width:'100%'},
-compactTranslit:{fontSize:15,lineHeight:17,fontWeight:'700',color:'#167A73',textAlign:'center',width:'100%'},
+compactInfinitive:{fontSize:30,lineHeight:37,fontWeight:'700',color:'#204D86',textAlign:'center',width:'100%'},
+compactMeaning:{fontSize:15,lineHeight:18,fontWeight:'700',color:'#8350A0',textAlign:'center',width:'100%'},
+compactTranslit:{fontSize:13,lineHeight:17,fontWeight:'700',color:'#167A73',textAlign:'center',width:'100%'},
 cardBottomRow:{width:'100%',flexDirection:'row',alignItems:'center',justifyContent:'space-between',marginTop:3},
 // Use physical left/right positioning: RTL mirroring must not swap columns.
 verbTwoColumns:{direction:'ltr',width:'100%',height:96,position:'relative',flexDirection:'row'},
@@ -748,8 +762,24 @@ smallAnswerCard:{paddingTop:3,paddingBottom:7},
 smallFooter: {
   paddingTop: 0,
   paddingBottom: 0,
-  marginBottom: -40
+  marginBottom: 0
 },
+androidFooter:{marginBottom:-38,paddingBottom:0},
+androidProgressBox:{marginBottom:4},
+androidProgressBarWrap:{marginBottom:12},
+compactKeyboard:{gap:3,marginTop:0},
+compactKey:{height:39},
+compactFooterButton:{paddingVertical:11,marginTop:7},
+// Android only: return the keyboard and CHECK closer to the previous bottom position
+// and restore a little breathing room inside both cards. iOS is unchanged.
+androidVerbCard:{paddingTop:5,paddingBottom:5},
+androidVerbColumns:{height:72,minHeight:72},
+androidTaskTitle:{paddingTop:5,paddingBottom:5},
+androidAnswerCard:{paddingTop:5,paddingBottom:6},
+androidPrompt:{height:88,minHeight:88},
+androidPhraseArea:{height:100,minHeight:100,marginTop:2,marginBottom:2},
+androidPhraseLine:{height:46},
+androidMessage:{height:30,minHeight:30,paddingTop:3},
  resultCenter:{flex:1,justifyContent:'center',alignItems:'stretch',paddingHorizontal:7,paddingBottom:8},
  resultPanel:{marginBottom:0,width:'100%'}
 });

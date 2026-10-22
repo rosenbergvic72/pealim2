@@ -11,6 +11,7 @@ import {
   Text,
   View,
 } from 'react-native';
+import { useExerciseAI } from './ExerciseAIContext';
 const COLORS = {
   background: '#83A3CD',
   card: '#FFFDEF',
@@ -301,13 +302,18 @@ const CountButton = memo(
       ]}
     >
       <Text
+        numberOfLines={1}
+        adjustsFontSizeToFit
+        minimumFontScale={0.8}
+        allowFontScaling={false}
+        maxFontSizeMultiplier={1}
         style={[
           styles.countButtonText,
           selected &&
             styles.countButtonTextSelected,
         ]}
       >
-        {count}
+        {String(count)}
       </Text>
     </Pressable>
   )
@@ -417,6 +423,10 @@ const PrepositionListModal = ({
   onStart,
   onClose,
 }) => {
+const { setStartVisible } = useExerciseAI();
+React.useEffect(() => {
+  if (visible) setStartVisible(true);
+}, [setStartVisible, visible]);
 const lang = normalizeLanguage(language);
 const text = lang ? UI_TEXT[lang] : null;
   const safeItems =
@@ -745,7 +755,10 @@ return (
             disabled={
               startDisabled
             }
-            onPress={onStart}
+            onPress={() => {
+              setStartVisible(false);
+              onStart?.();
+            }}
             style={({ pressed }) => [
               styles.startButton,
               startDisabled &&
@@ -886,6 +899,7 @@ header: {
     },
     countButton: {
       flex: 1,
+      minWidth: 0,
       height: 40,
       borderWidth: 2,
       borderColor:
@@ -906,6 +920,10 @@ header: {
       color: COLORS.text,
       fontSize: 16,
       fontWeight: '900',
+      textAlign: 'center',
+      textAlignVertical: 'center',
+      includeFontPadding: false,
+      flexShrink: 1,
     },
     countButtonTextSelected: {
       color:
