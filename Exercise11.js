@@ -342,7 +342,7 @@ export default function Exercise11({navigation,route}) {
  const {width:screenWidth,height:screenHeight}=useWindowDimensions();
   const safeInsets=useSafeAreaInsets();
  const compactScreen=screenHeight<880;
- const [language,setLanguage]=useState('en');const [settings,setSettings]=useState(initSettings);
+ const [language,setLanguage]=useState('en');const [languageReady,setLanguageReady]=useState(false);const [settings,setSettings]=useState(initSettings);
  const [phase,setPhase]=useState('settings');const [deck,setDeck]=useState([]);const [index,setIndex]=useState(0);
  const [typed,setTyped]=useState([]);const [stage,setStage]=useState(0);const [finished,setFinished]=useState(false);const [awarded,setAwarded]=useState(0);
  const [earned,setEarned]=useState(0);const [correct,setCorrect]=useState(0);const [wrong,setWrong]=useState(0);
@@ -389,7 +389,7 @@ export default function Exercise11({navigation,route}) {
  const item=deck[index];const target=item?.verb||'';
  const result=deck.length?Math.round(earned/deck.length):0;
  const stopAudio=useCallback(async()=>{const old=audioRef.current;audioRef.current=null;if(old){try{await old.stopAsync();await old.unloadAsync();}catch(e){}}setAudioPlaying(false);},[]);
- useEffect(()=>{activeRef.current=true;(async()=>{try{const v=await AsyncStorage.multiGet(['language','exercise11_settings_v1']);if(!activeRef.current)return;setLanguage(route?.params?.language||v[0][1]||'en');if(v[1][1]){
+ useEffect(()=>{activeRef.current=true;(async()=>{try{const v=await AsyncStorage.multiGet(['language','exercise11_settings_v1']);if(!activeRef.current)return;setLanguage(route?.params?.language||v[0][1]||'en');setLanguageReady(true);if(v[1][1]){
   const saved={...initSettings,...JSON.parse(v[1][1])};
   // Previous versions stored infinitives; they must not exclude entire families.
   // Only exact form IDs in the current database remain valid.
@@ -398,8 +398,8 @@ export default function Exercise11({navigation,route}) {
   saved.pinned=[...new Set((Array.isArray(saved.pinned)?saved.pinned:[]).map(String).filter(id=>valid.has(id)&&!saved.excluded.includes(id)))];
   setSettings(saved);
   AsyncStorage.setItem('exercise11_settings_v1',JSON.stringify(saved)).catch(()=>{});
- }}catch(e){console.warn('[Ex11] Load settings',e);}})();return()=>{activeRef.current=false;stopAudio();};},[route?.params?.language,stopAudio,all]);
- useFocusEffect(useCallback(()=>{const name=`exercise11${language}`;FirebaseAnalytics.logFirebaseEvent(name,{screen:name});return()=>{stopAudio();};},[language,stopAudio]));
+ }}catch(e){console.warn('[Ex11] Load settings',e);if(activeRef.current){setLanguage(route?.params?.language||'en');setLanguageReady(true);}}})();return()=>{activeRef.current=false;stopAudio();};},[route?.params?.language,stopAudio,all]);
+ useFocusEffect(useCallback(()=>{if(languageReady){const name=`exercise11${language}`;FirebaseAnalytics.logFirebaseEvent(name,{screen:name});}return()=>{stopAudio();};},[language,languageReady,stopAudio]));
  const saveSettings=patch=>setSettings(old=>{const next={...old,...patch};AsyncStorage.setItem('exercise11_settings_v1',JSON.stringify(next)).catch(console.warn);return next;});
  const playAudio=useCallback(async(source,onFinish)=>{
   if(!settings.sound||!source)return;
@@ -491,7 +491,7 @@ export default function Exercise11({navigation,route}) {
  const renderVerbCells=entries=>entries.slice().reverse().map(({ch,i})=><View key={`verb-${i}`} style={[s.slot,slotWidthStyle,finished&&(awarded>0?s.slotGood:s.slotBad)]}><Text style={[s.slotText,boxWidth<30&&{fontSize:19}]}>{finished&&awarded===0?ch:typed[i]||' '}</Text></View>);
  const hint=stage>=1;const allowed=new Set(listOfLetters);const fullTranslit=String(item?.translit||'').trim()||'—';
  return <SafeAreaView style={s.screen} edges={phase==='settings'?['top','left','right']:['left','right']}>
-  <View style={[s.page, Platform.OS==='ios'?{paddingBottom:5+safeInsets.bottom}:{paddingBottom:Math.max(5,safeInsets.bottom)}]}>
+  <View style={[s.page, Platform.OS==='ios'?{paddingBottom:Math.max(0,5+safeInsets.bottom-8)}:{paddingBottom:Math.max(5,safeInsets.bottom)}]}>
    {phase==='task'&&<View style={[s.topBar,compactScreen&&s.smallTopBar]}>
      <TouchableOpacity accessibilityRole="button" accessibilityLabel={lang.menu} onPress={()=>Alert.alert(lang.exitTitle,undefined,[{text:lang.cancel,style:'cancel'},{text:lang.exit,style:'destructive',onPress:()=>setPhase('settings')}])}>
        <Image source={ASSETS.logo} style={[s.logo,compactScreen&&s.smallLogo]}/>
