@@ -17,6 +17,173 @@ const ASSETS = { logo: require('./VERBIFY.png'), on: require('./SoundOn.png'), o
 const GENDER_ICONS = {man:require('./man1.png'),woman:require('./woman1.png'),men:require('./men1.png'),women:require('./women1.png')};
 const ROWS = ['קראטוןםפ', 'שדגכעיחלךף', 'זסבהנמצתץ'];
 const COUNTS = [8,12,18,24];
+const ALL_TENSES_11 = ['present','past','future'];
+// Form positions are LOCAL to each infinitive, never global (i % 36).
+// Most verbs: 12 present + 12 past + 12 future.
+// להיות has only 24 forms: 12 past + 12 future (no present).
+// Prefer an explicit tense from the JSON when it exists.
+const TENSE_FROM_FORM_11 = (position, formCount) => {
+  const order = formCount === 24 ? ['past', 'future'] : ['present', 'past', 'future'];
+  return order[Math.min(order.length - 1, Math.floor(position / 12))];
+};
+function buildExercise11Items(rows) {
+  if (!Array.isArray(rows)) return [];
+  const counts = new Map();
+  rows.forEach(row => {
+    if (row?.infinitive) counts.set(row.infinitive, (counts.get(row.infinitive) || 0) + 1);
+  });
+  const positions = new Map();
+  return rows.map((row, index) => {
+    const infinitive = row?.infinitive;
+    const position = positions.get(infinitive) || 0;
+    positions.set(infinitive, position + 1);
+    const explicit = String(row?.tense || '').toLowerCase();
+    const tense = ['present', 'past', 'future'].includes(explicit)
+      ? explicit
+      : TENSE_FROM_FORM_11(position, counts.get(infinitive) || 36);
+    return makeItem({...row, tense}, index);
+  }).filter(Boolean);
+}
+const normalizeBinyan11 = x => String(x || '').trim().toUpperCase().replace(/[’']/g, '');
+const HIDDEN_BINYANS_11 = new Set(['PUAL','HUFAL']);
+const EX11_FILTER_LABELS = {
+ ru:{tense:'Времена',binyan:'Биньяны',present:'Настоящее',past:'Прошедшее',future:'Будущее',toSettings:'В НАСТРОЙКИ',correct:'Верно',wrong:'Неверно'},
+ en:{tense:'Tenses',binyan:'Binyanim',present:'Present',past:'Past',future:'Future',toSettings:'SETTINGS',correct:'Correct',wrong:'Incorrect'},
+ fr:{tense:'Temps',binyan:'Binyanim',present:'Présent',past:'Passé',future:'Futur',toSettings:'PARAMÈTRES',correct:'Justes',wrong:'Fausses'},
+ es:{tense:'Tiempos',binyan:'Binyanim',present:'Presente',past:'Pasado',future:'Futuro',toSettings:'AJUSTES',correct:'Correctas',wrong:'Incorrectas'},
+ pt:{tense:'Tempos',binyan:'Binyanim',present:'Presente',past:'Passado',future:'Futuro',toSettings:'DEFINIÇÕES',correct:'Certas',wrong:'Erradas'},
+ ar:{tense:'الأزمنة',binyan:'الأبنية',present:'الحاضر',past:'الماضي',future:'المستقبل',toSettings:'الإعدادات',correct:'صحيح',wrong:'خطأ'},
+ am:{tense:'ጊዜዎች',binyan:'ቢንያኖች',present:'የአሁን',past:'ያለፈ',future:'የወደፊት',toSettings:'ቅንብሮች',correct:'ትክክል',wrong:'ስህተት'},
+};
+const RESULT_MESSAGES_11 = {
+  "ru": [
+    [
+      "Прекрасный результат!",
+      "Вы уверенно вспоминаете формы глаголов. Продолжайте в том же духе!"
+    ],
+    [
+      "Очень хорошо!",
+      "Большинство форм уже получается. Ещё немного практики - и станет ещё легче!"
+    ],
+    [
+      "Хорошее начало!",
+      "Вы уже продвигаетесь вперёд. Повторяйте сложные формы, и результат вырастет!"
+    ],
+    [
+      "Главное - вы тренируетесь!",
+      "Каждая попытка помогает запоминать глаголы. Попробуйте ещё раз, не торопясь!"
+    ]
+  ],
+  "en": [
+    [
+      "Excellent result!",
+      "You recall verb forms confidently. Keep up the great work!"
+    ],
+    [
+      "Very good!",
+      "Most forms are coming together. A little more practice will help!"
+    ],
+    [
+      "A good start!",
+      "You are making progress. Revisiting tricky forms will raise your score!"
+    ],
+    [
+      "What matters is practising!",
+      "Every attempt strengthens your memory. Give it another go at your own pace!"
+    ]
+  ],
+  "fr": [
+    [
+      "Excellent résultat !",
+      "Vous retrouvez les formes verbales avec assurance. Continuez !"
+    ],
+    [
+      "Très bien !",
+      "Vous maîtrisez déjà beaucoup de formes. Encore un peu de pratique !"
+    ],
+    [
+      "Un bon début !",
+      "Vous progressez. Révisez les formes difficiles pour vous améliorer !"
+    ],
+    [
+      "L’essentiel est de pratiquer !",
+      "Chaque essai renforce la mémoire. Réessayez à votre rythme !"
+    ]
+  ],
+  "es": [
+    [
+      "¡Excelente resultado!",
+      "Recuerdas las formas verbales con seguridad. ¡Sigue así!"
+    ],
+    [
+      "¡Muy bien!",
+      "Ya dominas muchas formas. ¡Un poco más de práctica te ayudará!"
+    ],
+    [
+      "¡Buen comienzo!",
+      "Estás avanzando. Repasa las formas difíciles para mejorar. "
+    ],
+    [
+      "¡Lo importante es practicar!",
+      "Cada intento fortalece la memoria. ¡Vuelve a intentarlo a tu ritmo!"
+    ]
+  ],
+  "pt": [
+    [
+      "Excelente resultado!",
+      "Recorda as formas verbais com confiança. Continue assim!"
+    ],
+    [
+      "Muito bem!",
+      "Já domina muitas formas. Mais um pouco de prática vai ajudar!"
+    ],
+    [
+      "Bom começo!",
+      "Está a progredir. Reveja as formas difíceis para melhorar!"
+    ],
+    [
+      "O importante é praticar!",
+      "Cada tentativa reforça a memória. Tente novamente ao seu ritmo!"
+    ]
+  ],
+  "ar": [
+    [
+      "نتيجة ممتازة!",
+      "أنت تتذكر صيغ الأفعال بثقة. واصل التقدم!"
+    ],
+    [
+      "جيد جدًا!",
+      "لقد أتقنت الكثير من الصيغ. المزيد من التدريب سيجعلك أفضل!"
+    ],
+    [
+      "بداية جيدة!",
+      "أنت تتقدم. راجع الصيغ الصعبة لتتحسن نتيجتك!"
+    ],
+    [
+      "المهم أنك تتدرب!",
+      "كل محاولة تقوي الذاكرة. حاول مجددًا على مهل!"
+    ]
+  ],
+  "am": [
+    [
+      "እጅግ ጥሩ ውጤት!",
+      "የግስ ቅርጾችን በልበ ሙሉነት እያስታወሱ ነው። ይቀጥሉ!"
+    ],
+    [
+      "በጣም ጥሩ!",
+      "ብዙ ቅርጾችን ተምረዋል። ተጨማሪ ልምምድ ይረዳዎታል!"
+    ],
+    [
+      "ጥሩ ጅምር!",
+      "እየተሻሻሉ ነው። አስቸጋሪ ቅርጾችን ይድገሙ!"
+    ],
+    [
+      "ዋናው ነገር መለማመድ ነው!",
+      "እያንዳንዱ ሙከራ ትውስታን ያጠናክራል። እንደገና ይሞክሩ!"
+    ]
+  ]
+};
+
 const SCORE = [100,70,40,0];
 const ERROR_SOUND = require('./assets/sounds/failure_root.mp3');
 const LABEL = {
@@ -286,6 +453,7 @@ const EX11_EXTRA = {
   "intro": "ከትርጉሙ ተነስተው የዕብራይስጥ ግሱን ፊደላት በመጫን ይገንቡ። ሦስት ሙከራዎች አሉ፤ ያለ ፍንጭ (100%)፣ በተለዩ ፊደላት (70%) እና በድምፅ እርዳታ (40%)።"
  }
 };
+const HELP_SECTIONS_11 = {"ru": ["Как выполнять упражнение", "Смотрите перевод и грамматические подсказки: инфинитив, корень и биньян. Восстановите форму глагола, нажимая буквы иврита в правильном порядке.", "Три попытки", "1-я: 100% — без подсказок. 2-я: 70% — нужные буквы подсвечены. 3-я: 40% — доступна транслитерация и озвучка. После ошибки попробуйте вспомнить форму заново.", "Почему это работает", "Самостоятельное воспроизведение, а не выбор готового ответа, тренирует активное вспоминание. Контекст, корень и биньян помогают находить закономерности спряжения, а набор букв укрепляет орфографическую память.", "Совет", "Сложные формы отмечайте «Чаще», знакомые исключайте из ротации. Повторяйте трудные формы в разные дни."], "en": ["How to practise", "Use the translation, infinitive, root and binyan as clues. Build the correct Hebrew verb form by tapping letters in order.", "Three attempts", "Try 1: 100% with no hints. Try 2: 70% with relevant letters highlighted. Try 3: 40% with transliteration and audio. After an error, retrieve the form again.", "Why it helps", "Producing an answer from memory builds active recall instead of recognition. Roots and binyanim reveal conjugation patterns, while spelling letter by letter supports accurate writing.", "Practice tip", "Mark difficult forms for extra repetition and exclude mastered forms. Revisit challenging verbs on different days."], "fr": ["Comment pratiquer", "Utilisez la traduction, l’infinitif, la racine et le binyan comme indices. Construisez la forme hébraïque lettre par lettre.", "Trois essais", "1er : 100 % sans aide. 2e : 70 % avec les lettres utiles surlignées. 3e : 40 % avec translittération et audio.", "Pourquoi cet exercice aide", "Produire une réponse de mémoire entraîne le rappel actif. Les racines et les binyanim éclairent les modèles de conjugaison ; écrire lettre par lettre améliore l’orthographe.", "Conseil", "Marquez les formes difficiles pour les revoir plus souvent et excluez celles que vous maîtrisez. Révisez à plusieurs jours d’intervalle."], "es": ["Cómo practicar", "Usa la traducción, el infinitivo, la raíz y el binyán como pistas. Construye la forma hebrea pulsando las letras en orden.", "Tres intentos", "1.º: 100 % sin pistas. 2.º: 70 % con letras resaltadas. 3.º: 40 % con transliteración y audio.", "Por qué ayuda", "Escribir una respuesta de memoria fortalece el recuerdo activo. Las raíces y los binyanim muestran patrones de conjugación y la escritura letra por letra mejora la precisión.", "Consejo", "Marca las formas difíciles para repetirlas y excluye las dominadas. Repasa en distintos días."], "pt": ["Como praticar", "Use a tradução, o infinitivo, a raiz e o binyan como pistas. Monte a forma hebraica tocando nas letras pela ordem correta.", "Três tentativas", "1.ª: 100% sem dicas. 2.ª: 70% com letras destacadas. 3.ª: 40% com transliteração e áudio.", "Porque ajuda", "Produzir a resposta de memória treina a recordação ativa. Raízes e binyanim revelam padrões de conjugação; escrever letra a letra melhora a ortografia.", "Sugestão", "Marque formas difíceis para repetir mais vezes e exclua as já dominadas. Reveja-as em dias diferentes."], "ar": ["طريقة التدريب", "استخدم الترجمة والمصدر والجذر والبنيان كدلائل، ثم كوّن صيغة الفعل العبري بالضغط على الحروف بالترتيب.", "ثلاث محاولات", "الأولى: 100٪ دون مساعدة. الثانية: 70٪ مع تمييز الحروف اللازمة. الثالثة: 40٪ مع النقل الصوتي والتسجيل.", "لماذا يفيد", "استرجاع الصيغة من الذاكرة يعزز التذكر النشط بدل التعرف على إجابة جاهزة. وتساعد الجذور والأوزان في فهم أنماط التصريف وتثبيت الكتابة الصحيحة.", "نصيحة", "ثبّت الصيغ الصعبة لتكرارها أكثر واستبعد ما أتقنته. راجعها في أيام مختلفة."], "am": ["እንዴት መለማመድ እንደሚቻል", "ትርጉሙን፣ የግሱን መነሻ፣ ሥር እና ቢንያን እንደ ፍንጭ ተጠቅመው ፊደላትን በቅደም ተከተል ይምረጡ።", "ሶስት ሙከራዎች", "የመጀመሪያው 100% ያለ ፍንጭ፣ ሁለተኛው 70% በተለዩ ፊደላት፣ ሶስተኛው 40% በትራንስሊተሬሽንና ድምፅ።", "ለምን ይጠቅማል", "መልሱን ከማስታወስ ማውጣት የግስ ቅርጾችን እንዲጠናከሩ ያግዛል። ሥሮችና ቢንያኖች የማጣመር ስርዓትን ያሳያሉ።", "ጠቃሚ ምክር", "አስቸጋሪ ቅርጾችን ለተደጋጋሚ ልምምድ ይምረጡ። በተለያዩ ቀናት ይድገሙ።"]};
 const LANG_FIELDS = {ru:'russiantext',en:'entext',fr:'frtext',es:'estext',pt:'pttext',ar:'artext',am:'amtext'};
 const FALLBACK_FIELDS = {ru:'russian',en:'english',fr:'french',es:'spanish',pt:'portu',ar:'arabic',am:'amharic'};
 const LANG_NAMES = {fr:'Construis le verbe',es:'Forma el verbo',pt:'Monte o verbo',ar:'كوّن الفعل',am:'ግሱን ይገንቡ'};
@@ -299,7 +467,7 @@ function makeItem(row,i) {
  const verb = pronoun ? words.slice(1).join('') : words.join('');
  if (!row.infinitive || !verb || ![...verb].every(ch=>HEBREW.test(ch))) return null;
  // Index is necessary: a conjugation can recur for two genders with different audio.
- return {...row,id:String(i),verb,pronoun,full};
+ return {...row,id:String(i),verb,pronoun,full,tense: row.tense};
 }
 function shuffled(items) {const x=[...items];for(let i=x.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[x[i],x[j]]=[x[j],x[i]];}return x;}
 // Metadata lives in verbs1.json; do not infer roots/binyanim from spelling.
@@ -337,7 +505,7 @@ function makeDeck(pool,count,pinned) {
  }
  return shuffled(chosen);
 }
-const initSettings={count:12,excluded:[],pinned:[],sound:true};
+const initSettings={count:12,excluded:[],pinned:[],sound:true,tense:[...ALL_TENSES_11],binyans:null};
 export default function Exercise11({navigation,route}) {
  const {width:screenWidth,height:screenHeight}=useWindowDimensions();
   const safeInsets=useSafeAreaInsets();
@@ -346,8 +514,38 @@ export default function Exercise11({navigation,route}) {
  const [phase,setPhase]=useState('settings');const [deck,setDeck]=useState([]);const [index,setIndex]=useState(0);
  const [typed,setTyped]=useState([]);const [stage,setStage]=useState(0);const [finished,setFinished]=useState(false);const [awarded,setAwarded]=useState(0);
  const [earned,setEarned]=useState(0);const [correct,setCorrect]=useState(0);const [wrong,setWrong]=useState(0);
- const [audioPlaying,setAudioPlaying]=useState(false);
- const [exerciseStats,setExerciseStats]=useState(null);
+  const [audioPlaying,setAudioPlaying]=useState(false);
+  const [helpOpen,setHelpOpen]=useState(false);
+  const [mistakeFlash,setMistakeFlash]=useState(false);
+  const mistakeTimer=useRef(null);
+  const [successAnimating,setSuccessAnimating]=useState(false);
+  const successScale=useRef(new Animated.Value(1)).current;
+  const successAnimation=useRef(null);
+  const [revealCorrection,setRevealCorrection]=useState(false);
+  const [correctionAnimating,setCorrectionAnimating]=useState(false);
+  const correctionOpacity=useRef(new Animated.Value(1)).current;
+  const correctionShake=useRef(new Animated.Value(0)).current;
+  const correctionScale=useRef(new Animated.Value(1)).current;
+  useEffect(()=>()=>{
+    if(mistakeTimer.current!==null)clearTimeout(mistakeTimer.current);
+    successAnimation.current?.stop();
+  },[]);
+  const resetSuccess=()=>{
+    successAnimation.current?.stop();
+    successScale.setValue(1);
+    setSuccessAnimating(false);
+  };
+  const animateSuccess=()=>{
+    successScale.setValue(1);
+    setSuccessAnimating(true);
+    const animation=Animated.sequence([
+      Animated.timing(successScale,{toValue:1.075,duration:190,easing:Easing.out(Easing.cubic),useNativeDriver:true}),
+      Animated.spring(successScale,{toValue:1,friction:6,tension:95,useNativeDriver:true}),
+    ]);
+    successAnimation.current=animation;
+    animation.start(({finished:ok})=>{if(ok)setSuccessAnimating(false);});
+  };
+  const [exerciseStats,setExerciseStats]=useState(null);
  const [listOpen,setListOpen]=useState(false);
  const [translationRowWidth,setTranslationRowWidth]=useState(0);
  const [translationTextWidth,setTranslationTextWidth]=useState(0);
@@ -382,12 +580,78 @@ export default function Exercise11({navigation,route}) {
  useLayoutEffect(()=>{navigation?.setOptions?.({headerShown:true,headerHideAI:phase==='settings'});},[navigation,phase]);
  useEffect(()=>{if(phase!=='task')return; cardMotion.setValue(0);const loop=Animated.loop(Animated.sequence([Animated.timing(cardMotion,{toValue:1,duration:6500,easing:Easing.inOut(Easing.sin),useNativeDriver:true,isInteraction:false}),Animated.timing(cardMotion,{toValue:0,duration:6500,easing:Easing.inOut(Easing.sin),useNativeDriver:true,isInteraction:false})]));loop.start();return()=>loop.stop();},[phase,cardMotion]);
  const audioRef=useRef(null);const attemptLock=useRef(false);const activeRef=useRef(true);const totalsRef=useRef({earned:0,correct:0,wrong:0});
- const lang={...(LABEL[language]||LABEL.en),...(EX11_EXTRA[language]||EX11_EXTRA.en)};const rtl=language==='ar';
+  // Final wrong answer: show the user's red cells for one second, then reveal green correction.
+  useEffect(()=>{
+    if(!correctionAnimating)return undefined;
+    let cancelled=false;
+    correctionOpacity.setValue(1);
+    correctionScale.setValue(1);
+    correctionShake.setValue(0);
+    Animated.sequence([
+      Animated.timing(correctionShake,{toValue:1,duration:80,useNativeDriver:true}),
+      Animated.timing(correctionShake,{toValue:-1,duration:80,useNativeDriver:true}),
+      Animated.timing(correctionShake,{toValue:1,duration:80,useNativeDriver:true}),
+      Animated.timing(correctionShake,{toValue:0,duration:80,useNativeDriver:true}),
+    ]).start();
+    const timer=setTimeout(()=>{
+      Animated.timing(correctionOpacity,{toValue:0,duration:200,useNativeDriver:true}).start(({finished:completed})=>{
+        if(cancelled||!completed)return;
+        setRevealCorrection(true);
+        correctionScale.setValue(1.08);
+        Animated.parallel([
+          Animated.timing(correctionOpacity,{toValue:1,duration:220,useNativeDriver:true}),
+          Animated.spring(correctionScale,{toValue:1,friction:6,tension:90,useNativeDriver:true}),
+        ]).start(()=>{if(!cancelled)setCorrectionAnimating(false);});
+      });
+    },1000);
+    return()=>{
+      cancelled=true;
+      clearTimeout(timer);
+      correctionOpacity.stopAnimation();
+      correctionShake.stopAnimation();
+      correctionScale.stopAnimation();
+    };
+  },[correctionAnimating,correctionOpacity,correctionScale,correctionShake]);
+   // First/second wrong answer: show red cells, shake them, then clear.
+   useEffect(()=>{
+     if(!mistakeFlash)return undefined;
+     let cancelled=false;
+     correctionOpacity.setValue(1);
+     correctionShake.setValue(0);
+     Animated.sequence([
+       Animated.timing(correctionShake,{toValue:1,duration:65,useNativeDriver:true}),
+       Animated.timing(correctionShake,{toValue:-1,duration:80,useNativeDriver:true}),
+       Animated.timing(correctionShake,{toValue:1,duration:80,useNativeDriver:true}),
+       Animated.timing(correctionShake,{toValue:0,duration:80,useNativeDriver:true}),
+     ]).start();
+     mistakeTimer.current=setTimeout(()=>{
+       mistakeTimer.current=null;
+       if(cancelled)return;
+       setStage(v=>v+1);
+       setTyped([]);
+       setMistakeFlash(false);
+       attemptLock.current=false;
+     },650);
+     return()=>{
+       cancelled=true;
+       if(mistakeTimer.current!==null){clearTimeout(mistakeTimer.current);mistakeTimer.current=null;}
+       correctionShake.stopAnimation();correctionShake.setValue(0);
+     };
+   },[mistakeFlash,correctionOpacity,correctionShake]);
+  const resetCorrection=()=>{resetSuccess();setCorrectionAnimating(false);setRevealCorrection(false);correctionOpacity.setValue(1);correctionShake.setValue(0);correctionScale.setValue(1);};
+ const filterText=EX11_FILTER_LABELS[language]||EX11_FILTER_LABELS.en;
+ const lang={...(LABEL[language]||LABEL.en),...(EX11_EXTRA[language]||EX11_EXTRA.en),correctCount:filterText.correct,wrongCount:filterText.wrong};const rtl=language==='ar';
  const shortIntro=lang.intro;
- const all=useMemo(()=> (Array.isArray(verbsData)?verbsData:[]).map(makeItem).filter(Boolean),[]);
- const pool=useMemo(()=>all.filter(x=>!settings.excluded.includes(x.id)),[all,settings.excluded]);
+ const all=useMemo(()=> buildExercise11Items(verbsData),[]);
+ const binyanById=useMemo(()=>new Map(all.map(x=>[x.id,normalizeBinyan11(getBinyan(x))])),[all]);
+ const allBinyans=useMemo(()=>[...new Set([...binyanById.values()].map(x=>x||'—'))].filter(x=>!HIDDEN_BINYANS_11.has(x)).sort(),[binyanById]);
+ const activeBinyans=Array.isArray(settings.binyans)?settings.binyans:allBinyans;
+ const activeTenses=Array.isArray(settings.tense)&&settings.tense.length?settings.tense:ALL_TENSES_11;
+ const pool=useMemo(()=>all.filter(x=>!settings.excluded.includes(x.id)&&activeTenses.includes(x.tense)&&activeBinyans.includes(binyanById.get(x.id)||'—')),[all,settings.excluded,activeTenses.join('|'),activeBinyans.join('|'),binyanById]);
+ const toggleFilter=(key,value,values)=>{if(values.includes(value)){if(values.length<=1)return;saveSettings({[key]:values.filter(x=>x!==value)});}else saveSettings({[key]:[...values,value]});};
  const item=deck[index];const target=item?.verb||'';
  const result=deck.length?Math.round(earned/deck.length):0;
+  const resultMessage=(RESULT_MESSAGES_11[language]||RESULT_MESSAGES_11.en)[result>=90?0:result>=70?1:result>=40?2:3];
  const stopAudio=useCallback(async()=>{const old=audioRef.current;audioRef.current=null;if(old){try{await old.stopAsync();await old.unloadAsync();}catch(e){}}setAudioPlaying(false);},[]);
  useEffect(()=>{activeRef.current=true;(async()=>{try{const v=await AsyncStorage.multiGet(['language','exercise11_settings_v1']);if(!activeRef.current)return;setLanguage(route?.params?.language||v[0][1]||'en');setLanguageReady(true);if(v[1][1]){
   const saved={...initSettings,...JSON.parse(v[1][1])};
@@ -396,6 +660,10 @@ export default function Exercise11({navigation,route}) {
   const valid=new Set(all.map(x=>x.id));
   saved.excluded=[...new Set((Array.isArray(saved.excluded)?saved.excluded:[]).map(String).filter(id=>valid.has(id)))];
   saved.pinned=[...new Set((Array.isArray(saved.pinned)?saved.pinned:[]).map(String).filter(id=>valid.has(id)&&!saved.excluded.includes(id)))];
+   saved.tense=Array.isArray(saved.tense)&&saved.tense.length?ALL_TENSES_11.filter(x=>saved.tense.includes(x)): [...ALL_TENSES_11];
+   const availableBinyans=[...new Set(all.map(x=>normalizeBinyan11(getBinyan(x))||'—'))].filter(x=>!HIDDEN_BINYANS_11.has(x));
+   saved.binyans=Array.isArray(saved.binyans)?availableBinyans.filter(x=>saved.binyans.includes(x)):null;
+   if(Array.isArray(saved.binyans)&&!saved.binyans.length)saved.binyans=null;
   setSettings(saved);
   AsyncStorage.setItem('exercise11_settings_v1',JSON.stringify(saved)).catch(()=>{});
  }}catch(e){console.warn('[Ex11] Load settings',e);if(activeRef.current){setLanguage(route?.params?.language||'en');setLanguageReady(true);}}})();return()=>{activeRef.current=false;stopAudio();};},[route?.params?.language,stopAudio,all]);
@@ -423,15 +691,15 @@ export default function Exercise11({navigation,route}) {
    return sounds[key]||sounds[`${key}.mp3`]||null;
  };
  const conjugatedAudio=()=>soundsconj[item?.mp3]||null;
- const begin=()=>{const next=makeDeck(pool,settings.count,settings.pinned);if(!next.length)return;
+ const begin=()=>{setMistakeFlash(false);const next=makeDeck(pool,settings.count,settings.pinned);if(!next.length)return;resetCorrection();
   totalsRef.current={earned:0,correct:0,wrong:0};setDeck(next);setIndex(0);setTyped([]);setStage(0);setFinished(false);setAwarded(0);setEarned(0);setCorrect(0);setWrong(0);attemptLock.current=false;setPhase('task');};
- const advance=async()=>{await stopAudio();if(index+1<deck.length){setIndex(i=>i+1);setTyped([]);setStage(0);setFinished(false);setAwarded(0);attemptLock.current=false;}else{
+ const advance=async()=>{if(correctionAnimating||mistakeFlash||successAnimating)return;await stopAudio();if(index+1<deck.length){resetCorrection();setIndex(i=>i+1);setTyped([]);setStage(0);setFinished(false);setAwarded(0);attemptLock.current=false;}else{resetCorrection();
   setPhase('result');try{await updateStatistics('exercise11',(totalsRef.current.earned/deck.length).toFixed(2));}catch(e){console.warn('[Ex11] statistics',e);} }};
  const check=()=>{if(finished||typed.length!==[...target].length||attemptLock.current)return;attemptLock.current=true;
-  if(typed.join('')===target){const points=SCORE[stage];totalsRef.current.earned+=points;totalsRef.current.correct++;setEarned(totalsRef.current.earned);setCorrect(totalsRef.current.correct);setAwarded(points);setFinished(true);if(settings.sound)playAudio(conjugatedAudio());}
-  else if(stage===2){totalsRef.current.wrong++;setWrong(totalsRef.current.wrong);setAwarded(0);setFinished(true);if(settings.sound)playAudio(ERROR_SOUND,()=>playAudio(conjugatedAudio()));}
-  else {setStage(s=>s+1);setTyped([]);if(settings.sound){if(stage===1)playAudio(ERROR_SOUND,()=>playAudio(conjugatedAudio()));else playAudio(ERROR_SOUND);}}
-  attemptLock.current=false;
+  if(typed.join('')===target){const points=SCORE[stage];totalsRef.current.earned+=points;totalsRef.current.correct++;setEarned(totalsRef.current.earned);setCorrect(totalsRef.current.correct);setAwarded(points);setFinished(true);animateSuccess();if(settings.sound)playAudio(conjugatedAudio());}
+  else if(stage===2){setRevealCorrection(false);setCorrectionAnimating(true);totalsRef.current.wrong++;setWrong(totalsRef.current.wrong);setAwarded(0);setFinished(true);if(settings.sound)playAudio(ERROR_SOUND,()=>playAudio(conjugatedAudio()));}
+  else {setMistakeFlash(true);if(settings.sound){if(stage===1)playAudio(ERROR_SOUND,()=>playAudio(conjugatedAudio()));else playAudio(ERROR_SOUND);}}
+   if(typed.join('')===target||stage===2)attemptLock.current=false;
  };
  const toggle=(name,formId=item?.id)=>{
   if(formId==null)return;
@@ -458,7 +726,7 @@ export default function Exercise11({navigation,route}) {
   }
   return localized||alternate||item?.entext||item?.english||'';
  })();
- const showHelp=()=>Alert.alert(lang.name,lang.help);
+ const showHelp=()=>setHelpOpen(true);
  const goToMenu=()=>{
   if(navigation?.canGoBack?.()){navigation.goBack();return;}
   const menuRoute={ru:'Menu',en:'MenuEn',fr:'MenuFr',es:'MenuEs',pt:'MenuPt',ar:'MenuAr',am:'MenuAm'}[language]||'Menu';
@@ -488,10 +756,11 @@ export default function Exercise11({navigation,route}) {
  const firstLetters=listOfLetters.slice(0,firstCount).map((ch,i)=>({ch,i}));
  const secondLetters=listOfLetters.slice(firstCount).map((ch,i)=>({ch,i:firstCount+i}));
  const slotWidthStyle={width:boxWidth,minWidth:boxWidth,paddingHorizontal:0};
- const renderVerbCells=entries=>entries.slice().reverse().map(({ch,i})=><View key={`verb-${i}`} style={[s.slot,slotWidthStyle,finished&&(awarded>0?s.slotGood:s.slotBad)]}><Text style={[s.slotText,boxWidth<30&&{fontSize:19}]}>{finished&&awarded===0?ch:typed[i]||' '}</Text></View>);
+ const showGreenCorrection=finished&&awarded===0&&revealCorrection;
+ const renderVerbCells=entries=>entries.slice().reverse().map(({ch,i})=><View key={`verb-${i}`} style={[s.slot,slotWidthStyle,(mistakeFlash?s.slotBad:finished&&(awarded>0||showGreenCorrection?s.slotGood:s.slotBad))]}><Text style={[s.slotText,boxWidth<30&&{fontSize:19},showGreenCorrection&&s.goodText,(mistakeFlash||(finished&&awarded===0&&!showGreenCorrection))&&s.badText]}>{showGreenCorrection?ch:typed[i]||' '}</Text></View>);
  const hint=stage>=1;const allowed=new Set(listOfLetters);const fullTranslit=String(item?.translit||'').trim()||'—';
  return <SafeAreaView style={s.screen} edges={phase==='settings'?['top','left','right']:['left','right']}>
-  <View style={[s.page, Platform.OS==='ios'?{paddingBottom:Math.max(0,5+safeInsets.bottom-8)}:{paddingBottom:Math.max(5,safeInsets.bottom)}]}>
+  <View style={[s.page, {paddingBottom: Platform.OS==='ios' ? Math.max(20,safeInsets.bottom-9) : Math.max(14,safeInsets.bottom-4)}]}>
    {phase==='task'&&<View style={[s.topBar,compactScreen&&s.smallTopBar]}>
      <TouchableOpacity accessibilityRole="button" accessibilityLabel={lang.menu} onPress={()=>Alert.alert(lang.exitTitle,undefined,[{text:lang.cancel,style:'cancel'},{text:lang.exit,style:'destructive',onPress:()=>setPhase('settings')}])}>
        <Image source={ASSETS.logo} style={[s.logo,compactScreen&&s.smallLogo]}/>
@@ -499,13 +768,13 @@ export default function Exercise11({navigation,route}) {
      <View style={s.topButtons}>
        {[
          {id:'sound',source:settings.sound?ASSETS.on:ASSETS.off,label:lang.speaker,action:()=>saveSettings({sound:!settings.sound})},
-         {id:'list',source:ASSETS.list,label:lang.settings,action:()=>setPhase('settings')},
+         {id:'list',source:ASSETS.list,label:lang.settings,action:()=>Alert.alert(lang.exitTitle,lang.exitBody,[{text:lang.cancel,style:'cancel'},{text:lang.exit,style:'destructive',onPress:()=>setPhase('settings')}])},
          {id:'stats',source:ASSETS.stats,label:lang.score,action:showStats},
          {id:'help',source:ASSETS.help,label:lang.help,action:showHelp},
        ].map(x=><TouchableOpacity key={x.id} accessibilityRole="button" accessibilityLabel={x.label} onPress={x.action}><Image source={x.source} style={s.topIcon}/></TouchableOpacity>)}
      </View>
    </View>}
-   {phase==='settings'&&<><View style={s.panel}><Text style={s.label}>{lang.count}</Text><View style={s.choiceRow}>{COUNTS.map(n=><TouchableOpacity key={n} onPress={()=>saveSettings({count:n})} style={[s.choice,settings.count===n&&s.choiceActive]}><Text style={s.choiceText}>{n}</Text></TouchableOpacity>)}</View><Text style={s.detail}>{lang.available}: {pool.length} / {all.length}</Text><Text style={s.help}>{shortIntro}</Text></View><TouchableOpacity disabled={!pool.length} onPress={begin} style={s.primary}><Text style={s.primaryText}>{lang.begin}</Text></TouchableOpacity></>}
+   {phase==='settings'&&<><ScrollView style={{flex:1}} contentContainerStyle={{paddingBottom:12}} showsVerticalScrollIndicator={false}><View style={s.panel}><Text style={s.label}>{lang.count}</Text><View style={s.choiceRow}>{COUNTS.map(n=><TouchableOpacity key={n} onPress={()=>saveSettings({count:n})} style={[s.choice,settings.count===n&&s.choiceActive]}><Text style={s.choiceText}>{n}</Text></TouchableOpacity>)}</View><Text style={[s.label,s.filterLabel11]}>{filterText.binyan}</Text><View style={s.filterWrap11}>{allBinyans.map(bin=><TouchableOpacity key={bin} onPress={()=>toggleFilter('binyans',bin,activeBinyans)} style={[s.filterChip11,activeBinyans.includes(bin)&&s.filterChipActive11]}><Text style={[s.filterChipText11,activeBinyans.includes(bin)&&s.filterChipTextActive11]}>{bin}</Text></TouchableOpacity>)}</View><Text style={[s.label,s.filterLabel11]}>{filterText.tense}</Text><View style={s.filterWrap11}>{ALL_TENSES_11.map(t=><TouchableOpacity key={t} onPress={()=>toggleFilter('tense',t,activeTenses)} style={[s.filterChip11,activeTenses.includes(t)&&s.filterChipActive11]}><Text style={[s.filterChipText11,activeTenses.includes(t)&&s.filterChipTextActive11]}>{filterText[t]}</Text></TouchableOpacity>)}</View><Text style={s.detail}>{lang.available}: {pool.length} / {all.length}</Text><Text style={s.help}>{shortIntro}</Text></View></ScrollView><TouchableOpacity disabled={!pool.length} onPress={begin} style={s.primary}><Text style={s.primaryText}>{lang.begin}</Text></TouchableOpacity></>}
    {phase==='task'&&item&&<><View style={[s.progressBox,compactScreen&&s.smallProgress,Platform.OS==='android'&&s.androidProgressBox]}>
       <View style={s.progressLeft}><Text style={s.progressLabel}>{lang.correctCount}: {correct}</Text><Text style={s.progressLabel}>{lang.wrongCount}: {wrong}</Text></View>
       <View style={s.progressNumberWrap}><Text style={s.progressNumber}>{Math.max(0,deck.length-index-(finished?1:0))}</Text></View>
@@ -557,13 +826,26 @@ export default function Exercise11({navigation,route}) {
       <View style={s.translationRow}>
         {!!GENDER_ICONS[item.gender]&&<Image
           source={GENDER_ICONS[item.gender]}
-          style={s.genderIconBesideText}
+ style={[
+  s.genderIconBesideText,
+  Platform.OS === 'ios' && {
+    width: 30,
+    height: 30,
+    transform: [{translateY: -15}],
+  },
+]}
         />}
         <View style={s.centeredTranslationWrap}>
           <Text
              numberOfLines={2}
              ellipsizeMode="tail"
-             style={[s.translation,rtl&&{writingDirection:'rtl'}]}
+ style={[
+  s.translation,
+  Platform.OS === 'ios' && {
+    fontSize: 20,
+  },
+  rtl && {writingDirection:'rtl'},
+]}
            >{translation}</Text>
         </View>
       </View>
@@ -574,16 +856,16 @@ export default function Exercise11({navigation,route}) {
         </TouchableOpacity>
       </View>}</View>
     </View>
-    <View style={[s.phraseArea,Platform.OS==='android'&&s.androidPhraseArea]}>
+    <View style={[s.phraseArea,Platform.OS==='android'&&s.androidPhraseArea,!isSingleRow&&{paddingBottom:8}]}>
       <View style={[s.phraseLine,Platform.OS==='android'&&s.androidPhraseLine]}>
-        <View style={[s.slots,{flexShrink:0,flexWrap:'nowrap'}]}>{renderVerbCells(firstLetters)}</View>
+        <Animated.View style={[s.slots,{flexShrink:0,flexWrap:'nowrap'}, {opacity:correctionOpacity,transform:[{translateX:correctionShake.interpolate({inputRange:[-1,0,1],outputRange:[-5,0,5]})},{scale:correctionScale},{scale:successScale}]}]}>{renderVerbCells(firstLetters)}</Animated.View>
         {!!pronounLetters.length&&<View style={[s.fixedSlots,{flexShrink:0,flexWrap:'nowrap',marginLeft:firstLetters.length?wordGap:0}]}>
           {pronounLetters.slice().reverse().map((ch,i)=><View key={`pron-${i}`} style={[s.slot,s.slotFixed,slotWidthStyle]}><Text style={[s.slotText,boxWidth<30&&{fontSize:19}]}>{ch}</Text></View>)}
         </View>}
       </View>
       <View style={[s.phraseLine,Platform.OS==='android'&&s.androidPhraseLine]}>
         <ScrollView horizontal showsHorizontalScrollIndicator={false} bounces={false} contentContainerStyle={{flexGrow:1,justifyContent:'center',alignItems:'center'}}>
-          <View style={[s.slots,{flexShrink:0,flexWrap:'nowrap'}]}>{renderVerbCells(secondLetters)}</View>
+          <Animated.View style={[s.slots,{flexShrink:0,flexWrap:'nowrap'}, {opacity:correctionOpacity,transform:[{translateX:correctionShake.interpolate({inputRange:[-1,0,1],outputRange:[-5,0,5]})},{scale:correctionScale},{scale:successScale}]}]}>{renderVerbCells(secondLetters)}</Animated.View>
         </ScrollView>
       </View>
     </View>
@@ -591,12 +873,41 @@ export default function Exercise11({navigation,route}) {
     <View style={[s.message,Platform.OS==='android'&&s.androidMessage]}>{finished?<Text style={[s.status,awarded>0?s.goodText:s.badText]}>{awarded>0?`${lang.right} +${awarded}%`:`${lang.lost} ${target}`}</Text>:stage===1?<Text style={s.badText}>{lang.wrong}</Text>:stage===2?<Text style={s.badText}>{lang.last}</Text>:<Text style={s.detail}>1 / 3 · 100%</Text>}</View>
     </ScrollView>
     <View style={[s.fixedFooter,compactScreen&&s.smallFooter,Platform.OS==='android'&&s.androidFooter]}>
-    <View style={[s.keyboard,compactScreen&&s.compactKeyboard]}>{ROWS.map((row,i)=><View style={s.keyRow} key={i}>{[...row].map((letter,j)=>{const enabled=!hint||allowed.has(letter);return <TouchableOpacity key={j} disabled={!enabled||finished||typed.length===listOfLetters.length} onPress={()=>setTyped(old=>[...old,letter])} style={[s.key,compactScreen&&s.compactKey,hint&&allowed.has(letter)&&s.keyHint,!enabled&&s.keyDisabled]}><Text style={[s.keyText,!enabled&&s.keyTextDisabled]}>{letter}</Text></TouchableOpacity>;})}{i===0&&<TouchableOpacity accessibilityRole="button" accessibilityLabel={lang.remove} disabled={!typed.length||finished} onPress={()=>setTyped(old=>old.slice(0,-1))} style={[s.key,compactScreen&&s.compactKey,s.backspaceKey,(!typed.length||finished)&&s.dim]}><Text style={s.backspaceIcon}>⌫</Text></TouchableOpacity>}</View>)}</View>
-    <TouchableOpacity disabled={!finished&&typed.length!==listOfLetters.length} onPress={finished?advance:check} style={[s.primary,compactScreen&&s.compactFooterButton,!finished&&typed.length!==listOfLetters.length&&s.dim]}><Text style={s.primaryText}>{finished?(index+1===deck.length?lang.finish:lang.next):lang.check}</Text></TouchableOpacity>
+    <View pointerEvents={finished?"none":"auto"} style={[s.keyboard,compactScreen&&s.compactKeyboard,finished&&s.keyboardFinished]}>{ROWS.map((row,i)=><View style={s.keyRow} key={i}>{[...row].map((letter,j)=>{const enabled=!hint||allowed.has(letter);return <TouchableOpacity key={j} disabled={!enabled||finished||mistakeFlash||typed.length===listOfLetters.length} onPress={()=>setTyped(old=>[...old,letter])} style={[s.key,compactScreen&&s.compactKey,hint&&allowed.has(letter)&&s.keyHint,!enabled&&s.keyDisabled]}><Text style={[s.keyText,!enabled&&s.keyTextDisabled]}>{letter}</Text></TouchableOpacity>;})}{i===0&&<TouchableOpacity accessibilityRole="button" accessibilityLabel={lang.remove} disabled={!typed.length||finished||mistakeFlash} onPress={()=>setTyped(old=>old.slice(0,-1))} style={[s.key,compactScreen&&s.compactKey,s.backspaceKey,(!typed.length||finished)&&s.dim]}><Text style={s.backspaceIcon}>⌫</Text></TouchableOpacity>}</View>)}</View>
+    <TouchableOpacity disabled={correctionAnimating||mistakeFlash||successAnimating||(!finished&&typed.length!==listOfLetters.length)} onPress={finished?advance:check} style={[s.primary,compactScreen&&s.compactFooterButton,(correctionAnimating||mistakeFlash||successAnimating||(!finished&&typed.length!==listOfLetters.length))&&s.dim]}><Text style={s.primaryText}>{finished?(index+1===deck.length?lang.finish:lang.next):lang.check}</Text></TouchableOpacity>
     </View>
    </>}
-   {phase==='result'&&<View style={s.resultCenter}><View style={[s.panel,s.resultPanel]}><Text style={s.resultTitle}>{lang.score}</Text><Text style={s.resultNumber}>{Math.round(totalsRef.current.earned/deck.length)}%</Text><Text style={s.resultSub}>✓ {correct}     ✕ {wrong}     {correct+wrong} / {deck.length}</Text><TouchableOpacity onPress={begin} style={s.primary}><Text style={s.primaryText}>{lang.repeat}</Text></TouchableOpacity><TouchableOpacity onPress={goToMenu} style={s.secondary}><Text style={s.eraseText}>{lang.menu}</Text></TouchableOpacity></View></View>}
+   {phase==='result'&&<ScrollView style={s.resultCenter} contentContainerStyle={s.resultScrollInner}>
+     <View style={[s.panel,s.resultPanel]}>
+       <Text style={s.resultEyebrow}>{lang.completed}</Text>
+       <Text style={s.resultTitle}>{lang.score}</Text>
+       <View style={s.resultCircle}><Text style={s.resultNumber}>{Math.round(totalsRef.current.earned/Math.max(1,deck.length))}%</Text><Text style={s.resultCircleCaption}>{lang.average}</Text></View>
+       <View style={s.resultTrack}><View style={[s.resultFill,{width:`${Math.max(0,Math.min(100,Math.round(totalsRef.current.earned/Math.max(1,deck.length))))}%`}]}/></View>
+       <View style={s.resultStatsRow}>
+         <View style={s.resultStat}><Text style={s.resultStatGood}>{correct}</Text><Text style={s.resultStatLabel}>{lang.correctCount}</Text></View>
+         <View style={s.resultStat}><Text style={s.resultStatBad}>{wrong}</Text><Text style={s.resultStatLabel}>{lang.wrongCount}</Text></View>
+       </View>
+       <Text style={s.resultPraise}>{resultMessage[0]}</Text>
+       <Text style={s.resultEncouragement}>{resultMessage[1]}</Text>
+       <TouchableOpacity onPress={begin} style={[s.primary,s.resultReplay]}><Text style={s.primaryText}>{lang.repeat}</Text></TouchableOpacity>
+       <TouchableOpacity onPress={()=>setPhase('settings')} style={s.resultMenu}><Text style={s.resultMenuText}>{filterText.toSettings}</Text></TouchableOpacity>
+       <TouchableOpacity onPress={goToMenu} style={s.resultMenu}><Text style={s.resultMenuText}>{lang.menu}</Text></TouchableOpacity>
+     </View>
+   </ScrollView>}
   </View>
+   <Modal visible={helpOpen} transparent animationType="fade" onRequestClose={()=>setHelpOpen(false)}>
+     <View style={s.modalShade}><View style={s.smartHelpCard}>
+       <ScrollView contentContainerStyle={s.smartHelpContent} showsVerticalScrollIndicator={false}>
+         <Text style={s.smartHelpEyebrow}>VERBIFY · 11</Text>
+         <Text style={s.smartHelpHeading}>{lang.name}</Text>
+         {[0,2,4,6].map((pos)=><View key={pos} style={s.smartHelpSection}>
+           <Text style={s.smartHelpSectionTitle}>{(HELP_SECTIONS_11[language]||HELP_SECTIONS_11.en)[pos]}</Text>
+           <Text style={s.smartHelpSectionBody}>{(HELP_SECTIONS_11[language]||HELP_SECTIONS_11.en)[pos+1]}</Text>
+         </View>)}
+       </ScrollView>
+       <TouchableOpacity onPress={()=>setHelpOpen(false)} style={s.primary}><Text style={s.primaryText}>{lang.close}</Text></TouchableOpacity>
+     </View></View>
+   </Modal>
   <Modal visible={listOpen} transparent animationType="fade" onRequestClose={()=>setListOpen(false)}>
    <View style={s.modalShade}><View style={s.modalCard}>
     <Text style={s.modalTitle}>{lang.verbList}</Text>
@@ -740,7 +1051,7 @@ cardBottomRow:{width:'100%',flexDirection:'row',alignItems:'center',justifyConte
 verbTwoColumns:{direction:'ltr',width:'100%',height:96,position:'relative',flexDirection:'row'},
 verbWordColumn:{position:'absolute',left:0,top:0,bottom:0,width:'58%',justifyContent:'center',alignItems:'center'},
 verbInfoColumn:{position:'absolute',right:0,top:0,bottom:0,width:'39%',justifyContent:'center',gap:5},
-phraseLine:{direction:'ltr',width:'100%',height:49,flexDirection:'row',flexWrap:'nowrap',alignItems:'center',justifyContent:'center',overflow:'hidden'},
+phraseLine:{direction:'ltr',width:'100%',height:49,flexDirection:'row',flexWrap:'nowrap',alignItems:'center',justifyContent:'center',overflow:'visible'},
 slots:{flexDirection:'row',flexShrink:0,flexWrap:'nowrap',justifyContent:'center',gap:3},
 fixedSlots:{flexDirection:'row',flexShrink:0,flexWrap:'nowrap',justifyContent:'center',gap:3}
 
@@ -764,7 +1075,7 @@ smallFooter: {
   paddingBottom: 0,
   marginBottom: 0
 },
-androidFooter:{marginBottom:-38,paddingBottom:0},
+androidFooter:{marginBottom:0,paddingBottom:0},
 androidProgressBox:{marginBottom:4},
 androidProgressBarWrap:{marginBottom:12},
 compactKeyboard:{gap:3,marginTop:0},
@@ -780,6 +1091,31 @@ androidPrompt:{height:88,minHeight:88},
 androidPhraseArea:{height:100,minHeight:100,marginTop:2,marginBottom:2},
 androidPhraseLine:{height:46},
 androidMessage:{height:30,minHeight:30,paddingTop:3},
- resultCenter:{flex:1,justifyContent:'center',alignItems:'stretch',paddingHorizontal:7,paddingBottom:8},
- resultPanel:{marginBottom:0,width:'100%'}
+ resultCenter:{flex:1,paddingHorizontal:7,paddingBottom:8},
+ resultPanel:{marginBottom:0,width:'100%'},
+
+smartHelpCard:{width:'100%',maxHeight:'84%',backgroundColor:'#F3F7FD',borderRadius:20,padding:16,borderWidth:1,borderColor:'#C0D3E8'},
+smartHelpContent:{paddingBottom:8},smartHelpEyebrow:{fontSize:12,fontWeight:'800',letterSpacing:1,color:'#5D7FA7',textAlign:'center'},
+smartHelpHeading:{fontSize:21,fontWeight:'800',color:'#24476C',textAlign:'center',marginTop:4,marginBottom:12},
+smartHelpSection:{backgroundColor:'#FFFFFF',borderRadius:12,padding:13,marginTop:10,borderWidth:1,borderColor:'#DFE8F4'},
+smartHelpSectionTitle:{fontSize:15,fontWeight:'800',color:'#27649D',marginBottom:6},
+smartHelpSectionBody:{fontSize:14,lineHeight:21,color:'#3C526D'},
+resultScrollInner:{flexGrow:1,justifyContent:'center',alignItems:'stretch',paddingVertical:12},
+ filterLabel11:{marginTop:12,marginBottom:6},filterWrap11:{flexDirection:'row',flexWrap:'wrap',gap:7,marginBottom:3},filterChip11:{borderWidth:1,borderColor:'#B4C9E1',borderRadius:9,backgroundColor:'#E9EFF8',paddingHorizontal:10,paddingVertical:9,minWidth:75,alignItems:'center'},filterChipActive11:{backgroundColor:'#8DB8E6',borderColor:'#498CCB'},filterChipText11:{color:'#66788F',fontWeight:'700',fontSize:13},filterChipTextActive11:{color:'#20466F'},
+resultPanel:{backgroundColor:'#F3F7FD',borderRadius:20,borderWidth:1,borderColor:'#CFDFEF',padding:20},
+resultEyebrow:{fontSize:12,fontWeight:'800',letterSpacing:1,color:'#4B7CA7',textAlign:'center'},
+resultCircle:{width:160,height:160,borderRadius:80,borderWidth:8,borderColor:'#C0DDF3',backgroundColor:'#E7F3FE',alignItems:'center',justifyContent:'center',alignSelf:'center',marginVertical:13},
+resultNumber:{fontSize:47,color:'#327FB9',fontWeight:'800',textAlign:'center',margin:0},
+resultCircleCaption:{fontSize:12,color:'#4D7398',fontWeight:'700',textAlign:'center'},
+resultTrack:{height:10,backgroundColor:'#DCE9F5',borderRadius:6,overflow:'hidden',marginBottom:16},
+resultFill:{height:'100%',backgroundColor:'#3B90C8',borderRadius:6},
+resultStatsRow:{flexDirection:'row',gap:12},
+resultStat:{flex:1,backgroundColor:'#FFF',borderRadius:12,alignItems:'center',paddingVertical:13,borderWidth:1,borderColor:'#DBE5F0'},
+resultStatGood:{fontSize:25,color:'#22895D',fontWeight:'800'},resultStatBad:{fontSize:25,color:'#BD6562',fontWeight:'800'},
+resultStatLabel:{fontSize:12,color:'#576D89',fontWeight:'700',marginTop:4},
+resultEncouragement:{fontSize:14,lineHeight:21,textAlign:'center',color:'#526D89',marginTop:17},
+resultReplay:{marginTop:18},resultMenu:{marginTop:10,paddingVertical:13,borderRadius:12,borderWidth:1,borderColor:'#8DB4D5',backgroundColor:'#EAF1FA',alignItems:'center'},
+resultMenuText:{color:'#2C6599',fontWeight:'800',fontSize:15},
+  keyboardFinished:{opacity:0.38},
+  resultPraise:{fontSize:18,fontWeight:'800',color:'#2C5782',textAlign:'center',marginTop:14,marginBottom:4},
 });

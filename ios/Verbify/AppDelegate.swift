@@ -21,30 +21,57 @@ public class AppDelegate: ExpoAppDelegate {
 
     let delegate = ReactNativeDelegate()
     let factory = ExpoReactNativeFactory(delegate: delegate)
+
     delegate.dependencyProvider = RCTAppDependencyProvider()
 
     reactNativeDelegate = delegate
     reactNativeFactory = factory
+
     bindReactNativeFactory(factory)
 
-    // React Native starts when iOS connects the window scene.
+    #if DEBUG
+    // Expo Dev Launcher expects React Native to be prepared
+    // before ExpoAppDelegate runs its launch subscribers.
+    //
+    // The temporary window will be connected to the actual
+    // UIWindowScene later by SceneDelegate.
+
+    let debugWindow = UIWindow(frame: UIScreen.main.bounds)
+    window = debugWindow
+
+    factory.startReactNative(
+      withModuleName: "main",
+      in: debugWindow,
+      launchOptions: launchOptions
+    )
+    #endif
+
     return super.application(
       application,
       didFinishLaunchingWithOptions: launchOptions
     )
   }
 
-  // Linking API
+  // MARK: - Linking API
+
   public override func application(
     _ app: UIApplication,
     open url: URL,
     options: [UIApplication.OpenURLOptionsKey: Any] = [:]
   ) -> Bool {
-    return super.application(app, open: url, options: options)
-      || RCTLinkingManager.application(app, open: url, options: options)
+    return super.application(
+      app,
+      open: url,
+      options: options
+    ) || RCTLinkingManager.application(
+      app,
+      open: url,
+      options: options
+    )
   }
 
-  // Universal Links
+  // MARK: - Universal Links
+
   public override func application(
     _ application: UIApplication,
     continue userActivity: NSUserActivity,
@@ -64,7 +91,8 @@ public class AppDelegate: ExpoAppDelegate {
   }
 }
 
-// Scene lifecycle for iOS 27+
+// MARK: - Scene lifecycle for iOS 27+
+
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
   var window: UIWindow?
 
@@ -79,19 +107,41 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
       return
     }
 
-    let window = UIWindow(windowScene: windowScene)
-    self.window = window
-    appDelegate.window = window
+    #if DEBUG
+    // React Native was already started in AppDelegate.
+    // Connect the existing window to the scene.
+    // Do not start React Native again.
+
+    if let existingWindow = appDelegate.window {
+      existingWindow.windowScene = windowScene
+
+      self.window = existingWindow
+
+      existingWindow.makeKeyAndVisible()
+      return
+    }
+    #endif
+
+    // Release: create the window when the scene connects.
+    // This preserves the existing iOS 27 launch lifecycle.
+
+    let sceneWindow = UIWindow(windowScene: windowScene)
+
+    self.window = sceneWindow
+    appDelegate.window = sceneWindow
 
     factory.startReactNative(
       withModuleName: "main",
-      in: window,
+      in: sceneWindow,
       launchOptions: appDelegate.initialLaunchOptions
     )
   }
 }
 
+// MARK: - React Native Delegate
+
 class ReactNativeDelegate: ExpoReactNativeFactoryDelegate {
+
   // Extension point for config-plugins
 
   override func sourceURL(for bridge: RCTBridge) -> URL? {
@@ -99,14 +149,16 @@ class ReactNativeDelegate: ExpoReactNativeFactoryDelegate {
   }
 
   override func bundleURL() -> URL? {
-#if DEBUG
+    #if DEBUG
     return RCTBundleURLProvider.sharedSettings()
-      .jsBundleURL(forBundleRoot: ".expo/.virtual-metro-entry")
-#else
+      .jsBundleURL(
+        forBundleRoot: ".expo/.virtual-metro-entry"
+      )
+    #else
     return Bundle.main.url(
       forResource: "main",
       withExtension: "jsbundle"
     )
-#endif
+    #endif
   }
 }

@@ -163,6 +163,24 @@ const AppDescriptionModal = ({ visible, onToggle }) => {
 </Text>
 
 
+{/* Exercise 12 */}
+<Text style={styles.listItem}>
+  <Text style={[styles.bold, styles.highlightExercise]}>
+    • Exercise 12 "Write the Verb in a Sentence" —
+  </Text>{' '}
+  fill in the missing Hebrew verb form by tapping
+  letters on the keyboard. The translation helps
+  you understand the context and identify the correct
+  tense, person, number, and gender. You have three
+  attempts: first without hints, then with highlighted
+  letters, and finally with the option to listen to
+  the sentence. This practice strengthens active
+  recall, improves spelling, and helps you use Hebrew
+  verbs correctly in real conversations.
+</Text>
+
+
+
 {/* Prepositions */}
 <Text style={styles.modalTitle}>VERBS AND PREPOSITIONS</Text>
 

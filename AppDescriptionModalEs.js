@@ -168,6 +168,24 @@ const AppDescriptionModal = ({ visible, onToggle }) => {
 </Text>
 
 
+{/* Ejercicio 12 */}
+<Text style={styles.listItem}>
+  <Text style={[styles.bold, styles.highlightExercise]}>
+    • Ejercicio 12 «Escribe el verbo en una oración» —
+  </Text>{' '}
+  completa una oración en hebreo escribiendo la forma
+  verbal que falta mediante el teclado. La traducción
+  te ayuda a comprender el contexto e identificar
+  el tiempo, la persona, el número y el género.
+  Tienes tres intentos: primero sin pistas,
+  después con las letras resaltadas y, finalmente,
+  con la posibilidad de escuchar la oración.
+  Esta práctica fortalece la memoria activa,
+  mejora la ortografía y te ayuda a utilizar los
+  verbos correctamente en conversaciones reales.
+</Text>
+
+
 {/* Preposiciones */}
 <Text style={styles.modalTitle}>VERBOS Y PREPOSICIONES</Text>
 

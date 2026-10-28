@@ -67,27 +67,29 @@ export default function MenuPage({
   const titleOpacity = useRef(new Animated.Value(0)).current;
   const verbLibraryOpacity = useRef(new Animated.Value(0)).current;
   const button1Opacity = useRef(new Animated.Value(0)).current;
-  const button1TranslateY = useRef(new Animated.Value(250)).current;
+  const button1TranslateY = useRef(new Animated.Value(28)).current;
   const button2Opacity = useRef(new Animated.Value(0)).current;
-  const button2TranslateY = useRef(new Animated.Value(250)).current;
+  const button2TranslateY = useRef(new Animated.Value(28)).current;
   const button3Opacity = useRef(new Animated.Value(0)).current;
-  const button3TranslateY = useRef(new Animated.Value(250)).current;
+  const button3TranslateY = useRef(new Animated.Value(28)).current;
   const button4Opacity = useRef(new Animated.Value(0)).current;
-  const button4TranslateY = useRef(new Animated.Value(250)).current;
+  const button4TranslateY = useRef(new Animated.Value(28)).current;
   const button5Opacity = useRef(new Animated.Value(0)).current;
-  const button5TranslateY = useRef(new Animated.Value(250)).current;
+  const button5TranslateY = useRef(new Animated.Value(28)).current;
   const button6Opacity = useRef(new Animated.Value(0)).current;
-  const button6TranslateY = useRef(new Animated.Value(250)).current;
+  const button6TranslateY = useRef(new Animated.Value(28)).current;
   const button7Opacity = useRef(new Animated.Value(0)).current;
-  const button7TranslateY = useRef(new Animated.Value(250)).current;
+  const button7TranslateY = useRef(new Animated.Value(28)).current;
   const button8Opacity = useRef(new Animated.Value(0)).current;
-  const button8TranslateY = useRef(new Animated.Value(250)).current;
+  const button8TranslateY = useRef(new Animated.Value(28)).current;
   const button9Opacity = useRef(new Animated.Value(0)).current;
-  const button9TranslateY = useRef(new Animated.Value(250)).current;
+  const button9TranslateY = useRef(new Animated.Value(28)).current;
   const button10Opacity = useRef(new Animated.Value(0)).current;
   const button11Opacity = useRef(new Animated.Value(0)).current;
-const button10TranslateY = useRef(new Animated.Value(250)).current;
-  const button11TranslateY = useRef(new Animated.Value(250)).current;
+  const button12Opacity = useRef(new Animated.Value(0)).current;
+const button10TranslateY = useRef(new Animated.Value(28)).current;
+  const button11TranslateY = useRef(new Animated.Value(28)).current;
+  const button12TranslateY = useRef(new Animated.Value(28)).current;
   const PREVIOUS_TOTAL_KEY = 'previousTotalExercises';
   useEffect(() => {
     navigation.setOptions({ headerLeft: () => null });
@@ -168,6 +170,7 @@ const button10TranslateY = useRef(new Animated.Value(250)).current;
        'exercise9',
       'exercise10',
        'exercise11',
+       'exercise12',
     ];
     const statsData = {};
     for (const id of exerciseIds) {
@@ -256,152 +259,42 @@ const button10TranslateY = useRef(new Animated.Value(250)).current;
     borderWidth: 4,
     borderColor: '#bd462a',
   };
+  // Animate only after the main menu is mounted. Keep the full sequence short:
+  // late exercises should not remain invisible several seconds after the menu opens.
   const startAnimations = () => {
-    Animated.timing(headerOpacity, {
-      toValue: 1,
-      duration: 1000,
-      useNativeDriver: true,
-    }).start();
-    Animated.timing(verbLibraryOpacity, {
-      toValue: 1,
-      duration: 280,
-      useNativeDriver: true,
-    }).start();
-    Animated.timing(titleOpacity, {
-      toValue: 1,
-      duration: 1000,
-      useNativeDriver: true,
-    }).start();
-    Animated.stagger(300, [
+    const items = [
+      [button1Opacity, button1TranslateY],
+      [button2Opacity, button2TranslateY],
+      [button3Opacity, button3TranslateY],
+      [button6Opacity, button6TranslateY],
+      [button10Opacity, button10TranslateY],
+      [button4Opacity, button4TranslateY],
+      [button7Opacity, button7TranslateY],
+      [button5Opacity, button5TranslateY],
+      [button8Opacity, button8TranslateY],
+      [button11Opacity, button11TranslateY],
+      [button12Opacity, button12TranslateY],
+    ];
+    Animated.parallel([
+      Animated.timing(headerOpacity, { toValue: 1, duration: 350, useNativeDriver: true }),
+      Animated.timing(verbLibraryOpacity, { toValue: 1, duration: 350, useNativeDriver: true }),
+      Animated.timing(titleOpacity, { toValue: 1, duration: 350, useNativeDriver: true }),
+      Animated.stagger(65, items.map(([opacity, translateY]) => Animated.parallel([
+        Animated.timing(opacity, { toValue: 1, duration: 320, useNativeDriver: true }),
+        Animated.timing(translateY, { toValue: 0, duration: 320, useNativeDriver: true }),
+      ]))),
       Animated.parallel([
-        Animated.timing(button1Opacity, {
-          toValue: 1,
-          duration: 500,
-          useNativeDriver: true,
-        }),
-        Animated.timing(button1TranslateY, {
-          toValue: 0,
-          duration: 500,
-          useNativeDriver: true,
-        }),
-      ]),
-      Animated.parallel([
-        Animated.timing(button2Opacity, {
-          toValue: 1,
-          duration: 500,
-          useNativeDriver: true,
-        }),
-        Animated.timing(button2TranslateY, {
-          toValue: 0,
-          duration: 500,
-          useNativeDriver: true,
-        }),
-      ]),
-      Animated.parallel([
-        Animated.timing(button3Opacity, {
-          toValue: 1,
-          duration: 500,
-          useNativeDriver: true,
-        }),
-        Animated.timing(button3TranslateY, {
-          toValue: 0,
-          duration: 500,
-          useNativeDriver: true,
-        }),
-      ]),
-      Animated.parallel([
-        Animated.timing(button6Opacity, {
-          toValue: 1,
-          duration: 500,
-          useNativeDriver: true,
-        }),
-        Animated.timing(button6TranslateY, {
-          toValue: 0,
-          duration: 500,
-          useNativeDriver: true,
-        }),
-      ]),
-      Animated.parallel([
-        Animated.timing(button10Opacity, {
-          toValue: 1,
-          duration: 500,
-          useNativeDriver: true,
-        }),
-        Animated.timing(button10TranslateY, {
-          toValue: 0,
-          duration: 500,
-          useNativeDriver: true,
-        }),
-      ]),
-      Animated.parallel([
-        Animated.timing(button4Opacity, {
-          toValue: 1,
-          duration: 500,
-          useNativeDriver: true,
-        }),
-        Animated.timing(button4TranslateY, {
-          toValue: 0,
-          duration: 500,
-          useNativeDriver: true,
-        }),
-      ]),
-      Animated.parallel([
-        Animated.timing(button7Opacity, {
-          toValue: 1,
-          duration: 500,
-          useNativeDriver: true,
-        }),
-        Animated.timing(button7TranslateY, {
-          toValue: 0,
-          duration: 500,
-          useNativeDriver: true,
-        }),
-      ]),
-      // Упражнение 9 — отдельный шаг анимации после упражнения 8.
-      Animated.parallel([
-        Animated.timing(button5Opacity, {
-          toValue: 1,
-          duration: 500,
-          useNativeDriver: true,
-        }),
-        Animated.timing(button5TranslateY, {
-          toValue: 0,
-          duration: 500,
-          useNativeDriver: true,
-        }),
-      ]),
-      // Упражнение 10 — следующий отдельный шаг.
-      Animated.parallel([
-        Animated.timing(button8Opacity, {
-          toValue: 1,
-          duration: 500,
-          useNativeDriver: true,
-        }),
-        Animated.timing(button8TranslateY, {
-          toValue: 0,
-          duration: 500,
-          useNativeDriver: true,
-        }),
-      ]),
-      Animated.parallel([
-        Animated.timing(button9Opacity, {
-          toValue: 1,
-          duration: 500,
-          useNativeDriver: true,
-        }),
-        Animated.timing(button9TranslateY, {
-          toValue: 0,
-          duration: 500,
-          useNativeDriver: true,
-        }),
-      ]),
-      // Упражнение 11 — следующий шаг после упражнения 10.
-      Animated.parallel([
-        Animated.timing(button11Opacity, {toValue: 1, duration: 500, useNativeDriver: true}),
-        Animated.timing(button11TranslateY, {toValue: 0, duration: 500, useNativeDriver: true}),
+        Animated.timing(button9Opacity, { toValue: 1, duration: 320, useNativeDriver: true }),
+        Animated.timing(button9TranslateY, { toValue: 0, duration: 320, useNativeDriver: true }),
       ]),
     ]).start();
   };
+
+  useEffect(() => {
+    if (!animationFinished || animationTriggered) return;
+    // Lottie is now unmounted and animated menu views are available.
+    startAnimations();
+  }, [animationFinished]);
   const isFreeName = screenName =>
     screenName === 'Exercise1' ||
     screenName === 'Exercise2' ||
@@ -481,6 +374,8 @@ const button10TranslateY = useRef(new Animated.Value(250)).current;
         duration: 300,
         useNativeDriver: true,
       }),
+      Animated.timing(button11Opacity, {toValue: 0, duration: 300, useNativeDriver: true}),
+      Animated.timing(button12Opacity, {toValue: 0, duration: 300, useNativeDriver: true}),
     ]);
     animation.start(({ finished }) => {
       if (!finished) return;
@@ -622,7 +517,6 @@ const button10TranslateY = useRef(new Animated.Value(250)).current;
           loop={false}
           onAnimationFinish={() => {
             setAnimationFinished(true);
-            if (!navigateTo) startAnimations();
           }}
           style={styles.lottie}
         />
@@ -1517,7 +1411,7 @@ const button10TranslateY = useRef(new Animated.Value(250)).current;
               </View>
             </TouchableOpacity>
           </Animated.View>
-          {/* УПРАЖНЕНИЯ 9, 10 И 11 */}
+          {/* УПРАЖНЕНИЯ 9, 10, 11 И 12 */}
           {[
             {
               screen: 'Exercise9',
@@ -1542,6 +1436,14 @@ const button10TranslateY = useRef(new Animated.Value(250)).current;
               title: 'СОБЕРИ ГЛАГОЛ',
               opacity: button11Opacity,
               translateY: button11TranslateY,
+            },
+            {
+              screen: 'Exercise12',
+              statsKey: 'exercise12',
+              number: 12,
+              title: 'НАПИШИ ГЛАГОЛ В ПРЕДЛОЖЕНИИ',
+              opacity: button12Opacity,
+              translateY: button12TranslateY,
             },
           ].map(item => (
             <Animated.View
@@ -1627,7 +1529,7 @@ const button10TranslateY = useRef(new Animated.Value(250)).current;
               styles.infoWrap,
               {
                 opacity: button9Opacity,
-                transform: [{ translateY: button7TranslateY }],
+                transform: [{ translateY: button9TranslateY }],
               },
             ]}
           >
@@ -1658,7 +1560,7 @@ const button10TranslateY = useRef(new Animated.Value(250)).current;
               styles.infoWrap,
               {
                 opacity: button9Opacity,
-                transform: [{ translateY: button7TranslateY }],
+                transform: [{ translateY: button9TranslateY }],
               },
             ]}
           >
@@ -1689,7 +1591,7 @@ const button10TranslateY = useRef(new Animated.Value(250)).current;
               styles.infoWrap,
               {
                 opacity: button9Opacity,
-                transform: [{ translateY: button7TranslateY }],
+                transform: [{ translateY: button9TranslateY }],
               },
             ]}
           >

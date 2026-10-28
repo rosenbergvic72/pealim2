@@ -22,6 +22,7 @@ const DEFAULTS = { count: 12, tense: [...TENSES], sound: true, translit: true, s
 const ICONS = { logo: require('./VERBIFY.png'), on: require('./SoundOn.png'), off: require('./SoundOff.png'), list: require('./spisok2.png'), rotation: require('./spisok.png'), stats: require('./stat.png'), help: require('./question.png'), speaker: require('./speaker3.png'), hide: require('./glaz1.png'), hidden: require('./glaz2.png'), pin: require('./gant1.png'), pinned: require('./gant2.png') };
 const FEEDBACK = { yes: require('./assets/sounds/success_root.mp3'), no: require('./assets/sounds/failure_root.mp3') };
 const EXERCISE_LABEL = { ru: 'Упражнение', en: 'Exercise', fr: 'Exercice', es: 'Ejercicio', pt: 'Exercício', ar: 'التمرين', am: 'ልምምድ' };
+const RESULT_SETTINGS_LABEL = { ru: 'В НАСТРОЙКИ', en: 'SETTINGS', fr: 'PARAMÈTRES', es: 'AJUSTES', pt: 'DEFINIÇÕES', ar: 'الإعدادات', am: 'ቅንብሮች' };
 const EX10_HELP = {
     ru: 'Прослушайте предложение и выберите правильный перевод. После ответа откроются текст на иврите и транслитерация. Задания можно исключать из повторения или отмечать для более частого показа.',
     en: 'Listen to the sentence and choose the correct translation. Hebrew text and transliteration appear after answering. You can exclude tasks from review or mark them to appear more often.',
@@ -135,6 +136,17 @@ Dica: na primeira vez, tente captar o sentido geral, as palavras conhecidas, o v
 ምክር፦ በመጀመሪያው ማዳመጥ አጠቃላይ ትርጉሙን፣ የሚያውቋቸውን ቃላት፣ ግሱን እና ጊዜውን ለመያዝ ይሞክሩ። ሁሉንም ወዲያውኑ መረዳት አያስፈልግም። ከመልሱ በኋላ የታየውን ጽሑፍ ያንብቡና ከሚሰማው ድምፅ ጋር እያገናኙ እንደገና ያዳምጡ። ከባድ የሆኑትን ብዙ ጊዜ እንዲታዩ ምልክት ያድርጉ፣ በደንብ የሚያውቋቸውንም ከድገማ ያስወግዱ።`,
     },
 };
+
+const HELP_SECTIONS_LABELS_9_10 = {
+    ru: ['Как выполнять упражнение', 'На что обратить внимание', 'Почему это полезно', 'Совет'],
+    en: ['How to practise', 'What to focus on', 'Why it helps', 'Tip'],
+    fr: ['Comment pratiquer', 'Points à observer', 'Pourquoi c’est utile', 'Conseil'],
+    es: ['Cómo practicar', 'En qué fijarse', 'Por qué es útil', 'Consejo'],
+    pt: ['Como praticar', 'Em que prestar atenção', 'Por que é útil', 'Dica'],
+    ar: ['طريقة التدريب', 'ما الذي يجب الانتباه إليه', 'لماذا يفيد', 'نصيحة'],
+    am: ['እንዴት እንደሚለማመዱ', 'ትኩረት የሚያስፈልገው', 'ለምን ይጠቅማል', 'ጠቃሚ ምክር'],
+};
+
 const T = ({ style, ...props }) => <Text {...props} maxFontSizeMultiplier={1.2} style={[s.text, style]}/>;
 const AnimatedTouchableOpacity = Animated.createAnimatedComponent(TouchableOpacity);
 function Button({ label, onPress, disabled, secondary = false, style }) { return <TouchableOpacity accessibilityRole="button" accessibilityLabel={label} accessibilityState={{ disabled: !!disabled }} activeOpacity={0.8} disabled={disabled} onPress={onPress} style={[s.button, secondary && s.secondary, disabled && s.disabled, style]}><T style={[s.buttonText, secondary && s.secondaryText]}>{label}</T></TouchableOpacity>; }
@@ -212,12 +224,15 @@ export default function SentenceExercise({ navigation, route, mode = 9 }) {
 
     useLayoutEffect(() => {
         navigation?.setOptions?.({
-            headerShown: phase !== 'settings',
+            headerShown: true,
+            headerBackVisible: true,
         });
     }, [navigation, phase]);
 
     const exerciseHelp = mode === 10 ? (EX10_HELP[language] || EX10_HELP.en) : (HELP[language]?.[0] || HELP.en[0]);
     const modalHelp = MODAL_HELP[mode]?.[language] || MODAL_HELP[mode]?.en || exerciseHelp;
+    const helpSections = modalHelp.split(/\n\s*\n/).map(part => part.trim()).filter(Boolean);
+    const helpHeadings = HELP_SECTIONS_LABELS_9_10[language] || HELP_SECTIONS_LABELS_9_10.en;
     const item = deck[index] || null;
     useEffect(() => {
         if (mode !== 10)
@@ -595,16 +610,11 @@ const optionWaitingAnimatedStyle =
         outputRange: [0.16, 0.38, 0.78, 1],
     });
     if (!loaded)
-        return <ScreenSafeAreaView style={s.screen} edges={phase === 'settings' ? ['top', 'left', 'right'] : ['left', 'right']}><ActivityIndicator style={{ flex: 1 }} color="#FFFDEF" accessibilityLabel={ui.loading}/></ScreenSafeAreaView>;
-    return <ScreenSafeAreaView style={s.screen} edges={phase === 'settings' ? ['top', 'left', 'right'] : ['left', 'right']}><View style={phase === 'settings' ? settingsModal.root : [s.container, width > 650 && s.wide]}>
-    {phase === 'result' && header}
+        return <ScreenSafeAreaView style={s.screen} edges={['left', 'right']}><ActivityIndicator style={{ flex: 1 }} color="#FFFDEF" accessibilityLabel={ui.loading}/></ScreenSafeAreaView>;
+    return <ScreenSafeAreaView style={s.screen} edges={['left', 'right']}><View style={phase === 'settings' ? settingsModal.root : [s.container, width > 650 && s.wide]}>
     {phase === 'settings' && <>
       <View style={settingsModal.header}>
-        <TouchableOpacity accessibilityRole="button" accessibilityLabel={ui.close} onPress={goMenu} activeOpacity={0.75} style={settingsModal.closeButton}>
-          <Text maxFontSizeMultiplier={1.2} style={settingsModal.closeButtonIcon}>‹</Text>
-        </TouchableOpacity>
         <View style={settingsModal.headerTextWrap}>
-          <T style={settingsModal.exerciseLabel}>{EXERCISE_LABEL[language] || EXERCISE_LABEL.en} {mode}</T>
           <T numberOfLines={2} adjustsFontSizeToFit minimumFontScale={0.75} style={settingsModal.title}>{title}</T>
         </View>
       </View>
@@ -890,9 +900,17 @@ const optionWaitingAnimatedStyle =
         </View>
       </View>
     )}
-    {phase === 'result' && <ScrollView contentContainerStyle={s.scrollBody}><View style={s.card}><T style={s.section}>{ui.completed}</T><T style={s.note}>{ui.result}</T><T style={s.score}>{score}%</T><T style={s.translation}>{ui.correct}: {correct}   {ui.wrong}: {wrong}</T>{saveError && <T style={s.error}>{ui.saveError}</T>}</View><Button label={ui.again} onPress={() => setPhase('settings')}/><Button secondary label={ui.menu} onPress={goMenu}/></ScrollView>}
+    {phase === 'result' && <ScrollView contentContainerStyle={s.scrollBody}><View style={s.card}><T style={s.section}>{ui.completed}</T><T style={s.note}>{ui.result}</T><T style={s.score}>{score}%</T><T style={s.translation}>{ui.correct}: {correct}   {ui.wrong}: {wrong}</T>{saveError && <T style={s.error}>{ui.saveError}</T>}</View><Button label={ui.again} onPress={start}/><Button secondary label={RESULT_SETTINGS_LABEL[language] || RESULT_SETTINGS_LABEL.en} onPress={() => setPhase('settings')}/><Button secondary label={ui.menu} onPress={goMenu}/></ScrollView>}
     <Modal visible={!!modal} transparent animationType="fade" onRequestClose={() => setModal(null)}><SafeAreaView style={s.overlay}><View style={[s.modalCard, modal === 'list' && { height: '88%' }]}><T style={s.section}>{ui[modal] || ui.list}</T>
-      {modal === 'help' && <ScrollView><T style={[s.helpText, rtl && s.rtl]}>{modalHelp}</T></ScrollView>}
+      {modal === 'help' && <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={s.educationalHelpContent}>
+        <T style={s.educationalHelpEyebrow}>{EXERCISE_LABEL[language] || EXERCISE_LABEL.en} {mode}</T>
+        {helpSections.map((part, sectionIndex) => (
+          <View key={`help-${sectionIndex}`} style={[s.educationalHelpSection, sectionIndex === 0 && s.educationalHelpFirst]}>
+            <T style={[s.educationalHelpHeading, rtl && s.rtl]}>{sectionIndex > 0 ? `${sectionIndex}.  ` : ''}{helpHeadings[sectionIndex] || helpHeadings[3]}</T>
+            <T style={[s.educationalHelpBody, rtl && s.rtl]}>{part}</T>
+          </View>
+        ))}
+      </ScrollView>}
       {modal === 'stats' && (!stats ? <ActivityIndicator color="#CE6857"/> : <View><T style={s.translation}>{title}</T>{statsError ? <T style={s.error}>{ui.empty}</T> : <><T style={s.helpText}>{ui.sessions}: {Number(stats.timesCompleted) || 0}</T><T style={s.helpText}>{ui.best}: {Number(stats.bestScore || 0).toFixed(1)}%</T><T style={s.helpText}>{ui.average}: {Number(stats.averageScore ?? stats.averageCompletionRate ?? 0).toFixed(1)}%</T></>}</View>)}
       {modal === 'list' && <>
         <View style={s.wrap}>
@@ -916,8 +934,6 @@ const optionWaitingAnimatedStyle =
 const settingsModal = StyleSheet.create({
     root: { flex: 1, backgroundColor: '#83A3CD' },
     header: { minHeight: 82, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 4, position: 'relative' },
-    closeButton: { position: 'absolute', left: 16, top: '50%', marginTop: -22, width: 44, height: 44, borderRadius: 22, backgroundColor: 'rgba(255,255,255,0.22)', alignItems: 'center', justifyContent: 'center', zIndex: 5 },
-    closeButtonIcon: { color: '#FFFDEF', fontSize: 38, lineHeight: 40, fontWeight: '500', marginTop: -3 },
     headerTextWrap: { width: '100%', alignItems: 'center', justifyContent: 'center', paddingHorizontal: 60 },
     exerciseLabel: { color: 'rgba(255,253,239,0.82)', fontSize: 16, lineHeight: 16, fontWeight: '800', textAlign: 'center', marginTop: 5, marginBottom: 2 },
     title: { marginTop: 10, marginBottom: 6, color: '#FFFDEF', fontSize: 20, lineHeight: 24, fontWeight: '700', textAlign: 'center' },
@@ -949,6 +965,12 @@ const settingsModal = StyleSheet.create({
 });
 const s = StyleSheet.create({
     screen: { flex: 1, backgroundColor: '#83A3CD' },
+    educationalHelpContent: { paddingBottom: 8 },
+    educationalHelpEyebrow: { fontSize: 12, color: '#5479A1', fontWeight: '800', letterSpacing: 1, textAlign: 'center', marginBottom: 8 },
+    educationalHelpSection: { backgroundColor: '#FFFFFF', borderRadius: 12, padding: 12, marginTop: 10, borderWidth: 1, borderColor: '#DFE8F3' },
+    educationalHelpFirst: { backgroundColor: '#EAF2FC', borderColor: '#C7D9EE' },
+    educationalHelpHeading: { fontSize: 15, fontWeight: '800', color: '#245E9C', marginBottom: 7, textAlign: 'left' },
+    educationalHelpBody: { fontSize: 14, lineHeight: 21, color: '#394E69', textAlign: 'left' },
     container: { flex: 1, paddingHorizontal: 16 },
     taskScreen: { flex: 1, minHeight: 0 },
     taskScroll: { flex: 1, minHeight: 0 },

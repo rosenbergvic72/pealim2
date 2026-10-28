@@ -146,6 +146,11 @@ const BASE_EXERCISES = [
   index: 11,
   useLanguageSuffix: false,
 },
+{
+  baseId: 'exercise12',
+  index: 12,
+  useLanguageSuffix: false,
+},
 ];
 
 /* ===== ЛОКАЛИ ДЛЯ ДАТ ===== */
@@ -205,6 +210,7 @@ exercises: {
   exercise9: 'Упражнение 9',
 exercise10: 'Упражнение 10',
   exercise11: 'Упражнение 11',
+  exercise12: 'Упражнение 12',
 },
   },
 
@@ -251,6 +257,7 @@ exercises: {
   exercise9: 'Exercise 9',
 exercise10: 'Exercise 10',
   exercise11: 'Exercise 11',
+  exercise12: 'Exercise 12',
 },
   },
 
@@ -297,6 +304,7 @@ exercises: {
   exercise9: 'Exercice 9',
 exercise10: 'Exercice 10',
   exercise11: 'Exercice 11',
+  exercise12: 'Exercice 12',
 },
   },
 
@@ -343,6 +351,7 @@ exercises: {
   exercise9: 'Ejercicio 9',
 exercise10: 'Ejercicio 10',
   exercise11: 'Ejercicio 11',
+  exercise12: 'Ejercicio 12',
 },
   },
 
@@ -389,6 +398,7 @@ exercises: {
   exercise9: 'Exercício 9',
 exercise10: 'Exercício 10',
   exercise11: 'Exercício 11',
+  exercise12: 'Exercício 12',
 },
   },
 
@@ -435,6 +445,7 @@ exercises: {
   exercise9: 'ልምምድ 9',
 exercise10: 'ልምምድ 10',
   exercise11: 'ልምምድ 11',
+  exercise12: 'ልምምድ 12',
 },
   },
 
@@ -480,7 +491,8 @@ exercises: {
   exercise7: 'التمرين 8',
   exercise9: 'التمرين 9',
 exercise10: 'التمرين 10',
-  exercise11: 'التمرين 11',   
+  exercise11: 'التمرين 11',
+  exercise12: 'التمرين 12',   
 },
   },
 };

@@ -168,6 +168,24 @@ const AppDescriptionModal = ({ visible, onToggle }) => {
 </Text>
 
 
+{/* Exercício 12 */}
+<Text style={styles.listItem}>
+  <Text style={[styles.bold, styles.highlightExercise]}>
+    • Exercício 12 «Escreva o verbo numa frase» —
+  </Text>{' '}
+  complete uma frase em hebraico escrevendo a forma
+  verbal em falta através do teclado. A tradução
+  ajuda a compreender o contexto e a identificar
+  o tempo, a pessoa, o número e o género.
+  Tem três tentativas: primeiro sem dicas, depois
+  com as letras necessárias destacadas e, por fim,
+  com a possibilidade de ouvir a frase.
+  Esta prática desenvolve a recordação ativa,
+  melhora a ortografia e ajuda a utilizar os verbos
+  corretamente em situações reais.
+</Text>
+
+
 {/* Preposições */}
 <Text style={styles.modalTitle}>VERBOS E PREPOSIÇÕES</Text>
 

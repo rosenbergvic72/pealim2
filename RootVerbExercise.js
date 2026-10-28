@@ -160,7 +160,7 @@ const TEXTS = {
 
     correct: 'Верно',
 
-    wrong: 'Ошибки',
+    wrong: 'Неверно',
 
     next: 'ДАЛЕЕ',
 
@@ -194,7 +194,7 @@ const TEXTS = {
 
     correct: 'Correct',
 
-    wrong: 'Errors',
+    wrong: 'Incorrect',
 
     next: 'NEXT',
 
@@ -228,7 +228,7 @@ const TEXTS = {
 
     correct: 'Correct',
 
-    wrong: 'Erreurs',
+    wrong: 'Incorrect',
 
     next: 'SUIVANT',
 
@@ -262,7 +262,7 @@ const TEXTS = {
 
     correct: 'Aciertos',
 
-    wrong: 'Errores',
+    wrong: 'Incorrectas',
 
     next: 'SIGUIENTE',
 
@@ -296,7 +296,7 @@ const TEXTS = {
 
     correct: 'Certas',
 
-    wrong: 'Erros',
+    wrong: 'Erradas',
 
     next: 'SEGUINTE',
 
@@ -330,7 +330,7 @@ const TEXTS = {
 
     correct: 'صحيح',
 
-    wrong: 'أخطاء',
+    wrong: 'غير صحيح',
 
     next: 'التالي',
 
@@ -364,7 +364,7 @@ const TEXTS = {
 
     correct: 'ትክክል',
 
-    wrong: 'ስህተቶች',
+    wrong: 'የተሳሳተ',
 
     next: 'ቀጣይ',
 

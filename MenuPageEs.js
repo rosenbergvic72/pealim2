@@ -157,6 +157,8 @@ export default function MenuPage({
   const button12TranslateY = useRef(new Animated.Value(250)).current;
   const button13Opacity = useRef(new Animated.Value(0)).current;
   const button13TranslateY = useRef(new Animated.Value(250)).current;
+  const button14Opacity = useRef(new Animated.Value(0)).current;
+  const button14TranslateY = useRef(new Animated.Value(250)).current;
   const PREVIOUS_TOTAL_KEY = 'previousTotalExercises';
   const fetchStatistics = async () => {
     const exerciseIds = [
@@ -174,6 +176,7 @@ export default function MenuPage({
       'exercise9',
       'exercise10',
       'exercise11',
+      'exercise12',
     ];
     const statsData = {};
     for (let id of exerciseIds) {
@@ -533,6 +536,11 @@ export default function MenuPage({
         Animated.timing(button13TranslateY, { toValue: 0, duration: 500, useNativeDriver: true }),
       ]),
       Animated.parallel([
+        Animated.timing(button14Opacity, { toValue: 1, duration: 500, useNativeDriver: true }),
+        Animated.timing(button14TranslateY, { toValue: 0, duration: 500, useNativeDriver: true }),
+      ]),
+
+      Animated.parallel([
         Animated.timing(button9Opacity, { toValue: 1, duration: 500, useNativeDriver: true }),
         Animated.timing(button9TranslateY, { toValue: 0, duration: 500, useNativeDriver: true }),
       ]),
@@ -646,6 +654,7 @@ export default function MenuPage({
           useNativeDriver: true,
         }),
         Animated.timing(button13Opacity, { toValue: 0, duration: 300, useNativeDriver: true }),
+        Animated.timing(button14Opacity, { toValue: 0, duration: 300, useNativeDriver: true }),
         Animated.timing(
           button9Opacity,
           {
@@ -2355,6 +2364,43 @@ export default function MenuPage({
                 </Text>
                 <Text style={styles.lowerText} maxFontSizeMultiplier={1.2}>
                   PUNTAJE PROMEDIO <Text style={styles.statValue}>{Number(stats.exercise11?.averageCompletionRate ?? 0).toFixed(2)}%</Text>
+                </Text>
+              </View>
+            </TouchableOpacity>
+          </Animated.View>
+          {/* EJERCICIO 12 — ESCRIBE EL VERBO EN UNA FRASE */}
+          <Animated.View
+            style={[
+              styles.buttonContainer,
+              styles.rootButtonContainer,
+              { opacity: button14Opacity, transform: [{ translateY: button14TranslateY }] },
+              isLocked('Exercise12') && lockStyle,
+            ]}
+          >
+            <TouchableOpacity
+              style={styles.rootTouchable}
+              accessibilityRole="button"
+              accessibilityLabel="Ejercicio 12. Escribe el verbo en una frase. Nuevo ejercicio"
+              accessibilityState={{ disabled: isLocked('Exercise12') }}
+              disabled={isLocked('Exercise12')}
+              activeOpacity={0.8}
+              onPress={() => handlePress('Exercise12')}
+            >
+              <View style={styles.rootHeading}>
+                <Text style={styles.rootTitle} maxFontSizeMultiplier={1.2}>EJERCICIO 12</Text>
+                <View style={styles.rootNewBadge}>
+                  <Text style={styles.rootNewText} maxFontSizeMultiplier={1.2}>NUEVO EJERCICIO</Text>
+                </View>
+              </View>
+              <View style={styles.upperPart2}>
+                <Text style={styles.upperText} maxFontSizeMultiplier={1.2}>ESCRIBE EL VERBO EN UNA FRASE</Text>
+              </View>
+              <View style={[styles.lowerRight, styles.rootStats]}>
+                <Text style={styles.lowerText} maxFontSizeMultiplier={1.2}>
+                  COMPLETADO <Text style={styles.statValue}>{stats.exercise12?.timesCompleted ?? 0}</Text>
+                </Text>
+                <Text style={styles.lowerText} maxFontSizeMultiplier={1.2}>
+                  PUNTAJE PROMEDIO <Text style={styles.statValue}>{Number(stats.exercise12?.averageCompletionRate ?? 0).toFixed(2)}%</Text>
                 </Text>
               </View>
             </TouchableOpacity>
