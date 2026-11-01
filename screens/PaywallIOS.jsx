@@ -67,9 +67,9 @@ const STR = {
       'Subscription. Choose a plan and continue in the App Store. If you have a promo code or an access code from a school or course, enter it before subscribing by tapping Enter App Store Promo Code. You can cancel your subscription at any time in the App Store.',
 
     freePreview: 'CONTINUE FOR FREE',
-    freePreviewSubtitle: 'Train 350 Hebrew verbs',
+    freePreviewSubtitle: 'Train 400+ Hebrew verbs and pronominal prepositions',
     limitedAccess: 'Limited access',
-    exercises12: 'Exercises 1 & 2',
+    exercises12: 'Exercises 1, 2 and Prepositions 1',
     trialFullAccess: 'Full access during the trial period',
 
     redeemUnderCta: 'Enter App Store promo code',
@@ -111,9 +111,9 @@ const STR = {
       'Подписка. Выберите план и продолжите оформление в App Store. Если у вас есть промокод или код доступа от школы или курса — введите его перед оформлением, нажав Ввести промокод App Store. Подписку можно отменить в любой момент в App Store.',
 
     freePreview: 'ПРОДОЛЖИТЬ БЕСПЛАТНО',
-    freePreviewSubtitle: 'Тренируйте 350 глаголов иврита',
-    limitedAccess: 'Ограниченный доступ',
-    exercises12: 'Упражнения 1 и 2',
+    freePreviewSubtitle: 'Тренируйте 400+ глаголов иврита\nи местоименные предлоги',
+limitedAccess: 'Ограниченный доступ -',
+exercises12: 'Упражнения 1, 2\nи «Предлоги 1»',
     trialFullAccess: 'Полный доступ во время пробного периода',
 
     redeemUnderCta: 'Ввести промокод App Store',
@@ -155,9 +155,9 @@ const STR = {
       'Abonnement. Choisissez une formule et poursuivez dans l’App Store. Si vous avez un code promo ou un code d’accès fourni par une école ou un cours, saisissez-le avant l’abonnement en appuyant sur Saisir un code promo App Store. Vous pouvez annuler votre abonnement à tout moment dans l’App Store.',
 
     freePreview: 'CONTINUER GRATUITEMENT',
-    freePreviewSubtitle: 'Entraînez 350 verbes hébreux',
+    freePreviewSubtitle: 'Entraînez-vous avec 400+ verbes hébreux et des prépositions pronominales',
     limitedAccess: 'Accès limité',
-    exercises12: 'Exercices 1 et 2',
+    exercises12: 'Exercices 1, 2 et Prépositions 1',
     trialFullAccess: 'Accès complet pendant la période d’essai',
 
     redeemUnderCta: 'Saisir un code promo App Store',
@@ -199,9 +199,9 @@ const STR = {
       'Suscripción. Elige un plan y continúa en el App Store. Si tienes un código promocional o un código de acceso de una escuela o curso, introdúcelo antes de suscribirte pulsando Introducir código promocional de App Store. Puedes cancelar tu suscripción en cualquier momento en el App Store.',
 
     freePreview: 'CONTINUAR GRATIS',
-    freePreviewSubtitle: 'Practica 350 verbos hebreos',
+    freePreviewSubtitle: 'Practica 400+ verbos hebreos y preposiciones pronominales',
     limitedAccess: 'Acceso limitado',
-    exercises12: 'Ejercicios 1 y 2',
+    exercises12: 'Ejercicios 1, 2 y Preposiciones 1',
     trialFullAccess: 'Acceso completo durante el período de prueba',
 
     redeemUnderCta: 'Introducir código promocional de App Store',
@@ -243,9 +243,9 @@ const STR = {
       'Assinatura. Escolha um plano e continue na App Store. Se você tiver um código promocional ou um código de acesso de uma escola ou curso, insira-o antes de assinar tocando em Inserir código promocional da App Store. Você pode cancelar sua assinatura a qualquer momento na App Store.',
 
     freePreview: 'CONTINUAR GRÁTIS',
-    freePreviewSubtitle: 'Pratique 350 verbos em hebraico',
+    freePreviewSubtitle: 'Pratique 400+ verbos hebraicos e preposições pronominais',
     limitedAccess: 'Acesso limitado',
-    exercises12: 'Exercícios 1 e 2',
+    exercises12: 'Exercícios 1, 2 e Preposições 1',
     trialFullAccess: 'Acesso completo durante o período de teste',
 
     redeemUnderCta: 'Inserir código promocional da App Store',
@@ -287,9 +287,9 @@ const STR = {
       'اشتراك. اختر خطة وتابع في App Store. إذا كان لديك رمز ترويجي أو رمز وصول من مدرسة أو دورة، فأدخله قبل الاشتراك بالضغط على إدخال رمز ترويجي من App Store. يمكنك إلغاء الاشتراك في أي وقت من خلال App Store.',
 
     freePreview: 'المتابعة مجانًا',
-    freePreviewSubtitle: 'تدرّب على 350 فعلًا عبريًا',
+    freePreviewSubtitle: 'تدرّب على أكثر من 400 فعل عبري وحروف الجر المتصلة بالضمائر',
     limitedAccess: 'وصول محدود',
-    exercises12: 'التمرينان 1 و2',
+    exercises12: 'التمرينان 1 و2 و«حروف الجر 1»',
      trialFullAccess: 'وصول كامل خلال الفترة التجريبية',
 
     redeemUnderCta: 'إدخال رمز ترويجي من App Store',
@@ -331,9 +331,9 @@ const STR = {
       'ምዝገባ። እቅድ ይምረጡ እና በApp Store ይቀጥሉ። ከትምህርት ቤት ወይም ኮርስ የተሰጠ ፕሮሞ ኮድ ወይም የመዳረሻ ኮድ ካለዎት፣ ይመዝገቡ ከማለትዎ በፊት የApp Store ፕሮሞ ኮድ ያስገቡን በመጫን ያስገቡት። ምዝገባዎን በApp Store ውስጥ በማንኛውም ጊዜ ማቋረጥ ይችላሉ።',
 
     freePreview: 'በነፃ ቀጥል',
-    freePreviewSubtitle: '350 የዕብራይስጥ ግሶችን ይለማመዱ',
+    freePreviewSubtitle: '400+ የዕብራይስጥ ግሶችን እና ከተውላጠ ስሞች ጋር የሚጣመሩ መስተዋድዶችን ይለማመዱ',
     limitedAccess: 'የተገደበ መዳረሻ',
-    exercises12: 'ልምምዶች 1 እና 2',
+    exercises12: 'ልምምዶች 1፣ 2 እና «መስተዋድዶች 1»',
      trialFullAccess: 'ሙሉ መዳረሻ በሙከራ ጊዜ ውስጥ',
 
     redeemUnderCta: 'የApp Store ፕሮሞ ኮድ ያስገቡ',
@@ -719,7 +719,7 @@ export default function PaywallIOS({ navigation }) {
               {S.freePreviewSubtitle}
             </Text>
             <Text style={[styles.btnSubText2, styles.btnSubTextOutline]}>
-              {S.limitedAccess} • {S.exercises12}
+              {S.limitedAccess} - {S.exercises12}
             </Text>
           </TouchableOpacity> */}
 
@@ -737,13 +737,14 @@ export default function PaywallIOS({ navigation }) {
       styles.btnSubText,
       styles.btnSubTextOutline,
       styles.subAccent,
+      styles.freeDescriptionText,
     ]}
   >
     {S.freePreviewSubtitle}
   </Text>
 
-  <Text style={[styles.btnSubText2, styles.btnSubTextOutline]}>
-    {S.limitedAccess} • {S.exercises12}
+  <Text style={[styles.btnSubText2, styles.btnSubTextOutline, styles.freeDescriptionText]}>
+    {S.limitedAccess} - {S.exercises12}
   </Text>
 
   <Text
@@ -909,6 +910,7 @@ const styles = StyleSheet.create({
   btnSubTextOutline: { color: BRAND },
   btnSubTextSolid: { color: BRAND_TEXT },
   subAccent: { color: ACCENT, fontWeight: '900', opacity: 1 },
+  freeDescriptionText: { textAlign: 'center', paddingHorizontal: 8 },
 
   iosLegal: {
     fontSize: 11.5,

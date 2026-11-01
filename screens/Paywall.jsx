@@ -133,8 +133,8 @@ const STR = {
   freePreview: 'CONTINUE FOR FREE',
   freePreviewSubtitle: 'Trial period • Full access',
   fullAccess: 'Full access',
-  limitedAccess: 'Train 400+ Hebrew verbs',
-  exercises12: 'Exercises 1 and 2 are always free',
+  limitedAccess: 'Train 400+ Hebrew verbs and pronominal prepositions',
+  exercises12: 'Limited access - Exercises 1, 2 and Prepositions 1',
   postTitle: 'Subscription activated 🎉',
   postBody:
     'Full access is unlocked. If you receive a Google Play email about “registering” the subscription — it’s standard; access is already granted.',
@@ -176,10 +176,9 @@ const STR = {
     freePreview: 'ПРОДОЛЖИТЬ БЕСПЛАТНО',
      freePreviewSubtitle: 'Пробный период - полный доступ',
 
-    // freePreviewSubtitle: 'Тренируйте 350 глаголов иврита',
     fullAccess: 'Полный доступ',
-    limitedAccess: 'Тренируйте 400+ глаголов иврита',
-    exercises12: 'Упражнения 1 и 2 доступны всегда',
+    llimitedAccess: 'Тренируйте 400+ глаголов иврита\nи местоименные предлоги',
+exercises12: 'Ограниченный доступ -\nУпражнения 1, 2\nи «Предлоги 1»',
     postTitle: 'Подписка активирована 🎉',
     postBody:
       'Доступ ко всем функциям открыт. Если придёт письмо Google о «регистрации у разработчика» — это стандартное письмо, доступ уже предоставлен.',
@@ -223,8 +222,8 @@ const STR = {
   freePreview: 'CONTINUER GRATUITEMENT',
   freePreviewSubtitle: 'Période d’essai • Accès complet',
   fullAccess: 'Accès complet',
-  limitedAccess: 'Entraîne 400+ verbes en hébreu',
-  exercises12: 'Les exercices 1 et 2 restent toujours gratuits',
+  limitedAccess: 'Entraînez-vous avec 400+ verbes hébreux et des prépositions pronominales',
+  exercises12: 'Accès limité - Exercices 1, 2 et Prépositions 1',
   postTitle: 'Abonnement activé 🎉',
   postBody:
     'Accès complet débloqué. L’e-mail Google Play sur « l’enregistrement » est standard ; l’accès est déjà accordé.',
@@ -268,8 +267,8 @@ español: {
   freePreview: 'CONTINUAR GRATIS',
   freePreviewSubtitle: 'Período de prueba • Acceso completo',
   fullAccess: 'Acceso completo',
-  limitedAccess: 'Entrena 400+ verbos en hebreo',
-  exercises12: 'Los ejercicios 1 y 2 siempre son gratuitos',
+  limitedAccess: 'Practica 400+ verbos hebreos y preposiciones pronominales',
+  exercises12: 'Acceso limitado - Ejercicios 1, 2 y Preposiciones 1',
   postTitle: 'Suscripción activada 🎉',
   postBody:
     'Acceso completo desbloqueado. El correo de Google Play sobre “registrar” es normal; el acceso ya está concedido.',
@@ -313,8 +312,8 @@ português: {
   freePreview: 'CONTINUAR GRÁTIS',
   freePreviewSubtitle: 'Período de teste • Acesso total',
   fullAccess: 'Acesso total',
-  limitedAccess: 'Treine 400+ verbos em hebraico',
-  exercises12: 'Os exercícios 1 e 2 continuam gratuitos',
+  limitedAccess: 'Pratique 400+ verbos hebraicos e preposições pronominais',
+  exercises12: 'Acesso limitado - Exercícios 1, 2 e Preposições 1',
   postTitle: 'Assinatura ativada 🎉',
   postBody:
     'Acesso completo liberado. O e-mail do Google Play sobre “registro” é padrão; o acesso já foi concedido.',
@@ -358,8 +357,8 @@ português: {
   freePreview: 'المتابعة مجانًا',
   freePreviewSubtitle: 'فترة تجريبية • وصول كامل',
   fullAccess: 'وصول كامل',
-  limitedAccess: 'تدرّب على 400+ فعلًا عبريًا',
-  exercises12: 'التمرينان 1 و2 متاحان دائمًا مجانًا',
+  limitedAccess: 'تدرّب على أكثر من 400 فعل عبري وحروف الجر المتصلة بالضمائر',
+  exercises12: 'وصول محدود - التمرينان 1 و2 و«حروف الجر 1»',
   postTitle: 'تم تفعيل الاشتراك 🎉',
   postBody:
     'تم فتح الوصول الكامل. رسالة “التسجيل لدى المطوّر” من Google Play إجراء قياسي؛ تم منح الوصول.',
@@ -403,8 +402,8 @@ português: {
   freePreview: 'በነፃ ቀጥል',
   freePreviewSubtitle: 'የሙከራ ጊዜ • ሙሉ መዳረሻ',
   fullAccess: 'ሙሉ መዳረሻ',
-  limitedAccess: '400+ የዕብራይስጥ ግሶችን ይለማመዱ',
-  exercises12: 'ልምምድ 1 እና 2 ሁልጊዜ በነፃ ይገኛሉ',
+  limitedAccess: '400+ የዕብራይስጥ ግሶችን እና ከተውላጠ ስሞች ጋር የሚጣመሩ መስተዋድዶችን ይለማመዱ',
+  exercises12: 'የተገደበ መዳረሻ - ልምምዶች 1፣ 2 እና «መስተዋድዶች 1»',
   postTitle: 'መመዝገብ ተከናውኗል 🎉',
   postBody:
     'ሙሉ መዳረሻ ተከፍቷል። የ Google Play “ምዝገባ” ኢሜይል መደበኛ ነው፤ መዳረሻ አስቀድሞ ተሰጥቷል።',
