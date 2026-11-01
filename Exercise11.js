@@ -510,6 +510,7 @@ export default function Exercise11({navigation,route}) {
  const {width:screenWidth,height:screenHeight}=useWindowDimensions();
   const safeInsets=useSafeAreaInsets();
  const compactScreen=screenHeight<880;
+  const smallAndroidLayout=Platform.OS==='android' && screenHeight<880;
  const [language,setLanguage]=useState('en');const [languageReady,setLanguageReady]=useState(false);const [settings,setSettings]=useState(initSettings);
  const [phase,setPhase]=useState('settings');const [deck,setDeck]=useState([]);const [index,setIndex]=useState(0);
  const [typed,setTyped]=useState([]);const [stage,setStage]=useState(0);const [finished,setFinished]=useState(false);const [awarded,setAwarded]=useState(0);
@@ -760,7 +761,7 @@ export default function Exercise11({navigation,route}) {
  const renderVerbCells=entries=>entries.slice().reverse().map(({ch,i})=><View key={`verb-${i}`} style={[s.slot,slotWidthStyle,(mistakeFlash?s.slotBad:finished&&(awarded>0||showGreenCorrection?s.slotGood:s.slotBad))]}><Text style={[s.slotText,boxWidth<30&&{fontSize:19},showGreenCorrection&&s.goodText,(mistakeFlash||(finished&&awarded===0&&!showGreenCorrection))&&s.badText]}>{showGreenCorrection?ch:typed[i]||' '}</Text></View>);
  const hint=stage>=1;const allowed=new Set(listOfLetters);const fullTranslit=String(item?.translit||'').trim()||'—';
  return <SafeAreaView style={s.screen} edges={phase==='settings'?['top','left','right']:['left','right']}>
-  <View style={[s.page, {paddingBottom: Platform.OS==='ios' ? Math.max(20,safeInsets.bottom-9) : Math.max(14,safeInsets.bottom-4)}]}>
+  <View style={[s.page, {paddingBottom: Platform.OS==='ios' ? Math.max(20,safeInsets.bottom-9) : screenHeight>=880 ? 10 : Math.min(28,Math.max(14,safeInsets.bottom-4))}]}>
    {phase==='task'&&<View style={[s.topBar,compactScreen&&s.smallTopBar]}>
      <TouchableOpacity accessibilityRole="button" accessibilityLabel={lang.menu} onPress={()=>Alert.alert(lang.exitTitle,undefined,[{text:lang.cancel,style:'cancel'},{text:lang.exit,style:'destructive',onPress:()=>setPhase('settings')}])}>
        <Image source={ASSETS.logo} style={[s.logo,compactScreen&&s.smallLogo]}/>
@@ -822,8 +823,8 @@ export default function Exercise11({navigation,route}) {
     <View style={[s.taskTitleOutsideCard,compactScreen&&s.smallTaskTitleOutside,Platform.OS==='android'&&s.androidTaskTitle]}><Text style={s.taskPromptTitle}>{lang.meaning}</Text></View>
     <View style={[s.answerCard,compactScreen&&s.smallAnswerCard,Platform.OS==='android'&&s.androidAnswerCard]}>
       <DynamicCardBackdrop motion={cardMotion} colors={['185,155,218','226,166,187']} reverse/>
-      <View style={[s.prompt,Platform.OS==='android'&&s.androidPrompt]}>
-      <View style={s.translationRow}>
+      <View style={[s.prompt,Platform.OS==='android'&&s.androidPrompt,smallAndroidLayout&&s.smallAndroidPrompt]}>
+      <View style={[s.translationRow,smallAndroidLayout&&s.smallAndroidTranslationRow]}>
         {!!GENDER_ICONS[item.gender]&&<Image
           source={GENDER_ICONS[item.gender]}
  style={[
@@ -844,19 +845,20 @@ export default function Exercise11({navigation,route}) {
   Platform.OS === 'ios' && {
     fontSize: 20,
   },
+  smallAndroidLayout && s.smallAndroidTranslationText,
   rtl && {writingDirection:'rtl'},
 ]}
            >{translation}</Text>
         </View>
       </View>
-      <View style={s.hintPlaceholder}>{(stage===2||finished)&&<View style={s.promptTranslitRow}>
-        <Text style={s.promptTranslit}>{fullTranslit}</Text>
-        <TouchableOpacity accessibilityRole="button" accessibilityLabel={lang.speaker} disabled={!conjugatedAudio()||audioPlaying} onPress={()=>playAudio(conjugatedAudio())} style={s.promptSpeaker}>
-          <Image source={ASSETS.speaker} style={s.hintSpeakerIcon}/>
+      <View style={[s.hintPlaceholder,smallAndroidLayout&&s.smallAndroidHintPlaceholder]}>{(stage===2||finished)&&<View style={[s.promptTranslitRow,smallAndroidLayout&&s.smallAndroidPromptTranslitRow]}>
+        <Text style={[s.promptTranslit,smallAndroidLayout&&s.smallAndroidPromptTranslit,{flexShrink:1}]} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.75}>{fullTranslit}</Text>
+        <TouchableOpacity accessibilityRole="button" accessibilityLabel={lang.speaker} disabled={!conjugatedAudio()||audioPlaying} onPress={()=>playAudio(conjugatedAudio())} style={[s.promptSpeaker,smallAndroidLayout&&s.smallAndroidPromptSpeaker]}>
+          <Image source={ASSETS.speaker} style={[s.hintSpeakerIcon,smallAndroidLayout&&s.smallAndroidHintSpeakerIcon]}/>
         </TouchableOpacity>
       </View>}</View>
     </View>
-    <View style={[s.phraseArea,Platform.OS==='android'&&s.androidPhraseArea,!isSingleRow&&{paddingBottom:8}]}>
+    <View style={[s.phraseArea,Platform.OS==='android'&&s.androidPhraseArea,!isSingleRow&&{paddingBottom:8},!isSingleRow&&Platform.OS==='android'&&screenHeight>=880&&s.androidTwoRowPhraseSpace,smallAndroidLayout&&s.smallAndroidFixedPhraseArea]}>
       <View style={[s.phraseLine,Platform.OS==='android'&&s.androidPhraseLine]}>
         <Animated.View style={[s.slots,{flexShrink:0,flexWrap:'nowrap'}, {opacity:correctionOpacity,transform:[{translateX:correctionShake.interpolate({inputRange:[-1,0,1],outputRange:[-5,0,5]})},{scale:correctionScale},{scale:successScale}]}]}>{renderVerbCells(firstLetters)}</Animated.View>
         {!!pronounLetters.length&&<View style={[s.fixedSlots,{flexShrink:0,flexWrap:'nowrap',marginLeft:firstLetters.length?wordGap:0}]}>
@@ -864,24 +866,24 @@ export default function Exercise11({navigation,route}) {
         </View>}
       </View>
       <View style={[s.phraseLine,Platform.OS==='android'&&s.androidPhraseLine]}>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} bounces={false} contentContainerStyle={{flexGrow:1,justifyContent:'center',alignItems:'center'}}>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} bounces={false} contentContainerStyle={{flexGrow:1,justifyContent:'center',alignItems:'center',paddingVertical:smallAndroidLayout?1:0}}>
           <Animated.View style={[s.slots,{flexShrink:0,flexWrap:'nowrap'}, {opacity:correctionOpacity,transform:[{translateX:correctionShake.interpolate({inputRange:[-1,0,1],outputRange:[-5,0,5]})},{scale:correctionScale},{scale:successScale}]}]}>{renderVerbCells(secondLetters)}</Animated.View>
         </ScrollView>
       </View>
     </View>
     </View>
-    <View style={[s.message,Platform.OS==='android'&&s.androidMessage]}>{finished?<Text style={[s.status,awarded>0?s.goodText:s.badText]}>{awarded>0?`${lang.right} +${awarded}%`:`${lang.lost} ${target}`}</Text>:stage===1?<Text style={s.badText}>{lang.wrong}</Text>:stage===2?<Text style={s.badText}>{lang.last}</Text>:<Text style={s.detail}>1 / 3 · 100%</Text>}</View>
+    <View style={[s.message,Platform.OS==='android'&&s.androidMessage]}>{finished?<Text style={[s.status,awarded>0?s.goodText:s.badText]}>{awarded>0?`${lang.right} +${awarded}%`:`${lang.lost} ${target}`}</Text>:stage===1?<Text maxFontSizeMultiplier={1.1} style={[s.badText,s.feedbackHintText]}>{lang.wrong}</Text>:stage===2?<Text maxFontSizeMultiplier={1.1} style={[s.badText,s.feedbackHintText]}>{lang.last}</Text>:<Text style={s.detail}>1 / 3 · 100%</Text>}</View>
     </ScrollView>
     <View style={[s.fixedFooter,compactScreen&&s.smallFooter,Platform.OS==='android'&&s.androidFooter]}>
     <View pointerEvents={finished?"none":"auto"} style={[s.keyboard,compactScreen&&s.compactKeyboard,finished&&s.keyboardFinished]}>{ROWS.map((row,i)=><View style={s.keyRow} key={i}>{[...row].map((letter,j)=>{const enabled=!hint||allowed.has(letter);return <TouchableOpacity key={j} disabled={!enabled||finished||mistakeFlash||typed.length===listOfLetters.length} onPress={()=>setTyped(old=>[...old,letter])} style={[s.key,compactScreen&&s.compactKey,hint&&allowed.has(letter)&&s.keyHint,!enabled&&s.keyDisabled]}><Text style={[s.keyText,!enabled&&s.keyTextDisabled]}>{letter}</Text></TouchableOpacity>;})}{i===0&&<TouchableOpacity accessibilityRole="button" accessibilityLabel={lang.remove} disabled={!typed.length||finished||mistakeFlash} onPress={()=>setTyped(old=>old.slice(0,-1))} style={[s.key,compactScreen&&s.compactKey,s.backspaceKey,(!typed.length||finished)&&s.dim]}><Text style={s.backspaceIcon}>⌫</Text></TouchableOpacity>}</View>)}</View>
-    <TouchableOpacity disabled={correctionAnimating||mistakeFlash||successAnimating||(!finished&&typed.length!==listOfLetters.length)} onPress={finished?advance:check} style={[s.primary,compactScreen&&s.compactFooterButton,(correctionAnimating||mistakeFlash||successAnimating||(!finished&&typed.length!==listOfLetters.length))&&s.dim]}><Text style={s.primaryText}>{finished?(index+1===deck.length?lang.finish:lang.next):lang.check}</Text></TouchableOpacity>
+    <TouchableOpacity disabled={correctionAnimating||mistakeFlash||successAnimating||(!finished&&typed.length!==listOfLetters.length)} onPress={finished?advance:check} style={[s.primary,compactScreen&&s.compactFooterButton,Platform.OS==='android'&&s.androidTaskButton,(correctionAnimating||mistakeFlash||successAnimating||(!finished&&typed.length!==listOfLetters.length))&&s.dim]}><Text style={s.primaryText}>{finished?(index+1===deck.length?lang.finish:lang.next):lang.check}</Text></TouchableOpacity>
     </View>
    </>}
    {phase==='result'&&<ScrollView style={s.resultCenter} contentContainerStyle={s.resultScrollInner}>
      <View style={[s.panel,s.resultPanel]}>
        <Text style={s.resultEyebrow}>{lang.completed}</Text>
        <Text style={s.resultTitle}>{lang.score}</Text>
-       <View style={s.resultCircle}><Text style={s.resultNumber}>{Math.round(totalsRef.current.earned/Math.max(1,deck.length))}%</Text><Text style={s.resultCircleCaption}>{lang.average}</Text></View>
+       <View style={s.resultCircle}><Text style={s.resultNumber}>{Math.round(totalsRef.current.earned/Math.max(1,deck.length))}%</Text><Text style={s.resultCircleCaption}>{({ru:'Баллы',en:'Score',fr:'Points',es:'Puntos',pt:'Pontos',ar:'النقاط',am:'ነጥብ'})[language] || 'Score'}</Text></View>
        <View style={s.resultTrack}><View style={[s.resultFill,{width:`${Math.max(0,Math.min(100,Math.round(totalsRef.current.earned/Math.max(1,deck.length))))}%`}]}/></View>
        <View style={s.resultStatsRow}>
          <View style={s.resultStat}><Text style={s.resultStatGood}>{correct}</Text><Text style={s.resultStatLabel}>{lang.correctCount}</Text></View>
@@ -939,7 +941,7 @@ function DynamicCardBackdrop({motion,colors,reverse=false}){
   </Animated.View>)}
  </View>;
 }
-const s=StyleSheet.create({screen:{flex:1,backgroundColor:'#AFC1D0'},scroll:{paddingHorizontal:12,paddingTop:4,paddingBottom:30},header:{flexDirection:'row',alignItems:'center',justifyContent:'space-between',marginBottom:12},back:{fontSize:36,color:'#526D9D'},title:{fontSize:20,fontWeight:'700',color:'#263A5A'},sound:{fontSize:22},panel:{backgroundColor:'#FFFDEF',borderRadius:17,padding:18,marginBottom:14},label:{fontWeight:'700',color:'#435978',fontSize:15},choiceRow:{flexDirection:'row',gap:9,marginVertical:12},choice:{flex:1,padding:12,borderRadius:9,backgroundColor:'#EAF0FA',alignItems:'center'},choiceActive:{backgroundColor:'#91BFEF'},choiceText:{fontSize:16,fontWeight:'700',color:'#253C62'},detail:{color:'#6D7C94',fontSize:12},help:{color:'#445570',lineHeight:22,marginTop:20},primary:{backgroundColor:'#377ACB',borderRadius:13,paddingVertical:15,alignItems:'center',marginTop:12},primaryText:{color:'#fff',fontWeight:'800',fontSize:16},dim:{opacity:0.4},progress:{flexDirection:'row',justifyContent:'space-between',marginVertical:8},progressText:{fontWeight:'700',color:'#637797'},track:{height:5,backgroundColor:'#DCE5F2',borderRadius:4,overflow:'hidden',marginBottom:13},trackFill:{height:5,backgroundColor:'#3986D0'},topBar:{flexDirection:'row',justifyContent:'space-between',alignItems:'center',width:'100%',minHeight:74},logo:{width:74,height:74,resizeMode:'contain',marginLeft:8},topButtons:{flexDirection:'row',alignItems:'center',gap:8,marginRight:8},topIcon:{width:38,height:38,resizeMode:'contain'},progressBox:{flexDirection:'row',alignItems:'center',backgroundColor:'#6C8EBB',borderRadius:10,minHeight:48,marginTop:-7,marginBottom:8,shadowColor:'#000',shadowOffset:{width:0,height:2},shadowOpacity:0.25,shadowRadius:4,elevation:5},progressLeft:{flex:1,justifyContent:'center',paddingLeft:14},progressLabel:{color:'#FFFFFF',fontSize:12,lineHeight:17},progressNumberWrap:{backgroundColor:'#83A3CD',marginRight:10,paddingHorizontal:8,borderRadius:10,minWidth:44,alignItems:'center'},progressNumber:{color:'#FFFFFF',fontSize:20,fontWeight:'bold'},progressPercentWrap:{backgroundColor:'#83A3CD',marginRight:10,paddingHorizontal:8,borderRadius:10,minWidth:68,alignItems:'center'},progressPercent:{color:'#FFFFFF',fontSize:20,fontWeight:'bold'},progressBarWrap:{marginBottom:8},speakerIcon:{width:26,height:26,resizeMode:'contain'},translitHint:{flexDirection:'row',alignItems:'center',justifyContent:'center',gap:12,flexWrap:'wrap'},backspaceKey:{backgroundColor:'#E0E9F5',borderColor:'#83A3CD'},backspaceIcon:{fontSize:28,color:'#375D90',fontWeight:'700'},card:{borderWidth:1,borderColor:'#CCD9E9',backgroundColor:'#EEF2F7',padding:15,borderRadius:16,alignItems:'center'},cardHeading:{fontSize:11,fontWeight:'700',letterSpacing:1,color:'#6A83A8'},infinitive:{fontSize:32,fontWeight:'700',color:'#2A4468',marginTop:7},meaning:{fontSize:14,fontWeight:'400',color:'#3E5475',marginVertical:6},meta:{fontSize:13,color:'#586F8D',marginTop:4},grid:{flexDirection:'row',gap:14,marginTop:7},listen:{padding:8,marginTop:6},listenText:{fontSize:13,color:'#3269AB',fontWeight:'700'},tools:{width:'100%',flexDirection:'row',justifyContent:'space-around',borderTopWidth:1,borderTopColor:'#C4D6F0',marginTop:8,paddingTop:8},toolText:{fontSize:12,color:'#53739E'},prompt:{minHeight:74,alignItems:'center',justifyContent:'center',padding:8},promptHint:{color:'#7890AF',fontSize:12},translation:{fontSize:21,fontWeight:'700',color:'#293B5E',textAlign:'center',marginTop:5},pronoun:{fontSize:21,color:'#2A436B',marginTop:4},phraseSlots:{flexDirection:'row',justifyContent:'center',alignItems:'center',gap:19,marginVertical:8,flexWrap:'wrap'},slots:{flexDirection:'row',justifyContent:'center',gap:3},fixedSlots:{flexDirection:'row',justifyContent:'center',gap:3},slotFixed:{backgroundColor:'#E2EAF6',borderColor:'#B9CBE3'},slot:{minWidth:34,height:43,borderRadius:8,borderWidth:1,borderColor:'#AEBED2',backgroundColor:'#FFF',justifyContent:'center',alignItems:'center',paddingHorizontal:3},slotText:{fontSize:22,fontWeight:'700',color:'#2E4061'},slotGood:{backgroundColor:'#E0F6E8',borderColor:'#4BA86C'},slotBad:{backgroundColor:'#FFF0EC',borderColor:'#D87269'},message:{minHeight:52,justifyContent:'center',alignItems:'center'},status:{fontSize:15,fontWeight:'700',textAlign:'center'},goodText:{color:'#238253',fontWeight:'700',textAlign:'center'},badText:{color:'#C2574C',fontWeight:'700',textAlign:'center'},keyboard:{gap:4,marginTop:5},keyRow:{flexDirection:'row',justifyContent:'center',gap:3},key:{flex:1,height:42,maxWidth:44,borderRadius:7,backgroundColor:'#FFF',borderWidth:1,borderColor:'#D5DBE7',justifyContent:'center',alignItems:'center'},keyHint:{backgroundColor:'#D7F1E0',borderColor:'#60B180'},keyDisabled:{backgroundColor:'#EAEDF3',opacity:0.28},keyText:{fontSize:20,fontWeight:'600',color:'#344764'},keyTextDisabled:{color:'#A4ADBE'},erase:{alignSelf:'flex-end',marginTop:10,borderRadius:8,borderWidth:1,borderColor:'#D4DEEB',paddingHorizontal:15,paddingVertical:9,backgroundColor:'#FFF'},eraseText:{fontSize:14,color:'#43648E',fontWeight:'700'},resultTitle:{textAlign:'center',fontSize:22,fontWeight:'700',color:'#2F4B70'},resultNumber:{fontSize:58,color:'#3786C6',fontWeight:'800',textAlign:'center',margin:20},resultSub:{color:'#556D8A',fontSize:18,textAlign:'center',marginBottom:16},secondary:{alignItems:'center',padding:16},
+const s=StyleSheet.create({screen:{flex:1,backgroundColor:'#AFC1D0'},scroll:{paddingHorizontal:12,paddingTop:4,paddingBottom:30},header:{flexDirection:'row',alignItems:'center',justifyContent:'space-between',marginBottom:12},back:{fontSize:36,color:'#526D9D'},title:{fontSize:20,fontWeight:'700',color:'#263A5A'},sound:{fontSize:22},panel:{backgroundColor:'#FFFDEF',borderRadius:17,padding:18,marginBottom:14},label:{fontWeight:'700',color:'#435978',fontSize:15},choiceRow:{flexDirection:'row',gap:9,marginVertical:12},choice:{flex:1,padding:12,borderRadius:9,backgroundColor:'#EAF0FA',alignItems:'center'},choiceActive:{backgroundColor:'#91BFEF'},choiceText:{fontSize:16,fontWeight:'700',color:'#253C62'},detail:{color:'#6D7C94',fontSize:12},help:{color:'#445570',lineHeight:22,marginTop:20},primary:{backgroundColor:'#377ACB',borderRadius:13,paddingVertical:15,alignItems:'center',marginTop:12},primaryText:{color:'#fff',fontWeight:'800',fontSize:16},dim:{opacity:0.4},progress:{flexDirection:'row',justifyContent:'space-between',marginVertical:8},progressText:{fontWeight:'700',color:'#637797'},track:{height:5,backgroundColor:'#DCE5F2',borderRadius:4,overflow:'hidden',marginBottom:13},trackFill:{height:5,backgroundColor:'#3986D0'},topBar:{flexDirection:'row',justifyContent:'space-between',alignItems:'center',width:'100%',minHeight:74},logo:{width:74,height:74,resizeMode:'contain',marginLeft:8},topButtons:{flexDirection:'row',alignItems:'center',gap:8,marginRight:8},topIcon:{width:38,height:38,resizeMode:'contain'},progressBox:{flexDirection:'row',alignItems:'center',backgroundColor:'#6C8EBB',borderRadius:10,minHeight:48,marginTop:-7,marginBottom:8,shadowColor:'#000',shadowOffset:{width:0,height:2},shadowOpacity:0.25,shadowRadius:4,elevation:5},progressLeft:{flex:1,justifyContent:'center',paddingLeft:14},progressLabel:{color:'#FFFFFF',fontSize:12,lineHeight:17},progressNumberWrap:{backgroundColor:'#83A3CD',marginRight:10,paddingHorizontal:8,borderRadius:10,minWidth:44,alignItems:'center'},progressNumber:{color:'#FFFFFF',fontSize:20,fontWeight:'bold'},progressPercentWrap:{backgroundColor:'#83A3CD',marginRight:10,paddingHorizontal:8,borderRadius:10,minWidth:68,alignItems:'center'},progressPercent:{color:'#FFFFFF',fontSize:20,fontWeight:'bold'},progressBarWrap:{marginBottom:8},speakerIcon:{width:26,height:26,resizeMode:'contain'},translitHint:{flexDirection:'row',alignItems:'center',justifyContent:'center',gap:12,flexWrap:'wrap'},backspaceKey:{backgroundColor:'#E0E9F5',borderColor:'#83A3CD'},backspaceIcon:{fontSize:28,color:'#375D90',fontWeight:'700'},card:{borderWidth:1,borderColor:'#CCD9E9',backgroundColor:'#EEF2F7',padding:15,borderRadius:16,alignItems:'center'},cardHeading:{fontSize:11,fontWeight:'700',letterSpacing:1,color:'#6A83A8'},infinitive:{fontSize:32,fontWeight:'700',color:'#2A4468',marginTop:7},meaning:{fontSize:14,fontWeight:'400',color:'#3E5475',marginVertical:6},meta:{fontSize:13,color:'#586F8D',marginTop:4},grid:{flexDirection:'row',gap:14,marginTop:7},listen:{padding:8,marginTop:6},listenText:{fontSize:13,color:'#3269AB',fontWeight:'700'},tools:{width:'100%',flexDirection:'row',justifyContent:'space-around',borderTopWidth:1,borderTopColor:'#C4D6F0',marginTop:8,paddingTop:8},toolText:{fontSize:12,color:'#53739E'},prompt:{minHeight:74,alignItems:'center',justifyContent:'center',padding:8},promptHint:{color:'#7890AF',fontSize:12},translation:{fontSize:21,fontWeight:'700',color:'#293B5E',textAlign:'center',marginTop:5},pronoun:{fontSize:21,color:'#2A436B',marginTop:4},phraseSlots:{flexDirection:'row',justifyContent:'center',alignItems:'center',gap:19,marginVertical:8,flexWrap:'wrap'},slots:{flexDirection:'row',justifyContent:'center',gap:3},fixedSlots:{flexDirection:'row',justifyContent:'center',gap:3},slotFixed:{backgroundColor:'#E2EAF6',borderColor:'#B9CBE3'},slot:{minWidth:34,height:43,borderRadius:8,borderWidth:1,borderColor:'#AEBED2',backgroundColor:'#FFF',justifyContent:'center',alignItems:'center',paddingHorizontal:3},slotText:{fontSize:22,fontWeight:'700',color:'#2E4061'},slotGood:{backgroundColor:'#E0F6E8',borderColor:'#4BA86C'},slotBad:{backgroundColor:'#FFF0EC',borderColor:'#D87269'},message:{minHeight:52,justifyContent:'center',alignItems:'center'},status:{fontSize:14, lineHeight: 19,fontWeight:'700',textAlign:'center'},goodText:{color:'#238253',fontWeight:'700',textAlign:'center'},badText:{color:'#C2574C',fontWeight:'700',textAlign:'center'},keyboard:{gap:4,marginTop:5},keyRow:{flexDirection:'row',justifyContent:'center',gap:3},key:{flex:1,height:42,maxWidth:44,borderRadius:7,backgroundColor:'#FFF',borderWidth:1,borderColor:'#D5DBE7',justifyContent:'center',alignItems:'center'},keyHint:{backgroundColor:'#D7F1E0',borderColor:'#60B180'},keyDisabled:{backgroundColor:'#EAEDF3',opacity:0.28},keyText:{fontSize:20,fontWeight:'600',color:'#344764'},keyTextDisabled:{color:'#A4ADBE'},erase:{alignSelf:'flex-end',marginTop:10,borderRadius:8,borderWidth:1,borderColor:'#D4DEEB',paddingHorizontal:15,paddingVertical:9,backgroundColor:'#FFF'},eraseText:{fontSize:14,color:'#43648E',fontWeight:'700'},resultTitle:{textAlign:'center',fontSize:22,fontWeight:'700',color:'#2F4B70'},resultNumber:{fontSize:58,color:'#3786C6',fontWeight:'800',textAlign:'center',margin:20},resultSub:{color:'#556D8A',fontSize:18,textAlign:'center',marginBottom:16},secondary:{alignItems:'center',padding:16},
 card:{borderWidth:1,borderColor:'#BDD1E7',backgroundColor:'#F0F5FB',paddingHorizontal:12,paddingTop:9,paddingBottom:8,borderRadius:15,alignItems:'center'},
 cardHeading:{fontSize:10,fontWeight:'700',letterSpacing:0.6,color:'#6D83A1',marginBottom:2},
 cardMainRow:{width:'100%',flexDirection:'row',justifyContent:'center',alignItems:'center',paddingHorizontal:12},
@@ -1088,9 +1090,25 @@ androidVerbColumns:{height:72,minHeight:72},
 androidTaskTitle:{paddingTop:5,paddingBottom:5},
 androidAnswerCard:{paddingTop:5,paddingBottom:6},
 androidPrompt:{height:88,minHeight:88},
-androidPhraseArea:{height:100,minHeight:100,marginTop:2,marginBottom:2},
+androidPhraseArea:{height:94,minHeight:94,marginTop:2,marginBottom:2},
 androidPhraseLine:{height:46},
+// Additional bottom clearance for success-scale animation of a two-line answer on roomy Android screens.
+androidTwoRowPhraseSpace:{height:110,minHeight:110,paddingBottom:14},
 androidMessage:{height:30,minHeight:30,paddingTop:3},
+// Fixed geometry on compact Android: independent of translation lines, hint visibility,
+// or whether the Hebrew answer takes one or two rows.
+smallAndroidPrompt:{height:74,minHeight:74,maxHeight:74},
+smallAndroidTranslationRow:{height:46,minHeight:46,maxHeight:46},
+smallAndroidTranslationText:{fontSize:17,lineHeight:20},
+smallAndroidHintPlaceholder:{height:24,minHeight:24,maxHeight:24,justifyContent:'center'},
+smallAndroidPromptTranslitRow:{height:24,minHeight:24,maxHeight:24,width:'100%',paddingHorizontal:8,alignItems:'center',justifyContent:'center'},
+smallAndroidPromptTranslit:{fontSize:13,lineHeight:17,includeFontPadding:false},
+smallAndroidPromptSpeaker:{width:23,height:23,padding:2,flexShrink:0},
+smallAndroidHintSpeakerIcon:{width:17,height:17},
+// Two 46-dp rows remain; do not compress the Hebrew cells themselves.
+// Allow scaled green borders to draw outside the individual row.
+smallAndroidFixedPhraseArea:{height:94,minHeight:94,maxHeight:94,paddingBottom:0},
+androidTaskButton:{paddingVertical:9,marginTop:7},
  resultCenter:{flex:1,paddingHorizontal:7,paddingBottom:8},
  resultPanel:{marginBottom:0,width:'100%'},
 
@@ -1100,22 +1118,23 @@ smartHelpHeading:{fontSize:21,fontWeight:'800',color:'#24476C',textAlign:'center
 smartHelpSection:{backgroundColor:'#FFFFFF',borderRadius:12,padding:13,marginTop:10,borderWidth:1,borderColor:'#DFE8F4'},
 smartHelpSectionTitle:{fontSize:15,fontWeight:'800',color:'#27649D',marginBottom:6},
 smartHelpSectionBody:{fontSize:14,lineHeight:21,color:'#3C526D'},
-resultScrollInner:{flexGrow:1,justifyContent:'center',alignItems:'stretch',paddingVertical:12},
+resultScrollInner:{flexGrow:1,justifyContent:'center',alignItems:'stretch',paddingVertical:8},
  filterLabel11:{marginTop:12,marginBottom:6},filterWrap11:{flexDirection:'row',flexWrap:'wrap',gap:7,marginBottom:3},filterChip11:{borderWidth:1,borderColor:'#B4C9E1',borderRadius:9,backgroundColor:'#E9EFF8',paddingHorizontal:10,paddingVertical:9,minWidth:75,alignItems:'center'},filterChipActive11:{backgroundColor:'#8DB8E6',borderColor:'#498CCB'},filterChipText11:{color:'#66788F',fontWeight:'700',fontSize:13},filterChipTextActive11:{color:'#20466F'},
-resultPanel:{backgroundColor:'#F3F7FD',borderRadius:20,borderWidth:1,borderColor:'#CFDFEF',padding:20},
+resultPanel:{backgroundColor:'#F3F7FD',borderRadius:20,borderWidth:1,borderColor:'#CFDFEF',padding:14},
 resultEyebrow:{fontSize:12,fontWeight:'800',letterSpacing:1,color:'#4B7CA7',textAlign:'center'},
-resultCircle:{width:160,height:160,borderRadius:80,borderWidth:8,borderColor:'#C0DDF3',backgroundColor:'#E7F3FE',alignItems:'center',justifyContent:'center',alignSelf:'center',marginVertical:13},
-resultNumber:{fontSize:47,color:'#327FB9',fontWeight:'800',textAlign:'center',margin:0},
+resultCircle:{width:116,height:116,borderRadius:58,borderWidth:7,borderColor:'#C0DDF3',backgroundColor:'#E7F3FE',alignItems:'center',justifyContent:'center',alignSelf:'center',marginVertical:8},
+resultNumber:{fontSize:36,color:'#327FB9',fontWeight:'800',textAlign:'center',margin:0},
 resultCircleCaption:{fontSize:12,color:'#4D7398',fontWeight:'700',textAlign:'center'},
-resultTrack:{height:10,backgroundColor:'#DCE9F5',borderRadius:6,overflow:'hidden',marginBottom:16},
+resultTrack:{height:8,backgroundColor:'#DCE9F5',borderRadius:6,overflow:'hidden',marginBottom:10},
 resultFill:{height:'100%',backgroundColor:'#3B90C8',borderRadius:6},
-resultStatsRow:{flexDirection:'row',gap:12},
-resultStat:{flex:1,backgroundColor:'#FFF',borderRadius:12,alignItems:'center',paddingVertical:13,borderWidth:1,borderColor:'#DBE5F0'},
+resultStatsRow:{flexDirection:'row',gap:10},
+resultStat:{flex:1,backgroundColor:'#FFF',borderRadius:12,alignItems:'center',paddingVertical:8,borderWidth:1,borderColor:'#DBE5F0'},
 resultStatGood:{fontSize:25,color:'#22895D',fontWeight:'800'},resultStatBad:{fontSize:25,color:'#BD6562',fontWeight:'800'},
 resultStatLabel:{fontSize:12,color:'#576D89',fontWeight:'700',marginTop:4},
-resultEncouragement:{fontSize:14,lineHeight:21,textAlign:'center',color:'#526D89',marginTop:17},
-resultReplay:{marginTop:18},resultMenu:{marginTop:10,paddingVertical:13,borderRadius:12,borderWidth:1,borderColor:'#8DB4D5',backgroundColor:'#EAF1FA',alignItems:'center'},
+resultEncouragement:{fontSize:14,lineHeight:19,textAlign:'center',color:'#526D89',marginTop:8},
+resultReplay:{marginTop:10,paddingVertical:10},resultMenu:{marginTop:7,paddingVertical:10,borderRadius:12,borderWidth:1,borderColor:'#8DB4D5',backgroundColor:'#EAF1FA',alignItems:'center'},
 resultMenuText:{color:'#2C6599',fontWeight:'800',fontSize:15},
+  feedbackHintText:{fontSize:14,lineHeight:19},
   keyboardFinished:{opacity:0.38},
-  resultPraise:{fontSize:18,fontWeight:'800',color:'#2C5782',textAlign:'center',marginTop:14,marginBottom:4},
+  resultPraise:{fontSize:17,fontWeight:'800',color:'#2C5782',textAlign:'center',marginTop:10,marginBottom:2},
 });

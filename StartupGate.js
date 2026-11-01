@@ -5,6 +5,8 @@ import { CommonActions, useNavigation } from '@react-navigation/native';
 import Constants from 'expo-constants';
 import { useIap } from './src/iap/IapProvider';
 import * as Analytics from './src/analytics/Analytics';
+import { Platform } from 'react-native';
+import { getTrialDeviceId } from './src/iap/trialDeviceId';
 
 const FIRST_LAUNCH_KEY = 'verbify_first_launch_completed';
 const LANGUAGE_KEY = 'language';
@@ -18,7 +20,7 @@ const INTERNAL_TRIAL_KEY = 'verbify_internal_trial_v1';
   true  = использовать сервер /trial/start
   false = старая локальная схема без сервера
 */
-const USE_SERVER_INTERNAL_TRIAL = false;
+const USE_SERVER_INTERNAL_TRIAL = true;
 
 const VERIFY_BASE_URL =
   Constants?.expoConfig?.extra?.IAP_VERIFY_BASE_URL ||
@@ -94,175 +96,130 @@ function calcLocalTrialEndsAt(now) {
   return endDate.getTime();
 }
 
-async function requestServerTrial(userId) {
-  if (!TRIAL_START_URL) {
-    return { ok: false, error: 'trial_url_missing' };
-  }
+async function requestServerTrial(userId, deviceId, legacyTrial) {
+  if (!TRIAL_START_URL) return { ok: false, error: 'trial_url_missing' };
+  if (!userId || !deviceId) return { ok: false, error: 'trial_identity_unavailable' };
 
-  if (!userId) {
-    return { ok: false, error: 'userId_missing' };
-  }
-
-  const resp = await fetch(TRIAL_START_URL, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Accept: 'application/json',
-      ...(API_KEY_HEADER ? { 'x-api-key': API_KEY_HEADER } : {}),
-    },
-    body: JSON.stringify({
-      userId: String(userId),
-    }),
-  });
-
-  const text = await resp.text();
-  let json = null;
-
+  const ctrl = new AbortController();
+  const timeout = setTimeout(() => ctrl.abort(), 6500);
   try {
-    json = JSON.parse(text);
-  } catch {
-    json = null;
+    const resp = await fetch(TRIAL_START_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+        ...(API_KEY_HEADER ? { 'x-api-key': API_KEY_HEADER } : {}),
+      },
+      body: JSON.stringify({
+        userId: String(userId),
+        deviceId,
+        platform: Platform.OS,
+        utcOffsetMinutes: new Date().getTimezoneOffset(),
+        ...(legacyTrial ? { legacyTrial } : {}),
+      }),
+      signal: ctrl.signal,
+    });
+    const raw = await resp.text();
+    let json = null;
+    try { json = JSON.parse(raw); } catch (_) {}
+    if (!resp.ok) {
+      return { ok: false, status: resp.status, error: json?.error || 'server_error' };
+    }
+    return json || { ok: false, error: 'bad_json' };
+  } catch (e) {
+    return { ok: false, error: e?.message || String(e) };
+  } finally {
+    clearTimeout(timeout);
   }
+}
 
-  if (!resp.ok) {
-    return {
-      ok: false,
-      status: resp.status,
-      error: json?.error || text || 'server_error',
-    };
+function readSavedTrial(raw) {
+  if (!raw) return null;
+  try {
+    const data = JSON.parse(raw);
+    const startedAt = Number(data?.startedAt);
+    const endsAt = Number(data?.endsAt);
+    if (!Number.isFinite(startedAt) || !Number.isFinite(endsAt) ||
+        startedAt <= 0 || endsAt < startedAt) return null;
+    return { ...data, startedAt, endsAt };
+  } catch (_) {
+    return null;
   }
+}
 
-  return json || { ok: false, error: 'bad_json' };
+function savedTrialResult(saved) {
+  if (!saved) return { active: false, startedAt: null, endsAt: null, justStarted: false };
+  return {
+    active: Date.now() < saved.endsAt,
+    startedAt: saved.startedAt,
+    endsAt: saved.endsAt,
+    justStarted: false,
+  };
 }
 
 async function checkInternalTrial(userId) {
-  const now = Date.now();
-
   try {
     if (RESET_INTERNAL_TRIAL_ON_START) {
       await AsyncStorage.removeItem(INTERNAL_TRIAL_KEY);
       console.log('[INTERNAL_TRIAL][TEST] reset on start');
     }
 
-    const saved = await AsyncStorage.getItem(INTERNAL_TRIAL_KEY);
+    const saved = readSavedTrial(await AsyncStorage.getItem(INTERNAL_TRIAL_KEY));
 
-    if (saved) {
-      const trialData = JSON.parse(saved);
-      const endsAt = Number(trialData.endsAt || 0);
-      const active = now < endsAt;
-
-      console.log('[INTERNAL_TRIAL] loaded:', {
-        active,
-        source: trialData.source || 'local',
-        testMode: trialData.testMode === true,
-        startedAt: trialData.startedAt || null,
-        endsAt,
-        endsAtReadable: endsAt ? new Date(endsAt).toString() : null,
-        nowReadable: new Date(now).toString(),
-        msLeft: endsAt - now,
-      });
-
-      return {
-        active,
-        startedAt: trialData.startedAt || null,
-        endsAt: endsAt || null,
-        justStarted: false,
-      };
-    }
-
-    /*
-      ================================
-      SERVER MODE
-      ================================
-      Сервер помнит userId и не выдаёт повторный trial.
-      Отключить можно через:
-      const USE_SERVER_INTERNAL_TRIAL = false;
-    */
     if (USE_SERVER_INTERNAL_TRIAL) {
-      const serverTrial = await requestServerTrial(userId);
+      // Unlike the old implementation, always ask the server, even if local data exists.
+      const deviceId = await getTrialDeviceId();
+      const legacyTrial = saved && saved.source === 'local' && saved.testMode !== true
+        ? { startedAt: saved.startedAt, endsAt: saved.endsAt, source: 'local' }
+        : null;
+      const server = await requestServerTrial(userId, deviceId, legacyTrial);
 
-      console.log('[INTERNAL_TRIAL][SERVER] response:', serverTrial);
-
-      if (serverTrial?.ok && serverTrial.active) {
-        const startedAt = Date.parse(serverTrial.startedAt) || now;
-        const endsAt = Date.parse(serverTrial.endsAt) || 0;
-
-        const trialData = {
-          startedAt,
-          endsAt,
-          used: true,
-          source: 'server',
-          alreadyUsed: !!serverTrial.alreadyUsed,
-          testMode: false,
-        };
-
-        await AsyncStorage.setItem(
-          INTERNAL_TRIAL_KEY,
-          JSON.stringify(trialData)
-        );
-
-        return {
-          active: true,
-          startedAt,
-          endsAt,
-          justStarted: !serverTrial.alreadyUsed,
-        };
+      if (server?.ok && typeof server.active === 'boolean') {
+        const startedAt = Date.parse(server.startedAt || '');
+        const endsAt = Date.parse(server.endsAt || '');
+        if (Number.isFinite(startedAt) && Number.isFinite(endsAt)) {
+          const trialData = {
+            startedAt,
+            endsAt,
+            used: true,
+            source: 'server',
+            alreadyUsed: !!server.alreadyUsed,
+            testMode: false,
+          };
+          await AsyncStorage.setItem(INTERNAL_TRIAL_KEY, JSON.stringify(trialData));
+          console.log('[INTERNAL_TRIAL][SERVER]', {
+            active: server.active,
+            alreadyUsed: server.alreadyUsed,
+            migrated: server.migrated === true,
+            endsAt,
+          });
+          return {
+            active: server.active && Date.now() < endsAt,
+            startedAt,
+            endsAt,
+            // Do not count a local-to-server migration as a new activation.
+            justStarted: !saved && !server.alreadyUsed && server.active,
+          };
+        }
       }
 
-      return {
-        active: false,
-        startedAt: serverTrial?.startedAt
-          ? Date.parse(serverTrial.startedAt)
-          : null,
-        endsAt: serverTrial?.endsAt
-          ? Date.parse(serverTrial.endsAt)
-          : null,
-        justStarted: false,
-      };
+      // Server unavailable / identity failed: never mint a new local trial.
+      // Respect previously saved expiry (offline support for existing users).
+      console.warn('[INTERNAL_TRIAL] server unavailable:', server?.error || 'invalid_response');
+      return savedTrialResult(saved);
     }
 
-    /*
-      ================================
-      LOCAL FALLBACK MODE
-      ================================
-      Старая схема: trial создаётся только локально.
-    */
-    const startedAt = now;
-    const endsAt = calcLocalTrialEndsAt(now);
-
-    const trialData = {
-      startedAt,
-      endsAt,
-      used: true,
-      source: 'local',
-      testMode: INTERNAL_TRIAL_TEST_MODE,
-    };
-
-    await AsyncStorage.setItem(
-      INTERNAL_TRIAL_KEY,
-      JSON.stringify(trialData)
-    );
-
-    console.log('[INTERNAL_TRIAL][LOCAL] started:', {
-      ...trialData,
-      endsAtReadable: new Date(endsAt).toString(),
-    });
-
-    return {
-      active: true,
-      startedAt,
-      endsAt,
-      justStarted: true,
-    };
+    // Explicit opt-out for local developer testing only; not for production releases.
+    if (saved) return savedTrialResult(saved);
+    const startedAt = Date.now();
+    const endsAt = calcLocalTrialEndsAt(startedAt);
+    await AsyncStorage.setItem(INTERNAL_TRIAL_KEY, JSON.stringify({
+      startedAt, endsAt, used: true, source: 'local', testMode: INTERNAL_TRIAL_TEST_MODE,
+    }));
+    return { active: true, startedAt, endsAt, justStarted: true };
   } catch (e) {
-    console.log('[INTERNAL_TRIAL] error:', e?.message || e);
-
-    return {
-      active: false,
-      startedAt: null,
-      endsAt: null,
-      justStarted: false,
-    };
+    console.log('[INTERNAL_TRIAL] error:', e?.message || String(e));
+    return { active: false, startedAt: null, endsAt: null, justStarted: false };
   }
 }
 

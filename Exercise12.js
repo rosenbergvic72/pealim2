@@ -36,7 +36,7 @@ const I18N = {
   am: {title:'በዓረፍተ ነገሩ ውስጥ ግሱን ይጻፉ',start:'ጀምር',check:'አረጋግጥ',next:'ቀጣይ',finish:'ጨርስ',again:'እንደገና ሞክር',menu:'ምናሌ',count:'የጥያቄዎች ብዛት',tense:'ጊዜዎች',present:'የአሁን',past:'ያለፈ',future:'የወደፊት',write:'የጎደለውን ግስ ይጻፉ',inf:'የግስ መነሻ',listen:'አዳምጥ',hint:'አሁን ዓረፍተ ነገሩን ማዳመጥ ይችላሉ',wrong:'ትክክል አይደለም። አስፈላጊ ፊደላት ተለይተዋል።',last:'እንደገና ይሞክሩ። ድምፅ አለ።',right:'ትክክል!',answer:'ትክክለኛው መልስ:',correct:'ትክክል',mistakes:'ስህተት',score:'ውጤት',available:'የሚገኙ',empty:'የሚገኙ ዓረፍተ ነገሮች የሉም',exit:'ከልምምዱ ይውጡ?',exitBody:'የአሁኑ እድገት አይቀመጥም።',cancel:'ሰርዝ',leave:'ውጣ',excluded:'አስወግድ',pinned:'በብዛት',stats:'የ12ኛው ልምምድ ስታቲስቲክስ',completed:'ተጠናቋል',average:'አማካይ ውጤት',help:'በዕብራይስጥ ዓረፍተ ነገር ውስጥ የጎደለውን ግስ በፊደላት ይሙሉ። መጀመሪያ 100%፣ ሁለተኛ 70%፣ ሦስተኛ 40% እና ድምፅ። ትራንስሊተሬሽን የለም።'},
 };
 const EX12_UI = {
-  ru: {introTitle:"Как выполнять упражнение",introBody:"Напишите пропущенную форму глагола, выбирая буквы на клавиатуре. Перевод предложения помогает определить смысл, время и лицо.",stepsTitle:"Как начисляются баллы",stepsBody:"1-я попытка — 100% без подсказок.\n2-я — 70%: нужные буквы подсвечены.\n3-я — 40%: можно прослушать всё предложение.",benefitsTitle:"Чем полезна такая практика",benefitsBody:"Вы не узнаёте готовый ответ, а самостоятельно вспоминаете и строите форму глагола в реальном контексте. Это укрепляет память, орфографию и навык выбора правильного спряжения в речи.",tipTitle:"Совет",tipBody:"Сложные предложения отмечайте «Чаще», а освоенные исключайте из ротации. Транслитерации нет — тренируйте чтение на иврите.",close:"ЗАКРЫТЬ",settingsLabel:"К настройкам",resultPraise:"Отличная работа!",resultNote:"Продолжайте практиковаться — каждый ответ укрепляет навык.",accuracy:"Точность выполнения"},
+  ru: {introTitle:"Как выполнять упражнение",introBody:"Напишите пропущенную форму глагола, выбирая буквы на клавиатуре. Перевод предложения помогает определить смысл, время и лицо.",stepsTitle:"Как начисляются баллы",stepsBody:"1-я попытка — 100% без подсказок.\n2-я — 70%: нужные буквы подсвечены.\n3-я — 40%: можно прослушать всё предложение.",benefitsTitle:"Чем полезна такая практика",benefitsBody:"Вы не узнаёте готовый ответ, а самостоятельно вспоминаете и строите форму глагола в реальном контексте. Это укрепляет память, орфографию и навык выбора правильного спряжения в речи.",tipTitle:"Совет",tipBody:"Сложные предложения отмечайте «Чаще», а освоенные исключайте из ротации. Транслитерации нет — тренируйте чтение на иврите.",close:"ЗАКРЫТЬ",settingsLabel:"К настройкам",resultPraise:"Отличная работа!",resultNote:"Продолжайте практиковаться — каждый ответ укрепляет навык.",accuracy:"Точность"},
   en: {introTitle:"How to practise",introBody:"Write the missing verb form by tapping the Hebrew letters. The translation helps identify the meaning, tense and person.",stepsTitle:"Scoring",stepsBody:"1st attempt — 100%, no hints.\n2nd — 70%, required letters highlighted.\n3rd — 40%, full-sentence audio available.",benefitsTitle:"Why it helps",benefitsBody:"Instead of recognizing a ready-made answer, you actively recall and build the verb in context. This strengthens memory, spelling and conjugation skills for real conversations.",tipTitle:"Tip",tipBody:"Pin challenging sentences for extra practice and exclude mastered ones. No transliteration: practise reading Hebrew directly.",close:"CLOSE",settingsLabel:"Settings",resultPraise:"Well done!",resultNote:"Keep practising — each answer builds fluency.",accuracy:"Accuracy"},
   fr: {introTitle:"Comment s’entraîner",introBody:"Écrivez la forme verbale manquante en touchant les lettres hébraïques. La traduction aide à identifier le sens, le temps et la personne.",stepsTitle:"Points",stepsBody:"1er essai — 100 %, sans aide.\n2e — 70 %, lettres nécessaires surlignées.\n3e — 40 %, écoute de la phrase complète.",benefitsTitle:"Pourquoi cet exercice est utile",benefitsBody:"Vous retrouvez et construisez vous-même le verbe dans son contexte. Cela renforce la mémoire, l’orthographe et la maîtrise des conjugaisons à l’oral.",tipTitle:"Conseil",tipBody:"Épinglez les phrases difficiles et excluez celles déjà maîtrisées. Sans translittération : entraînez-vous à lire l’hébreu.",close:"FERMER",settingsLabel:"Paramètres",resultPraise:"Bravo !",resultNote:"Continuez à vous entraîner pour progresser.",accuracy:"Précision"},
   es: {introTitle:"Cómo practicar",introBody:"Escribe la forma verbal que falta tocando las letras hebreas. La traducción ayuda a reconocer el significado, el tiempo y la persona.",stepsTitle:"Puntuación",stepsBody:"1.er intento — 100 %, sin pistas.\n2.º — 70 %, letras necesarias resaltadas.\n3.º — 40 %, audio de la oración completa.",benefitsTitle:"Por qué es útil",benefitsBody:"En vez de reconocer una respuesta, recuperas y construyes el verbo en contexto. Así mejoras la memoria, la ortografía y el uso de las conjugaciones al hablar.",tipTitle:"Consejo",tipBody:"Marca las oraciones difíciles para repasarlas y excluye las dominadas. Sin transliteración: practica la lectura directa en hebreo.",close:"CERRAR",settingsLabel:"Configuración",resultPraise:"¡Buen trabajo!",resultNote:"Sigue practicando: cada respuesta cuenta.",accuracy:"Precisión"},
@@ -88,6 +88,7 @@ export default function Exercise12({navigation,route}) {
   const {height,width}=useWindowDimensions();
   const insets=useSafeAreaInsets();
   const compact=height<850;
+  const smallAndroidLayout=Platform.OS==='android' && height<900;
   const [language,setLanguage]=useState(null);
   const [helpOpen,setHelpOpen]=useState(false);
   const [translationFontSize,setTranslationFontSize]=useState(16);
@@ -318,7 +319,7 @@ export default function Exercise12({navigation,route}) {
        paddingBottom: phase==='task'
          ? (Platform.OS==='ios'
              ? Math.max(20,insets.bottom-6)
-             : Math.max(14,insets.bottom-4))
+             : Math.min(28,Math.max(14,insets.bottom-4)))
          : Math.max(4,insets.bottom),
      }]}>
       {phase==='task'&&<View style={[s.header,compact&&s.headerSmall]}>
@@ -355,9 +356,9 @@ export default function Exercise12({navigation,route}) {
             </View>
           </View>
           <View style={s.progressBar}><ProgressBar progress={index+(finished?1:0)} totalExercises={deck.length}/></View>
-                     <Text style={s.taskTitle}>{lang.write}</Text>
-           <View style={s.sentenceCard}>
-             <View style={s.sentenceLine}>
+                     <Text style={[s.taskTitle,smallAndroidLayout&&s.smallAndroidTaskTitle]}>{lang.write}</Text>
+           <View style={[s.sentenceCard,smallAndroidLayout&&s.smallAndroidSentenceCard]}>
+             <View style={[s.sentenceLine,smallAndroidLayout&&s.smallAndroidSentenceLine]}>
                <View style={s.sentenceWords}>
                  {beforeWords.map((word,i)=><Text key={`before-${i}`} style={s.hebrewWord}>{word}</Text>)}
                   <Animated.View style={[s.inlineSlots,{opacity:revealOpacity,transform:[{translateX:revealOffset},{scale:revealScale}]}]}>
@@ -371,17 +372,25 @@ export default function Exercise12({navigation,route}) {
              <View style={s.translationBox}>
                {!!GENDER_ICONS[item.gender]&&<Image source={GENDER_ICONS[item.gender]} style={s.genderIcon} accessibilityLabel={item.gender}/>}
                <View style={s.translationContent}>
-                 <Text
-                   numberOfLines={3}
-                   onTextLayout={({nativeEvent})=>{
-                     // Use an explicit font size instead of native auto-fitting:
-                     // on some iOS versions adjustFontSizeToFit changes alignment.
-                     if(nativeEvent.lines.length>2&&translationFontSize>12){
-                       setTranslationFontSize(size=>Math.max(12,size-1));
-                     }
-                   }}
-                   style={[s.translation,{fontSize:translationFontSize},language==='ar'&&{writingDirection:'rtl'}]}
-                 >{translationValue}</Text>
+                 <ScrollView
+                   style={{flex:1,width:'100%'}}
+                   contentContainerStyle={{flexGrow:1,justifyContent:'center',alignItems:'center'}}
+                   nestedScrollEnabled
+                   bounces={false}
+                   showsVerticalScrollIndicator={false}
+                 >
+                   <Text
+                     onTextLayout={({nativeEvent})=>{
+                       // Keep the box at 82 dp: shrink long text first;
+                       // allow the user to scroll exceptionally long translations.
+                       const count=nativeEvent.lines.length;
+                       if(count>2&&translationFontSize>12){
+                         setTranslationFontSize(size=>Math.max(12,size-1));
+                       }
+                     }}
+                     style={[s.translation,{fontSize:translationFontSize,lineHeight:translationFontSize+4},language==='ar'&&{writingDirection:'rtl'}]}
+                   >{translationValue}</Text>
+                 </ScrollView>
                </View>
              </View>
              <View style={s.cardBottomRow}>
@@ -402,7 +411,24 @@ export default function Exercise12({navigation,route}) {
                </View>
              </View>
            </View>
-<View style={s.feedback}><Text style={done?(points>0||showCorrect?s.goodText:s.badText):attempt>0?s.badText:s.helper}>{done?(points>0?`${lang.right} +${points}%`:showCorrect?`${lang.answer} ${target}`:lang.wrong):attempt===0?'1 / 3 · 100%':attempt===1?lang.wrong:lang.last}</Text></View>
+<View style={s.feedback}>
+             <Text style={[
+               done ? (points > 0 || showCorrect ? s.goodText : s.badText) : attempt > 0 ? s.badText : s.helper,
+               !done && s.feedbackHintText,
+             ]}>
+               {done
+                 ? points > 0
+                   ? `${lang.right} +${points}%`
+                   : showCorrect
+                     ? `${lang.answer} ${target}`
+                     : '' // During the final reveal, do not flash the first hint again.
+                 : attempt === 0
+                   ? '1 / 3 · 100%'
+                   : attempt === 1
+                     ? lang.wrong
+                     : lang.last}
+             </Text>
+           </View>
         </ScrollView>
         <View style={s.footer}>
           <View style={[s.keyboard,done&&s.keyboardInactive]} pointerEvents={done?"none":"auto"}>{KEYS.map((r,i)=><View key={i} style={s.keyRow}>{[...r].map((letter,j)=>{const allowed=attempt===0||letters.includes(letter);return <TouchableOpacity key={j} disabled={done||mistakeAnimating||typed.length>=letters.length||!allowed} onPress={()=>setTyped(a=>[...a,letter])} style={[s.key,attempt>0&&letters.includes(letter)&&s.keyHint,!allowed&&s.disabled]}><Text style={s.keyText}>{letter}</Text></TouchableOpacity>;})}{i===0&&<TouchableOpacity disabled={!typed.length||done||mistakeAnimating} onPress={()=>setTyped(a=>a.slice(0,-1))} style={[s.key,s.backspace]}><Text style={s.backspaceText}>⌫</Text></TouchableOpacity>}</View>)}</View>
@@ -470,30 +496,36 @@ const s=StyleSheet.create({
    progressBar:{marginBottom:8},
    taskScroll:{flex:1},taskBody:{paddingBottom:16},taskTitle:{fontSize:17,color:'#255C98',fontWeight:'800',textAlign:'center',marginTop:4,marginBottom:12},
    sentenceCard:{backgroundColor:'#EBDFF5',borderWidth:1,borderColor:'#C4C7E2',borderRadius:16,paddingHorizontal:11,paddingTop:10,paddingBottom:5},sentenceLine:{height:136,minHeight:136,maxHeight:136,justifyContent:'center',alignItems:'center'},sentenceWords:{flexDirection:'row',flexWrap:'wrap',alignItems:'center',justifyContent:'center',direction:'rtl',columnGap:6,rowGap:4,width:'100%'},hebrewWord:{fontSize:23,lineHeight:31,color:'#352A55',fontWeight:'600',writingDirection:'rtl',textAlign:'center'},inlineSlots:{flexDirection:'row',direction:'rtl',alignItems:'center',justifyContent:'center',columnGap:2,flexWrap:'nowrap'},inlineSlot:{height:38,backgroundColor:'#FFF',borderRadius:6,borderWidth:1,borderColor:'#B3A4CF',alignItems:'center',justifyContent:'center'},slotText:{fontSize:20,fontWeight:'700',color:'#344868'},goodSlot:{backgroundColor:'#E3F5E8',borderColor:'#49AA77'},badSlot:{backgroundColor:'#FBE8E6',borderColor:'#DB7B75'},
-   translationBox:{backgroundColor:'rgba(255,255,255,0.76)',borderRadius:11,marginTop:9,height:82,justifyContent:'center',position:'relative'},translationContent:{flex:1,justifyContent:'center',alignItems:'center',paddingHorizontal:40,paddingVertical:8,width:'100%'},genderIcon:{position:'absolute',left:8,top:26.5,width:29,height:29,resizeMode:'contain',zIndex:1},translation:{width:'100%',alignSelf:'stretch',fontSize:16,color:'#3B3B59',textAlign:'center',textAlignVertical:'center',lineHeight:22,fontWeight:'500',includeFontPadding:false},
+   translationBox:{backgroundColor:'rgba(255,255,255,0.76)',borderRadius:11,marginTop:9,height:82,justifyContent:'center',position:'relative'},translationContent:{flex:1,justifyContent:'center',alignItems:'center',paddingHorizontal:40,paddingVertical:4,width:'100%'},genderIcon:{position:'absolute',left:8,top:'50%',marginTop:-14.5,width:29,height:29,resizeMode:'contain',zIndex:1},translation:{width:'100%',alignSelf:'stretch',fontSize:16,color:'#3B3B59',textAlign:'center',textAlignVertical:'center',lineHeight:22,fontWeight:'500',includeFontPadding:false},
    audioAction:{flexDirection:'row',alignItems:'center',justifyContent:'flex-start',gap:6,minHeight:34,flex:1},speaker:{width:20,height:20,resizeMode:'contain'},listenText:{fontSize:13,color:'#396A9D',fontWeight:'700'},cardBottomRow:{flexDirection:'row',alignItems:'center',justifyContent:'space-between',minHeight:36,marginTop:5},tools:{flexDirection:'row',alignItems:'center',justifyContent:'flex-end',gap:9},toolButton:{width:34,height:33,borderRadius:8,alignItems:'center',justifyContent:'center'},toolActive:{backgroundColor:'transparent'},toolIcon:{width:27,height:27,resizeMode:'contain'},
-   feedback:{minHeight:35,justifyContent:'center',alignItems:'center',paddingHorizontal:6},goodText:{color:'#27875A',fontWeight:'700',textAlign:'center'},badText:{color:'#B94F47',fontWeight:'700',textAlign:'center'},
+   smallAndroidTaskTitle:{marginTop:2,marginBottom:7},
+   smallAndroidSentenceCard:{paddingTop:6,paddingBottom:3},
+   // Preserve room for a multi-line Hebrew sentence while freeing a gap
+   // above the fixed keyboard on short Android screens.
+   smallAndroidSentenceLine:{height:112,minHeight:112,maxHeight:112},
+   feedback:{minHeight:35,justifyContent:'center',alignItems:'center',paddingHorizontal:6},feedbackHintText:{fontSize:13},goodText:{color:'#27875A',fontWeight:'700',textAlign:'center'},badText:{color:'#B94F47',fontWeight:'700',textAlign:'center'},
    modalShade:{flex:1,backgroundColor:'rgba(0,0,0,0.45)',justifyContent:'center',padding:22},modalCard:{backgroundColor:'#F2F6FC',borderRadius:16,padding:15,maxHeight:'80%'},modalTitle:{fontSize:18,fontWeight:'800',color:'#24476C',textAlign:'center',marginBottom:12},modalRow:{flexDirection:'row',alignItems:'center',paddingVertical:7,borderBottomWidth:1,borderBottomColor:'#DAE4F0',gap:6},modalVerb:{fontSize:21,fontWeight:'700',color:'#27496E',textAlign:'right'},modalDescription:{fontSize:12,color:'#607590'},
-footer:{paddingTop:4,backgroundColor:'#AFC1D0',flexShrink:0},keyboard:{gap:4},keyboardInactive:{opacity:0.35},keyRow:{flexDirection:'row',justifyContent:'center',gap:3},key:{flex:1,height:40,maxWidth:45,borderRadius:7,backgroundColor:'#FFF',borderColor:'#CFD8E6',borderWidth:1,alignItems:'center',justifyContent:'center'},keyHint:{backgroundColor:'#BEE8CF',borderColor:'#51A676'},keyText:{fontSize:20,color:'#304669',fontWeight:'700'},backspace:{backgroundColor:'#E3EAF5'},backspaceText:{fontSize:25,color:'#406596'},disabled:{opacity:0.35},mainButton:{backgroundColor:'#377ACB',paddingVertical:13,borderRadius:12,alignItems:'center',marginTop:12},bottomButton:{marginTop:7},mainButtonText:{color:'#fff',fontWeight:'800',fontSize:16},secondButton:{marginTop:16,alignItems:'center',padding:12},
-  results:{justifyContent:'center',alignItems:'center',backgroundColor:'#EFF4FB',borderRadius:18,padding:20},resultHeading:{fontSize:24,color:'#385779',fontWeight:'700'},resultPercent:{fontSize:48,color:'#317EBB',fontWeight:'800'},resultDetail:{fontSize:17,color:'#486181',marginBottom:18},
+footer:{paddingTop:4,backgroundColor:'#AFC1D0',flexShrink:0},keyboard:{gap:4},keyboardInactive:{opacity:0.35},keyRow:{flexDirection:'row',justifyContent:'center',gap:3},key:{flex:1,height:40,maxWidth:45,borderRadius:7,backgroundColor:'#FFF',borderColor:'#CFD8E6',borderWidth:1,alignItems:'center',justifyContent:'center'},keyHint:{backgroundColor:'#BEE8CF',borderColor:'#51A676'},keyText:{fontSize:20,color:'#304669',fontWeight:'700'},backspace:{backgroundColor:'#E3EAF5'},backspaceText:{fontSize:25,color:'#406596'},disabled:{opacity:0.35},mainButton:{backgroundColor:'#377ACB',paddingVertical:13,borderRadius:12,alignItems:'center',marginTop:12},bottomButton:{marginTop:7,paddingVertical:10},mainButtonText:{color:'#fff',fontWeight:'800',fontSize:16},secondButton:{marginTop:16,alignItems:'center',padding:12},
+  results:{justifyContent:'center',alignItems:'center',backgroundColor:'#EFF4FB',borderRadius:18,padding:14},resultHeading:{fontSize:21,color:'#385779',fontWeight:'700'},resultPercent:{fontSize:38,color:'#317EBB',fontWeight:'800'},resultDetail:{fontSize:17,color:'#486181',marginBottom:18},
   helpModalCard:{width:'100%',maxHeight:'82%',backgroundColor:'#F4F7FD',borderRadius:18,padding:16,borderWidth:1,borderColor:'#BDD0E6'},
   helpModalContent:{paddingBottom:8},helpModalEyebrow:{fontSize:12,color:'#5479A1',fontWeight:'800',letterSpacing:1,textAlign:'center',marginBottom:4},
   helpModalHeading:{fontSize:19,fontWeight:'800',color:'#24476C',textAlign:'center',marginBottom:12},
   helpModalBody:{fontSize:14,lineHeight:21,color:'#394E69',textAlign:'left'},
   helpSection:{backgroundColor:'#FFFFFF',borderRadius:12,padding:12,marginTop:11,borderWidth:1,borderColor:'#DFE8F3'},
   helpSectionTitle:{fontSize:15,fontWeight:'800',color:'#245E9C',marginBottom:7},helpClose:{marginTop:10},
-  resultScroll:{flex:1},resultScrollBody:{flexGrow:1,justifyContent:'center',paddingVertical:12},
+  resultScroll:{flex:1},resultScrollBody:{flexGrow:1,justifyContent:'center',paddingVertical:5},
   resultEyebrow:{fontSize:12,fontWeight:'800',color:'#4B7CA7',letterSpacing:1.2,textAlign:'center'},
-  resultScoreCircle:{width:158,height:158,borderRadius:79,borderWidth:8,borderColor:'#BBD8F1',backgroundColor:'#E8F4FF',alignSelf:'center',alignItems:'center',justifyContent:'center',marginTop:12,marginBottom:14},
+  resultScoreCircle:{width:116,height:116,borderRadius:58,borderWidth:6,borderColor:'#BBD8F1',backgroundColor:'#E8F4FF',alignSelf:'center',alignItems:'center',justifyContent:'center',marginTop:7,marginBottom:9},
   resultScoreCaption:{fontSize:13,color:'#4B7095',fontWeight:'700',textAlign:'center'},
-  resultBarTrack:{width:'100%',height:10,backgroundColor:'#DBE8F4',borderRadius:6,overflow:'hidden',marginBottom:16},
+  resultBarTrack:{width:'100%',height:8,backgroundColor:'#DBE8F4',borderRadius:6,overflow:'hidden',marginBottom:10},
   resultBarFill:{height:'100%',backgroundColor:'#3B8FCA',borderRadius:6},
   resultStatsRow:{flexDirection:'row',gap:12,width:'100%'},
-  resultStatBox:{flex:1,backgroundColor:'#FFFFFF',borderRadius:12,paddingVertical:14,alignItems:'center',borderWidth:1,borderColor:'#D6E3F1'},
-  resultStatValue:{fontSize:25,fontWeight:'800',color:'#26845F'},resultWrong:{color:'#BE655F'},resultStatLabel:{fontSize:12,color:'#516A86',fontWeight:'700',marginTop:3,textAlign:'center'},
-  resultPraise:{fontSize:18,fontWeight:'800',color:'#2C5782',marginTop:16,textAlign:'center'},
-  resultNote:{fontSize:13,lineHeight:19,color:'#58708E',textAlign:'center',marginTop:6},
+  resultStatBox:{flex:1,backgroundColor:'#FFFFFF',borderRadius:12,paddingVertical:9,alignItems:'center',borderWidth:1,borderColor:'#D6E3F1'},
+  resultStatValue:{fontSize:22,fontWeight:'800',color:'#26845F'},resultWrong:{color:'#BE655F'},resultStatLabel:{fontSize:12,color:'#516A86',fontWeight:'700',marginTop:3,textAlign:'center'},
+  resultPraise:{fontSize:17,fontWeight:'800',color:'#2C5782',marginTop:10,textAlign:'center'},
+  resultNote:{fontSize:13,lineHeight:18,color:'#58708E',textAlign:'center',marginTop:4},
   resultMenuButton:{backgroundColor:'#EAF1FA'},
-  resultPrimary:{width:'100%',marginTop:20},resultSecondary:{marginTop:10,paddingVertical:13,width:'100%',borderWidth:1,borderColor:'#8DB4D5',borderRadius:12,alignItems:'center'},resultSecondaryText:{color:'#2D6595',fontWeight:'800',fontSize:15},
+  resultPrimary:{width:'100%',marginTop:11,paddingVertical:10},resultSecondary:{marginTop:7,paddingVertical:10,width:'100%',borderWidth:1,borderColor:'#8DB4D5',borderRadius:12,alignItems:'center'},resultSecondaryText:{color:'#2D6595',fontWeight:'800',fontSize:15},
 
 });
+   

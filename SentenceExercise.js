@@ -707,8 +707,8 @@ const optionWaitingAnimatedStyle =
     card9.front,
     {
       flex: 0,
-      fontSize: 17,
-      lineHeight: 23,
+      fontSize: 15,
+      lineHeight: 22,
     },
     !answered && { opacity: 0 }
   ]}
@@ -1169,8 +1169,9 @@ function TranslationText({ text, rtl }) {
     {
       width: '100%',
       alignSelf: 'stretch',
-      fontSize: 18,
-      lineHeight: 24,
+      fontSize: 15,
+      fontWeight: 'bold',
+      lineHeight: 22,
       textAlign: 'center',
     },
     card9.front,
